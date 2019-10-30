@@ -1,16 +1,9 @@
 import * as React from "react";
+import * as ReactDOM from "react-dom";
+import { App } from "./components/app";
 
-export interface HelloWorldProps {
-  title: string;
-  subject: string;
-}
-
-const AppRoot = (props: HelloWorldProps) => {
-  return (
-    <div>
-      <p>{`${props.title}, ${props.subject}!`}</p>
-    </div>
-  );
+const AppRoot = () => {
+  return <App />;
 };
 
-export {AppRoot};
+ReactDOM.render(<AppRoot />, document.getElementById("root"));

@@ -1,10 +1,14 @@
 const path = require("path");
 const MiniCSSExtractPlugin = require("mini-css-extract-plugin");
+const HtmlWebPackPlugin = require('html-webpack-plugin');
+
+// html loader
+const html_plugin = new HtmlWebPackPlugin({
+  template: "./src/index.html"
+});
 
 // create css plugin
-const css_plugin = new MiniCSSExtractPlugin({
-  // Options similar to the same options in webpackOptions.output
-  // all options are optional
+const css_extract_plugin = new MiniCSSExtractPlugin({
   filename: "[name].css",
   chunkFilename: "[id].css",
   ignoreOrder: false // Enable to remove warnings about conflicting order
@@ -13,7 +17,7 @@ const css_plugin = new MiniCSSExtractPlugin({
 // webpack config for a react app in typescript
 const webpack_config = {
   mode: "production",
-  entry: "./src/app.tsx",
+  entry: "./src/app_root.tsx",
   devtool: "inline-source-map",
   resolve: {
     extensions: [".js", ".ts", ".tsx"]
@@ -82,7 +86,7 @@ const webpack_config = {
     filename: "bundled_typescript.js",
     path: path.resolve(__dirname, "dist/js")
   },
-  plugins: [css_plugin]
+  plugins: [html_plugin, css_extract_plugin]
 };
 
 module.exports = webpack_config;

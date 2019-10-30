@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "./bundled_app/",
+    "outDir": "./dist/",
     "sourceMap": true,
     "noImplicitAny": true,
     "module": "commonjs",
