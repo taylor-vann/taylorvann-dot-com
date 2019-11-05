@@ -1,3 +1,7 @@
+## General gitignores
+.DS_STORE
+
+## Client
 # ignore all node modules
 node_modules/
 

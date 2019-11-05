@@ -1,2 +1,7 @@
 # taylor-vann-dot-com
-personal site
+
+## client
+front-end build
+
+## infra
+scripts to setup servers
