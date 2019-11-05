@@ -11,12 +11,14 @@
     "@types/html-webpack-plugin": "^3.2.1",
     "@types/mini-css-extract-plugin": "^0.8.0",
     "@types/node": "^12.12.5",
+    "@types/optimize-css-assets-webpack-plugin": "^5.0.1",
     "@types/react": "^16.9.11",
     "@types/react-dom": "^16.9.3",
     "@types/react-redux": "^7.1.5",
     "@types/react-router-dom": "^5.1.0",
     "@types/redux": "^3.6.0",
     "@types/reselect": "^2.2.0",
+    "@types/terser-webpack-plugin": "^2.2.0",
     "@types/webpack": "^4.39.8",
     "@types/webpack-env": "^1.14.1",
     "@typescript-eslint/eslint-plugin": "^2.6.1",
@@ -33,6 +35,7 @@
     "eslint-plugin-react": "^7.16.0",
     "html-webpack-plugin": "^3.2.0",
     "mini-css-extract-plugin": "^0.8.0",
+    "optimize-css-assets-webpack-plugin": "^5.0.3",
     "prettier": "^1.18.2",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
@@ -42,6 +45,7 @@
     "reselect": "^4.0.0",
     "source-map-loader": "^0.2.4",
     "style-loader": "^1.0.0",
+    "terser-webpack-plugin": "^2.2.1",
     "ts-loader": "^6.2.1",
     "ts-node": "^8.4.1",
     "typed-css-modules": "^0.6.3",
@@ -54,7 +58,7 @@
   },
   "scripts": {
     "build": "webpack --mode production --config webpack.config.ts",
-    "dev": "webpack-dev-server --open --config webpack.config.ts",
+    "dev": "webpack-dev-server --open --config webpack.config.dev.ts",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   }
 }

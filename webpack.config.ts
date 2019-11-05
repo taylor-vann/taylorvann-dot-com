@@ -1,86 +1,39 @@
-import { TypedCssModulesPlugin } from "typed-css-modules-webpack-plugin";
-import * as HtmlWebPackPlugin from "html-webpack-plugin";
-import * as MiniCSSExtractPlugin from "mini-css-extract-plugin";
+import * as OptimizeCSSAssetsPlugin from "optimize-css-assets-webpack-plugin";
 import * as path from "path";
+import * as TerserJSPlugin from "terser-webpack-plugin";
 import * as webpack from "webpack";
 
-// html loader
-const htmlPlugin = new HtmlWebPackPlugin({
-  template: "./src/index.html",
+import {
+  sharedModuleConfig,
+  sharedPlugins,
+} from "./webpack.config.sharedConfig";
+
+// general optimization
+const terserPlugin = new TerserJSPlugin({
+  sourceMap: true,
+  extractComments: false,
 });
 
-// create css plugin
-const cssExtractPlugin = new MiniCSSExtractPlugin({
-  filename: "styles/[name].css",
-  chunkFilename: "styles/[id].css",
-  ignoreOrder: false, // Enable to remove warnings about conflicting order
-});
+// css optimization
+const optimizeCssPlugin = new OptimizeCSSAssetsPlugin({});
 
-// create Typed CSS Plugin for typescript
-const typedCssModulesPlugin = new TypedCssModulesPlugin({
-  globPattern: "src/**/*.css",
-});
-
-// webpack config for a react app in typescript
+// webpack config for production
 const webpackConfig: webpack.Configuration = {
   mode: "production",
+  devtool: "source-map",
+  resolve: {
+    extensions: [".js", ".jsx", ".ts", ".tsx"],
+  },
   entry: "./src/app_root.tsx",
   output: {
     filename: "js/bundled_typescript.js",
     path: path.resolve(__dirname, "dist"),
   },
-  devtool: "inline-source-map",
-  resolve: {
-    extensions: [".js", ".ts", ".tsx"],
-  },
-  plugins: [htmlPlugin, cssExtractPlugin, typedCssModulesPlugin],
-  module: {
-    rules: [
-      {
-        exclude: /node_modules/,
-        test: /\.tsx?$/,
-        use: "ts-loader",
-      },
-      {
-        test: /\.css$/,
-        use: [
-          MiniCSSExtractPlugin.loader,
-          {
-            loader: "css-loader",
-            options: {
-              modules: {
-                localIdentName: "[name]__[local]___[hash:base64:5]",
-              },
-              sourceMap: true,
-            },
-          },
-        ],
-      },
-      {
-        test: /\.(woff|woff2|eot|ttf|otf)$/,
-        use: [
-          {
-            loader: "url-loader",
-            options: {
-              limit: 10240,
-              name: "fonts/[name]__[hash].[ext]",
-            },
-          },
-        ],
-      },
-      {
-        test: /\.(png|jp(e*)g|svg)$/,
-        use: [
-          {
-            loader: "url-loader",
-            options: {
-              limit: 30720,
-              name: "images/[name]__[hash].[ext]",
-            },
-          },
-        ],
-      },
-    ],
+  plugins: sharedPlugins,
+  module: sharedModuleConfig,
+  optimization: {
+    minimize: true,
+    minimizer: [terserPlugin, optimizeCssPlugin],
   },
 };
 

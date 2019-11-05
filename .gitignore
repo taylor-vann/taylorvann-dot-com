@@ -3,3 +3,6 @@ node_modules/
 
 # ignore the build
 dist/
+
+# ignore yarn
+yarn-error.log
