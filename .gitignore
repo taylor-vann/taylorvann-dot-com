@@ -1,2 +1,5 @@
 # ignore all node modules
-node_modules
+node_modules/
+
+# ignore the build
+dist/

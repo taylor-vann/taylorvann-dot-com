@@ -1,5 +1,4 @@
 import * as React from "react";
-// import * as styles from "app.css";
 
 const App: React.FunctionComponent = () => {
   return (

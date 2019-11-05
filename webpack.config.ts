@@ -48,8 +48,9 @@ const webpackConfig: webpack.Configuration = {
           {
             loader: "css-loader",
             options: {
-              localIdentName: "[name]__[local]___[hash:base64:5]",
-              modules: true,
+              modules: {
+                localIdentName: "[name]__[local]___[hash:base64:5]",
+              },
               sourceMap: true,
             },
           },
