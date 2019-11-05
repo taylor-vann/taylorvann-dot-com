@@ -1,7 +1,8 @@
-import * as webpack from "webpack";
+import { TypedCssModulesPlugin } from "typed-css-modules-webpack-plugin";
 import * as HtmlWebPackPlugin from "html-webpack-plugin";
 import * as MiniCSSExtractPlugin from "mini-css-extract-plugin";
 import * as path from "path";
+import * as webpack from "webpack";
 
 // html loader
 const htmlPlugin = new HtmlWebPackPlugin({
@@ -13,6 +14,11 @@ const cssExtractPlugin = new MiniCSSExtractPlugin({
   filename: "styles/[name].css",
   chunkFilename: "styles/[id].css",
   ignoreOrder: false, // Enable to remove warnings about conflicting order
+});
+
+// create Typed CSS Plugin for typescript
+const typedCssModulesPlugin = new TypedCssModulesPlugin({
+  globPattern: "src/**/*.css",
 });
 
 // webpack config for a react app in typescript
@@ -27,25 +33,13 @@ const webpackConfig: webpack.Configuration = {
   resolve: {
     extensions: [".js", ".ts", ".tsx"],
   },
+  plugins: [htmlPlugin, cssExtractPlugin, typedCssModulesPlugin],
   module: {
     rules: [
       {
         exclude: /node_modules/,
         test: /\.tsx?$/,
         use: "ts-loader",
-      },
-      {
-        exclude: /node_modules/,
-        test: /\.css$/,
-        use: [
-          { loader: "style-loader" },
-          {
-            loader: "css-loader",
-            options: {
-              modules: true,
-            },
-          },
-        ],
       },
       {
         test: /\.css$/,
@@ -68,7 +62,7 @@ const webpackConfig: webpack.Configuration = {
             loader: "url-loader",
             options: {
               limit: 10240,
-              name: "styles/fonts/[name]__[hash].[ext]",
+              name: "fonts/[name]__[hash].[ext]",
             },
           },
         ],
@@ -87,7 +81,6 @@ const webpackConfig: webpack.Configuration = {
       },
     ],
   },
-  plugins: [htmlPlugin, cssExtractPlugin],
 };
 
 module.exports = webpackConfig;
