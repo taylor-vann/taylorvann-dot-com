@@ -6,7 +6,6 @@
 # - access to DNS port for remote calls
 # - access to HTTP to forward to HTTPS
 # - access to HTTPS for multiple services
-#
 
 # * HOST SPECIFIC SSH PORT: 7822 *
 
