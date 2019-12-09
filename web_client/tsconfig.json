@@ -1,10 +1,11 @@
 {
   "compilerOptions": {
-    "outDir": "./dist/",
-    "sourceMap": true,
-    "noImplicitAny": true,
+    "jsx": "react",
     "module": "commonjs",
-    "target": "es6",
-    "jsx": "react"
+    "noImplicitAny": true,
+    "outDir": "./prod/",
+    "sourceMap": true,
+    "strict": true,
+    "target": "es6"
   }
 }
