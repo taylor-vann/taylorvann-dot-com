@@ -1,10 +1,13 @@
 import { TypedCssModulesPlugin } from "typed-css-modules-webpack-plugin";
 import * as HtmlWebPackPlugin from "html-webpack-plugin";
 import * as MiniCSSExtractPlugin from "mini-css-extract-plugin";
+import * as CompressionWebpackPlugin from "compression-webpack-plugin";
 
 // html loader
-const htmlPlugin = new HtmlWebPackPlugin({
-  template: "./src/index.html",
+const htmlPlugin: HtmlWebPackPlugin = new HtmlWebPackPlugin({
+  filname: "index.html",
+  template: "./src/index_template.ejs",
+  title: "Three Demo",
 });
 
 // create css plugin
@@ -16,7 +19,11 @@ const cssExtractPlugin = new MiniCSSExtractPlugin({
 
 // create Typed CSS Plugin for typescript
 const typedCssModulesPlugin = new TypedCssModulesPlugin({
-  globPattern: "src/**/*.css",
+  globPattern: "src/components/*.css",
+});
+
+const compressionPlugin = new CompressionWebpackPlugin({
+  filename: "compressed/bundled_app.gzip",
 });
 
 const sharedModuleConfig = {
@@ -28,6 +35,8 @@ const sharedModuleConfig = {
     },
     {
       test: /\.css$/,
+      exclude: /node_modules/,
+      include: /src\/components/,
       use: [
         MiniCSSExtractPlugin.loader,
         {
@@ -42,6 +51,7 @@ const sharedModuleConfig = {
     },
     {
       test: /\.(woff|woff2|eot|ttf|otf)$/,
+      exclude: /node_modules/,
       use: [
         {
           loader: "url-loader",
@@ -54,6 +64,7 @@ const sharedModuleConfig = {
     },
     {
       test: /\.(png|jp(e*)g|svg)$/,
+      exclude: /node_modules/,
       use: [
         {
           loader: "url-loader",
@@ -67,6 +78,11 @@ const sharedModuleConfig = {
   ],
 };
 
-const sharedPlugins = [htmlPlugin, cssExtractPlugin, typedCssModulesPlugin];
+const sharedPlugins = [
+  htmlPlugin,
+  cssExtractPlugin,
+  typedCssModulesPlugin,
+  compressionPlugin,
+];
 
 export { sharedModuleConfig, sharedPlugins };
