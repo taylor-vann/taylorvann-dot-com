@@ -1,11 +1,13 @@
 import * as OptimizeCSSAssetsPlugin from "optimize-css-assets-webpack-plugin";
-import * as path from "path";
 import * as TerserJSPlugin from "terser-webpack-plugin";
 import * as webpack from "webpack";
 
 import {
-  sharedModuleConfig,
+  sharedModules,
   sharedPlugins,
+  sharedOutput,
+  sharedEntry,
+  sharedResolve,
 } from "./webpack.config.sharedConfig";
 
 // general optimization
@@ -19,22 +21,17 @@ const optimizeCssPlugin = new OptimizeCSSAssetsPlugin({});
 
 // webpack config for production
 const webpackConfig: webpack.Configuration = {
-  mode: "production",
   devtool: "source-map",
-  resolve: {
-    extensions: [".js", ".jsx", ".ts", ".tsx"],
-  },
-  entry: "./src/app_root.tsx",
-  output: {
-    filename: "js/bundled_typescript.js",
-    path: path.resolve(__dirname, "dist"),
-  },
-  plugins: sharedPlugins,
-  module: sharedModuleConfig,
+  entry: sharedEntry,
+  mode: "production",
+  module: sharedModules,
   optimization: {
     minimize: true,
     minimizer: [terserPlugin, optimizeCssPlugin],
   },
+  output: sharedOutput,
+  plugins: sharedPlugins,
+  resolve: sharedResolve,
 };
 
 module.exports = webpackConfig;

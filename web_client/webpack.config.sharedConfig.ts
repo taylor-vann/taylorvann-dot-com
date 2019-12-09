@@ -2,6 +2,7 @@ import { TypedCssModulesPlugin } from "typed-css-modules-webpack-plugin";
 import * as HtmlWebPackPlugin from "html-webpack-plugin";
 import * as MiniCSSExtractPlugin from "mini-css-extract-plugin";
 import * as CompressionWebpackPlugin from "compression-webpack-plugin";
+import * as path from "path";
 
 // html loader
 const htmlPlugin: HtmlWebPackPlugin = new HtmlWebPackPlugin({
@@ -26,7 +27,9 @@ const compressionPlugin = new CompressionWebpackPlugin({
   filename: "compressed/bundled_app.gzip",
 });
 
-const sharedModuleConfig = {
+const sharedEntry = "./src/app_root.tsx";
+
+const sharedModules = {
   rules: [
     {
       exclude: /node_modules/,
@@ -78,6 +81,11 @@ const sharedModuleConfig = {
   ],
 };
 
+const sharedOutput = {
+  filename: "js/bundled_typescript.js",
+  path: path.resolve(__dirname, "prod"),
+};
+
 const sharedPlugins = [
   htmlPlugin,
   cssExtractPlugin,
@@ -85,4 +93,14 @@ const sharedPlugins = [
   compressionPlugin,
 ];
 
-export { sharedModuleConfig, sharedPlugins };
+const sharedResolve = {
+  extensions: [".js", ".jsx", ".ts", ".tsx"],
+};
+
+export {
+  sharedEntry,
+  sharedModules,
+  sharedOutput,
+  sharedPlugins,
+  sharedResolve,
+};

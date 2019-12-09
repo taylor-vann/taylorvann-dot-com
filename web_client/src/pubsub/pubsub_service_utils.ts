@@ -1,6 +1,14 @@
+// Brian Taylor Vann
+// taylorvann dot com
+
+// Complex data-driven apps need quick communication between
+// distinct operations. A Publish / Subscribe model separates
+// logic from instruction and caters to threads.
+
+// TODO: PubSub could be a separate thread (web worker)
+
 import {
   AddSubToChannelArgsType,
-  // PubSubMapType,
   RemoveSubToChannelArgsType,
   UnsubscribeType,
   SubPubInterfaceType,
@@ -43,17 +51,15 @@ function removeSubscriptionFromChannel<T>({
     return pubsubs;
   }
 
-  channelSubs;
-
   const modifiedChannelSubs: PubSubChannelMapType<T[keyof T]> = {};
   const subStubStr = subscriptionStub.toString();
   for (let stub in channelSubs) {
     if (subStubStr === stub) {
       continue;
     }
-    channelSubs[stub];
-    // modifiedChannelSubs[stub] = channelSubs[stub];
+    modifiedChannelSubs[stub] = channelSubs[stub];
   }
+
   return {
     ...pubsubs,
     ...{
@@ -72,13 +78,13 @@ function publishToAllSubscriptions<T>({
 }: PublishToAllSubsArgsType<T>): void {
   const channelSubs: PubSubChannelMapType<T[keyof T]> | undefined =
     pubsubs[channel];
-
   if (channelSubs == null) {
     return;
   }
+
   for (let stub in channelSubs) {
-    const subCallback = channelSubs[stub];
-    subCallback(action);
+    const subscribedCallback = channelSubs[stub];
+    subscribedCallback(action);
   }
 }
 
