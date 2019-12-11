@@ -5,6 +5,7 @@
 // distinct operations. A Publish / Subscribe model separates
 // logic from instruction and caters to threads.
 
+// TODO: PubSub could be more detailed
 // TODO: PubSub could be a separate thread (web worker)
 
 import {
@@ -53,7 +54,7 @@ function removeSubscriptionFromChannel<T>({
 
   const modifiedChannelSubs: PubSubChannelMapType<T[keyof T]> = {};
   const subStubStr = subscriptionStub.toString();
-  for (let stub in channelSubs) {
+  for (const stub in channelSubs) {
     if (subStubStr === stub) {
       continue;
     }
@@ -82,7 +83,7 @@ function publishToAllSubscriptions<T>({
     return;
   }
 
-  for (let stub in channelSubs) {
+  for (const stub in channelSubs) {
     const subscribedCallback = channelSubs[stub];
     subscribedCallback(action);
   }
@@ -90,7 +91,7 @@ function publishToAllSubscriptions<T>({
 
 // create a PubSub Service
 function createPubSubService<T>(): SubPubInterfaceType<T> {
-  let subscriptionStub: number = -1;
+  let subscriptionStub = -1;
   let pubsubs: PubSubMapType<T> = {};
 
   return Object.freeze({
@@ -106,7 +107,7 @@ function createPubSubService<T>(): SubPubInterfaceType<T> {
         subscriptionStub,
       });
 
-      return () => {
+      return (): void => {
         // remove subscription
         pubsubs = removeSubscriptionFromChannel({
           pubsubs,

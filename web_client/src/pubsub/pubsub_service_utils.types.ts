@@ -1,9 +1,16 @@
+// Brian Taylor Vann
+// taylorvann dot com
+
+// PubSub Utility Types
+
+// Map Types
 export type PubSubChannelMapType<T> = { [stub: number]: (action: T) => void };
 
 export type PubSubMapType<M> = {
   [P in keyof M]?: PubSubChannelMapType<M[P]>;
 };
 
+// PubSubInterface Types
 export type UnsubscribeType = () => void;
 
 export type SubscribeType<M> = (
@@ -21,6 +28,7 @@ export type SubPubInterfaceType<M> = Readonly<{
   getState: GetStateType<M>;
 }>;
 
+// Utility Function Argument Types
 export type AddSubToChannelArgsType<M> = {
   pubsubs: PubSubMapType<M>;
   channel: keyof M;
