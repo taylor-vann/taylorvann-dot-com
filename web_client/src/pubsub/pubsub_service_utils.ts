@@ -1,11 +1,19 @@
+// Brian Taylor Vann
+// taylorvann dot com
+
+// PubSub Service Utils
+// Create a message hub and keep parts of an application separated
+// through messaging.
+// Provide a map of {[channels]: actionTypes}.
+
 import {
   AddSubToChannelArgsType,
-  RemoveSubToChannelArgsType,
-  UnsubscribeType,
-  PubSubInterfaceType,
   PublishToAllSubsArgsType,
   PubSubChannelMapType,
+  PubSubInterfaceType,
   PubSubMapType,
+  RemoveSubToChannelArgsType,
+  UnsubscribeType,
 } from "./pubsub_service_utils.types";
 
 // add subscription
@@ -39,16 +47,13 @@ function removeSubscriptionFromChannel<T>({
     return pubsubs;
   }
 
-  channelSubs;
-
   const modifiedChannelSubs: PubSubChannelMapType<T[keyof T]> = {};
   const subStubStr = subscriptionStub.toString();
   for (let stub in channelSubs) {
     if (subStubStr === stub) {
       continue;
     }
-    channelSubs[stub];
-    // modifiedChannelSubs[stub] = channelSubs[stub];
+    modifiedChannelSubs[stub] = channelSubs[stub];
   }
   return {
     ...pubsubs,
@@ -61,7 +66,7 @@ function removeSubscriptionFromChannel<T>({
 }
 
 // dispatch all subscriptions
-function publishToAllSubscriptions<T, R>({
+function publishToAllSubscriptions<T>({
   pubsubs,
   channel,
   action,
@@ -82,16 +87,11 @@ function publishToAllSubscriptions<T, R>({
 
 // create a PubSub Service
 function createPubSubService<T>(): PubSubInterfaceType<T> {
-  console.log("created pub sub service");
   let subscriptionStub: number = -1;
-  let pubsubs: PubSubMapType<T> = {};
+  let pubsubs = {};
 
   return {
-    subscribe: (
-      channel: keyof T,
-      callback: (action: T[keyof T]) => void,
-    ): UnsubscribeType => {
-      console.log("pubsub subscribe called");
+    subscribe: (channel, callback): UnsubscribeType => {
       subscriptionStub += 1;
       pubsubs = addSubscriptionToChannel({
         pubsubs,
@@ -109,12 +109,7 @@ function createPubSubService<T>(): PubSubInterfaceType<T> {
         });
       };
     },
-
-    // this isn't a callback, it's an action
-    // we have a map of callback types,
-    // we need a map of potential callback actions
-    dispatch: (channel: keyof T, action: T[keyof T]) => {
-      console.log("dispatched:", channel, action);
+    dispatch: (channel, action) => {
       publishToAllSubscriptions({ pubsubs, channel, action });
     },
     getState: () => {
