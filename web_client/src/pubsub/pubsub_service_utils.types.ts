@@ -1,38 +1,15 @@
-// Brian Taylor Vann
-// taylorvann dot com
-
-// PubSub Utility Types
-
-// Map Types
 export type PubSubChannelMapType<T> = { [stub: number]: (action: T) => void };
 
 export type PubSubMapType<M> = {
   [P in keyof M]?: PubSubChannelMapType<M[P]>;
 };
 
-// PubSubInterface Types
-export type UnsubscribeType = () => void;
+export type CanvasserDispatchCallback<T> = (action: T) => void;
 
-export type SubscribeType<M> = (
-  channel: keyof M,
-  callback: (action: M[keyof M]) => void,
-) => UnsubscribeType;
-
-export type DispatchType<T> = (channel: keyof T, action: T[keyof T]) => void;
-
-export type GetStateType<T> = () => PubSubMapType<T>;
-
-export type SubPubInterfaceType<M> = Readonly<{
-  subscribe: SubscribeType<M>;
-  dispatch: DispatchType<M>;
-  getState: GetStateType<M>;
-}>;
-
-// Utility Function Argument Types
 export type AddSubToChannelArgsType<M> = {
   pubsubs: PubSubMapType<M>;
   channel: keyof M;
-  callback: (action: M[keyof M]) => void;
+  callback: CanvasserDispatchCallback<M[keyof M]>;
   subscriptionStub: number;
 };
 
@@ -47,3 +24,20 @@ export type PublishToAllSubsArgsType<M> = {
   channel: keyof M;
   action: M[keyof M];
 };
+
+export type UnsubscribeType = () => void;
+
+export type SubscribeType<T> = (
+  channel: keyof T,
+  callback: (action: T[keyof T]) => void,
+) => UnsubscribeType;
+
+export type DispatchType<T> = (channel: keyof T, action: T[keyof T]) => void;
+
+export type GetStateType<T> = () => PubSubMapType<T>;
+
+export type PubSubInterfaceType<M> = Readonly<{
+  subscribe: SubscribeType<M>;
+  dispatch: DispatchType<M>;
+  getState: GetStateType<M>;
+}>;

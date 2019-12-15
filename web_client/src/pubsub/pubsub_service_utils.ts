@@ -1,18 +1,8 @@
-// Brian Taylor Vann
-// taylorvann dot com
-
-// Complex data-driven apps need quick communication between
-// distinct operations. A Publish / Subscribe model separates
-// logic from instruction and caters to threads.
-
-// TODO: PubSub could be more detailed
-// TODO: PubSub could be a separate thread (web worker)
-
 import {
   AddSubToChannelArgsType,
   RemoveSubToChannelArgsType,
   UnsubscribeType,
-  SubPubInterfaceType,
+  PubSubInterfaceType,
   PublishToAllSubsArgsType,
   PubSubChannelMapType,
   PubSubMapType,
@@ -25,10 +15,7 @@ function addSubscriptionToChannel<T>({
   callback,
   subscriptionStub,
 }: AddSubToChannelArgsType<T>): PubSubMapType<T> {
-  const channelSubs = pubsubs[channel];
-  if (channelSubs == null) {
-    return pubsubs;
-  }
+  let channelSubs = pubsubs[channel];
 
   return {
     ...pubsubs,
@@ -52,15 +39,17 @@ function removeSubscriptionFromChannel<T>({
     return pubsubs;
   }
 
+  channelSubs;
+
   const modifiedChannelSubs: PubSubChannelMapType<T[keyof T]> = {};
   const subStubStr = subscriptionStub.toString();
-  for (const stub in channelSubs) {
+  for (let stub in channelSubs) {
     if (subStubStr === stub) {
       continue;
     }
-    modifiedChannelSubs[stub] = channelSubs[stub];
+    channelSubs[stub];
+    // modifiedChannelSubs[stub] = channelSubs[stub];
   }
-
   return {
     ...pubsubs,
     ...{
@@ -72,33 +61,37 @@ function removeSubscriptionFromChannel<T>({
 }
 
 // dispatch all subscriptions
-function publishToAllSubscriptions<T>({
+function publishToAllSubscriptions<T, R>({
   pubsubs,
   channel,
   action,
 }: PublishToAllSubsArgsType<T>): void {
-  const channelSubs: PubSubChannelMapType<T[keyof T]> | undefined =
+  console.log("publish to all subscriptions");
+  const serviceSubs: PubSubChannelMapType<T[keyof T]> | undefined =
     pubsubs[channel];
-  if (channelSubs == null) {
+
+  if (serviceSubs == null) {
     return;
   }
-
-  for (const stub in channelSubs) {
-    const subscribedCallback = channelSubs[stub];
-    subscribedCallback(action);
+  console.log("channel subs:", serviceSubs);
+  for (let stub in serviceSubs) {
+    const subCallback = serviceSubs[stub];
+    subCallback(action);
   }
 }
 
 // create a PubSub Service
-function createPubSubService<T>(): SubPubInterfaceType<T> {
-  let subscriptionStub = -1;
+function createPubSubService<T>(): PubSubInterfaceType<T> {
+  console.log("created pub sub service");
+  let subscriptionStub: number = -1;
   let pubsubs: PubSubMapType<T> = {};
 
-  return Object.freeze({
+  return {
     subscribe: (
       channel: keyof T,
       callback: (action: T[keyof T]) => void,
     ): UnsubscribeType => {
+      console.log("pubsub subscribe called");
       subscriptionStub += 1;
       pubsubs = addSubscriptionToChannel({
         pubsubs,
@@ -107,7 +100,7 @@ function createPubSubService<T>(): SubPubInterfaceType<T> {
         subscriptionStub,
       });
 
-      return (): void => {
+      return () => {
         // remove subscription
         pubsubs = removeSubscriptionFromChannel({
           pubsubs,
@@ -116,13 +109,18 @@ function createPubSubService<T>(): SubPubInterfaceType<T> {
         });
       };
     },
+
+    // this isn't a callback, it's an action
+    // we have a map of callback types,
+    // we need a map of potential callback actions
     dispatch: (channel: keyof T, action: T[keyof T]) => {
+      console.log("dispatched:", channel, action);
       publishToAllSubscriptions({ pubsubs, channel, action });
     },
     getState: () => {
       return pubsubs;
     },
-  });
+  };
 }
 
 export { createPubSubService };
