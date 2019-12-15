@@ -4,7 +4,7 @@
 // Global Watch Dog
 //
 // There may be times when globals are required.
-// In production, globals need to be both necessary and unavoidable.
+// In production, global usage must be restricted to the unavoidable.
 // In development, usage outside of production should be restricted to debug.
 
 declare global {
