@@ -1,11 +1,3 @@
-// Brian Taylor Vann
-// taylorvann dot com
-
-// PubSub Service Utils
-// Create a message hub and keep parts of an application separated
-// through messaging.
-// Provide a map of {[channels]: actionTypes}.
-
 import {
   AddSubToChannelArgsType,
   PublishToAllSubsArgsType,
@@ -65,20 +57,19 @@ function removeSubscriptionFromChannel<T>({
   };
 }
 
+// Service oriented
 // dispatch all subscriptions
 function publishToAllSubscriptions<T>({
   pubsubs,
   channel,
   action,
 }: PublishToAllSubsArgsType<T>): void {
-  console.log("publish to all subscriptions");
   const serviceSubs: PubSubChannelMapType<T[keyof T]> | undefined =
     pubsubs[channel];
 
   if (serviceSubs == null) {
     return;
   }
-  console.log("channel subs:", serviceSubs);
   for (let stub in serviceSubs) {
     const subCallback = serviceSubs[stub];
     subCallback(action);
@@ -109,6 +100,7 @@ function createPubSubService<T>(): PubSubInterfaceType<T> {
         });
       };
     },
+    // from messaging service to all local subscriptions
     dispatch: (channel, action) => {
       publishToAllSubscriptions({ pubsubs, channel, action });
     },

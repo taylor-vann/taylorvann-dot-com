@@ -27,7 +27,7 @@ export type PublishToAllSubsArgsType<M> = {
 
 export type UnsubscribeType = () => void;
 
-export type SubscribeType<T> = (
+export type SubscribeType = <T>(
   channel: keyof T,
   callback: (action: T[keyof T]) => void,
 ) => UnsubscribeType;
@@ -37,7 +37,7 @@ export type DispatchType<T> = (channel: keyof T, action: T[keyof T]) => void;
 export type GetStateType<T> = () => PubSubMapType<T>;
 
 export type PubSubInterfaceType<M> = Readonly<{
-  subscribe: SubscribeType<M>;
+  subscribe: SubscribeType;
   dispatch: DispatchType<M>;
   getState: GetStateType<M>;
 }>;
