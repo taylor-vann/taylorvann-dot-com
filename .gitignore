@@ -3,10 +3,10 @@
 
 ## Client
 # ignore all node modules
-node_modules/
+web_client/node_modules/
 
 # ignore the build
-dist/
+web_client/prod/
 
 # ignore yarn
 yarn-error.log
