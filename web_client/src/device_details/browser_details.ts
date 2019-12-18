@@ -1,11 +1,11 @@
 // Brian Taylor Vann
 // taylorvann dot com
 
-// We can extend the global interface in typescript. This is a rare occurance
-// where "any" can be used for broser detection through feature detection.
+// This is a rare occurance where xtend the global interface and "any" can be
+// used for browser detection through feature detection.
 
 // We will never use these features directly and we will never want to
-// upkeep with broser specific window properties. We only need to know
+// upkeep browser specific window properties. We only need to know
 // if they exist.
 
 declare global {
@@ -33,61 +33,67 @@ declare global {
 
 import {
   BrowsersType,
-  BrowserVerifyMapType,
   CHROME,
   FIREFOX,
   IE,
   OPERA,
   SAFARI,
+  BLINK,
+  EDGE,
 } from "./device_details.types";
 
+const safariRemoteNotification = "[object SafariRemoteNotification]";
+const operaTag = " OPR/";
+
 // Opera
-var isOpera =
+var isOpera: boolean =
   (window.opr != null && window.opr.addons != null) ||
   window.opera != null ||
-  navigator.userAgent.indexOf(" OPR/") >= 0;
+  navigator.userAgent.indexOf(operaTag) >= 0;
 
 // Firefox
-var isFirefox = typeof window.InstallTrigger !== "undefined";
+// Value is never used, but we assume Browser is Firefox in a cascading
+// if statement later
+var isFirefox: boolean = window.InstallTrigger != null;
 
 // Safari
-const isWindowForSafari =
+const isWindowFromSafari: boolean =
   window.safari != null && window.safari.pushNotification != null
-    ? window.safari.pushNotification.toString() ===
-      "[object SafariRemoteNotification]"
+    ? window.safari.pushNotification.toString() === safariRemoteNotification
     : false;
 
-//"[object HTMLElementConstructor]"
-const isHTMLElementForSafari = /constructor/i.test(
+// test for [object HTMLElementConstructor]
+const isHTMLElementFromSafari: boolean = /constructor/i.test(
   window.HTMLElement.toString(),
 );
 
-var isSafari = isHTMLElementForSafari || isWindowForSafari;
+var isSafari: boolean = isHTMLElementFromSafari || isWindowFromSafari;
 
 // Internet Explorer
-var isIE = /*@cc_on!@*/ false || document["documentMode"] != null;
+var isIE: boolean = /*@cc_on!@*/ false || document.documentMode != null;
 
 // Edge
-var isEdge = isIE === false && window.StyleMedia != null;
+var isEdge: boolean = isIE === false && window.StyleMedia != null;
 
 // Chrome
-var isChrome =
+var isChrome: boolean =
   window.chrome != null &&
   (window.chrome.webstore != null || window.chrome.runtime != null);
 
 // Blink
 var isBlink = (isChrome || isOpera) && window.CSS != null;
 
-// Get the current browser as a string
+// Reduce to a single reference to Browser
+// [TODO]: Find a way to map consts as key strings
 let currentBrowser: BrowsersType = FIREFOX;
-if (isFirefox) {
-  currentBrowser = FIREFOX;
-}
 if (isChrome) {
   currentBrowser = CHROME;
 }
 if (isSafari) {
   currentBrowser = SAFARI;
+}
+if (isEdge) {
+  currentBrowser = EDGE;
 }
 if (isOpera) {
   currentBrowser = OPERA;
@@ -95,25 +101,12 @@ if (isOpera) {
 if (isIE) {
   currentBrowser = IE;
 }
+if (isBlink) {
+  currentBrowser = BLINK;
+}
 
-const browserMap: BrowserVerifyMapType = {
-  CHROME: isChrome,
-  FIREFOX: isFirefox,
-  SAFARI: isSafari,
-  OPERA: isOpera,
-  EDGE: isEdge,
-  IE: isIE,
-  BLINK: isBlink,
-};
+const platform: string = window.navigator.platform;
+const oscpu: string = window.navigator.oscpu;
+const languages: readonly string[] = window.navigator.languages;
 
-export {
-  isFirefox,
-  isChrome,
-  isSafari,
-  isEdge,
-  isIE,
-  isOpera,
-  isBlink,
-  currentBrowser,
-  browserMap,
-};
+export { currentBrowser, platform, oscpu, languages };
