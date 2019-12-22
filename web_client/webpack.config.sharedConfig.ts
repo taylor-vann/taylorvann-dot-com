@@ -37,6 +37,11 @@ const sharedModules = {
       use: "ts-loader",
     },
     {
+      test: /\.worker\.ts$/,
+      exclude: /node_modules/,
+      use: [{ loader: "worker-loader" }, { loader: "ts-loader" }],
+    },
+    {
       test: /\.css$/,
       exclude: /node_modules/,
       include: /src\/components/,
