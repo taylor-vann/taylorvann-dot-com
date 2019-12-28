@@ -3,9 +3,11 @@
 // WorkerBridge is a messaging system between the main thread
 // and auxillary threads.
 
-// TODO DANGEROUS As of 2020, webpack asks developers to cast self as any
-
 // eslint-disable-next-line
+import * as Three from "three";
+
+const lolz = new Three.Scene();
+
 const ctx: Worker = self as any;
 
 console.log("hello from a webworker");
@@ -15,4 +17,4 @@ ctx.addEventListener("message", (e: MessageEvent) => {
   console.log(e.data);
 });
 
-ctx.postMessage({ whats: "good" });
+ctx.postMessage({ whats: lolz });
