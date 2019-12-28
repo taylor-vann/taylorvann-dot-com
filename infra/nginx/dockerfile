@@ -1,0 +1,3 @@
+FROM nginx:alpine
+VOLUME ["/etc/nginx/:/etc/nginx:ro", "/var/www/:/usr/share/nginx/html:ro"]
+EXPOSE 80 443

@@ -5,8 +5,7 @@
 // used for browser detection through feature detection.
 
 // We will never use these features directly and we will never want to
-// upkeep browser specific window properties. We only need to know
-// if they exist.
+// We only need to know if they exist for polyfills and web standards.
 
 declare global {
   interface Window {
@@ -40,48 +39,38 @@ import {
   SAFARI,
   BLINK,
   EDGE,
-} from "./device_details.types";
+} from "./browser_details.types";
 
-const safariRemoteNotification = "[object SafariRemoteNotification]";
-const operaTag = " OPR/";
+import {
+  getBlinkStatus,
+  getChromeStatus,
+  getEdgeStatus,
+  getInternetExplorerStatus,
+  getMozillaStatus,
+  getOperaStatus,
+  getSafariStatus,
+} from "./browser_details_utils";
 
 // Opera
-var isOpera: boolean =
-  (window.opr != null && window.opr.addons != null) ||
-  window.opera != null ||
-  navigator.userAgent.indexOf(operaTag) >= 0;
+const isOpera: boolean = getOperaStatus();
 
 // Firefox
-// Value is never used, but we assume Browser is Firefox in a cascading
-// if statement later
-var isFirefox: boolean = window.InstallTrigger != null;
+const isFirefox: boolean = getMozillaStatus();
 
 // Safari
-const isWindowFromSafari: boolean =
-  window.safari != null && window.safari.pushNotification != null
-    ? window.safari.pushNotification.toString() === safariRemoteNotification
-    : false;
-
-// test for [object HTMLElementConstructor]
-const isHTMLElementFromSafari: boolean = /constructor/i.test(
-  window.HTMLElement.toString(),
-);
-
-var isSafari: boolean = isHTMLElementFromSafari || isWindowFromSafari;
+const isSafari: boolean = getSafariStatus();
 
 // Internet Explorer
-var isIE: boolean = /*@cc_on!@*/ false || document.documentMode != null;
+const isIE: boolean = getInternetExplorerStatus();
 
 // Edge
-var isEdge: boolean = isIE === false && window.StyleMedia != null;
+const isEdge: boolean = getEdgeStatus(isIE);
 
 // Chrome
-var isChrome: boolean =
-  window.chrome != null &&
-  (window.chrome.webstore != null || window.chrome.runtime != null);
+const isChrome: boolean = getChromeStatus();
 
 // Blink
-var isBlink = (isChrome || isOpera) && window.CSS != null;
+const isBlink = getBlinkStatus(isChrome, isOpera);
 
 // Reduce to a single reference to Browser
 // [TODO]: Find a way to map consts as key strings

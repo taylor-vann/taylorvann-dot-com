@@ -1,0 +1,13 @@
+# Brian Taylor Vann
+# taylorvann dot com
+
+version: "3"
+services:
+  nginx-load-balancer:
+    build: ../nginx
+    container_name: local-load-balancer
+    ports:
+      - "80:80"
+    volumes:
+      - /var/nginx:/etc/nginx/:ro
+      - /var/www:/usr/share/nginx/html:ro
