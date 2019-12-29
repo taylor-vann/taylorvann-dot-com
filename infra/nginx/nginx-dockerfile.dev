@@ -1,0 +1,3 @@
+FROM nginx:alpine
+VOLUMES ["/var/nginx:/etc/nginx/:ro", "var/www/:/usr/share/nginx/html:ro"]
+EXPOSE ["80"]
