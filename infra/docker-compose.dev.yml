@@ -19,4 +19,4 @@ services:
       context: ./authentication/
       dockerfile: dockerfile.dev
     volumes:
-      - ../authentication/web/:/usr/src/app/:ro
+      - ../authentication/web_api/:/usr/src/app/:ro
