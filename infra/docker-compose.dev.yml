@@ -1,0 +1,22 @@
+# Brian Taylor Vann
+# taylorvann dot com
+
+version: "3"
+services:
+  load-balancer:
+    container_name: local-load-balancer
+    build:
+      context: ./nginx/
+      dockerfile: nginx-dockerfile.dev
+    ports:
+      - "80:80"
+    volumes:
+      - /var/nginx:/etc/nginx/:ro
+      - /var/www:/usr/share/nginx/html/:ro
+  authentication:
+    container_name: authentication-web-api
+    build:
+      context: ./authentication/
+      dockerfile: dockerfile.dev
+    volumes:
+      - ../authentication/web/:/usr/src/app/:ro
