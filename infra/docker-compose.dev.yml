@@ -11,8 +11,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - /var/nginx:/etc/nginx/:ro
-      - /var/www:/usr/share/nginx/html/:ro
+      - ./nginx:/etc/nginx/:ro
   authentication:
     container_name: authentication-web-api
     build:
@@ -20,3 +19,6 @@ services:
       dockerfile: dockerfile.dev
     volumes:
       - ../authentication/web_api/:/usr/src/app/:ro
+    ports:
+      - "5000:5000"
+    command: gunicorn --bind 0.0.0.0:5000 wsgi:app
