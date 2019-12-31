@@ -10,3 +10,13 @@ web_client/prod/
 
 # ignore yarn
 yarn-error.log
+
+
+# Database develepment environment
+
+# In our database development we want to ignore all files
+# created by postgresql.
+
+# This pattern will ignore all files but a simple empty ".keep" file.
+/database/postgres_data/*
+!/database/postgres_data/.keep
