@@ -11,12 +11,26 @@ services:
     ports:
       - "80:80"
     volumes:
-      - /var/nginx:/etc/nginx/:ro
-      - /var/www:/usr/share/nginx/html/:ro
+      - ./nginx/configurations/:/etc/nginx/:ro
   authentication:
     container_name: authentication-web-api
     build:
       context: ./authentication/
       dockerfile: dockerfile.dev
     volumes:
-      - ../authentication/web/:/usr/src/app/:ro
+      - ../authentication/web_api/:/usr/src/app/:ro
+    ports:
+      - "5000:5000"
+    command: gunicorn --bind 0.0.0.0:5000 web_api_root:app
+  database:
+    container_name: database
+    build:
+      context: ./database/
+      dockerfile: dockerfile.dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - /var/run/postgresql/:/var/run/postgresql/
+      - ../database/postgres_data/:/var/lib/postgresql/data/
+    env_file:
+      - ./database/.database-environment-variables.dev.env
