@@ -27,35 +27,35 @@ export type MouseDownInterfaceType = {
 };
 
 function createMouseDown() {
-  const pointerStateMap: PointerStateMap = {};
+  let pointerStateMap: PointerStateMap = {};
 
   return {
     move: (e: PointerEvent): void => {
-      getMouseDownAction(e, this._pointerStateMap);
-      this._pointerStateMap = updatePointerStateEntry(e, this._pointerStateMap);
+      getMouseDownAction(e, pointerStateMap);
+      pointerStateMap = updatePointerStateEntry(e, pointerStateMap);
     },
 
     down: (e: PointerEvent): void => {
-      getMouseDownAction(e, this._pointerStateMap);
-      this._pointerStateMap = createPointerStateEntry(e, this._pointerStateMap);
+      getMouseDownAction(e, pointerStateMap);
+      pointerStateMap = createPointerStateEntry(e, pointerStateMap);
     },
 
     up: (e: PointerEvent): void => {
-      getMouseDownAction(e, this._pointerStateMap);
-      this._pointerStateMap = updatePointerStateEntry(e, this._pointerStateMap);
+      getMouseDownAction(e, pointerStateMap);
+      pointerStateMap = updatePointerStateEntry(e, pointerStateMap);
     },
 
     remove: (e: PointerEvent): void => {
-      getMouseDownAction(e, this._pointerStateMap);
-      this._pointerStateMap = removePointerStateEntry(e, this._pointerStateMap);
+      getMouseDownAction(e, pointerStateMap);
+      pointerStateMap = removePointerStateEntry(e, pointerStateMap);
     },
 
     removeAllPointers: (): void => {
-      this._pointerStateMap = {};
+      pointerStateMap = {};
     },
 
     getMouseDownState: (): Readonly<PointerStateMap> => {
-      return Object.freeze({ ...this._pointerStateMap });
+      return Object.freeze({ ...pointerStateMap });
     },
   };
 }
