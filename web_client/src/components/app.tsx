@@ -1,11 +1,18 @@
 import * as React from "react";
 
+import { ContactButtons } from "./contact/contact_buttons";
+import { SocialButtons } from "./social/social_buttons";
+import { MainContentContainer } from "./main_content_container/main_container";
+import { AppContainer } from "./app_container/app_container";
+
 const App: React.FunctionComponent = () => {
   return (
-    <div>
-      <p>{`i'm brian taylor vann.`}</p>
-      <p>this is a website.</p>
-    </div>
+    <AppContainer>
+      <MainContentContainer>
+        <p>hello</p>
+        <p>howdy</p>
+      </MainContentContainer>
+    </AppContainer>
   );
 };
 

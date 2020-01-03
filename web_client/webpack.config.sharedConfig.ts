@@ -20,7 +20,7 @@ const cssExtractPlugin = new MiniCSSExtractPlugin({
 
 // create Typed CSS Plugin for typescript
 const typedCssModulesPlugin = new TypedCssModulesPlugin({
-  globPattern: "src/components/*.css",
+  globPattern: "src/components/*/*.css",
 });
 
 const compressionPlugin = new CompressionWebpackPlugin({
