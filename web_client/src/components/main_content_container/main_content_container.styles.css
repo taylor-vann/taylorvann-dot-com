@@ -1,10 +1,13 @@
 .main_content_container {
-  background-color: gray;
-  margin: 0 auto 0 auto;
-  width: 100%;
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  background-color: #cdcdcd;
+  box-sizing: border-box;
+  border: 1px solid black;
 }
 
-@media (min-width: 800px) {
+/* @media (min-width: 800px) {
   .main_content_container {
     width: calc(100% - 28px);
     max-width: 800px;
@@ -22,4 +25,4 @@
   .main_content_container {
     width: 960px;
   }
-}
+} */

@@ -7,7 +7,7 @@ type Props = {
 };
 
 const AppContainer = (props: Props) => {
-  return <main className={Styles.app_container}>{props.children}</main>;
+  return <section className={Styles.app_container}>{props.children}</section>;
 };
 
 export { AppContainer };

@@ -1,5 +1,49 @@
+/* Brian Taylor Vann 
+ * taylorvann dot com
+*/
+
 .app_container {
-  background-color: #878787;
+  background-color: #ffffff;
+  border: 1px solid #000000;
+  box-sizing: border-box;
+  margin: 0 auto 0 auto;
   width: 100%;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 800px) {
+  .app_container {
+    max-width: 800px;
+  }
+}
+
+@media (min-width: 960px) {
+  .app_container {
+    max-width: 960px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .app_container {
+    width: 100%;
+    max-width: 1280px;
+  }
+}
+
+@media (min-width: 1920px) {
+  .app_container {
+    width: 100%;
+    max-width: 1440px;
+  }
+}
+
+/* Detect landscape orientation from width / height ratio.
+ * Try to avoid false landscapes from software keyboards (android).
+ */
+@media (min-aspect-ratio: 640/480) {
+  .app_container {
+    flex-direction: row;
+  }
 }

@@ -1,0 +1,200 @@
+/* Baseboard v1.2 | Copywrite 2018 Brian Taylor Vann | MIT License */
+
+/* Semantics */
+html {
+  font-size: 62.5%;
+}
+
+body {
+  font-size: 1.2rem;
+  line-height: 1;
+  vertical-align: baseline;
+  word-wrap: break-word;
+  overflow-x: hidden;
+}
+
+body,
+main,
+header,
+footer,
+section,
+article,
+div {
+  display: block;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+summary,
+details,
+aside,
+blockquote,
+address,
+menu,
+nav,
+hr {
+  display: block;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+summary,
+menu {
+  list-style: none;
+}
+
+address {
+  font-style: normal;
+}
+
+/* Type */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+pre {
+  display: block;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-size: 1.6rem;
+  font-weight: normal;
+}
+
+a {
+  cursor: pointer;
+}
+
+em,
+i,
+cite,
+dfn {
+  font-style: italic;
+}
+
+del,
+s {
+  text-decoration: line-through;
+}
+
+u,
+ins {
+  text-decoration: underline;
+}
+
+code,
+samp,
+kbd {
+  font-family: monospace, monospace;
+  font-size: 1.2rem;
+}
+
+sup,
+sub {
+  font-size: 1.2rem;
+  line-height: 0;
+}
+
+q:before,
+q:after {
+  content: "";
+}
+
+/* Media */
+figure,
+figcaption,
+img,
+audio,
+video,
+canvas,
+object,
+iframe {
+  display: block;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  border: none;
+}
+
+iframe {
+  border: none;
+}
+
+/* Forms */
+form,
+fieldset,
+label,
+legend,
+input,
+textarea,
+select,
+button {
+  display: block;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+fieldset {
+  border: none;
+}
+
+input[type="submit"],
+input[type="reset"],
+input[type="button"],
+button {
+  cursor: pointer;
+}
+
+/* Lists */
+ul,
+ol,
+dl,
+li,
+dt,
+dd {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+ul {
+  list-style: circle inside;
+}
+
+ol {
+  list-style: decimal inside;
+}
+
+/* Tables */
+table,
+caption,
+thead,
+tbody,
+tfoot,
+tr,
+th,
+td {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+table {
+  border-collapse: collapse;
+  border: 0;
+}
+
+caption {
+  text-align: left;
+}
+
+th {
+  font-weight: normal;
+  text-align: left;
+}
