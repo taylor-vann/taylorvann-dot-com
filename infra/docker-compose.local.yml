@@ -8,10 +8,10 @@ services:
   web-client:
     container_name: web-client
     build:
-      context: ./web_client/
+      context: ../web_client/
       dockerfile: dockerfile.dev
     env_file:
-      - ./web_client/.web_client-environment-variables.dev.env
+      - ../web_client/.web_client-environment-variables.dev.env
     volumes:
       - ../web_client/:/home/node/app/
     ports:
@@ -22,7 +22,7 @@ services:
   authentication:
     container_name: authentication-web-api
     build:
-      context: ./authentication/
+      context: ../authentication/
       dockerfile: dockerfile.dev
     volumes:
       - ../authentication/web_api/:/usr/src/app/:ro
@@ -32,10 +32,10 @@ services:
   database:
     container_name: database
     build:
-      context: ./database/
+      context: ../database/
       dockerfile: dockerfile.dev
     env_file:
-      - ./database/.database-environment-variables.dev.env
+      - ../database/.database-environment-variables.dev.env
     volumes:
       - ../database/postgres_data/:/var/lib/postgresql/data/
     ports:
