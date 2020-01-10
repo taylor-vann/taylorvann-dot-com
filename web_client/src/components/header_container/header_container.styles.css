@@ -2,11 +2,4 @@
   background-color: #efefef;
   box-sizing: border-box;
   border: 1px solid black;
-  width: 100%;
-}
-
-@media (min-aspect-ratio: 640/480) {
-  .header_container {
-    width: 30%;
-  }
 }
