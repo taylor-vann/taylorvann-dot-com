@@ -17,7 +17,7 @@ services:
   authentication:
     container_name: authentication-web-api
     build:
-      context: ./authentication/
+      context: ../authentication/
       dockerfile: dockerfile.dev
     volumes:
       - ../authentication/web_api/:/usr/src/app/:ro
