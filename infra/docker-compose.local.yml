@@ -8,10 +8,10 @@ services:
   web-client:
     container_name: web-client
     build:
-      context: ./web_client/
+      context: ../web_client/
       dockerfile: dockerfile.dev
     env_file:
-      - ./web_client/.web_client-environment-variables.dev.env
+      - ../web_client/.web_client-environment-variables.dev.env
     volumes:
       - ../web_client/:/home/node/app/
     ports:
