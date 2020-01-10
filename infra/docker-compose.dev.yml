@@ -8,12 +8,12 @@ services:
   load-balancer:
     container_name: local-load-balancer
     build:
-      context: ./nginx/
+      context: ../nginx/
       dockerfile: nginx-dockerfile.dev
     ports:
       - "80:80"
     volumes:
-      - ./nginx/configurations/:/etc/nginx/:ro
+      - ../nginx/configurations/:/etc/nginx/:ro
   authentication:
     container_name: authentication-web-api
     build:
