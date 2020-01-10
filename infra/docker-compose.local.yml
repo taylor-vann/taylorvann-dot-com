@@ -32,10 +32,10 @@ services:
   database:
     container_name: database
     build:
-      context: ./database/
+      context: ../database/
       dockerfile: dockerfile.dev
     env_file:
-      - ./database/.database-environment-variables.dev.env
+      - ../database/.database-environment-variables.dev.env
     volumes:
       - ../database/postgres_data/:/var/lib/postgresql/data/
     ports:
