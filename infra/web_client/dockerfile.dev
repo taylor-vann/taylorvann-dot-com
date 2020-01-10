@@ -1,0 +1,3 @@
+FROM node:13-alpine
+VOLUME [ "/home/node/app" ]
+EXPOSE "8080"
