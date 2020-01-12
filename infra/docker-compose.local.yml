@@ -5,20 +5,20 @@
 
 version: "3"
 services:
-  web-client:
-    container_name: web-client
-    build:
-      context: ../web_client/
-      dockerfile: dockerfile.dev
-    env_file:
-      - ../web_client/.web_client-environment-variables.dev.env
-    volumes:
-      - ../web_client/:/home/node/app/
-    ports:
-      - "8080:8080"
-    user: node
-    working_dir: /home/node/app
-    command: "npm run dev"
+  # web-client:
+  #   container_name: web-client
+  #   build:
+  #     context: ../web_client/
+  #     dockerfile: dockerfile.dev
+  #   env_file:
+  #     - ../web_client/.web_client-environment-variables.dev.env
+  #   volumes:
+  #     - ../web_client/:/home/node/app/
+  #   ports:
+  #     - "8080:8080"
+  #   user: node
+  #   working_dir: /home/node/app
+  #   command: "npm run dev"
   authentication:
     container_name: authentication-web-api
     build:
@@ -28,15 +28,16 @@ services:
       - ../authentication/web_api/:/usr/src/app/:ro
     ports:
       - "5000:5000"
-    command: gunicorn --bind 0.0.0.0:5000 web_api_root:app
-  database:
-    container_name: database
-    build:
-      context: ../database/
-      dockerfile: dockerfile.dev
-    env_file:
-      - ../database/.database-environment-variables.dev.env
-    volumes:
-      - ../database/postgres_data/:/var/lib/postgresql/data/
-    ports:
-      - "5432:5432"
+    working_dir: /usr/src/app
+    command: uwsgi --socket 0.0.0.0:5000 --protocol=http -w wsgi:app
+  # database:
+  #   container_name: database
+  #   build:
+  #     context: ../database/
+  #     dockerfile: dockerfile.dev
+  #   env_file:
+  #     - ../database/.database-environment-variables.dev.env
+  #   volumes:
+  #     - ../database/postgres_data/:/var/lib/postgresql/data/
+  #   ports:
+  #     - "5432:5432"

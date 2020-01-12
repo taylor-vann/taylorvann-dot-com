@@ -4,6 +4,8 @@ WORKDIR /usr/src/app
 
 COPY requirements.txt ./
 
+RUN apk add --no-cache linux-headers g++
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 5000
