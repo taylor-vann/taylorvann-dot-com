@@ -5,6 +5,20 @@
 
 version: "3"
 services:
+  internal-web-client:
+    container_name: internal-web-client
+    build:
+      context: ../internal_web_client/
+      dockerfile: dockerfile.dev
+    env_file:
+      - ../internal_web_client/.web_client-environment-variables.dev.env
+    volumes:
+      - ../internal_web_client/:/home/node/app/
+    ports:
+      - "8081:8081"
+    user: node
+    working_dir: /home/node/app
+    command: "npm run dev"
   # web-client:
   #   container_name: web-client
   #   build:
@@ -19,17 +33,17 @@ services:
   #   user: node
   #   working_dir: /home/node/app
   #   command: "npm run dev"
-  authentication:
-    container_name: authentication-web-api
-    build:
-      context: ../authentication/
-      dockerfile: dockerfile.dev
-    volumes:
-      - ../authentication/web_api/:/usr/src/app/:ro
-    ports:
-      - "5000:5000"
-    working_dir: /usr/src/app
-    command: uwsgi --socket 0.0.0.0:5000 --protocol=http -w wsgi:app
+  # authentication:
+  #   container_name: authentication-web-api
+  #   build:
+  #     context: ../authentication/
+  #     dockerfile: dockerfile.dev
+  #   volumes:
+  #     - ../authentication/web_api/:/usr/src/app/:ro
+  #   ports:
+  #     - "5000:5000"
+  #   working_dir: /usr/src/app
+  #   command: uwsgi --socket 0.0.0.0:5000 --protocol=http -w wsgi:app
   # database:
   #   container_name: database
   #   build:
