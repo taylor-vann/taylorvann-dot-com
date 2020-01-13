@@ -4,7 +4,7 @@
 
 ## Client
 # ignore all node modules
-*/node_modules/
+**/node_modules/
 
 # ignore the build
 web_client/prod/

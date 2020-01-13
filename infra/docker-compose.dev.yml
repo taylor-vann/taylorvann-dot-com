@@ -23,7 +23,8 @@ services:
       - ../authentication/web_api/:/usr/src/app/:ro
     ports:
       - "5000:5000"
-    command: gunicorn --bind 0.0.0.0:5000 web_api_root:app
+    working_dir: /usr/src/app
+    command: uwsgi --socket 0.0.0.0:5000 --protocol=http -w wsgi:app
   database:
     container_name: database
     build:
