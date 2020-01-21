@@ -38,12 +38,13 @@ services:
     build:
       context: ../authentication/
       dockerfile: dockerfile.dev
-    volumes:
-      - ../authentication/web_api/:/usr/src/app/:ro
+    env_file:
+      - ../database/.database-environment-variables.dev.env
     ports:
       - "5000:5000"
-    working_dir: /usr/src/app
-    command: flask run --host=0.0.0.0 --port=5000
+    volumes:
+      - ../authentication/webapi/:/go/src/webapi/
+    command: "go run /go/src/webapi/main.go"
   # database:
   #   container_name: database
   #   build:

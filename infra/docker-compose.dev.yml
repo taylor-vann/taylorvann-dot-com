@@ -24,7 +24,6 @@ services:
     ports:
       - "5000:5000"
     working_dir: /usr/src/app
-    command: uwsgi --socket 0.0.0.0:5000 --protocol=http -w wsgi:app
   database:
     container_name: database
     build:
