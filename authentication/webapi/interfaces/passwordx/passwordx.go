@@ -75,7 +75,7 @@ func EncodeHashPayload(password string, p *Argon2Params) (*SaltHashPayload, erro
 	return &encodedHash, nil
 }
 
-func isPasswordValid(givenPassword string, comparator *SaltHashPayload) (bool, error) {
+func PasswordIsValid(givenPassword string, comparator *SaltHashPayload) (bool, error) {
 	salt, err = base64.RawStdEncoding.DecodeString(comparator.Params.Salt)
 	if err != nil {
 			return false, err
