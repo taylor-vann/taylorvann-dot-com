@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "module": "commonjs",
+    "noImplicitAny": true,
+    "outDir": "./prod/",
+    "sourceMap": true,
+    "strict": true,
+    "target": "es6"
+  }
+}

@@ -1,11 +1,7 @@
-FROM python:3-alpine
+FROM golang:alpine
 
-WORKDIR /usr/src/app
-
-COPY requirements.txt ./
-
-RUN pip install --no-cache-dir -r requirements.txt
+WORKDIR /go/src/webapi
 
 EXPOSE 5000
 
-VOLUME [ "/usr/src/app" ]
+VOLUME [ "/go/src/webapi" ]

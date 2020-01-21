@@ -1,0 +1,15 @@
+FROM python:3-alpine
+
+WORKDIR /usr/src/app
+
+COPY requirements.prod.txt ./
+
+RUN apk add --no-cache linux-headers g++
+RUN apk --no-cache add build-base
+RUN apk --no-cache add postgresql-dev
+
+RUN pip install --no-cache-dir -r requirements.prod.txt
+
+EXPOSE 5000
+
+VOLUME [ "/usr/src/app" ]

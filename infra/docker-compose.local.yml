@@ -5,38 +5,54 @@
 
 version: "3"
 services:
-  web-client:
-    container_name: web-client
-    build:
-      context: ../web_client/
-      dockerfile: dockerfile.dev
-    env_file:
-      - ../web_client/.web_client-environment-variables.dev.env
-    volumes:
-      - ../web_client/:/home/node/app/
-    ports:
-      - "8080:8080"
-    user: node
-    working_dir: /home/node/app
-    command: "npm run dev"
+  # internal-web-client:
+  #   container_name: internal-web-client
+  #   build:
+  #     context: ../web_clients/internal_web_client/
+  #     dockerfile: dockerfile.dev
+  #   env_file:
+  #     - ../web_clients/internal_web_client/.web_client-environment-variables.dev.env
+  #   volumes:
+  #     - ../web_clients/internal_web_client/:/home/node/app/
+  #   ports:
+  #     - "8081:8081"
+  #   user: node
+  #   working_dir: /home/node/app
+  #   command: "npm run dev"
+  # web-client:
+  #   container_name: public-web-client
+  #   build:
+  #     context: ../web_clients/public_web_client/
+  #     dockerfile: dockerfile.dev
+  #   env_file:
+  #     - ../web_client/public_web_client/.web_client-environment-variables.dev.env
+  #   volumes:
+  #     - ../web_client/public_web_client:/home/node/app/
+  #   ports:
+  #     - "8080:8080"
+  #   user: node
+  #   working_dir: /home/node/app
+  #   command: "npm run dev"
   authentication:
     container_name: authentication-web-api
     build:
       context: ../authentication/
       dockerfile: dockerfile.dev
-    volumes:
-      - ../authentication/web_api/:/usr/src/app/:ro
-    ports:
-      - "5000:5000"
-    command: gunicorn --bind 0.0.0.0:5000 web_api_root:app
-  database:
-    container_name: database
-    build:
-      context: ../database/
-      dockerfile: dockerfile.dev
     env_file:
       - ../database/.database-environment-variables.dev.env
-    volumes:
-      - ../database/postgres_data/:/var/lib/postgresql/data/
     ports:
-      - "5432:5432"
+      - "5000:5000"
+    volumes:
+      - ../authentication/webapi/:/go/src/webapi/
+    command: "go run /go/src/webapi/main.go"
+  # database:
+  #   container_name: database
+  #   build:
+  #     context: ../database/
+  #     dockerfile: dockerfile.dev
+  #   env_file:
+  #     - ../database/.database-environment-variables.dev.env
+  #   volumes:
+  #     - ../database/postgres_data/:/var/lib/postgresql/data/
+  #   ports:
+  #     - "5432:5432"
