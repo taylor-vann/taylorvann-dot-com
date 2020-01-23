@@ -1,6 +1,14 @@
+// brian taylor vann
+// taylorvann dot com
+
+// passwords
+// represents a user's password credentials
+// it can be considered a vertex
+
 package passwords
 
 import (
+	"time"
 	"webapi/interfaces/passwordx"
 )
 
@@ -9,16 +17,11 @@ type PasswordHashParams = passwordx.HashParams
 
 // PasswordStructure - Expected PostgreSQL structure
 type PasswordStructure struct {
-	userID    int
-	salt      string
-	hash      string
-	params    PasswordHashParams
-	createdAt string
-	updatedAt string
+	ID        int64              `json:"id"`
+	UserID    int64              `json:"user_id"`
+	Salt      string             `json:"salt"`
+	Hash      string             `json:"hash"`
+	Params    PasswordHashParams `json:"params"`
+	CreatedAt time.Time          `json:"created_at"`
+	UpdatedAt time.Time          `json:"updated_at"`
 }
-
-// Controller for Passwords and Postgresql
-
-// We want to create a password and link it to a user
-// we want to update a password
-// we want to update password and params

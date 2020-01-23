@@ -1,13 +1,14 @@
-package passwords
+// brian taylor vann
+// taylorvann dot com
 
-import (
-	"webapi/passwords"
-)
+// postgresql statements required of passwords table
+
+package passwords
 
 // CreatePasswordsTableStatement - Create table Statement
 const CreatePasswordsTableStatement = `
-CREATE TABLE IF NOT EXISTS users (
-	id SERIAL PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS passwords (
+	id BIGSERIAL PRIMARY KEY,
 	salt VARCHAR(1024) NOT NULL,
 	hash VARCHAR(1024) NOT NULL,
 	params VARCHAR(2048) NOT NULL,
@@ -38,6 +39,16 @@ SET
 	hash = $3,
 	params = $4,
   updated_at = CURRENT_TIMESTAMP(3)
+WHERE
+	id = $1
+RETURNING 
+	*;
+`
+
+// DeletePasswordStatement - Update personal password salt and hash
+const DeletePasswordStatement = `
+DELETE FROM
+	passwords
 WHERE
 	id = $1
 RETURNING 
