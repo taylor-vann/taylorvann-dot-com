@@ -9,7 +9,7 @@ import (
 	"golang.org/x/crypto/argon2"
 )
 
-// Argon2IdParams - Parameters for generating password hashes
+// HashParams - Parameters for generating password hashes
 type HashParams struct {
 	HashFunction string `json:"hash_function"`
 	Memory       uint32 `json:"memory"`
@@ -29,7 +29,7 @@ type HashResults struct {
 // DefaultArgon2IdParams - Our default settings for Argon2id
 var DefaultArgon2IdParams = func () *Argon2Params {
 	params := Argon2IdParams{
-		HashFunction: ,
+		HashFunction: "argon2id",
 		memory:      64 * 1024,
 		iterations:  3,
 		parallelism: 2,
