@@ -13,12 +13,6 @@ type Header struct {
 	Typ string `json:"typ"`
 }
 
-// PrivateClaims - Private payload
-type PrivateClaims struct {
-	Username string   `json:"username"`
-	Role     []string `json:"role"`
-}
-
 // Claims - Payload body of a JWT
 type Claims struct {
 	Iss string `json:"iss"`
@@ -54,9 +48,7 @@ var headerDefaultBase64 = func() *string {
 	return &b64Header
 }()
 
-func createPayloadAsBase64(
-	claims *Claims,
-) (*string, error) {
+func createPayloadAsBase64(claims *Claims) (*string, error) {
 	PayloadResult := Claims{
 		Iss: claims.Iss,
 		Sub: claims.Sub,
@@ -70,7 +62,9 @@ func createPayloadAsBase64(
 		return nil, err
 	}
 
-	marshalledPayloadBase64 := base64.RawStdEncoding.EncodeToString(marshalledPayload)
+	marshalledPayloadBase64 := base64.RawStdEncoding.EncodeToString(
+		marshalledPayload
+	)
 
 	return &marshalledPayloadBase64, nil
 }
@@ -83,7 +77,9 @@ func generateSignature(
 	combinedHeaderAndPayload := *header + "." + *payload
 	signature := hmac.New(sha256.New, *randomSecret)
 	signature.Write([]byte(combinedHeaderAndPayload))
-	signatureBase64 := base64.RawStdEncoding.EncodeToString(signature.Sum(nil))
+	signatureBase64 := base64.RawStdEncoding.EncodeToString(
+		signature.Sum(nil)
+	)
 
 	return &signatureBase64
 }
@@ -91,7 +87,6 @@ func generateSignature(
 // Create - Return JWT Token
 func Create(
 	claims *Claims,
-	privateClaims *PrivateClaims,
 	randomHash *[]byte,
 	randomSecret *[]byte,
 ) (*Token, error) {
