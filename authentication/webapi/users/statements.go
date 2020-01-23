@@ -1,18 +1,19 @@
-package users
+// brian taylor vann
+// taylorvann dot com
 
-import (
-	"webapi/users"
-)
+// postgresql statements required of users table
+
+package users
 
 // CreateUsersTableStatement - Create table Statement
 const CreateUsersTableStatement = `
 CREATE TABLE IF NOT EXISTS users (
-  id SERIAL PRIMARY KEY,
-  username varchar(64) UNIQUE NOT NULL,
-  email varchar(512) UNIQUE NOT NULL,
-  created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-  updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  id BIGSERIAL PRIMARY KEY,
+  username VARCHAR(64) UNIQUE NOT NULL,
+  email VARCHAR(512) UNIQUE NOT NULL,
   is_deleted BOOLEAN NOT NULL DEFAULT FALSE
+  created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
 )
 `
 
@@ -20,11 +21,11 @@ CREATE TABLE IF NOT EXISTS users (
 const InsertUserStatement = `
 INSERT INTO users (
   username,
-  email,
+  email
 )
 VALUES (
   $1,
-  $2,
+  $2
 RETURNING
 	*;
 `

@@ -1,10 +1,17 @@
+// brian taylor vann
+// taylorvann dot com
+
 package users
+
+import (
+	"time"
+)
 
 // UserStructure - Expected structure from PostgreSQL
 type UserStructure struct {
-	id int `json:"id"`
-	username  string `json:"username"`
-	createdAt int `json:"created_at"`
-	updatedAt int `json:"updated_at"`
-	isDeleted string `json:"is_deleted"`
+	ID        int64     `json:"id"`
+	Username  string    `json:"username"`
+	IsDeleted bool      `json:"is_deleted"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
