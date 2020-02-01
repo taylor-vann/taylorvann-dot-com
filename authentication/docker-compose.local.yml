@@ -1,0 +1,50 @@
+# brian taylor vann
+# taylorvann dot com
+
+# Use this docker-compose to create an authentication development server
+
+# Reserved Ports:
+# 5000  JSON Web Api
+# 5005  PostgreSQL Db
+# 5010  Redis Store
+
+version: "3"
+services:
+  authn_webapi:
+    container_name: authn_webapi
+    build:
+      context: ./webapi
+      dockerfile: dockerfile.dev
+    depends_on:
+      - authn_db
+      - authn_cache
+    restart: always
+    env_file:
+      - ./environment-variables.dev.env
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./webapi/:/go/src/webapi/
+    command: "go run /go/src/webapi/main.go"
+  authn_db:
+    container_name: authn_db
+    build:
+      context: ./database/
+      dockerfile: dockerfile.dev
+    restart: always
+    env_file:
+      - ./environment-variables.dev.env
+    ports:
+      - "5005:5432"
+    volumes:
+      - ./database/postgres_data/:/var/lib/postgresql/data/
+  authn_cache:
+    container_name: authn_cache
+    build:
+      context: ./cache/
+      dockerfile: dockerfile.dev
+    restart: always
+    ports:
+      - "5010:6379"
+    volumes:
+      - ./cache/redis_data/:/data

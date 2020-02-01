@@ -1,7 +1,0 @@
-FROM golang:alpine
-
-WORKDIR /go/src/webapi
-
-EXPOSE 5000
-
-VOLUME [ "/go/src/webapi" ]

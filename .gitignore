@@ -1,9 +1,12 @@
 ## General gitignores
 *.DS_STORE
-*.env
 
+## Environment Variables
+#    Keep example environment files 
+*.env
+!*.example.env
 ## Client
-# ignore all node modules
+#    ignore all node modules
 **/node_modules/
 
 # ignore the build
@@ -19,5 +22,5 @@ yarn.lock
 # created by postgresql.
 
 # This pattern will ignore all files but a simple empty ".keep" file.
-/database/postgres_data/*
-!/database/postgres_data/.keep
+/authentication/database/postgres_data/*
+!/authentication/database/postgres_data/.keep
