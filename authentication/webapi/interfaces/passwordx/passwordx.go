@@ -30,36 +30,36 @@ type HashResults struct {
 var DefaultArgon2IdParams = func () *Argon2Params {
 	params := Argon2IdParams{
 		HashFunction: "argon2id",
-		memory:      64 * 1024,
-		iterations:  3,
-		parallelism: 2,
-		saltLength:  16,
-		keyLength:   32,
+		memory:       64 * 1024,
+		iterations:   3,
+		parallelism:  2,
+		saltLength:   16,
+		keyLength:    32,
 	}
 
 	return &params
 }()
 
-func generateSaltRandomBytes(n uint32) ([]byte, error) {
+func generateSaltRandomBytes(n uint32) (*[]byte, error) {
 	token := make([]byte, n)
 	_, err := rand.Read(token)
 	if err != nil {
 		return nil, err
 	}
 
-	return token, nil
+	return &token, nil
 }
 
 // HashPassword - Hash password and return hash results
 func HashPassword(password string, p *Argon2Params) (*HashResults, error) {
 	salt, err := generateRandomBytes(p.saltLength)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	hash := argon2.IDKey(
 		[]byte(password),
-		salt,
+		*salt,
 		p.Iterations,
 		p.Memory, 
 		p.Parallelism,

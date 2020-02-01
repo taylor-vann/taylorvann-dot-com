@@ -90,9 +90,7 @@ func Create(
 	randomHash *[]byte,
 	randomSecret *[]byte,
 ) (*Token, error) {
-	marshalledPayloadBase64, err := createPayloadAsBase64(
-		claims,
-	)
+	marshalledPayloadBase64, err := createPayloadAsBase64(claims)
 	if err != nil {
 		return nil, err
 	}
