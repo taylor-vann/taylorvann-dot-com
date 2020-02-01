@@ -5,9 +5,15 @@
 #    Keep example environment files 
 *.env
 !*.example.env
+
 ## Client
 #    ignore all node modules
 **/node_modules/
+
+## Redis
+#    ignore all backups
+/authentication/cache/redis_data/*
+!/authentication/cache/redis_data/.keep
 
 # ignore the build
 web_client/prod/

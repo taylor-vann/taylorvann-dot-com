@@ -2,8 +2,8 @@ package main
 
 import (
 	"webapi/server"
-	"webapi/whitelist"
 	"webapi/store"
+	"webapi/whitelist"
 )
 
 func main() {
@@ -12,7 +12,7 @@ func main() {
 
 	// ping our redis store
 	whitelist.HelloWorld()
-	
+
 	// create server
 	server.CreateServer(5000)
 }
