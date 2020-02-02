@@ -41,8 +41,6 @@ func (pgconn *PGConnection) Close() (*PGConnection, error) {
 
 // Create - Establish a new connection and return
 func Create(config *PGConfig) (*PGConnection, error) {
-	fmt.Println("pgsqlx.Create - start")
-
 	connStr := fmt.Sprintf(
 		"postgresql://%s:%s@%s:%d/%s?sslmode=disable",
 		config.Username,
@@ -52,15 +50,12 @@ func Create(config *PGConfig) (*PGConnection, error) {
 		config.DatabaseName,
 	)
 
-	fmt.Println(connStr)
-
 	db, err := sql.Open(
 		"postgres",
 		connStr,
 	)
 
 	if err != nil {
-		fmt.Println("had an error bro")
 		return nil, err
 	}
 
