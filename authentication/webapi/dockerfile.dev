@@ -1,0 +1,15 @@
+FROM golang:alpine
+
+VOLUME [ "/go/src/webapi" ]
+
+RUN apk add --no-cache git
+RUN go get github.com/lib/pq
+RUN go get github.com/gomodule/redigo/redis
+RUN go get golang.org/x/crypto/argon2
+
+
+WORKDIR /go/src/webapi
+
+EXPOSE 5000
+EXPOSE 5005
+EXPOSE 5010
