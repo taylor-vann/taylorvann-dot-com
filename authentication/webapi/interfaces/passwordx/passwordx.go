@@ -2,9 +2,8 @@ package passwordx
 
 import (
 	"crypto/rand"
-	"encoding/base64"
 	"crypto/subtle"
-	"fmt"
+	"encoding/base64"
 
 	"golang.org/x/crypto/argon2"
 )
@@ -17,28 +16,26 @@ type HashParams struct {
 	Parallelism  uint8  `json:"paralleslism"`
 	SaltLength   uint32 `json:"salt_length"`
 	KeyLength    uint32 `json:"key_length"`
+	BuildVersion uint32 `json:"build_version"`
 }
 
 // HashResults - Store for salt, hash, and paramters post hash
 type HashResults struct {
-	Salt   string `json:"salt"`
-	Hash   string `json:"hash"`
-	Params string `json:"params"`
+	Salt   string      `json:"salt"`
+	Hash   string      `json:"hash"`
+	Params *HashParams `json:"params"`
 }
 
-// DefaultArgon2IdParams - Our default settings for Argon2id
-var DefaultArgon2IdParams = func () *Argon2Params {
-	params := Argon2IdParams{
-		HashFunction: "argon2id",
-		memory:       64 * 1024,
-		iterations:   3,
-		parallelism:  2,
-		saltLength:   16,
-		keyLength:    32,
-	}
-
-	return &params
-}()
+// DefaultHashParams - Our default settings for Argon2id
+var DefaultHashParams = HashParams{
+	HashFunction: "argon2id",
+	Memory:       64 * 1024,
+	Iterations:   3,
+	Parallelism:  2,
+	SaltLength:   16,
+	KeyLength:    32,
+	BuildVersion: 0,
+}
 
 func generateSaltRandomBytes(n uint32) (*[]byte, error) {
 	token := make([]byte, n)
@@ -51,8 +48,8 @@ func generateSaltRandomBytes(n uint32) (*[]byte, error) {
 }
 
 // HashPassword - Hash password and return hash results
-func HashPassword(password string, p *Argon2Params) (*HashResults, error) {
-	salt, err := generateRandomBytes(p.saltLength)
+func HashPassword(password string, p *HashParams) (*HashResults, error) {
+	salt, err := generateSaltRandomBytes(p.SaltLength)
 	if err != nil {
 		return nil, err
 	}
@@ -61,40 +58,34 @@ func HashPassword(password string, p *Argon2Params) (*HashResults, error) {
 		[]byte(password),
 		*salt,
 		p.Iterations,
-		p.Memory, 
+		p.Memory,
 		p.Parallelism,
 		p.KeyLength,
 	)
 
 	// Base64 encode the salt and hashed password.
-	saltBase64 := base64.RawStdEncoding.EncodeToString(salt)
+	saltBase64 := base64.RawStdEncoding.EncodeToString(*salt)
 	hashBase64 := base64.RawStdEncoding.EncodeToString(hash)
 
-	params, err := json.Marshal(p)
-	if err != nil {
-		return nil, err
-	}
-
-	paramsBase64 := base64.RawStdEncoding.EncodeToString(params)
-	encodedHash := SaltHashPayload{
+	encodedHash := HashResults{
 		Salt:   saltBase64,
 		Hash:   hashBase64,
-		Params: paramsBase64,
+		Params: p,
 	}
 
 	return &encodedHash, nil
 }
 
-// IsPasswordValid - Compare a password to a hash result
-func IsPasswordValid(givenPassword string, comparator *HashResults) (bool, error) {
-	salt, err = base64.RawStdEncoding.DecodeString(comparator.Params.Salt)
+// PasswordIsValid - Compare a password to a hash result
+func PasswordIsValid(givenPassword string, comparator *HashResults) (bool, error) {
+	salt, err := base64.RawStdEncoding.DecodeString(comparator.Salt)
 	if err != nil {
-			return false, err
+		return false, err
 	}
 
-	comparatorHash, err = base64.RawStdEncoding.DecodeString(comparator.Params.Hash)
+	comparatorHash, err := base64.RawStdEncoding.DecodeString(comparator.Hash)
 	if err != nil {
-			return false, err
+		return false, err
 	}
 
 	contrastHash := argon2.IDKey(
@@ -106,7 +97,7 @@ func IsPasswordValid(givenPassword string, comparator *HashResults) (bool, error
 		comparator.Params.KeyLength,
 	)
 
-	if subtle.ConstantTimeCompare(comparatorHash, contrashHash) == 1 {
+	if subtle.ConstantTimeCompare(comparatorHash, contrastHash) == 1 {
 		return true, nil
 	}
 
