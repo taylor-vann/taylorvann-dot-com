@@ -5,7 +5,6 @@ package whitelistx
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -108,7 +107,7 @@ func Get(key string) (*[]byte, error) {
 	if redisInst == nil {
 		return nil, errors.New("whitelistx - Set - redisInst is nil")
 	}
-	
+
 	// redisInst.Conn.Do
 	return nil, nil
 }
