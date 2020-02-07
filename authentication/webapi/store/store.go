@@ -1,28 +1,31 @@
 // Package store - a representation of our database
 package store
 
-import (
-	"fmt"
-	"webapi/interfaces/storex"
-	"webapi/statements"
-)
+import "webapi/controllers/users"
 
-
-// CreateRequiredDatabases - generate tables in our store
+// CreateRequiredDatabases - 
 func CreateRequiredDatabases() {
-	fmt.Println("CreateRequiredDatabases")
-	fmt.Println(statements.Users.CreateTable)
+	users.CreateTable()
+}
 
-	var result, errUserTable = storex.Exec(statements.Users.CreateTable)
+// UsersPatchWork - bridge controller to store
+type UsersPatchWork struct {}
+// Create -
+func (*UsersPatchWork) Create(p *users.CreateParams) {
+	users.Create(p)
+}
 
-	fmt.Println(result)
-	fmt.Println(errUserTable)
+// Read -
+func (*UsersPatchWork) Read(p *users.ReadParams) {
+	users.Read(p)
+}
 
-	storex.Exec(statements.UsersTest.CreateTable)
+// Update -
+func (*UsersPatchWork) Update(p *users.ReadParams, u *users.UpdateParams) {
+	users.Update(p, u)
+}
 
-	storex.Exec(statements.Passwords.CreateTable)
-	storex.Exec(statements.PasswordsTest.CreateTable)
-
-	storex.Exec(statements.HasPasswords.CreateTable)
-	storex.Exec(statements.HasPasswordsTest.CreateTable)
+// Remove -
+func (*UsersPatchWork) Remove(p *users.RemoveParams) {
+	users.Remove(p)
 }

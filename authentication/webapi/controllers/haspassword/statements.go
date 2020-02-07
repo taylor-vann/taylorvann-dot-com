@@ -1,7 +1,12 @@
 // Package statements - HasPasswordss required of has_password table
 package statements
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+
+	"webapi/constants"
+)
 
 // HasPasswordsSQL - container of valid SQL HasPasswordss
 type HasPasswordsSQL struct {
@@ -54,7 +59,12 @@ RETURNING
 	*;
 `
 
-func createHasPasswords(tableName string) *HasPasswordsSQL {
+func createHasPasswords(environment string) *HasPasswordsSQL {
+	tableName := hasPasswordTest
+	if environment == constants.Production {
+		tableName = hasPassword
+	}
+
 	HasPasswords := HasPasswordsSQL{
 		CreateTable: fmt.Sprintf(createTableHasPasswords, tableName),
 		Create:      fmt.Sprintf(insertHasPassword, tableName),
@@ -65,8 +75,7 @@ func createHasPasswords(tableName string) *HasPasswordsSQL {
 	return &HasPasswords
 }
 
-// HasPasswords - interface to production SQL HasPasswordss
-var HasPasswords = createHasPasswords(hasPassword)
+var envionrment = os.Getenv(constants.Stage)
 
-// HasPasswordsTest - interface to development SQL HasPasswordss
-var HasPasswordsTest = createHasPasswords(hasPasswordTest)
+// Statements - interface to production SQL HasPasswords
+var SQLStatements = createHasPasswords(envionrment)

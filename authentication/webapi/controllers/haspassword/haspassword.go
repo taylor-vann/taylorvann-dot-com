@@ -12,7 +12,6 @@ package haspassword
 
 import (
 	"time"
-	"webapi/haspassword"
 )
 
 // HasPassword - Edge / Connection
@@ -22,7 +21,6 @@ type HasPassword struct {
 	PasswordID int64     `json:"password_id"`
 	CreatedAt  time.Time `json:"created_at"`
 }
-
 
 // CreateParams - arguments for clearer execution
 type CreateParams struct {
@@ -37,7 +35,7 @@ func Create(p *CreateParams) (*PasswordStructure, error) {
 
 // Read - update an entry in our store
 func Read(p *ReadParams) (*PasswordStructure, error) {
-	
+
 }
 
 // Remove - remove an entry from our store

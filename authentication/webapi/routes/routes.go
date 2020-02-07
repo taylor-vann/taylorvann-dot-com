@@ -18,7 +18,7 @@ func CreateRoutes(mux *http.ServeMux) *http.ServeMux {
 	mux.HandleFunc("/remove_user", hooks.Ping)
 
 	// validation - arbitrarily validate a user's password
-	mux.HandleFunc("validate_user", hooks.Ping)
+	mux.HandleFunc("/validate_user", hooks.Ping)
 
 	// sessions - mux.HandleFunc("/create_session", hooks.Ping)
 	mux.HandleFunc("/invalidate_session", hooks.Ping)

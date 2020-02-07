@@ -1,9 +1,13 @@
 // brian taylor vann
 // taylorvann dot com
 
-package statements
+package passwords
 
-import "fmt"
+import (
+	"fmt"
+
+	"webapi/constants"
+)
 
 // PasswordsSQL - container for valid SQL Passwords
 type PasswordsSQL struct {
@@ -78,7 +82,12 @@ RETURNING
 	*;
 `
 
-func createPasswords(tableName string) *PasswordsSQL {
+func createPasswords(environment string) *PasswordsSQL {
+	tableName := passwordTest
+	if environment == constants.Production {
+		tableName = password
+	}
+
 	Passwords := PasswordsSQL{
 		CreateTable: fmt.Sprintf(createTablePasswords, tableName),
 		Create:      fmt.Sprintf(insertPassword, tableName),
@@ -90,8 +99,5 @@ func createPasswords(tableName string) *PasswordsSQL {
 	return &Passwords
 }
 
-// Passwords - interface to production SQL Passwords
-var Passwords = createPasswords(password)
-
-// PasswordsTest - interface to production SQL Passwords
-var PasswordsTest = createPasswords(passwordTest)
+// SQLStatements - interface to production SQL Passwords
+var SQLStatements = createPasswords(password)

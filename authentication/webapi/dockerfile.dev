@@ -3,10 +3,10 @@ FROM golang:alpine
 VOLUME [ "/go/src/webapi" ]
 
 RUN apk add --no-cache git
+RUN apk add build-base
 RUN go get github.com/lib/pq
 RUN go get github.com/gomodule/redigo/redis
 RUN go get golang.org/x/crypto/argon2
-
 
 WORKDIR /go/src/webapi
 

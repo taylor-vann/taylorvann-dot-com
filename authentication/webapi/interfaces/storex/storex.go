@@ -72,11 +72,11 @@ func Exec(query string, args ...interface{}) (sql.Result, error) {
 	return pgsqlxInstance.DB.Exec(query, args...)
 }
 
-// Query - expose a method without exposing entire db interface
-func Query(query string, args ...interface{}) (*sql.Rows, error) {
+// QueryRow - expose a method without exposing entire db interface
+func QueryRow(query string, args ...interface{}) (*sql.Row, error) {
 	if pgsqlxErr != nil {
 		return nil, errors.New("storex - Query - there is not a valid instance of pgsqlx")
 	}
 
-	return pgsqlxInstance.DB.Query(query, args...)
+	return pgsqlxInstance.DB.QueryRow(query, args...), nil
 }

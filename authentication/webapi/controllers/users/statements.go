@@ -1,7 +1,12 @@
-// Package statements - statements required of users table
-package statements
+// Package users - statements required of users table
+package users
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+
+	"webapi/constants"
+)
 
 // UsersSQL - container of valid sql strings
 type UsersSQL struct {
@@ -18,7 +23,7 @@ const usersTest = "users_test"
 const createTableUsers = `
 CREATE TABLE IF NOT EXISTS %s (
   id BIGSERIAL PRIMARY KEY,
-  email VARCHAR(512) UNIQUE NOT NULL,
+	email VARCHAR(512) UNIQUE NOT NULL,
   is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
   created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
@@ -67,7 +72,12 @@ RETURNING
 	*;
 `
 
-func createUsers(tableName string) *UsersSQL {
+func createUsersStatements(environment string) *UsersSQL {
+	tableName := usersTest
+	if environment == constants.Production {
+		tableName = users
+	}
+
 	Users := UsersSQL{
 		CreateTable: fmt.Sprintf(createTableUsers, tableName),
 		Create:      fmt.Sprintf(insertUser, tableName),
@@ -79,8 +89,7 @@ func createUsers(tableName string) *UsersSQL {
 	return &Users
 }
 
-// Users - interface to production SQL Userss
-var Users = createUsers(users)
+var envionrment = os.Getenv(constants.Stage)
 
-// UsersTest - interface to development SQL Userss
-var UsersTest = createUsers(usersTest)
+// SQLStatements - interface to production SQL Userss
+var SQLStatements = createUsersStatements(envionrment)
