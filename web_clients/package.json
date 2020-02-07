@@ -61,7 +61,8 @@
     "serialize-javascript": "^2.1.1"
   },
   "scripts": {
-    "build": "webpack --mode production --config webpack.config.ts",
-    "dev": "webpack-dev-server --config webpack.config.dev.ts --host 0.0.0.0 --port 8081"
+    "build": "webpack --config webpack.config.ts",
+    "dev_web_client": "webpack-dev-server --config webpack.config.dev.ts --entry ./web_client/src/app_root.tsx --host 0.0.0.0 --port 3000",
+    "dev_internal_login": "webpack-dev-server --config webpack.config.dev.ts --entry ./internal_login/src/app_root.tsx --host 0.0.0.0 --port 3005"
   }
 }

@@ -1,20 +1,19 @@
-import { TypedCssModulesPlugin } from "typed-css-modules-webpack-plugin";
 import * as HtmlWebPackPlugin from "html-webpack-plugin";
 import * as MiniCSSExtractPlugin from "mini-css-extract-plugin";
-import * as CompressionWebpackPlugin from "compression-webpack-plugin";
 import * as path from "path";
+import { TypedCssModulesPlugin } from "typed-css-modules-webpack-plugin";
 
 // html loader
 const htmlPlugin: HtmlWebPackPlugin = new HtmlWebPackPlugin({
   filname: "index.html",
-  template: "./src/index_template.ejs",
+  template: "./index_template.ejs",
   title: "Three Demo",
 });
 
 // create css plugin
 const cssExtractPlugin = new MiniCSSExtractPlugin({
-  filename: "styles/[name].css",
-  chunkFilename: "styles/[id].css",
+  filename: "./[name]/dist/styles/bundled_styles.css",
+  chunkFilename: "./[name]/dist/styles/chunks/[id].css",
   ignoreOrder: false, // Enable to remove warnings about conflicting order
 });
 
@@ -23,11 +22,10 @@ const typedCssModulesPlugin = new TypedCssModulesPlugin({
   globPattern: "src/components/**.css",
 });
 
-const compressionPlugin = new CompressionWebpackPlugin({
-  filename: "compressed/bundled_app.gzip",
-});
-
-const sharedEntry = "./src/app_root.tsx";
+const sharedEntry = {
+  web_client: "./web_client/src/app_root.tsx",
+  internal_web_client: "./internal_web_client/src/app_root.tsx",
+};
 
 const sharedModules = {
   rules: [
@@ -87,16 +85,11 @@ const sharedModules = {
 };
 
 const sharedOutput = {
-  filename: "js/bundled_typescript.js",
-  path: path.resolve(__dirname, "prod"),
+  filename: "./[name]/dist/js/bundled_typesecript.js",
+  path: path.resolve(__dirname),
 };
 
-const sharedPlugins = [
-  htmlPlugin,
-  cssExtractPlugin,
-  typedCssModulesPlugin,
-  compressionPlugin,
-];
+const sharedPlugins = [htmlPlugin, cssExtractPlugin, typedCssModulesPlugin];
 
 const sharedResolve = {
   extensions: [".js", ".jsx", ".ts", ".tsx"],
