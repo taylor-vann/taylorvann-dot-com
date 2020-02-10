@@ -23,7 +23,6 @@ const (
 )
 
 func getConfigFromEnv() (*pgsqlx.PGConfig, error) {
-	fmt.Println("yo dawwg")
 	// get env variables
 	host := os.Getenv(pgHost)
 	port := os.Getenv(pgPort)
@@ -72,11 +71,11 @@ func Exec(query string, args ...interface{}) (sql.Result, error) {
 	return pgsqlxInstance.DB.Exec(query, args...)
 }
 
-// QueryRow - expose a method without exposing entire db interface
-func QueryRow(query string, args ...interface{}) (*sql.Row, error) {
+// Query - expose a method without exposing entire db interface
+func Query(query string, args ...interface{}) (*sql.Rows, error) {
 	if pgsqlxErr != nil {
 		return nil, errors.New("storex - Query - there is not a valid instance of pgsqlx")
 	}
 
-	return pgsqlxInstance.DB.QueryRow(query, args...), nil
+	return pgsqlxInstance.DB.Query(query, args...)
 }

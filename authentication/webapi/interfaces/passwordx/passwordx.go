@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"crypto/subtle"
 	"encoding/base64"
+	"errors"
 
 	"golang.org/x/crypto/argon2"
 )
@@ -78,6 +79,9 @@ func HashPassword(password string, p *HashParams) (*HashResults, error) {
 
 // PasswordIsValid - Compare a password to a hash result
 func PasswordIsValid(givenPassword string, comparator *HashResults) (bool, error) {
+	if comparator == nil {
+		return false, errors.New("nil hash results given")
+	}
 	salt, err := base64.RawStdEncoding.DecodeString(comparator.Salt)
 	if err != nil {
 		return false, err
