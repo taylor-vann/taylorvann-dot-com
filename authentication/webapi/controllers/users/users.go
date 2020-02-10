@@ -12,9 +12,11 @@ package users
 
 import (
 	"database/sql"
+	"errors"
 	"time"
 
 	"webapi/interfaces/storex"
+	"webapi/utils"
 )
 
 // UsersRow - Expected PostgreSQL structure
@@ -26,6 +28,9 @@ type UsersRow struct {
 	UpdatedAt time.Time `json:"updated_at"` // milli seconds
 }
 
+// Users -
+type Users = []UsersRow
+
 // CreateParams - arguments needed for entry
 type CreateParams struct {
 	Email string `json:"email"`
@@ -35,70 +40,113 @@ type CreateParams struct {
 type ReadParams = CreateParams
 
 // UpdateParams - identical arguments needed for password update
-type UpdateParams = CreateParams
+type UpdateParams struct {
+	CurrentEmail       string
+	UpdatedEmail       string
+	RequestedTimestamp int64
+}
 
 // RemoveParams - identical arguments needed to remove an entry
 type RemoveParams = CreateParams
 
-// createUsersRow -
-func createUsersRow(row *sql.Row) (*UsersRow, error) {
+// CreateUsersRow -
+func CreateUsersRow(rows *sql.Rows) (*UsersRow, error) {
 	var user UsersRow
-	errScan := row.Scan(
-		&user.ID,
-		&user.Email,
-		&user.IsDeleted,
-		&user.CreatedAt,
-		&user.UpdatedAt,
-	)
+	if rows.Next() {
+		errScan := rows.Scan(
+			&user.ID,
+			&user.Email,
+			&user.IsDeleted,
+			&user.CreatedAt,
+			&user.UpdatedAt,
+		)
 
-	return &user, errScan
+		if errScan != nil {
+			return nil, errScan
+		}
+
+		return &user, nil
+	}
+
+	rows.Close()
+
+	return nil, nil
 }
 
 // CreateTable -
-func CreateTable() (sql.Result, error) {
-	return storex.Exec(SQLStatements.CreateTable)
+func CreateTable() (*sql.Result, error) {
+	result, err := storex.Exec(SQLStatements.CreateTable)
+	return &result, err
 }
 
 // Create - create a password entry in our store
 func Create(p *CreateParams) (*UsersRow, error) {
-	row, errQueryRow := storex.QueryRow(SQLStatements.Create, p.Email)
+	if p == nil {
+		return nil, errors.New("nil parameters provided")
+	}
+
+	row, errQueryRow := storex.Query(
+		SQLStatements.Create,
+		p.Email,
+	)
+
 	if errQueryRow != nil {
 		return nil, errQueryRow
 	}
 
-	return createUsersRow(row)
+	return CreateUsersRow(row)
 }
 
 // Read - update an entry in our store
 func Read(p *ReadParams) (*UsersRow, error) {
-	row, errQueryRow := storex.QueryRow(SQLStatements.Read, p.Email)
-	if errQueryRow != nil {
-		return nil, errQueryRow
+	if p == nil {
+		return nil, errors.New("nil parameters provided")
 	}
 
-	return createUsersRow(row)
-}
-
-// Update - update an entry in our store
-func Update(readParams *ReadParams, updateParams *UpdateParams) (*UsersRow, error) {
-	row, errQueryRow := storex.QueryRow(
-		SQLStatements.Update,
-		readParams.Email,
-		updateParams.Email,
+	row, errQueryRow := storex.Query(
+		SQLStatements.Read,
+		p.Email,
 	)
 	if errQueryRow != nil {
 		return nil, errQueryRow
 	}
 
-	return createUsersRow(row)
+	return CreateUsersRow(row)
 }
 
-// Remove - remove an entry from our store
-func Remove(p *RemoveParams) (*UsersRow, error) {
-	row, errQueryRow := storex.QueryRow(SQLStatements.Remove, p.Email)
+// Update - update an entry in our store
+func Update(p *UpdateParams) (*UsersRow, error) {
+	if p == nil {
+		return nil, errors.New("nil parameters provided")
+	}
+
+	row, errQueryRow := storex.Query(
+		SQLStatements.Update,
+		p.CurrentEmail,
+		p.UpdatedEmail,
+		utils.GetNowAsMS(),
+	)
 	if errQueryRow != nil {
 		return nil, errQueryRow
 	}
 
-	return createUsersRow(row)
+	return CreateUsersRow(row)
+}
+
+// Remove - remove an entry from our store
+func Remove(p *RemoveParams) (*UsersRow, error) {
+	if p == nil {
+		return nil, errors.New("nil parameters provided")
+	}
+
+	row, errQueryRow := storex.Query(
+		SQLStatements.Remove,
+		p.Email,
+		utils.GetNowAsMS(),
+	)
+	if errQueryRow != nil {
+		return nil, errQueryRow
+	}
+
+	return CreateUsersRow(row)
 }

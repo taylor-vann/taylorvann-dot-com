@@ -18,8 +18,8 @@ type PasswordsSQL struct {
 	Remove      string
 }
 
-const password = "password"
-const passwordTest = "password_test"
+const password = "passwords"
+const passwordTest = "passwords_test"
 
 // sCreateTablePassword - create table Passwords
 const createTablePasswords = `
@@ -67,7 +67,9 @@ SET
 	params = $4,
   updated_at = CURRENT_TIMESTAMP(3)
 WHERE
-	id = $1
+	id = $1 AND
+	TO_TIMESTAMP($5::DOUBLE PRECISION * 0.001) 
+		BETWEEN updated_at AND CURRENT_TIMESTAMP(3)
 RETURNING 
 	*;
 `
@@ -77,7 +79,9 @@ const removePassword = `
 DELETE FROM
 	%s
 WHERE
-	id = $1
+	id = $1 AND
+	TO_TIMESTAMP($2::DOUBLE PRECISION * 0.001)
+		BETWEEN updated_at AND CURRENT_TIMESTAMP(3)
 RETURNING 
 	*;
 `

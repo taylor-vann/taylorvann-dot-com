@@ -188,7 +188,7 @@ func TestRemoveRow(t *testing.T) {
 	}
 
 	verifiedDeleteResult, errorDeleteResult := Read(&readParams)
-	if errorDeleteResult == nil {
+	if errorDeleteResult != nil {
 		t.Error("Error double checking deleted password")
 	}
 	if verifiedDeleteResult != nil {

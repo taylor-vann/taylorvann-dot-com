@@ -6,11 +6,16 @@ import (
 )
 
 var testUser = CreateParams{
-	"test_user@test_email.test",
+	Email: "test_user@test_email.test",
 }
 
-var testUserUpdated = CreateParams{
-	"next_test_user@test_email.test",
+var testUserUpdated = UpdateParams{
+	CurrentEmail: "test_user@test_email.test",
+	UpdatedEmail: "next_test_user@test_email.test",
+}
+
+var testUserRemoveUpdated = CreateParams{
+	Email: "next_test_user@test_email.test",
 }
 
 func TestCreateTable(t *testing.T) {
@@ -29,16 +34,17 @@ func TestCreateRow(t *testing.T) {
 		t.Error("Error creating user row.")
 		fmt.Println(err)
 	}
+
 	if result == nil {
 		t.Error("No results were returned from Create.")
 	}
-	if result.Email != testUser.Email {
+	if result != nil && result.Email != testUser.Email {
 		t.Error("Failed to create user row.")
 	}
-	if result.IsDeleted == true {
+	if result != nil && result.IsDeleted == true {
 		t.Error("Row should be deleted")
 	}
-	if result.CreatedAt != result.UpdatedAt {
+	if result != nil && result.CreatedAt != result.UpdatedAt {
 		t.Error("CreatedAt does not equal UpdatedAt.")
 	}
 }
@@ -52,17 +58,16 @@ func TestReadRow(t *testing.T) {
 	if result == nil {
 		t.Error("No results were returned from Read.")
 	}
-	if result.Email != testUser.Email {
+	if result != nil && result.Email != testUser.Email {
 		t.Error("Failed to read user row.")
 	}
-	if result.CreatedAt != result.UpdatedAt {
+	if result != nil && result.CreatedAt != result.UpdatedAt {
 		t.Error("CreatedAt does not equal UpdatedAt.")
 	}
-	fmt.Println(result)
 }
 
 func TestUpdateRow(t *testing.T) {
-	result, err := Update(&testUser, &testUserUpdated)
+	result, err := Update(&testUserUpdated)
 	if err != nil {
 		t.Error("Error updating user row.")
 		fmt.Println(err)
@@ -70,19 +75,19 @@ func TestUpdateRow(t *testing.T) {
 	if result == nil {
 		t.Error("No results were returned from Update.")
 	}
-	if result.Email == testUser.Email {
-		t.Error("Failed to updated user.")
+	if result != nil && result.Email == testUser.Email {
+		t.Error("Failed to updated email.")
 	}
-	if result.Email != testUserUpdated.Email {
-		t.Error("Failed to correctly update user.")
+	if result != nil && result.Email != testUserUpdated.UpdatedEmail {
+		t.Error("Failed to correctly update email.")
 	}
-	if result.CreatedAt == result.UpdatedAt {
+	if result != nil && result.CreatedAt == result.UpdatedAt {
 		t.Error("CreatedAt should not equal UpdatedAt.")
 	}
 }
 
 func TestRemoveRow(t *testing.T) {
-	result, err := Remove(&testUserUpdated)
+	result, err := Remove(&testUserRemoveUpdated)
 	if err != nil {
 		t.Error("Error removing user row.")
 		fmt.Println(err)
@@ -90,13 +95,10 @@ func TestRemoveRow(t *testing.T) {
 	if result == nil {
 		t.Error("No results were returned from Remove.")
 	}
-	if result.Email == testUser.Email {
+	if result != nil && result.Email != testUserUpdated.UpdatedEmail {
 		t.Error("Failed to remove correct user.")
 	}
-	if result.CreatedAt == result.UpdatedAt {
-		t.Error("CreatedAt should not equal UpdatedAt.")
-	}
-	if result.IsDeleted == false {
+	if result != nil && result.IsDeleted == false {
 		t.Error("IsDeleted should be true")
 	}
 }

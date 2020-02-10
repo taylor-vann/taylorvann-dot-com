@@ -26,13 +26,14 @@ CREATE TABLE IF NOT EXISTS %s (
 	email VARCHAR(512) UNIQUE NOT NULL,
   is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
   created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-  updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
+	updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
 );
 `
 
 const insertUser = `
-INSERT INTO %s
-  (email)
+INSERT INTO %s (
+	email
+)
 VALUES 
   ($1)
 RETURNING
@@ -52,10 +53,12 @@ const updateUser = `
 UPDATE
 	%s
 SET
-  email = $2,
+	email = $2,
   updated_at = CURRENT_TIMESTAMP(3)
 WHERE
-	email = $1
+	email = $1 AND
+	TO_TIMESTAMP($3::DOUBLE PRECISION * 0.001) 
+		BETWEEN updated_at AND CURRENT_TIMESTAMP(3)
 RETURNING 
 	*;
 `
@@ -67,7 +70,9 @@ SET
   is_deleted = TRUE,
   updated_at = CURRENT_TIMESTAMP(3)
 WHERE
-	email = $1
+	email = $1 AND
+	TO_TIMESTAMP($2::DOUBLE PRECISION * 0.001) 
+		BETWEEN updated_at AND CURRENT_TIMESTAMP(3)
 RETURNING
 	*;
 `

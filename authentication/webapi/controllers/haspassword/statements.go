@@ -1,5 +1,4 @@
-// Package statements - HasPasswordss required of has_password table
-package statements
+package haspassword
 
 import (
 	"fmt"
@@ -13,20 +12,22 @@ type HasPasswordsSQL struct {
 	CreateTable string
 	Create      string
 	Read        string
+	Update			string
 	Remove      string
 }
 
-const hasPassword = "has_password"
-const hasPasswordTest = "has_password_test"
+const hasPassword = "haspassword"
+const hasPasswordTest = "haspassword_test"
 
 // CreateTableHasPasswords - Create table HasPasswords
-const createTableHasPasswords = `
+const createTableHasPassword = `
 CREATE TABLE IF NOT EXISTS %s (
 	id BIGSERIAL PRIMARY KEY,
 	user_id BIGINT UNIQUE NOT NULL,
 	password_id BIGINT UNIQUE NOT NULL,
-  created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
-)
+	created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+	updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
+);
 `
 
 const insertHasPassword = `
@@ -50,25 +51,42 @@ WHERE
 	user_id = $1;
 `
 
-const removeHasPassword = `
-DELETE FROM
+const updateHasPassword = `
+UPDATE
 	%s
+SET
+  password_id = $2,
+  updated_at = CURRENT_TIMESTAMP(3)
 WHERE
-	user_id = $1
+	user_id = $1 AND
+	TO_TIMESTAMP($3::DOUBLE PRECISION * 0.001) 
+		BETWEEN updated_at AND CURRENT_TIMESTAMP(3)
 RETURNING 
 	*;
 `
 
-func createHasPasswords(environment string) *HasPasswordsSQL {
+const removeHasPassword = `
+DELETE FROM
+	%s
+WHERE
+	user_id = $1 AND
+	TO_TIMESTAMP($2::DOUBLE PRECISION * 0.001) 
+		BETWEEN updated_at AND CURRENT_TIMESTAMP(3)
+RETURNING 
+	*;
+`
+
+func createHasPassword(environment string) *HasPasswordsSQL {
 	tableName := hasPasswordTest
 	if environment == constants.Production {
 		tableName = hasPassword
 	}
 
 	HasPasswords := HasPasswordsSQL{
-		CreateTable: fmt.Sprintf(createTableHasPasswords, tableName),
+		CreateTable: fmt.Sprintf(createTableHasPassword, tableName),
 		Create:      fmt.Sprintf(insertHasPassword, tableName),
 		Read:        fmt.Sprintf(readHasPassword, tableName),
+		Update:      fmt.Sprintf(updateHasPassword, tableName),
 		Remove:      fmt.Sprintf(removeHasPassword, tableName),
 	}
 
@@ -77,5 +95,5 @@ func createHasPasswords(environment string) *HasPasswordsSQL {
 
 var envionrment = os.Getenv(constants.Stage)
 
-// Statements - interface to production SQL HasPasswords
-var SQLStatements = createHasPasswords(envionrment)
+// SQLStatements - interface to production SQL HasPasswords
+var SQLStatements = createHasPassword(envionrment)

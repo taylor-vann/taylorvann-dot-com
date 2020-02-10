@@ -18,6 +18,7 @@ import (
 
 	"webapi/interfaces/passwordx"
 	"webapi/interfaces/storex"
+	"webapi/utils"
 )
 
 // HashParams - Expected hash structure
@@ -49,29 +50,34 @@ type UpdateParams = CreateParams
 // RemoveParams - identical arguments needed to remove an entry
 type RemoveParams = ReadParams
 
-// createPasswordRow -
-func createPasswordRow(row *sql.Row) (*PasswordsRow, error) {
+// CreatePasswordsRow -
+func CreatePasswordsRow(rows *sql.Rows) (*PasswordsRow, error) {
 	var password PasswordsRow
-	var jsonParamsAsStr string
-	errScan := row.Scan(
-		&password.ID,
-		&password.Salt,
-		&password.Hash,
-		&jsonParamsAsStr,
-		&password.UpdatedAt,
-		&password.CreatedAt,
-	)
+	if rows.Next() {
+		var jsonParamsAsStr string
+		errScan := rows.Scan(
+			&password.ID,
+			&password.Salt,
+			&password.Hash,
+			&jsonParamsAsStr,
+			&password.UpdatedAt,
+			&password.CreatedAt,
+		)
+		if errScan != nil {
+			return nil, errScan
+		}
 
-	if errScan != nil {
-		return nil, errScan
+		errMarshal := json.Unmarshal([]byte(jsonParamsAsStr), &password.Params)
+		if errMarshal != nil {
+			return nil, errMarshal
+		}
+
+		return &password, nil
 	}
 
-	errMarshal := json.Unmarshal([]byte(jsonParamsAsStr), &password.Params)
-	if errMarshal != nil {
-		return nil, errMarshal
-	}
+	rows.Close()
 
-	return &password, nil
+	return nil, nil
 }
 
 // CreateTable -
@@ -98,7 +104,7 @@ func Create(p *CreateParams) (*PasswordsRow, error) {
 		return nil, errMarshal
 	}
 
-	row, errQueryRow := storex.QueryRow(
+	row, errQueryRow := storex.Query(
 		SQLStatements.Create,
 		hashedPassword.Salt,
 		hashedPassword.Hash,
@@ -108,7 +114,7 @@ func Create(p *CreateParams) (*PasswordsRow, error) {
 		return nil, errQueryRow
 	}
 
-	return createPasswordRow(row)
+	return CreatePasswordsRow(row)
 }
 
 // Read - update an entry in our store
@@ -117,12 +123,12 @@ func Read(p *ReadParams) (*PasswordsRow, error) {
 		return nil, errors.New("passwords:Read - nil parameters")
 	}
 
-	row, errQueryRow := storex.QueryRow(SQLStatements.Read, p.ID)
+	row, errQueryRow := storex.Query(SQLStatements.Read, p.ID)
 	if errQueryRow != nil {
 		return nil, errQueryRow
 	}
 
-	return createPasswordRow(row)
+	return CreatePasswordsRow(row)
 }
 
 // Update - update an entry in our store
@@ -147,26 +153,31 @@ func Update(readParams *ReadParams, updateParams *UpdateParams) (*PasswordsRow, 
 		return nil, errMarshal
 	}
 
-	row, errQueryRow := storex.QueryRow(
+	row, errQueryRow := storex.Query(
 		SQLStatements.Update,
 		readParams.ID,
 		hashedPassword.Salt,
 		hashedPassword.Hash,
 		marshaledParams,
+		utils.GetNowAsMS(),
 	)
 	if errQueryRow != nil {
 		return nil, errQueryRow
 	}
 
-	return createPasswordRow(row)
+	return CreatePasswordsRow(row)
 }
 
 // Remove - remove an entry from our store
 func Remove(p *RemoveParams) (*PasswordsRow, error) {
-	row, errQueryRow := storex.QueryRow(SQLStatements.Remove, p.ID)
+	row, errQueryRow := storex.Query(
+		SQLStatements.Remove,
+		p.ID,
+		utils.GetNowAsMS(),
+	)
 	if errQueryRow != nil {
 		return nil, errQueryRow
 	}
 
-	return createPasswordRow(row)
+	return CreatePasswordsRow(row)
 }
