@@ -18,9 +18,6 @@ type PasswordsSQL struct {
 	Remove      string
 }
 
-const password = "passwords"
-const passwordTest = "passwords_test"
-
 // sCreateTablePassword - create table Passwords
 const createTablePasswords = `
 CREATE TABLE IF NOT EXISTS %s (
@@ -86,22 +83,17 @@ RETURNING
 	*;
 `
 
-func createPasswords(environment string) *PasswordsSQL {
-	tableName := passwordTest
-	if environment == constants.Production {
-		tableName = password
-	}
-
+func createPasswords() *PasswordsSQL {
 	Passwords := PasswordsSQL{
-		CreateTable: fmt.Sprintf(createTablePasswords, tableName),
-		Create:      fmt.Sprintf(insertPassword, tableName),
-		Read:        fmt.Sprintf(readPassword, tableName),
-		Update:      fmt.Sprintf(updatePassword, tableName),
-		Remove:      fmt.Sprintf(removePassword, tableName),
+		CreateTable: fmt.Sprintf(createTablePasswords, constants.Tables.Passwords),
+		Create:      fmt.Sprintf(insertPassword, constants.Tables.Passwords),
+		Read:        fmt.Sprintf(readPassword, constants.Tables.Passwords),
+		Update:      fmt.Sprintf(updatePassword, constants.Tables.Passwords),
+		Remove:      fmt.Sprintf(removePassword, constants.Tables.Passwords),
 	}
 
 	return &Passwords
 }
 
 // SQLStatements - interface to production SQL Passwords
-var SQLStatements = createPasswords(password)
+var SQLStatements = createPasswords()

@@ -2,7 +2,6 @@ package haspassword
 
 import (
 	"fmt"
-	"os"
 
 	"webapi/constants"
 )
@@ -12,12 +11,9 @@ type HasPasswordsSQL struct {
 	CreateTable string
 	Create      string
 	Read        string
-	Update			string
+	Update      string
 	Remove      string
 }
-
-const hasPassword = "haspassword"
-const hasPasswordTest = "haspassword_test"
 
 // CreateTableHasPasswords - Create table HasPasswords
 const createTableHasPassword = `
@@ -76,24 +72,17 @@ RETURNING
 	*;
 `
 
-func createHasPassword(environment string) *HasPasswordsSQL {
-	tableName := hasPasswordTest
-	if environment == constants.Production {
-		tableName = hasPassword
-	}
-
+func createHasPassword() *HasPasswordsSQL {
 	HasPasswords := HasPasswordsSQL{
-		CreateTable: fmt.Sprintf(createTableHasPassword, tableName),
-		Create:      fmt.Sprintf(insertHasPassword, tableName),
-		Read:        fmt.Sprintf(readHasPassword, tableName),
-		Update:      fmt.Sprintf(updateHasPassword, tableName),
-		Remove:      fmt.Sprintf(removeHasPassword, tableName),
+		CreateTable: fmt.Sprintf(createTableHasPassword, constants.Tables.HasPassword),
+		Create:      fmt.Sprintf(insertHasPassword, constants.Tables.HasPassword),
+		Read:        fmt.Sprintf(readHasPassword, constants.Tables.HasPassword),
+		Update:      fmt.Sprintf(updateHasPassword, constants.Tables.HasPassword),
+		Remove:      fmt.Sprintf(removeHasPassword, constants.Tables.HasPassword),
 	}
 
 	return &HasPasswords
 }
 
-var envionrment = os.Getenv(constants.Stage)
-
 // SQLStatements - interface to production SQL HasPasswords
-var SQLStatements = createHasPassword(envionrment)
+var SQLStatements = createHasPassword()

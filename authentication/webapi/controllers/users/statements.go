@@ -3,7 +3,6 @@ package users
 
 import (
 	"fmt"
-	"os"
 
 	"webapi/constants"
 )
@@ -16,9 +15,6 @@ type UsersSQL struct {
 	Update      string
 	Remove      string
 }
-
-const users = "users"
-const usersTest = "users_test"
 
 const createTableUsers = `
 CREATE TABLE IF NOT EXISTS %s (
@@ -77,24 +73,17 @@ RETURNING
 	*;
 `
 
-func createUsersStatements(environment string) *UsersSQL {
-	tableName := usersTest
-	if environment == constants.Production {
-		tableName = users
-	}
-
+func createUsersStatements() *UsersSQL {
 	Users := UsersSQL{
-		CreateTable: fmt.Sprintf(createTableUsers, tableName),
-		Create:      fmt.Sprintf(insertUser, tableName),
-		Read:        fmt.Sprintf(readUser, tableName),
-		Update:      fmt.Sprintf(updateUser, tableName),
-		Remove:      fmt.Sprintf(updateAsDeletedUser, tableName),
+		CreateTable: fmt.Sprintf(createTableUsers, constants.Tables.Users),
+		Create:      fmt.Sprintf(insertUser, constants.Tables.Users),
+		Read:        fmt.Sprintf(readUser, constants.Tables.Users),
+		Update:      fmt.Sprintf(updateUser, constants.Tables.Users),
+		Remove:      fmt.Sprintf(updateAsDeletedUser, constants.Tables.Users),
 	}
 
 	return &Users
 }
 
-var envionrment = os.Getenv(constants.Stage)
-
 // SQLStatements - interface to production SQL Userss
-var SQLStatements = createUsersStatements(envionrment)
+var SQLStatements = createUsersStatements()
