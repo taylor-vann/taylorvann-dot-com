@@ -4,8 +4,9 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	// lib/pq is called for its side-effects against database/sql
+
 	_ "github.com/lib/pq"
+	pgsqlxc "webapi/interfaces/pgsqlx/constants"
 )
 
 // PGConfig - Required config to connect to PosgreSQL
@@ -32,7 +33,7 @@ func (pgconn *PGConnection) Close() (*PGConnection, error) {
 	err := pgconn.DB.Close()
 	if err != nil {
 		return pgconn, errors.New(
-			"pgsqlx - pgsql_interface - failed to close postgresql connection",
+			"pgsqlx.PGConnection.Close() - failed to close postgresql connection",
 		)
 	}
 
@@ -41,8 +42,12 @@ func (pgconn *PGConnection) Close() (*PGConnection, error) {
 
 // Create - Establish a new connection and return
 func Create(config *PGConfig) (*PGConnection, error) {
+	if config == nil {
+		return nil, errors.New("pgsqlx.Create() - nil config provided")
+	}
+
 	connStr := fmt.Sprintf(
-		"postgresql://%s:%s@%s:%d/%s?sslmode=disable",
+		pgsqlxc.ConnectionString,
 		config.Username,
 		config.Password,
 		config.Host,
@@ -54,6 +59,9 @@ func Create(config *PGConfig) (*PGConnection, error) {
 		"postgres",
 		connStr,
 	)
+
+	fmt.Println(err)
+	fmt.Println(db)
 
 	if err != nil {
 		return nil, err
