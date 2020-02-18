@@ -1,3 +1,7 @@
+// brian taylor vann
+// taylorvann dot com
+
+// Package pgsqlx - utility methods to interface with a postgresql instance
 package pgsqlx
 
 import (
