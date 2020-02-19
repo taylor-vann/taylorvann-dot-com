@@ -1,0 +1,5 @@
+FROM postgres:alpine
+
+VOLUME [ "/var/lib/postgresql/data/" ]
+
+EXPOSE 5100
