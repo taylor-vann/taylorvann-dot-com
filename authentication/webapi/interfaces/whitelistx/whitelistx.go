@@ -5,83 +5,22 @@ package whitelistx
 
 import (
 	"errors"
-	"os"
-	"strconv"
-	"time"
+	"github.com/gomodule/redigo/redis"
 
 	"webapi/interfaces/redisx"
-)
-
-// Constants for Env Variables
-const (
-	redisHost               = "HOST_REDIS"
-	redisPort               = "PORT_REDIS"
-	redisProtocol           = "REDIS_PROTOCOL"
-	redisMaxActive          = "REDIS_MAX_ACTIVE"
-	redisMaxIdle            = "REDIS_MAX_IDLE"
-	redisIdleTimeoutSeconds = "REDIS_IDLE_TIMEOUT_SECONDS"
-)
-
-// Redis Constants
-const (
-	redisGet    = "GET"
-	redisSet    = "SET"
-	redisExpire = "EXPIRE"
+	"webapi/interfaces/whitelistx/constants"
+	"webapi/utils"
 )
 
 // Get config from environemnt variables
 func getConfigFromEnv() (*redisx.RedisConfig, error) {
-	host := os.Getenv(redisHost)
-	port := os.Getenv(redisPort)
-	protocol := os.Getenv(redisProtocol)
-	maxIdle := os.Getenv(redisMaxIdle)
-	maxActive := os.Getenv(redisMaxActive)
-	idleTimoutSeconds := os.Getenv(redisIdleTimeoutSeconds)
-
-	if host == "" || port == "" || protocol == "" || maxIdle == "" || maxActive == "" || idleTimoutSeconds == "" {
-		return nil, errors.New(
-			"redisx - getConfigFromEnv - unable to import required evnironment variables",
-		)
-	}
-
-	portAsInt, err := strconv.Atoi(port)
-	if err != nil {
-		return nil, errors.New(
-			"redisx - getConfigFromEnv - could not convert env variable 'port' to int",
-		)
-	}
-
-	maxIdleAsInt, err := strconv.Atoi(maxIdle)
-	if err != nil {
-		return nil, errors.New(
-			"redisx - getConfigFromEnv - could not convert env variable 'numberOfConnections' to int",
-		)
-	}
-
-	maxActiveAsInt, err := strconv.Atoi(maxActive)
-	if err != nil {
-		return nil, errors.New(
-			"redisx - getConfigFromEnv - could not convert env variable 'numberOfConnections' to int",
-		)
-	}
-
-	idleTimoutSecondsAsInt, err := strconv.Atoi(idleTimoutSeconds)
-	if err != nil {
-		return nil, errors.New(
-			"redisx - getConfigFromEnv - could not convert env variable 'numberOfConnections' to int",
-		)
-	}
-
-	idleTimeoutAsTime := time.Duration(idleTimoutSecondsAsInt) * time.Second
-
-	// apply env variables to config
 	config := redisx.RedisConfig{
-		Host:        host,
-		Port:        portAsInt,
-		Protocol:    protocol,
-		MaxIdle:     maxIdleAsInt,
-		IdleTimeout: idleTimeoutAsTime,
-		MaxActive:   maxActiveAsInt,
+		Host:        constants.Env.Host,
+		Port:        constants.Env.Port,
+		Protocol:    constants.Env.Protocol,
+		MaxIdle:     constants.Env.MaxIdle,
+		IdleTimeout: constants.Env.IdleTimeout,
+		MaxActive:   constants.Env.MaxActive,
 	}
 
 	return &config, nil
@@ -93,13 +32,52 @@ var redisConf, errConfig = getConfigFromEnv()
 // create instance of redis pool
 var redisInst, errRedisx = redisx.Create(redisConf)
 
+// Ping -
+func Ping() (*string, error) {
+	if redisInst == nil {
+		return nil, errors.New("whitelistx - Ping - redisInst is nil")
+	}
+
+	conn, errConn := redisInst.Store.Dial()
+	if errConn != nil {
+		return nil, errConn
+	}
+
+	result, errResult := redis.String(conn.Do("PING"))
+	conn.Close()
+	if errResult != nil {
+		return nil, errResult
+	}
+
+	return &result, nil
+}
+
 // SetAndExpire - controlled set function
-func SetAndExpire(key string, value *[]byte, expireSeconds int) (bool, error) {
+func SetAndExpire(key string, value *[]byte, expireMS utils.MilliSeconds) (bool, error) {
 	if redisInst == nil {
 		return false, errors.New("whitelistx - Set - redisInst is nil")
 	}
 
-	return true, nil
+	conn, errConn := redisInst.Store.Dial()
+	if errConn != nil {
+		return false, errConn
+	}
+
+	result, errResult := redis.String(
+		conn.Do(
+			constants.Set,
+			key,
+			*value,
+			constants.Px,
+			expireMS,
+		),
+	)
+	conn.Close()
+	if errResult != nil {
+		return false, errResult
+	}
+
+	return result == constants.Ok, errResult
 }
 
 // Get - controlled get function
@@ -108,11 +86,47 @@ func Get(key string) (*[]byte, error) {
 		return nil, errors.New("whitelistx - Set - redisInst is nil")
 	}
 
-	// redisInst.Conn.Do
-	return nil, nil
+	conn, errConn := redisInst.Store.Dial()
+	if errConn != nil {
+		return nil, errConn
+	}
+
+	result, errResult := conn.Do(constants.Get, key)
+	if errResult != nil {
+		return nil, errResult
+	}
+
+	if result == nil {
+		return nil, errResult
+	}
+
+	resultAsBytes, errResultAsBytes := redis.Bytes(result, errResult)
+	conn.Close()
+	if errResultAsBytes != nil {
+		return nil, errResultAsBytes
+	}
+
+	return &resultAsBytes, nil
 }
 
-// Remove - controlled remove function
+// Remove - controlled set function
 func Remove(key string) (bool, error) {
-	return false, nil
+	if redisInst == nil {
+		return false, errors.New("whitelistx - Set - redisInst is nil")
+	}
+
+	conn, errConn := redisInst.Store.Dial()
+	if errConn != nil {
+		return false, errConn
+	}
+
+	result, errResult := redis.Int(
+		conn.Do(constants.Del, key),
+	)
+	conn.Close()
+	if errResult != nil {
+		return false, errResult
+	}
+
+	return result == 1, errResult
 }
