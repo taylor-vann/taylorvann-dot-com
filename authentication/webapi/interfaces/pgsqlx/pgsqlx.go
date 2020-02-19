@@ -64,9 +64,6 @@ func Create(config *PGConfig) (*PGConnection, error) {
 		connStr,
 	)
 
-	fmt.Println(err)
-	fmt.Println(db)
-
 	if err != nil {
 		return nil, err
 	}
