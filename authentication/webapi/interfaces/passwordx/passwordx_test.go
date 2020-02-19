@@ -1,3 +1,7 @@
+// Brian Taylor Vann
+// taylorvann dot com
+
+// Package passwordx - utility library for password hashing
 package passwordx
 
 import (
