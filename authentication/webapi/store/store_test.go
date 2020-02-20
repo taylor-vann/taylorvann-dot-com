@@ -3,10 +3,6 @@ package store
 import (
 	"fmt"
 	"testing"
-
-	"webapi/controllers/haspassword"
-	"webapi/controllers/passwords"
-	"webapi/controllers/users"
 )
 
 const originalEmail = "test_email@email.test"
@@ -18,7 +14,6 @@ const nonExistentEmail = "non_existent_test_email@email.test"
 
 var testUser = CreateUserParams{
 	Email:    originalEmail,
-	Username: "buster",
 	Password: originalPassword,
 }
 
@@ -28,11 +23,11 @@ var validateTestUser = ValidateUserParams{
 }
 
 var readTestUser = ReadUserParams{
-	Email:    originalEmail,
+	Email: originalEmail,
 }
 
 var readNonExistentTestUser = ReadUserParams{
-	Email:    nonExistentEmail,
+	Email: nonExistentEmail,
 }
 
 var validateIncorrectTestUser = ValidateUserParams{
@@ -40,39 +35,29 @@ var validateIncorrectTestUser = ValidateUserParams{
 	Password: incorrectPassword,
 }
 
-var updatedTestUser = UpdateUserParams{
+var updatedTestUser = UpdateEmailParams{
 	CurrentEmail: originalEmail,
 	UpdatedEmail: updatedEmail,
 }
 
-var updatedUserPassword = UpdateUserPasswordParams{
-	Email: updatedEmail,
+var updatedUserPassword = UpdatePasswordParams{
+	Email:           updatedEmail,
 	UpdatedPassword: updatedPassword,
 }
 
 var validateUpdatedUserPassword = ValidateUserParams{
-	Email: updatedEmail,
+	Email:    updatedEmail,
 	Password: updatedPassword,
 }
 
 var removeTestUser = RemoveUserParams{
-	Email:    updatedEmail,
+	Email: updatedEmail,
 }
 
 func TestCreateTables(t *testing.T) {
-	_, errUsers := users.CreateTable()
+	_, errUsers := CreateRequiredTables()
 	if errUsers != nil {
-		t.Error("Error creating users table")
-	}
-
-	_, errPasswords := passwords.CreateTable()
-	if errPasswords != nil {
-		t.Error("Error creating passwords table")
-	}
-
-	_, errHasPassword := haspassword.CreateTable()
-	if errHasPassword != nil {
-		t.Error("Error creating haspassword table")
+		t.Error("error creating tables from store")
 	}
 }
 
@@ -97,13 +82,17 @@ func TestReadUser(t *testing.T) {
 	}
 	if userRow == nil {
 		t.Error("test user is nil")
+		return
 	}
 	if userRow.Email != readTestUser.Email {
 		t.Error("incorrect test user retrieved")
 	}
+}
 
+func TestReadNonExistantUser(t *testing.T) {
 	userRowNonExistent, errUser := ReadUser(&readNonExistentTestUser)
 	if errUser != nil {
+		fmt.Println(errUser)
 		t.Error("Error reading non existent user")
 	}
 	if userRowNonExistent != nil {
@@ -132,39 +121,40 @@ func TestValidateUser(t *testing.T) {
 }
 
 // Update a user email
-func TestUpdatedUser(t *testing.T) {
-	result, errUpdateUser := UpdateUser(&updatedTestUser)
+func TestUpdateEmail(t *testing.T) {
+	result, errUpdateUser := UpdateEmail(&updatedTestUser)
 	if errUpdateUser != nil {
 		fmt.Println(errUpdateUser)
 		t.Error("Error updating user")
 	}
 
-	if result != nil && result.Email != updatedTestUser.UpdatedEmail {
-		t.Error("User did not update")
-	}
-
 	if result == nil {
 		t.Error("nil user returned")
+		return
+	}
+
+	if result.Email != updatedTestUser.UpdatedEmail {
+		t.Error("User did not update")
 	}
 }
 
 // Update a users password
 func TestUpdateUserPassword(t *testing.T) {
-	result, errUpdateUserPassword := UpdateUserPassword(
+	result, errUpdateUserPassword := UpdatePassword(
 		&updatedUserPassword,
 	)
 
 	if errUpdateUserPassword != nil {
-		fmt.Println(errUpdateUserPassword)
 		t.Error("Error updating user")
-	}
-
-	if result != nil && result.Email != updatedTestUser.UpdatedEmail {
-		t.Error("User's password did not update")
 	}
 
 	if result == nil {
 		t.Error("nil user returned, no password to update")
+		return
+	}
+
+	if result.Email != updatedTestUser.UpdatedEmail {
+		t.Error("User's password did not update")
 	}
 
 	isValidated, errValidateUserValidateUser := ValidateUser(
@@ -179,7 +169,6 @@ func TestUpdateUserPassword(t *testing.T) {
 }
 
 // Remove a user
-
 func TestRemoveUser(t *testing.T) {
 	user, errRemoveUser := RemoveUser(
 		&removeTestUser,
@@ -201,4 +190,3 @@ func TestRemoveUser(t *testing.T) {
 		t.Error("Wrong user was deleted")
 	}
 }
-

@@ -1,11 +1,16 @@
+// brian taylor vann
+// taylorvann dot com
+
+// All methods (except ValidateUser) return a user row.
+// We cache queries. We cache mutations. They all return user rows.
+
 // Package store - a representation of our database
 package store
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 
-	"webapi/controllers/passwords"
 	"webapi/controllers/users"
 	"webapi/interfaces/passwordx"
 	"webapi/interfaces/storex"
@@ -13,17 +18,16 @@ import (
 )
 
 // CreateUserParams -
-type CreateUserParams struct {
-	Email    string
-	Username string
-	Password string
-}
+type CreateUserParams = users.CreateParams
 
 // ReadUserParams -
 type ReadUserParams = users.ReadParams
 
-// UpdateUserParams -
-type UpdateUserParams = users.UpdateParams
+// UpdateEmailParams -
+type UpdateEmailParams struct {
+	CurrentEmail	string
+	UpdatedEmail	string	
+}
 
 // ValidateUserParams -
 type ValidateUserParams struct {
@@ -34,59 +38,28 @@ type ValidateUserParams struct {
 // RemoveUserParams -
 type RemoveUserParams = ReadUserParams
 
-// UpdateUserPasswordParams -
-type UpdateUserPasswordParams struct {
+// UpdatePasswordParams -
+type UpdatePasswordParams struct {
 	Email           string
 	UpdatedPassword string
 }
 
 // UserRow -
-type UserRow = users.UsersRow
+type UserRow = users.Row
 
-// InsertUserAndPasswordParams -
-type InsertUserAndPasswordParams struct {
-	email            string
-	salt             string
-	hash             string
-	params           string
-	requestTimestamp int64 // milli seconds
+// CreateRequiredTables -
+func CreateRequiredTables() (bool, error) {
+	_, errUsers := users.CreateTable()
+	if errUsers != nil {
+		return false, errors.New("Error creating users table")
+	}
+
+	return true, nil
 }
 
 // CreateUser -
 func CreateUser(p *CreateUserParams) (*UserRow, error) {
-	hashResults, errHashPassword := passwordx.HashPassword(
-		p.Password,
-		&passwordx.DefaultHashParams,
-	)
-	if errHashPassword != nil {
-		fmt.Println(errHashPassword)
-		return nil, errHashPassword
-	}
-
-	marshaledParams, errMarshal := json.Marshal(hashResults.Params)
-	if errMarshal != nil {
-		return nil, errMarshal
-	}
-
-	userRow, errUserRow := storex.Query(
-		SQLStatements.InsertUserAndPassword,
-		p.Email,
-		p.Email,
-		hashResults.Salt,
-		hashResults.Hash,
-		marshaledParams,
-	)
-	if errUserRow != nil {
-		fmt.Println(errUserRow)
-		return nil, errUserRow
-	}
-
-	user, errUser := users.CreateUsersRow(userRow)
-	if errUser != nil {
-		return nil, errUser
-	}
-
-	return user, nil
+	return users.Create(p)
 }
 
 // ReadUser -
@@ -94,35 +67,23 @@ func ReadUser(p *ReadUserParams) (*UserRow, error) {
 	return users.Read(p)
 }
 
-// UpdateUser - creates a new person in our store, returns UserRow
-func UpdateUser(p *UpdateUserParams) (*UserRow, error) {
-	return users.Update(p)
-}
-
 // ValidateUser - creates a new person in our store, returns UserRow
 func ValidateUser(p *ValidateUserParams) (bool, error) {
-	passwordRow, errPasswordRow := storex.Query(
-		SQLStatements.RetrieveUserPassword,
-		p.Email,
-	)
-
-	if errPasswordRow != nil {
-		return false, errPasswordRow
+	if p == nil {
+		return false, errors.New("store.ValidateUser() - nil parameters given")
 	}
+	userRow, errUserRow := users.Read(&ReadUserParams{
+		Email: p.Email,
+	})
 
-	password, errPassword := passwords.CreatePasswordsRow(passwordRow)
-	if errPassword != nil {
-		return false, errPassword
-	}
-
-	if password == nil {
-		return false, nil
+	if errUserRow != nil {
+		return false, errUserRow
 	}
 
 	hashResults := passwordx.HashResults{
-		Salt:   password.Salt,
-		Hash:   password.Hash,
-		Params: password.Params,
+		Salt:   userRow.Salt,
+		Hash:   userRow.Hash,
+		Params: userRow.Params,
 	}
 
 	result, errPasswordVaildation := passwordx.PasswordIsValid(
@@ -137,8 +98,29 @@ func ValidateUser(p *ValidateUserParams) (bool, error) {
 	return result, nil
 }
 
-// UpdateUserPassword - creates a new person in our store, returns UserRow
-func UpdateUserPassword(p *UpdateUserPasswordParams) (*UserRow, error) {
+// UpdateEmail - creates a new person in our store, returns UserRow
+func UpdateEmail(p *UpdateEmailParams) (*UserRow, error) {
+	if p == nil {
+		return nil, errors.New("store.UpdateEmail() - nil parameters given")
+	}
+	userRow, errUserRow := storex.Query(
+		SQLStatements.UpdateEmail,
+		p.CurrentEmail,
+		p.UpdatedEmail,
+		utils.GetNowAsMS(),
+	)
+	if errUserRow != nil {
+		return nil, errUserRow
+	}
+
+	return users.CreateRow(userRow)
+}
+
+// UpdatePassword - creates a new person in our store, returns UserRow
+func UpdatePassword(p *UpdatePasswordParams) (*UserRow, error) {
+	if p == nil {
+		return nil, errors.New("store.UpdatePassword() - nil parameters given")
+	}
 	hashResults, errHashResults := passwordx.HashPassword(
 		p.UpdatedPassword,
 		&passwordx.DefaultHashParams,
@@ -153,7 +135,7 @@ func UpdateUserPassword(p *UpdateUserPasswordParams) (*UserRow, error) {
 	}
 
 	userRow, errUserRow := storex.Query(
-		SQLStatements.UpdateUserPassword,
+		SQLStatements.UpdatePassword,
 		p.Email,
 		hashResults.Salt,
 		hashResults.Hash,
@@ -165,30 +147,10 @@ func UpdateUserPassword(p *UpdateUserPasswordParams) (*UserRow, error) {
 		return nil, errUserRow
 	}
 
-	user, errUser := users.CreateUsersRow(userRow)
-	if errUser != nil {
-		return nil, errUser
-	}
-
-	return user, nil
+	return users.CreateRow(userRow)
 }
 
 // RemoveUser - creates a new person in our store, returns UserRow
 func RemoveUser(p *RemoveUserParams) (*UserRow, error) {
-	userRow, errUserRow := storex.Query(
-		SQLStatements.RemoveUserAndPassword,
-		p.Email,
-		utils.GetNowAsMS(),
-	)
-
-	if errUserRow != nil {
-		return nil, errUserRow
-	}
-
-	user, errUser := users.CreateUsersRow(userRow)
-	if errUser != nil {
-		return nil, errUser
-	}
-
-	return user, nil
+	return users.Remove(p)
 }
