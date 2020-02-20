@@ -13,23 +13,23 @@ import (
 	"errors"
 	"time"
 
+	"webapi/controllers/utils"
 	"webapi/interfaces/storex"
-	"webapi/utils"
 )
 
 // Row -
 type Row struct {
-	ID         int64     `json:"id"`
-	UserID     int64     `json:"user_id"`
-	Role			 string		 `json:"role"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
+	ID        int64     `json:"id"`
+	UserID    int64     `json:"user_id"`
+	Role      string    `json:"role"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // CreateParams - arguments for clearer execution
 type CreateParams struct {
-	UserID		int64
-	Role			string
+	UserID int64
+	Role   string
 }
 
 // ReadParams -

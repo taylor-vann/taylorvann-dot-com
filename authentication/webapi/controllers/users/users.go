@@ -15,9 +15,9 @@ import (
 	"errors"
 	"time"
 
+	"webapi/controllers/utils"
 	"webapi/interfaces/passwordx"
 	"webapi/interfaces/storex"
-	"webapi/utils"
 )
 
 // HashParams -
@@ -40,8 +40,8 @@ type Users = []Row
 
 // CreateParams - arguments needed for entry
 type CreateParams struct {
-	Email  		string 
-	Password 	string
+	Email    string
+	Password string
 }
 
 // ReadParams - arguments needed too remove entry
@@ -51,10 +51,10 @@ type ReadParams struct {
 
 // UpdateParams - identical arguments needed for password update
 type UpdateParams struct {
-	CurrentEmail				string
-	UpdatedEmail				string
-	Password						string
-	RequestedTimestamp	int64
+	CurrentEmail       string
+	UpdatedEmail       string
+	Password           string
+	RequestedTimestamp int64
 }
 
 // RemoveParams - identical arguments needed to remove an entry
@@ -65,8 +65,8 @@ func CreateRow(rows *sql.Rows) (*Row, error) {
 	if rows == nil {
 		return nil, errors.New("users.CreateRow() - nil params provided")
 	}
-	
-	defer	rows.Close()
+
+	defer rows.Close()
 	if rows.Next() {
 		var userRow Row
 		var jsonParamsAsStr string
@@ -80,11 +80,11 @@ func CreateRow(rows *sql.Rows) (*Row, error) {
 			&userRow.CreatedAt,
 			&userRow.UpdatedAt,
 		)
-	
+
 		if errScan != nil {
 			return nil, errScan
 		}
-	
+
 		errMarshal := json.Unmarshal(
 			[]byte(jsonParamsAsStr),
 			&userRow.Params,

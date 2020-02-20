@@ -1,11 +1,25 @@
 package utils
 
-import "time"
+import (
+	"math/rand"
+	"time"
+)
 
-// MilliSecond -
-type MilliSecond = int64
+// MilliSeconds -
+type MilliSeconds = int64
 
 // GetNowAsMS -
-func GetNowAsMS() MilliSecond {
+func GetNowAsMS() MilliSeconds {
 	return time.Now().UnixNano() / int64(time.Millisecond)
+}
+
+// GenerateRandomByteArray -
+func GenerateRandomByteArray(n uint32) (*[]byte, error) {
+	token := make([]byte, n)
+	_, err := rand.Read(token)
+	if err != nil {
+		return nil, err
+	}
+
+	return &token, nil
 }
