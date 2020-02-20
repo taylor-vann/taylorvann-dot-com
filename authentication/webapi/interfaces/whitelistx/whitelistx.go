@@ -12,6 +12,12 @@ import (
 	"webapi/utils"
 )
 
+// get our config
+var redisConf, errConfig = getConfigFromEnv()
+
+// create instance of redis pool
+var redisInst, errRedisx = redisx.Create(redisConf)
+
 // Get config from environemnt variables
 func getConfigFromEnv() (*redisx.RedisConfig, error) {
 	config := redisx.RedisConfig{
@@ -25,12 +31,6 @@ func getConfigFromEnv() (*redisx.RedisConfig, error) {
 
 	return &config, nil
 }
-
-// get our config
-var redisConf, errConfig = getConfigFromEnv()
-
-// create instance of redis pool
-var redisInst, errRedisx = redisx.Create(redisConf)
 
 // Ping -
 func Ping() (*string, error) {
