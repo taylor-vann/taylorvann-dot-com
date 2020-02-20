@@ -1,35 +1,122 @@
 package whitelist
 
 import (
-	"fmt"
-
+	"encoding/json"
+	"errors"
+	"math/rand"
 	"webapi/interfaces/whitelistx"
 )
 
-// HelloWorld - ping
-func HelloWorld() {
-	whitelistx.Get("YODAWG")
-	fmt.Println("bridge the gap")
+// MilliSeconds -
+type MilliSeconds = int64
+
+// Entry -
+type Entry struct {
+	CsrfToken  []byte       `json:"csrf_token"`
+	SessionKey []byte       `json:"session_key"`
+	CreatedAt  MilliSeconds `json:"created_at"`
+	Lifetime   MilliSeconds `json:"expires_at"`
 }
 
+// CreateEntryParams -
+type CreateEntryParams struct {
+	SessionKey *[]byte
+	Signature  *string
+	CreatedAt  MilliSeconds
+	Lifetime   MilliSeconds
+}
 
-// verify token is in whitelist
-// create token, add to whitelist, and return token
-// remove token from whitelist
+// ReadEntryParams -
+type ReadEntryParams struct {
+	Signature *string
+}
 
-// store for jti, minimal security details
-// jti: token_specific_secret_key
+// DayAsMS -
+var DayAsMS = int64(1000 * 60 * 60 * 24)
 
-// Only required pulic methods
-// Exists return Receipts
-// - called every request
+// ThreeDaysAsMS -
+var ThreeDaysAsMS = 3 * DayAsMS
 
-// Add - can only be called from our password / fingerprint
-// authentication
+// RemoveEntryParams -
+type RemoveEntryParams = ReadEntryParams
 
-// only two services allowed
-// - nginx / initial loadbalancer
-// - security logging (potentially)
+// generateRandomByteArray -
+func generateRandomByteArray(n uint32) (*[]byte, error) {
+	token := make([]byte, n)
+	_, err := rand.Read(token)
+	if err != nil {
+		return nil, err
+	}
 
-// This is also where you'd log
-// to a secondary service focused on
+	return &token, nil
+}
+
+// CreateEntry -
+func CreateEntry(p *CreateEntryParams) (*Entry, error) {
+	if p == nil {
+		return nil, errors.New("nil parameters provided")
+	}
+
+	csrfToken, errCsrfToken := generateRandomByteArray(128)
+	if errCsrfToken != nil {
+		return nil, errCsrfToken
+	}
+
+	entry := Entry{
+		CsrfToken:  *csrfToken,
+		SessionKey: *(p.SessionKey),
+		CreatedAt:  p.CreatedAt,
+		Lifetime:   p.Lifetime,
+	}
+
+	// marshal entry to byte array
+	entryAsJSON, errEntryAsJSON := json.Marshal(entry)
+	if errEntryAsJSON != nil {
+		return nil, errEntryAsJSON
+	}
+
+	// save to whitelist
+	whitelistResult, errWhitelist := whitelistx.SetAndExpire(
+		*(p.Signature),
+		&entryAsJSON,
+		p.Lifetime,
+	)
+
+	if errWhitelist != nil {
+		return nil, errWhitelist
+	}
+
+	if whitelistResult == true {
+		return &entry, errWhitelist
+	}
+
+	return nil, errCsrfToken
+}
+
+// ReadEntry -
+func ReadEntry(p *ReadEntryParams) (*Entry, error) {
+	if p == nil {
+		return nil, errors.New("nil parameters provided")
+	}
+
+	entryAsByte, errEntryAsByte := whitelistx.Get(*(p.Signature))
+	if errEntryAsByte != nil {
+		return nil, errEntryAsByte
+	}
+
+	var entry Entry
+	errUnmarshal := json.Unmarshal(*entryAsByte, &entry)
+	if errUnmarshal != nil {
+		return nil, errUnmarshal
+	}
+
+	return &entry, errUnmarshal
+}
+
+// RemoveEntry -
+func RemoveEntry(p *RemoveEntryParams) (bool, error) {
+	if p == nil {
+		return false, errors.New("nil parameters provided")
+	}
+	return whitelistx.Remove(*(p.Signature))
+}

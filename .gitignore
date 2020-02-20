@@ -10,10 +10,19 @@
 #    ignore all node modules
 **/node_modules/
 
-## Redis
+## Whitelist
 #    ignore all backups
-/authentication/cache/redis_data/*
-!/authentication/cache/redis_data/.keep
+/authentication/whitelist_cache/redis_data/*
+!/authentication/whitelist_cache/redis_data/.keep
+
+## Store
+#    ignore all backups
+/authentication/store_cache/redis_data/*
+!/authentication/store_cache/redis_data/.keep
+
+## Webapi build
+#   ignore binary
+/authentication/webapi/webapi
 
 # ignore the build
 web_client/prod/
@@ -28,5 +37,5 @@ yarn.lock
 # created by postgresql.
 
 # This pattern will ignore all files but a simple empty ".keep" file.
-/authentication/database/postgres_data/*
-!/authentication/database/postgres_data/.keep
+/authentication/store_db/postgres_data/*
+!/authentication/store_db/postgres_data/.keep

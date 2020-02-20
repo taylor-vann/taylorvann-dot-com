@@ -1,8 +1,11 @@
+// brian taylor vann
+// taylorvann dot com
+
+// Package redisx - utility methods to connect to a redis instance
 package redisx
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 	"time"
 
@@ -11,24 +14,24 @@ import (
 
 // RedisConfig - Required properties for redis connection
 type RedisConfig struct {
-	Host                string        `json:"host"`
-	Port                int           `json:"port"`
-	Protocol            string        `json:"protocol"`
-	MaxIdle             int           `json:"max_idle"`
-	IdleTimeout         time.Duration `json:"idle_timeout"`
-	MaxActive           int           `json:"max_active"`
+	Host                string
+	Port                int
+	Protocol            string
+	MaxIdle             int
+	IdleTimeout         time.Duration
+	MaxActive           int
 }
 
 // RedisConnection - Reference to our database and config
 type RedisConnection struct {
-	Store  redis.Conn
+	Store  *redis.Pool
 	Config *RedisConfig
 }
 
 // Close - RedisConnection associative method, close redis pool connections
 func (rdsConn *RedisConnection) Close() (*RedisConnection, error) {
 	if rdsConn.Store == nil {
-		return rdsConn, errors.New("RedisConnection struct - Close - Store is nil")
+		return rdsConn, errors.New("RedisConnection.Close() - Store is nil")
 	}
 
 	err := rdsConn.Store.Close()
@@ -43,7 +46,7 @@ func (rdsConn *RedisConnection) Close() (*RedisConnection, error) {
 func Create(config *RedisConfig) (*RedisConnection, error) {
 	if config == nil {
 		return nil, errors.New(
-			"redix - Create - nil config provided",
+			"redix.Create() - nil config provided",
 		)
 	}
 
@@ -53,7 +56,7 @@ func Create(config *RedisConfig) (*RedisConnection, error) {
 	// attempt to connect to redis through radix
 	pool := redis.Pool{
 		MaxIdle:     config.MaxIdle,
-		IdleTimeout: config.IdleTimeout, // 240 * time.Second,
+		IdleTimeout: config.IdleTimeout,
 		MaxActive:   config.MaxActive,
 		Dial: func() (redis.Conn, error) {
 			dial, err := redis.Dial(
@@ -69,19 +72,9 @@ func Create(config *RedisConfig) (*RedisConnection, error) {
 		},
 	}
 
-	// redis pool connection
-	conn := pool.Get()
-
-	// Test the connection
-	result, err := conn.Do("PING")
-	if err != nil {
-		fmt.Println(result)
-		return nil, errors.New("redisx - Create - unable to connect to Redis database")
-	}
-
 	// return our redis connection interface
 	redisConn := RedisConnection{
-		Store:  conn,
+		Store:  &pool,
 		Config: config,
 	}
 

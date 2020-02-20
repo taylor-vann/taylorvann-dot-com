@@ -5,19 +5,21 @@
 
 # Reserved Ports:
 # 5000  JSON Web Api
-# 5005  PostgreSQL Db
-# 5010  Redis Store
+# 5100  Store Db
+# 5200  Whitelist Cache
+# 5205  Store Cache
 
 version: "3"
 services:
-  authn_webapi:
+  webapi:
     container_name: authn_webapi
     build:
-      context: ./webapi
+      context: ./webapi/
       dockerfile: dockerfile.dev
     depends_on:
-      - authn_db
-      - authn_cache
+      - authn_store_db
+      - authn_store_cache
+      - authn_whitelist_cache
     restart: always
     env_file:
       - ./environment-variables.dev.env
@@ -26,25 +28,30 @@ services:
     volumes:
       - ./webapi/:/go/src/webapi/
     command: "go run /go/src/webapi/main.go"
-  authn_db:
-    container_name: authn_db
+  store_db:
+    container_name: authn_store_db
     build:
-      context: ./database/
+      context: ./store_db/
       dockerfile: dockerfile.dev
     restart: always
     env_file:
       - ./environment-variables.dev.env
-    ports:
-      - "5005:5432"
     volumes:
-      - ./database/postgres_data/:/var/lib/postgresql/data/
-  authn_cache:
-    container_name: authn_cache
+      - ./store_db/postgres_data/:/var/lib/postgresql/data/
+    command: "-p 5100"
+  store_cache:
+    container_name: authn_store_cache
     build:
-      context: ./cache/
+      context: ./store_cache/
       dockerfile: dockerfile.dev
     restart: always
-    ports:
-      - "5010:6379"
     volumes:
-      - ./cache/redis_data/:/data
+      - ./store_cache/redis_data/:/data
+  whitelist_cache:
+    container_name: authn_whitelist_cache
+    build:
+      context: ./whitelist_cache/
+      dockerfile: dockerfile.dev
+    restart: always
+    volumes:
+      - ./whitelist_cache/redis_data/:/data

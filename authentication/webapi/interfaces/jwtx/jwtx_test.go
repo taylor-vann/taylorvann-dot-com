@@ -1,17 +1,20 @@
+// brian taylor vann
+// taylorvann dot com
+
+// Package jwtx - utility library for JWTs
 package jwtx
 
 import (
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"strconv"
 	"testing"
 	"time"
+
+	"webapi/utils"
 )
 
 type JWTClaimTestPlan = []Claims
-
-const dayAsMS = 24 * 60 * 60 * 1000
 
 var HeaderParamsDoubleCheck = Header{
 	Alg: "HS256",
@@ -20,19 +23,15 @@ var HeaderParamsDoubleCheck = Header{
 
 var randomJWTClaims = generateRandomJWTClaims("public", 5)
 
-func getNowAsMS() MilliSecond {
-	return time.Now().UnixNano() / int64(time.Millisecond)
-}
-
-func getLaterAsMS() MilliSecond {
-	return (time.Now().UnixNano() + dayAsMS) / int64(time.Millisecond)
+func getLaterAsMS() MilliSeconds {
+	return (time.Now().UnixNano() + DayAsMS) / int64(time.Millisecond)
 }
 
 func generateRandomJWTClaims(sub string, num int) *JWTClaimTestPlan {
 	jwtClaims := make(JWTClaimTestPlan, num)
 
 	for index := range jwtClaims {
-		nowAsMS := getNowAsMS()
+		nowAsMS := utils.GetNowAsMS()
 		laterAsMS := getLaterAsMS()
 
 		jwtClaims[index] = Claims{
@@ -44,7 +43,6 @@ func generateRandomJWTClaims(sub string, num int) *JWTClaimTestPlan {
 		}
 	}
 
-	fmt.Println(jwtClaims)
 	return &jwtClaims
 }
 
@@ -65,13 +63,11 @@ func TestDefaultHeaderParams(t *testing.T) {
 }
 
 func TestCreateJWT(t *testing.T) {
-	var tokens = make([]*Token, len(*randomJWTClaims))
+	var tokens = make([]*TokenPayload, len(*randomJWTClaims))
 
 	for index, claim := range *randomJWTClaims {
 		token, errToken := CreateJWT(&claim)
 		if errToken != nil {
-			fmt.Println(errToken)
-			fmt.Println(index)
 			t.Error("Unable to create jwt")
 		}
 		tokens[index] = token
@@ -79,11 +75,9 @@ func TestCreateJWT(t *testing.T) {
 }
 
 func TestValidateJWT(t *testing.T) {
-	for index, claim := range *randomJWTClaims {
+	for _, claim := range *randomJWTClaims {
 		token, errToken := CreateJWT(&claim)
 		if errToken != nil {
-			fmt.Println(errToken)
-			fmt.Println(index)
 			t.Error("Unable to create jwt")
 		}
 
@@ -96,30 +90,90 @@ func TestValidateJWT(t *testing.T) {
 
 func TestFailValidateJWT(t *testing.T) {
 	var tokenSetLength = len(*randomJWTClaims)
-	var tokens = make([]*Token, tokenSetLength)
+	var tokenPayloads = make([]*TokenPayload, tokenSetLength)
 
 	for index, claim := range *randomJWTClaims {
 		token, errToken := CreateJWT(&claim)
 		if errToken != nil {
 			t.Error("Unable to create jwt")
 		}
-		tokens[index] = token
+		tokenPayloads[index] = token
 	}
 
-	for index, token := range tokens {
+	for index, tokenPayload := range tokenPayloads {
 		offsetIndex := (index + 1) % tokenSetLength
-		offsetToken := tokens[offsetIndex]
+		offsetToken := tokenPayloads[offsetIndex]
 
 		badToken := Token{
-			Header:       token.Header,
-			Payload:      offsetToken.Payload,
-			Signature:    token.Signature,
-			RandomSecret: token.RandomSecret,
+			Header:    tokenPayload.Token.Header,
+			Payload:   offsetToken.Token.Payload,
+			Signature: tokenPayload.Token.Signature,
 		}
-	
-		isValid := ValidateJWT(&badToken)
+		badTokenPayload := TokenPayload{
+			Token:        &badToken,
+			RandomSecret: tokenPayload.RandomSecret,
+		}
+
+		isValid := ValidateJWT(&badTokenPayload)
 		if isValid {
 			t.Error("A bad token should not be valid")
+		}
+	}
+}
+
+func TestConvertTokenToString(t *testing.T) {
+	for _, claim := range *randomJWTClaims {
+		tokenPayload, errToken := CreateJWT(&claim)
+		if errToken != nil {
+			t.Error("Unable to create jwt")
+		}
+
+		strippedToken := Token{
+			Header:    tokenPayload.Token.Header,
+			Payload:   tokenPayload.Token.Payload,
+			Signature: tokenPayload.Token.Signature,
+		}
+
+		_, errJwt := ConvertTokenToString(&strippedToken)
+		if errJwt != nil {
+			t.Error("Unable to convert to string")
+		}
+	}
+}
+
+func TestRetrieveTokenDetailsFromString(t *testing.T) {
+	for _, claim := range *randomJWTClaims {
+		tokenPayload, errToken := CreateJWT(&claim)
+		if errToken != nil {
+			t.Error("Unable to create jwt")
+		}
+
+		strippedToken := Token{
+			Header:    tokenPayload.Token.Header,
+			Payload:   tokenPayload.Token.Payload,
+			Signature: tokenPayload.Token.Signature,
+		}
+
+		tokenStr, errJwt := ConvertTokenToString(&strippedToken)
+		if errJwt != nil {
+			t.Error("Unable to convert to string")
+		}
+
+		retrievedToken, errRetrieve := RetrieveTokenFromString(tokenStr)
+		if errRetrieve != nil {
+			t.Error("error retrieving token")
+		}
+
+		if retrievedToken.Header != tokenPayload.Token.Header {
+			t.Error("mismatching headers")
+		}
+
+		if retrievedToken.Payload != tokenPayload.Token.Payload {
+			t.Error("mismatching payloads")
+		}
+
+		if retrievedToken.Signature != tokenPayload.Token.Signature {
+			t.Error("mismatching signatures")
 		}
 	}
 }
