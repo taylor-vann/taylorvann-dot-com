@@ -27,10 +27,10 @@ type HashParams = passwordx.HashParams
 type Row struct {
 	ID        int64       `json:"id"`
 	Email     string      `json:"email"`
+	IsDeleted bool        `json:"is_deleted"`
 	Salt      string      `json:"salt"`
 	Hash      string      `json:"hash"`
 	Params    *HashParams `json:"params"`
-	IsDeleted bool        `json:"is_deleted"`
 	CreatedAt time.Time   `json:"created_at"` // milli seconds
 	UpdatedAt time.Time   `json:"updated_at"` // milli seconds
 }
@@ -65,33 +65,39 @@ func CreateRow(rows *sql.Rows) (*Row, error) {
 	if rows == nil {
 		return nil, errors.New("users.CreateRow() - nil params provided")
 	}
-	rows.Next()
-	var userRow Row
-	var jsonParamsAsStr string
-	errScan := rows.Scan(
-		&userRow.ID,
-		&userRow.Email,
-		&userRow.Salt,
-		&userRow.Hash,
-		&jsonParamsAsStr,
-		&userRow.IsDeleted,
-		&userRow.CreatedAt,
-		&userRow.UpdatedAt,
-	)
-	rows.Close()
-	if errScan != nil {
-		return nil, errScan
+	
+	defer	rows.Close()
+	if rows.Next() {
+		var userRow Row
+		var jsonParamsAsStr string
+		errScan := rows.Scan(
+			&userRow.ID,
+			&userRow.Email,
+			&userRow.Salt,
+			&userRow.Hash,
+			&jsonParamsAsStr,
+			&userRow.IsDeleted,
+			&userRow.CreatedAt,
+			&userRow.UpdatedAt,
+		)
+	
+		if errScan != nil {
+			return nil, errScan
+		}
+	
+		errMarshal := json.Unmarshal(
+			[]byte(jsonParamsAsStr),
+			&userRow.Params,
+		)
+
+		if errMarshal != nil {
+			return nil, errMarshal
+		}
+
+		return &userRow, nil
 	}
 
-	errMarshal := json.Unmarshal(
-		[]byte(jsonParamsAsStr),
-		&userRow.Params,
-	)
-	if errMarshal != nil {
-		return nil, errMarshal
-	}
-
-	return &userRow, nil
+	return nil, nil
 }
 
 // CreateTable -
