@@ -76,16 +76,16 @@ func ReadUser(p *ReadUserParams) (*UserRow, error) {
 }
 
 // ValidateUser - creates a new person in our store, returns UserRow
-func ValidateUser(p *ValidateUserParams) (bool, error) {
+func ValidateUser(p *ValidateUserParams) (*UserRow, error) {
 	if p == nil {
-		return false, errors.New("store.ValidateUser() - nil parameters given")
+		return nil, errors.New("store.ValidateUser() - nil parameters given")
 	}
 	userRow, errUserRow := users.Read(&ReadUserParams{
 		Email: p.Email,
 	})
 
 	if errUserRow != nil {
-		return false, errUserRow
+		return nil, errUserRow
 	}
 
 	hashResults := passwordx.HashResults{
@@ -100,10 +100,14 @@ func ValidateUser(p *ValidateUserParams) (bool, error) {
 	)
 
 	if errPasswordVaildation != nil {
-		return false, errPasswordVaildation
+		return nil, errPasswordVaildation
 	}
 
-	return result, nil
+	if result == true {
+		return userRow, nil
+	}
+
+	return nil, nil
 }
 
 // UpdateEmail - creates a new person in our store, returns UserRow

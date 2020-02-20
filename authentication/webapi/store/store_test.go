@@ -105,7 +105,7 @@ func TestValidateUser(t *testing.T) {
 	if errCorrectPassword != nil {
 		t.Error("Error verifying correct password")
 	}
-	if correctResult == false {
+	if correctResult == nil {
 		t.Error("Correct password was not correct")
 	}
 
@@ -115,7 +115,7 @@ func TestValidateUser(t *testing.T) {
 	if errIncorrectPassword != nil {
 		t.Error("Error verifying incorrect password")
 	}
-	if incorrectResult == true {
+	if incorrectResult != nil {
 		t.Error("Incorrect password was correct correct")
 	}
 }
@@ -157,14 +157,15 @@ func TestUpdateUserPassword(t *testing.T) {
 		t.Error("User's password did not update")
 	}
 
-	isValidated, errValidateUserValidateUser := ValidateUser(
+	resultValidated, errValidateUserValidateUser := ValidateUser(
 		&validateUpdatedUserPassword,
 	)
 	if errValidateUserValidateUser != nil {
 		t.Error("New password cannot be validated")
 	}
-	if isValidated == false {
-		t.Error("Could not find a user to validate")
+
+	if resultValidated == nil {
+		t.Error("could not validate updated password")
 	}
 }
 
