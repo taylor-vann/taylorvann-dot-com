@@ -11,9 +11,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math/rand"
 	"strings"
-
-	"webapi/utils"
 )
 
 // MilliSeconds -
@@ -27,18 +26,18 @@ type Header struct {
 
 // Claims - Payload body of a JWT
 type Claims struct {
-	Iss string      				`json:"iss"` // taylorvann-dot-com
-	Sub string      				`json:"sub"` // subject: public, internal, infra, auth
-	Aud string      				`json:"aud"` // audience: guest, public
-	Iat utils.MilliSeconds	`json:"iat"` // timestamp
-	Exp utils.MilliSeconds	`json:"exp"` // timestamp
+	Iss string             	`json:"iss"` // taylorvann-dot-com
+	Sub string             	`json:"sub"` // subject: public, internal, infra, auth
+	Aud string             	`json:"aud"` // audience: guest, public
+	Iat MilliSeconds 				`json:"iat"` // timestamp
+	Exp MilliSeconds				`json:"exp"` // timestamp
 }
 
 // TokenDetails -
 type TokenDetails struct {
-	Header			*Header
-	Payload 		*Claims
-	Signature		*string
+	Header    *Header
+	Payload   *Claims
+	Signature *string
 }
 
 // Signature - Unique hash of header and payload
@@ -53,8 +52,8 @@ type Token struct {
 
 // TokenPayload -
 type TokenPayload struct {
-	Token					*Token
-	RandomSecret	*[]byte
+	Token        *Token
+	RandomSecret *[]byte
 }
 
 var headerDefaultParams = Header{
@@ -70,6 +69,17 @@ var ThreeDaysAsMS = 3 * DayAsMS
 
 // HeaderBase64 - Default payload for all JWTs
 var HeaderBase64 = createDefaultHeaderAsBase64(&headerDefaultParams)
+
+// generateRandomByteArray -
+func generateRandomByteArray(n uint32) (*[]byte, error) {
+	token := make([]byte, n)
+	_, err := rand.Read(token)
+	if err != nil {
+		return nil, err
+	}
+
+	return &token, nil
+}
 
 func createDefaultHeaderAsBase64(h *Header) *string {
 	marhalledHeader, err := json.Marshal(h)
@@ -130,7 +140,7 @@ func CreateJWT(
 		return nil, errPayload
 	}
 
-	randomSecret, errRandomSecret := utils.GenerateRandomByteArray(512)
+	randomSecret, errRandomSecret := generateRandomByteArray(512)
 	if errRandomSecret != nil {
 		return nil, errRandomSecret
 	}
@@ -142,13 +152,13 @@ func CreateJWT(
 	)
 
 	token := Token{
-		Header:       *HeaderBase64,
-		Payload:      *marshalledPayloadBase64,
-		Signature:    *signatureBase64,
+		Header:    *HeaderBase64,
+		Payload:   *marshalledPayloadBase64,
+		Signature: *signatureBase64,
 	}
 
 	tokenPayload := TokenPayload{
-		Token: &token,
+		Token:        &token,
 		RandomSecret: randomSecret,
 	}
 
@@ -243,8 +253,8 @@ func RetrieveTokenDetailsFromString(tokenStr *string) (*TokenDetails, error) {
 	}
 
 	tokenDetails := TokenDetails{
-		Header: &header,
-		Payload: &payload,
+		Header:    &header,
+		Payload:   &payload,
 		Signature: &token.Signature,
 	}
 

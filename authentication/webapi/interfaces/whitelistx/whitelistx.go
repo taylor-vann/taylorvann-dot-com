@@ -9,8 +9,10 @@ import (
 
 	"webapi/interfaces/redisx"
 	"webapi/interfaces/whitelistx/constants"
-	"webapi/utils"
 )
+
+// MilliSeconds -
+type MilliSeconds = int64
 
 // get our config
 var redisConf, errConfig = getConfigFromEnv()
@@ -53,7 +55,7 @@ func Ping() (*string, error) {
 }
 
 // SetAndExpire - controlled set function
-func SetAndExpire(key string, value *[]byte, expireMS utils.MilliSeconds) (bool, error) {
+func SetAndExpire(key string, value *[]byte, expireMS MilliSeconds) (bool, error) {
 	if redisInst == nil {
 		return false, errors.New("whitelistx - Set - redisInst is nil")
 	}
