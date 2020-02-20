@@ -4,11 +4,11 @@ package users
 import (
 	"fmt"
 
-	"webapi/constants"
+	"webapi/controllers/users/constants"
 )
 
-// UsersSQL - container of valid sql strings
-type UsersSQL struct {
+// SQL - container of valid sql strings
+type SQL struct {
 	CreateTable string
 	Create      string
 	Read        string
@@ -20,7 +20,10 @@ const createTableUsers = `
 CREATE TABLE IF NOT EXISTS %s (
   id BIGSERIAL PRIMARY KEY,
 	email VARCHAR(512) UNIQUE NOT NULL,
-  is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+	salt VARCHAR(256) NOT NULL,
+	hash VARCHAR(512) NOT NULL,
+	params VARCHAR(1024) NOT NULL,
+	is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
   created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 	updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
 );
@@ -28,10 +31,13 @@ CREATE TABLE IF NOT EXISTS %s (
 
 const insertUser = `
 INSERT INTO %s (
-	email
+	email,
+	salt,
+	hash,
+	params
 )
 VALUES 
-  ($1)
+  ($1, $2, $3, $4)
 RETURNING
 	*;
 `
@@ -50,10 +56,13 @@ UPDATE
 	%s
 SET
 	email = $2,
+	salt = $3,
+	hash = $4,
+	params = $5,
   updated_at = CURRENT_TIMESTAMP(3)
 WHERE
 	email = $1 AND
-	TO_TIMESTAMP($3::DOUBLE PRECISION * 0.001) 
+	TO_TIMESTAMP($6::DOUBLE PRECISION * 0.001) 
 		BETWEEN updated_at AND CURRENT_TIMESTAMP(3)
 RETURNING 
 	*;
@@ -73,8 +82,8 @@ RETURNING
 	*;
 `
 
-func createUsersStatements() *UsersSQL {
-	Users := UsersSQL{
+func createUsersStatements() *SQL {
+	Users := SQL{
 		CreateTable: fmt.Sprintf(createTableUsers, constants.Tables.Users),
 		Create:      fmt.Sprintf(insertUser, constants.Tables.Users),
 		Read:        fmt.Sprintf(readUser, constants.Tables.Users),

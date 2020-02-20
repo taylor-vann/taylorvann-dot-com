@@ -7,6 +7,11 @@ import (
 
 var testUser = CreateParams{
 	Email: "test_user@test_email.test",
+	Password: "pazzw0rd",
+}
+
+var testUserRead = ReadParams{
+	Email: "test_user@test_email.test",
 }
 
 var testUserUpdated = UpdateParams{
@@ -14,7 +19,7 @@ var testUserUpdated = UpdateParams{
 	UpdatedEmail: "next_test_user@test_email.test",
 }
 
-var testUserRemoveUpdated = CreateParams{
+var testUserRemoveUpdated = RemoveParams{
 	Email: "next_test_user@test_email.test",
 }
 
@@ -50,7 +55,7 @@ func TestCreateRow(t *testing.T) {
 }
 
 func TestReadRow(t *testing.T) {
-	result, err := Read(&testUser)
+	result, err := Read(&testUserRead)
 	if err != nil {
 		t.Error("Error reading user row.")
 		fmt.Println(err)

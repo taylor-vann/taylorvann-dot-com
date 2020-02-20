@@ -1,14 +1,12 @@
 // brian taylor vann
 // taylorvann dot com
+//
+// Represents a connection between user and a microservice
+//
+// all CRUR methods must return entire created or altered entries
 
-// haspassword
-// Represents a connection between user and password
-// This is a connection, it is also an edge between two vertices
-
-package haspassword
-
-// brian taylor vann
-// taylorvann dot com
+// Package roles -  Controller to interact with sql table on device
+package roles
 
 import (
 	"database/sql"
@@ -19,39 +17,42 @@ import (
 	"webapi/utils"
 )
 
-// HasPasswordRow -
-type HasPasswordRow struct {
+// Row -
+type Row struct {
 	ID         int64     `json:"id"`
 	UserID     int64     `json:"user_id"`
-	PasswordID int64     `json:"password_id"`
+	Role			 string		 `json:"role"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 // CreateParams - arguments for clearer execution
 type CreateParams struct {
-	UserID     int64
-	PasswordID int64
+	UserID		int64
+	Role			string
 }
 
+// ReadParams -
 type ReadParams struct {
 	UserID int64
 }
 
+// UpdateParams -
 type UpdateParams = CreateParams
 
+// RemoveParams -
 type RemoveParams = ReadParams
 
 // createUsersRow -
-func createHasPasswordRow(rows *sql.Rows) (*HasPasswordRow, error) {
-	var haspassword HasPasswordRow
+func createRow(rows *sql.Rows) (*Row, error) {
+	var rolesRow Row
 	if rows.Next() {
 		errScan := rows.Scan(
-			&haspassword.ID,
-			&haspassword.UserID,
-			&haspassword.PasswordID,
-			&haspassword.CreatedAt,
-			&haspassword.UpdatedAt,
+			&rolesRow.ID,
+			&rolesRow.UserID,
+			&rolesRow.Role,
+			&rolesRow.CreatedAt,
+			&rolesRow.UpdatedAt,
 		)
 		if errScan != nil {
 			return nil, errScan
@@ -60,7 +61,7 @@ func createHasPasswordRow(rows *sql.Rows) (*HasPasswordRow, error) {
 
 	rows.Close()
 
-	return &haspassword, nil
+	return &rolesRow, nil
 }
 
 // CreateTable -
@@ -70,7 +71,7 @@ func CreateTable() (*sql.Result, error) {
 }
 
 // Create - create a password entry in our store
-func Create(p *CreateParams) (*HasPasswordRow, error) {
+func Create(p *CreateParams) (*Row, error) {
 	if p == nil {
 		return nil, errors.New("Nil parameters provided.")
 	}
@@ -78,17 +79,17 @@ func Create(p *CreateParams) (*HasPasswordRow, error) {
 	row, errQueryRow := storex.Query(
 		SQLStatements.Create,
 		p.UserID,
-		p.PasswordID,
+		p.Role,
 	)
 	if errQueryRow != nil {
 		return nil, errQueryRow
 	}
 
-	return createHasPasswordRow(row)
+	return createRow(row)
 }
 
 // Read - update an entry in our store
-func Read(p *ReadParams) (*HasPasswordRow, error) {
+func Read(p *ReadParams) (*Row, error) {
 	if p == nil {
 		return nil, errors.New("nil parameters provided")
 	}
@@ -98,11 +99,11 @@ func Read(p *ReadParams) (*HasPasswordRow, error) {
 		return nil, errQueryRow
 	}
 
-	return createHasPasswordRow(row)
+	return createRow(row)
 }
 
 // Update - update an entry in our store
-func Update(p *UpdateParams) (*HasPasswordRow, error) {
+func Update(p *UpdateParams) (*Row, error) {
 	if p == nil {
 		return nil, errors.New("nil parameters provided")
 	}
@@ -110,18 +111,18 @@ func Update(p *UpdateParams) (*HasPasswordRow, error) {
 	row, errQueryRow := storex.Query(
 		SQLStatements.Update,
 		p.UserID,
-		p.PasswordID,
+		p.Role,
 		utils.GetNowAsMS(),
 	)
 	if errQueryRow != nil {
 		return nil, errQueryRow
 	}
 
-	return createHasPasswordRow(row)
+	return createRow(row)
 }
 
 // Remove - remove an entry from our store
-func Remove(p *RemoveParams) (*HasPasswordRow, error) {
+func Remove(p *RemoveParams) (*Row, error) {
 	if p == nil {
 		return nil, errors.New("nil parameters provided")
 	}
@@ -135,5 +136,5 @@ func Remove(p *RemoveParams) (*HasPasswordRow, error) {
 		return nil, errQueryRow
 	}
 
-	return createHasPasswordRow(row)
+	return createRow(row)
 }
