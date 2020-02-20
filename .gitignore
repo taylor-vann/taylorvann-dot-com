@@ -20,6 +20,9 @@
 /authentication/store_cache/redis_data/*
 !/authentication/store_cache/redis_data/.keep
 
+## Webapi build
+#   ignore binary
+/authentication/webapi/webapi
 
 # ignore the build
 web_client/prod/
