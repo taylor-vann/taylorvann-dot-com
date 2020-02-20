@@ -40,9 +40,6 @@ var ThreeDaysAsMS = 3 * DayAsMS
 // RemoveEntryParams -
 type RemoveEntryParams = ReadEntryParams
 
-// Entry params add user and audience
-func composeCreatePublicEntryParams() {}
-
 // CreateEntry -
 func CreateEntry(p *CreateEntryParams) (*Entry, error) {
 	if p == nil {
