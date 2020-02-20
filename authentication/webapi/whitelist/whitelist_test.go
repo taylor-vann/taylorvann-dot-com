@@ -7,14 +7,18 @@ import (
 
 	"webapi/constants"
 	"webapi/interfaces/jwtx"
-	"webapi/utils"
 )
 
 type JWTClaimTestPlan = []jwtx.Claims
 
 var randomJWTClaims = generateRandomJWTClaims("public", 5)
 
-func getLaterAsMS() utils.MilliSeconds {
+func getNowAsMS() MilliSeconds {
+	return time.Now().UnixNano() / int64(time.Millisecond)
+}
+
+
+func getLaterAsMS() MilliSeconds {
 	return (time.Now().UnixNano() + DayAsMS) / int64(time.Millisecond)
 }
 
@@ -22,7 +26,7 @@ func generateRandomJWTClaims(sub string, num int) *JWTClaimTestPlan {
 	jwtClaims := make(JWTClaimTestPlan, num)
 
 	for index := range jwtClaims {
-		nowAsMS := utils.GetNowAsMS()
+		nowAsMS := getNowAsMS()
 		laterAsMS := getLaterAsMS()
 
 		jwtClaims[index] = jwtx.Claims{

@@ -10,12 +10,15 @@ package store
 import (
 	"encoding/json"
 	"errors"
+	"time"
 
 	"webapi/controllers/users"
 	"webapi/interfaces/passwordx"
 	"webapi/interfaces/storex"
-	"webapi/utils"
 )
+
+// MilliSeconds -
+type MilliSeconds = int64
 
 // CreateUserParams -
 type CreateUserParams = users.CreateParams
@@ -25,8 +28,8 @@ type ReadUserParams = users.ReadParams
 
 // UpdateEmailParams -
 type UpdateEmailParams struct {
-	CurrentEmail	string
-	UpdatedEmail	string	
+	CurrentEmail string
+	UpdatedEmail string
 }
 
 // ValidateUserParams -
@@ -46,6 +49,11 @@ type UpdatePasswordParams struct {
 
 // UserRow -
 type UserRow = users.Row
+
+// getNowAsMS -
+func getNowAsMS() MilliSeconds {
+	return time.Now().UnixNano() / int64(time.Millisecond)
+}
 
 // CreateRequiredTables -
 func CreateRequiredTables() (bool, error) {
@@ -107,7 +115,7 @@ func UpdateEmail(p *UpdateEmailParams) (*UserRow, error) {
 		SQLStatements.UpdateEmail,
 		p.CurrentEmail,
 		p.UpdatedEmail,
-		utils.GetNowAsMS(),
+		getNowAsMS(),
 	)
 	if errUserRow != nil {
 		return nil, errUserRow
@@ -140,7 +148,7 @@ func UpdatePassword(p *UpdatePasswordParams) (*UserRow, error) {
 		hashResults.Salt,
 		hashResults.Hash,
 		marshaledParams,
-		utils.GetNowAsMS(),
+		getNowAsMS(),
 	)
 
 	if errUserRow != nil {

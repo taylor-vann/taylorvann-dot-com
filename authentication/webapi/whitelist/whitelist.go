@@ -3,27 +3,27 @@ package whitelist
 import (
 	"encoding/json"
 	"errors"
+	"math/rand"
 	"webapi/interfaces/whitelistx"
-	"webapi/utils"
 )
 
-// MilliSecond -
-type MilliSecond = int64
+// MilliSeconds -
+type MilliSeconds = int64
 
 // Entry -
 type Entry struct {
-	CsrfToken  []byte             `json:"csrf_token"`
-	SessionKey []byte             `json:"session_key"`
-	CreatedAt  utils.MilliSeconds `json:"created_at"`
-	Lifetime   utils.MilliSeconds `json:"expires_at"`
+	CsrfToken  []byte       `json:"csrf_token"`
+	SessionKey []byte       `json:"session_key"`
+	CreatedAt  MilliSeconds `json:"created_at"`
+	Lifetime   MilliSeconds `json:"expires_at"`
 }
 
 // CreateEntryParams -
 type CreateEntryParams struct {
-	CreatedAt  utils.MilliSeconds
-	Lifetime   utils.MilliSeconds
 	SessionKey *[]byte
 	Signature  *string
+	CreatedAt  MilliSeconds
+	Lifetime   MilliSeconds
 }
 
 // ReadEntryParams -
@@ -40,13 +40,24 @@ var ThreeDaysAsMS = 3 * DayAsMS
 // RemoveEntryParams -
 type RemoveEntryParams = ReadEntryParams
 
+// generateRandomByteArray -
+func generateRandomByteArray(n uint32) (*[]byte, error) {
+	token := make([]byte, n)
+	_, err := rand.Read(token)
+	if err != nil {
+		return nil, err
+	}
+
+	return &token, nil
+}
+
 // CreateEntry -
 func CreateEntry(p *CreateEntryParams) (*Entry, error) {
 	if p == nil {
 		return nil, errors.New("nil parameters provided")
 	}
 
-	csrfToken, errCsrfToken := utils.GenerateRandomByteArray(128)
+	csrfToken, errCsrfToken := generateRandomByteArray(128)
 	if errCsrfToken != nil {
 		return nil, errCsrfToken
 	}
