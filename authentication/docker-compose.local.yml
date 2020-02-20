@@ -5,8 +5,9 @@
 
 # Reserved Ports:
 # 5000  JSON Web Api
-# 5100  PostgreSQL Db
-# 5200  Redis Store
+# 5100  Store Db
+# 5200  Whitelist Cache
+# 5205  Store Cache
 
 version: "3"
 services:
@@ -37,6 +38,7 @@ services:
       - ./environment-variables.dev.env
     volumes:
       - ./store_db/postgres_data/:/var/lib/postgresql/data/
+    command: "-p 5100"
   store_cache:
     container_name: authn_store_cache
     build:
