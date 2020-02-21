@@ -30,28 +30,33 @@ type CreatePublicJWTParams struct {
 	Password *string
 }
 
-// CreateSessionParams -
-type CreateSessionParams struct {
+// CreateParams -
+type CreateParams struct {
 	Issuer   string
 	Subject  string
 	Audience string
 }
 
-// UpdateSessionParams -
-type UpdateSessionParams struct {
+// ReadParams -
+type ReadParams struct {
+	SessionToken *string
+}
+
+// UpdateParams -
+type UpdateParams struct {
 	SessionToken *string
 	CsrfToken    *[]byte
 }
 
-// RemoveSessionParams -
-type RemoveSessionParams = whitelist.RemoveEntryParams
+// RemoveParams -
+type RemoveParams = whitelist.RemoveEntryParams
 
 // getNowAsMS -
 func getNowAsMS() MilliSeconds {
 	return time.Now().UnixNano() / int64(time.Millisecond)
 }
 
-func composeJWTClaims(p *CreateSessionParams, issuedAt int64, expiresAt int64) *jwtx.Claims {
+func composeJWTClaims(p *CreateParams, issuedAt int64, expiresAt int64) *jwtx.Claims {
 	jwtClaims := jwtx.Claims{
 		Iss: p.Issuer,
 		Sub: p.Subject,
@@ -78,8 +83,8 @@ func validateCsrfTokens(external *[]byte, whitelist *[]byte) bool {
 }
 
 // ComposeCreateGuestSessionParams -
-func ComposeCreateGuestSessionParams() *CreateSessionParams {
-	params := CreateSessionParams{
+func ComposeCreateGuestSessionParams() *CreateParams {
+	params := CreateParams{
 		Issuer:   constants.TaylorVannDotCom,
 		Subject:  constants.Guest,
 		Audience: constants.Public,
@@ -89,7 +94,7 @@ func ComposeCreateGuestSessionParams() *CreateSessionParams {
 }
 
 // ComposeCreatePublicSessionParams -
-func ComposeCreatePublicSessionParams(p *CreatePublicJWTParams) (*CreateSessionParams, error) {
+func ComposeCreatePublicSessionParams(p *CreatePublicJWTParams) (*CreateParams, error) {
 	// validate user through store
 	userRow, errValidUser := store.ValidateUser(
 		&store.ValidateUserParams{
@@ -104,7 +109,7 @@ func ComposeCreatePublicSessionParams(p *CreatePublicJWTParams) (*CreateSessionP
 		return nil, errValidUser
 	}
 
-	params := CreateSessionParams{
+	params := CreateParams{
 		Issuer:   constants.TaylorVannDotCom,
 		Subject:  fmt.Sprintf("%d", userRow.ID),
 		Audience: constants.Public,
@@ -113,10 +118,10 @@ func ComposeCreatePublicSessionParams(p *CreatePublicJWTParams) (*CreateSessionP
 	return &params, nil
 }
 
-// CreateSession -
-func CreateSession(p *CreateSessionParams) (*Session, error) {
+// Create -
+func Create(p *CreateParams) (*Session, error) {
 	if p == nil {
-		return nil, errors.New("nil CreateSessionParams provided")
+		return nil, errors.New("nil CreateParams provided")
 	}
 	// create guest jwt
 	issuedAt := getNowAsMS()
@@ -159,8 +164,32 @@ func CreateSession(p *CreateSessionParams) (*Session, error) {
 	return &session, nil
 }
 
-// UpdateSessionIfExists -
-func UpdateSessionIfExists(p *UpdateSessionParams) (*Session, error) {
+// ReadIfExists -
+func ReadIfExists(p *ReadParams) (*ReadParams, error) {
+	sessionDetails, errSessionDetails := jwtx.RetrieveTokenDetailsFromString(
+		p.SessionToken,
+	)
+	if errSessionDetails != nil {
+		return nil, errSessionDetails
+	}
+
+	entry, errEntry := whitelist.ReadEntry(
+		&whitelist.ReadEntryParams{
+			Signature: sessionDetails.Signature,
+		},
+	)
+	if errEntry != nil {
+		return nil, errEntry
+	}
+	if entry != nil {
+		return p, errEntry
+	}
+	
+	return nil, errEntry
+}
+
+// UpdateIfExists -
+func UpdateIfExists(p *UpdateParams) (*Session, error) {
 	sessionDetails, errSessionDetails := jwtx.RetrieveTokenDetailsFromString(
 		p.SessionToken,
 	)
@@ -195,7 +224,7 @@ func UpdateSessionIfExists(p *UpdateSessionParams) (*Session, error) {
 		}
 
 		// validated, removed, return new token
-		return CreateSession(&CreateSessionParams{
+		return Create(&CreateParams{
 			Issuer:   sessionDetails.Payload.Iss,
 			Subject:  sessionDetails.Payload.Sub,
 			Audience: sessionDetails.Payload.Aud,
@@ -206,6 +235,6 @@ func UpdateSessionIfExists(p *UpdateSessionParams) (*Session, error) {
 }
 
 // RemoveSession -
-func RemoveSession(p *RemoveSessionParams) (bool, error) {
+func RemoveSession(p *RemoveParams) (bool, error) {
 	return whitelist.RemoveEntry(p)
 }
