@@ -37,5 +37,5 @@ yarn.lock
 # created by postgresql.
 
 # This pattern will ignore all files but a simple empty ".keep" file.
-/authentication/store_db/postgres_data/*
-!/authentication/store_db/postgres_data/.keep
+/authentication/store_db/postgres/*
+!/authentication/store_db/postgres/.keep
