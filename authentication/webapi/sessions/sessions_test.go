@@ -44,7 +44,7 @@ func TestRetrieveGuestSession(t *testing.T) {
 	}
 
 	// update the token
-	updatedSession, errUpdatedSession := UpdateIfExists(
+	updatedSession, errUpdatedSession := Update(
 		&UpdateParams{
 			SessionToken: &(session.SessionToken),
 			CsrfToken:    &(session.CsrfToken),
@@ -102,9 +102,10 @@ func TestCheckSession(t *testing.T) {
 	}
 
 	// update the token
-	ReadSession, errReadSession := ReadIfExists(
-		&ReadParams{
-			SessionToken: &(session.SessionToken),
+	ReadSession, errReadSession := Check(
+		&CheckParams{
+			SessionToken: &session.SessionToken,
+			CsrfToken: &session.CsrfToken,
 		},
 	)
 	if errReadSession != nil {
@@ -113,26 +114,6 @@ func TestCheckSession(t *testing.T) {
 	if ReadSession == nil {
 		t.Error("nil value returned instead of session")
 		return
-	}
-
-	readTokenDetails, errReadTokenDetails := jwtx.RetrieveTokenDetailsFromString(
-		ReadSession.SessionToken,
-	)
-	if readTokenDetails == nil {
-		t.Error("token is nil")
-	}
-	if errReadTokenDetails != nil {
-		t.Error("error interpreting token")
-	}
-
-	if tokenDetails.Payload.Iss != readTokenDetails.Payload.Iss {
-		t.Error("mismatching issuer")
-	}
-	if tokenDetails.Payload.Sub != readTokenDetails.Payload.Sub {
-		t.Error("mismatching subject")
-	}
-	if tokenDetails.Payload.Aud != readTokenDetails.Payload.Aud {
-		t.Error("mismatching audience")
 	}
 }
 
@@ -159,21 +140,21 @@ func TestDoubleCheckSession(t *testing.T) {
 	}
 
 	// update the token
-	readSession, errReadSession := ReadIfExists(
+	readSession, errReadSession := Read(
 		&ReadParams{
-			SessionToken: &(session.SessionToken),
+			SessionToken: &session.SessionToken,
 		},
 	)
 	if errReadSession != nil {
 		t.Error("error updated session")
 	}
-	if readSession == nil {
-		t.Error("nil value returned instead of session")
+	if readSession == false {
+		t.Error("could not find session")
 		return
 	}
 
 	// update the token
-	reReadSession, errReReadSession := ReadIfExists(
+	reReadSession, errReReadSession := Read(
 		&ReadParams{
 			SessionToken: &(session.SessionToken),
 		},
@@ -181,17 +162,19 @@ func TestDoubleCheckSession(t *testing.T) {
 	if errReReadSession != nil {
 		t.Error("error updated session")
 	}
-	if reReadSession == nil {
-		t.Error("nil value returned instead of session")
+	if reReadSession == false {
+		t.Error("could not find session")
 		return
 	}
 }
 
 func TestCheckBadSession(t *testing.T) {
 	signature := "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ5b2Rhd2ciLCJpYXQiOjE1ODIzMTU0NDYsImV4cCI6MTYxMzg1MTQ0NiwiYXVkIjoid3d3LmJsYWhibGFoLmNvbSIsInN1YiI6ImpvaG5ueUBxdWVzdC5jb20iLCJHaXZlbk5hbWUiOiJKb2hubnkiLCJTdXJuYW1lIjoiUXVlc3QiLCJFbWFpbCI6Impyb2NrZXRAZXhhbXBsZS5jb20ifQ.hPmDUos2HzRgn-OfFcC3gzhi28xa5YEDAVwfxWYfvdY"
-	readSession, errReadSession := ReadIfExists(
-		&ReadParams{
+	csrf := make([]byte, 0)
+	readSession, errReadSession := Check(
+		&CheckParams{
 			SessionToken: &signature,
+			CsrfToken: &csrf,
 		},
 	)
 	if errReadSession != nil {
@@ -247,7 +230,7 @@ func TestRetrievePublicSession(t *testing.T) {
 	}
 
 	// update the token
-	updatedSession, errUpdatedSession := UpdateIfExists(
+	updatedSession, errUpdatedSession := Update(
 		&UpdateParams{
 			SessionToken: &(session.SessionToken),
 			CsrfToken:    &(session.CsrfToken),
@@ -309,7 +292,7 @@ func TestRemoveSession(t *testing.T) {
 		t.Error("error interpreting token")
 	}
 
-	entryRemoved, errEntryRemoved := RemoveSession(&RemoveParams{
+	entryRemoved, errEntryRemoved := Remove(&RemoveParams{
 		Signature: tokenDetails.Signature,
 	})
 	if errEntryRemoved != nil {
@@ -323,7 +306,7 @@ func TestRemoveSession(t *testing.T) {
 
 func TestRemoveSessionRespondsFalse(t *testing.T) {
 	badSignature := "animal_crackers_with_nutella"
-	entryRemoved, errEntryRemoved := RemoveSession(&RemoveParams{
+	entryRemoved, errEntryRemoved := Remove(&RemoveParams{
 		Signature: &badSignature,
 	})
 	if errEntryRemoved != nil {

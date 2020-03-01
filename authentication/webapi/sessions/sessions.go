@@ -7,7 +7,6 @@ package sessions
 
 import (
 	"errors"
-	"fmt"
 	"time"
 	"webapi/interfaces/jwtx"
 	"webapi/sessions/constants"
@@ -20,14 +19,14 @@ type MilliSeconds = int64
 
 // Session -
 type Session struct {
-	SessionToken string
-	CsrfToken    []byte
+	SessionToken string	`json:"session_token"`
+	CsrfToken    []byte	`json:"csrf_token"`
 }
 
 // CreatePublicJWTParams -
 type CreatePublicJWTParams struct {
-	Email    *string
-	Password *string
+	Email    string
+	Password string
 }
 
 // CreateParams -
@@ -39,14 +38,17 @@ type CreateParams struct {
 
 // ReadParams -
 type ReadParams struct {
-	SessionToken *string
+	SessionToken	*string
+}
+
+// CheckParams -
+type CheckParams struct {
+	SessionToken	*string
+	CsrfToken			*[]byte
 }
 
 // UpdateParams -
-type UpdateParams struct {
-	SessionToken *string
-	CsrfToken    *[]byte
-}
+type UpdateParams = CheckParams
 
 // RemoveParams -
 type RemoveParams = whitelist.RemoveEntryParams
@@ -93,13 +95,23 @@ func ComposeCreateGuestSessionParams() *CreateParams {
 	return &params
 }
 
-// ComposeCreatePublicSessionParams -
+// ComposeCreateResetPasswordSessionParams -
+func ComposeCreateResetPasswordSessionParams() *CreateParams {
+	params := CreateParams{
+		Issuer:   constants.TaylorVannDotCom,
+		Subject:  constants.ResetPassword,
+		Audience: constants.Public,
+	}
+
+	return &params
+}
+
+// ComposeCreatePublicSessionParams - validate user through store
 func ComposeCreatePublicSessionParams(p *CreatePublicJWTParams) (*CreateParams, error) {
-	// validate user through store
 	userRow, errValidUser := store.ValidateUser(
 		&store.ValidateUserParams{
-			Email:    *(p.Email),
-			Password: *(p.Password),
+			Email:    p.Email,
+			Password: p.Password,
 		},
 	)
 	if userRow == nil {
@@ -111,7 +123,7 @@ func ComposeCreatePublicSessionParams(p *CreatePublicJWTParams) (*CreateParams, 
 
 	params := CreateParams{
 		Issuer:   constants.TaylorVannDotCom,
-		Subject:  fmt.Sprintf("%d", userRow.ID),
+		Subject:  string(userRow.ID),
 		Audience: constants.Public,
 	}
 
@@ -123,6 +135,7 @@ func Create(p *CreateParams) (*Session, error) {
 	if p == nil {
 		return nil, errors.New("nil CreateParams provided")
 	}
+	
 	// create guest jwt
 	issuedAt := getNowAsMS()
 	lifetime := constants.ThreeDaysAsMS
@@ -164,42 +177,98 @@ func Create(p *CreateParams) (*Session, error) {
 	return &session, nil
 }
 
-// ReadIfExists -
-func ReadIfExists(p *ReadParams) (*ReadParams, error) {
-	sessionDetails, errSessionDetails := jwtx.RetrieveTokenDetailsFromString(
+// Read -
+func Read(p *ReadParams) (bool, error) {
+	if p.SessionToken == nil {
+		return false, errors.New("nil session token provided")
+	}
+
+	tokenDetails, errTokenDetails := jwtx.RetrieveTokenFromString(
 		p.SessionToken,
 	)
-	if errSessionDetails != nil {
-		return nil, errSessionDetails
+	if errTokenDetails != nil {
+		return false, errTokenDetails
 	}
 
 	entry, errEntry := whitelist.ReadEntry(
 		&whitelist.ReadEntryParams{
-			Signature: sessionDetails.Signature,
+			Signature: &tokenDetails.Signature,
+		},
+	)
+	if errEntry != nil {
+		return false, errEntry
+	}
+
+	result := jwtx.ValidateJWT(&jwtx.TokenPayload{
+		Token: tokenDetails,
+		RandomSecret: &entry.SessionKey,
+	})
+
+	return result, nil
+}
+
+// Check -
+func Check(p *CheckParams) (*whitelist.Entry, error) {
+	if p.SessionToken == nil {
+		return nil, nil
+	}
+	if p.CsrfToken == nil {
+		return nil, nil
+	}
+
+	tokenDetails, errTokenDetails := jwtx.RetrieveTokenFromString(
+		p.SessionToken,
+	)
+	if errTokenDetails != nil {
+		return nil, errTokenDetails
+	}
+
+	entry, errEntry := whitelist.ReadEntry(
+		&whitelist.ReadEntryParams{
+			Signature: &tokenDetails.Signature,
 		},
 	)
 	if errEntry != nil {
 		return nil, errEntry
 	}
+
 	if entry != nil {
-		return p, errEntry
+		resultJwt := jwtx.ValidateJWT(&jwtx.TokenPayload{
+			Token: tokenDetails,
+			RandomSecret: &entry.SessionKey,
+		})
+		resultCsrf := validateCsrfTokens(p.CsrfToken, &entry.CsrfToken)
+		if resultJwt && resultCsrf {
+			removeResult, errRemoveResult := whitelist.RemoveEntry(
+				&whitelist.RemoveEntryParams{
+					Signature: &tokenDetails.Signature,
+				},
+			)
+			if errRemoveResult != nil {
+				return nil, errRemoveResult
+			}
+			if removeResult == false {
+				return nil, errRemoveResult
+			}
+			return entry, nil
+		}
 	}
-	
-	return nil, errEntry
+
+	return nil, nil
 }
 
-// UpdateIfExists -
-func UpdateIfExists(p *UpdateParams) (*Session, error) {
-	sessionDetails, errSessionDetails := jwtx.RetrieveTokenDetailsFromString(
+// Update -
+func Update(p *UpdateParams) (*Session, error) {
+	tokenDetails, errTokenDetails := jwtx.RetrieveTokenFromString(
 		p.SessionToken,
 	)
-	if errSessionDetails != nil {
-		return nil, errSessionDetails
+	if errTokenDetails != nil {
+		return nil, errTokenDetails
 	}
 
 	entry, errEntry := whitelist.ReadEntry(
 		&whitelist.ReadEntryParams{
-			Signature: sessionDetails.Signature,
+			Signature: &tokenDetails.Signature,
 		},
 	)
 	if entry == nil {
@@ -209,8 +278,20 @@ func UpdateIfExists(p *UpdateParams) (*Session, error) {
 		return nil, errEntry
 	}
 
-	isValidCsrfToken := validateCsrfTokens(p.CsrfToken, &entry.CsrfToken)
-	if isValidCsrfToken {
+	resultJwt := jwtx.ValidateJWT(&jwtx.TokenPayload{
+		Token: tokenDetails,
+		RandomSecret: &entry.SessionKey,
+	})
+	resultCsrf := validateCsrfTokens(p.CsrfToken, &entry.CsrfToken)
+
+	if resultJwt && resultCsrf {
+		sessionDetails, errSessionDetails := jwtx.RetrieveTokenDetailsFromString(
+			p.SessionToken,
+		)
+		if errSessionDetails != nil {
+			return nil, errSessionDetails
+		}		
+
 		removeResult, errRemoveResult := whitelist.RemoveEntry(
 			&whitelist.RemoveEntryParams{
 				Signature: sessionDetails.Signature,
@@ -223,7 +304,6 @@ func UpdateIfExists(p *UpdateParams) (*Session, error) {
 			return nil, errRemoveResult
 		}
 
-		// validated, removed, return new token
 		return Create(&CreateParams{
 			Issuer:   sessionDetails.Payload.Iss,
 			Subject:  sessionDetails.Payload.Sub,
@@ -234,7 +314,7 @@ func UpdateIfExists(p *UpdateParams) (*Session, error) {
 	return nil, nil
 }
 
-// RemoveSession -
-func RemoveSession(p *RemoveParams) (bool, error) {
+// Remove -
+func Remove(p *RemoveParams) (bool, error) {
 	return whitelist.RemoveEntry(p)
 }

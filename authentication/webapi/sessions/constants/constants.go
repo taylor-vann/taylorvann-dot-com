@@ -6,6 +6,9 @@ const Guest = "guest"
 // Public -
 const Public = "public"
 
+// ResetPassword -
+const ResetPassword = "reset_password"
+
 // TaylorVannDotCom -
 const TaylorVannDotCom = "taylorvann.com"
 
