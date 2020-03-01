@@ -7,6 +7,10 @@ import (
 
 // CreateServer - Start a websever
 func CreateServer(port int) {
+	// create databases
+
+	// create failsafe users
+	
 	mux := http.NewServeMux()
 
 	// send mux to local routes package to append hooks

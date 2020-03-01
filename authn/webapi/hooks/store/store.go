@@ -42,8 +42,6 @@ const (
 	CreateUser = "CREATE_USER"
 	// ReadUser -
 	ReadUser = "READ_USER"
-	// UpdateUser -
-	UpdateUser = "UPDATE_USER"
 	// UpdateUserEmail -
 	UpdateUserEmail = "UPDATE_USER_EMAIL"
 	// UpdateUserPassword -
@@ -118,7 +116,6 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 		mutations.CreateUser(w, r)
 	case ReadUser:
 		queries.ReadUser()
-	case UpdateUser:
 	case UpdateUserEmail:
 		mutations.UpdateEmail(w, r)
 	case UpdateUserPassword:
