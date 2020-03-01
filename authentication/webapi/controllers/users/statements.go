@@ -56,13 +56,14 @@ UPDATE
 	%s
 SET
 	email = $2,
-	salt = $3,
-	hash = $4,
-	params = $5,
+	is_deleted = $3,
+	salt = $4,
+	hash = $5,
+	params = $6,
   updated_at = CURRENT_TIMESTAMP(3)
 WHERE
 	email = $1 AND
-	TO_TIMESTAMP($6::DOUBLE PRECISION * 0.001) 
+	TO_TIMESTAMP($7::DOUBLE PRECISION * 0.001) 
 		BETWEEN updated_at AND CURRENT_TIMESTAMP(3)
 RETURNING 
 	*;

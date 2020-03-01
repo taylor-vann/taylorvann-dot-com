@@ -17,6 +17,7 @@ var testUserRead = ReadParams{
 var testUserUpdated = UpdateParams{
 	CurrentEmail: "test_user@test_email.test",
 	UpdatedEmail: "next_test_user@test_email.test",
+	IsDeleted: false,
 }
 
 var testUserRemoveUpdated = RemoveParams{

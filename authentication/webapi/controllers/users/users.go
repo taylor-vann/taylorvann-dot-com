@@ -4,7 +4,7 @@
 // represents a user's password credentials in a store
 // it can be considered a vertex
 //
-// all CRUR methods must return entire created or altered entries
+// all CRUR methods must return the entire row of created or altered entries
 
 // Package users - Controller to interact with sql table on device
 package users
@@ -40,21 +40,22 @@ type Users = []Row
 
 // CreateParams - arguments needed for entry
 type CreateParams struct {
-	Email    string
-	Password string
+	Email    string	`json:"email"`	
+	Password string	`json:"password"`
 }
 
 // ReadParams - arguments needed too remove entry
 type ReadParams struct {
-	Email string
+	Email string	`json:"email"`
 }
 
 // UpdateParams - identical arguments needed for password update
 type UpdateParams struct {
-	CurrentEmail       string
-	UpdatedEmail       string
-	Password           string
-	RequestedTimestamp int64
+	CurrentEmail  string	`json:"current_email"`
+	UpdatedEmail  string	`json:"updated_email"`
+	Password      string	`json:"password"`
+	IsDeleted			bool		`json:"is_deleted"`
+	RequestedAt		int64		`json:"requested_at"`
 }
 
 // RemoveParams - identical arguments needed to remove an entry
@@ -179,6 +180,7 @@ func Update(p *UpdateParams) (*Row, error) {
 		SQLStatements.Update,
 		p.CurrentEmail,
 		p.UpdatedEmail,
+		p.IsDeleted,
 		hashedPassword.Salt,
 		hashedPassword.Hash,
 		marshaledParams,
