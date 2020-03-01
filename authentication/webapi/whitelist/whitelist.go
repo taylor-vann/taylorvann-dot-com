@@ -104,6 +104,10 @@ func ReadEntry(p *ReadEntryParams) (*Entry, error) {
 		return nil, errEntryAsByte
 	}
 
+	if entryAsByte == nil {
+		return nil, nil
+	}
+
 	var entry Entry
 	errUnmarshal := json.Unmarshal(*entryAsByte, &entry)
 	if errUnmarshal != nil {
