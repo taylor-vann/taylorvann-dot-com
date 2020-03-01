@@ -1,30 +1,32 @@
+//	brian taylor vann
+//	taylorvann dot com
+
+//	Keep routes separate and isolated for easier scaling.
+//	Each route could potentially be replaced by a simple
+//	http request to an external service.
+
+// Package routes -
 package routes
 
 import (
 	"net/http"
-	// "webapi/hooks"
+	"webapi/hooks/ping"
+	"webapi/hooks/sessions"
+	"webapi/hooks/store"
 )
 
 // CreateRoutes - add hooks to route callbacks
 func CreateRoutes(mux *http.ServeMux) *http.ServeMux {
-	// ping - information endpoint about our authentication api
-	// mux.HandleFunc("/", hooks.Ping)
+	//	ping
+	mux.HandleFunc("/", ping.Details)
 
-	// /store/m
-	// /store/q
-	// check cache for stale request, return stale receipt
-	// set query to pending
-	// query store
-	// save in cache
-	// mux.HandleFunc("/store/", hooks.Ping)
+	//	store
+	mux.HandleFunc("/store/q/", store.Query)
+	mux.HandleFunc("/store/m/", store.Mutation)
 
-	// /q
-	// read a cache
-	// query store if nothing in cache
-	// store results in cache
-	// we don't count sessions as mutations because
-	// our sessions are supposed to be stateless
-	// mux.HandleFunc("/sessions/", hooks.Ping)
+	//	sessions
+	mux.HandleFunc("/sessions/q/", sessions.Query)
+	mux.HandleFunc("/sessions/m/", sessions.Mutation)
 
 	return mux
 }
