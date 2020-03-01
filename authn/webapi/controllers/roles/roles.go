@@ -13,7 +13,6 @@ import (
 	"errors"
 	"time"
 
-	"webapi/controllers/utils"
 	"webapi/interfaces/storex"
 )
 
@@ -23,7 +22,6 @@ type Row struct {
 	UserID    int64     `json:"user_id"`
 	Role      string    `json:"role"`
 	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // CreateParams - arguments for clearer execution
@@ -33,15 +31,10 @@ type CreateParams struct {
 }
 
 // ReadParams -
-type ReadParams struct {
-	UserID int64
-}
-
-// UpdateParams -
-type UpdateParams = CreateParams
+type ReadParams = CreateParams
 
 // RemoveParams -
-type RemoveParams = ReadParams
+type RemoveParams = CreateParams
 
 // createUsersRow -
 func createRow(rows *sql.Rows) (*Row, error) {
@@ -52,7 +45,6 @@ func createRow(rows *sql.Rows) (*Row, error) {
 			&rolesRow.UserID,
 			&rolesRow.Role,
 			&rolesRow.CreatedAt,
-			&rolesRow.UpdatedAt,
 		)
 		if errScan != nil {
 			return nil, errScan
@@ -94,25 +86,10 @@ func Read(p *ReadParams) (*Row, error) {
 		return nil, errors.New("nil parameters provided")
 	}
 
-	row, errQueryRow := storex.Query(SQLStatements.Read, p.UserID)
-	if errQueryRow != nil {
-		return nil, errQueryRow
-	}
-
-	return createRow(row)
-}
-
-// Update - update an entry in our store
-func Update(p *UpdateParams) (*Row, error) {
-	if p == nil {
-		return nil, errors.New("nil parameters provided")
-	}
-
 	row, errQueryRow := storex.Query(
-		SQLStatements.Update,
+		SQLStatements.Read,
 		p.UserID,
 		p.Role,
-		utils.GetNowAsMS(),
 	)
 	if errQueryRow != nil {
 		return nil, errQueryRow
@@ -130,7 +107,7 @@ func Remove(p *RemoveParams) (*Row, error) {
 	row, errQueryRow := storex.Query(
 		SQLStatements.Remove,
 		p.UserID,
-		utils.GetNowAsMS(),
+		p.Role,
 	)
 	if errQueryRow != nil {
 		return nil, errQueryRow

@@ -11,11 +11,7 @@ var testRole = CreateParams{
 
 var testRoleRead = ReadParams{
 	UserID: 1,
-}
-
-var testRoleUpdate = CreateParams{
-	UserID: 1,
-	Role:   "admin",
+	Role:   "internal",
 }
 
 func TestCreateTable(t *testing.T) {
@@ -39,9 +35,6 @@ func TestCreateRow(t *testing.T) {
 	if result != nil && result.UserID != testRole.UserID {
 		t.Error("failed to create Roles row.")
 	}
-	if result != nil && result.CreatedAt != result.UpdatedAt {
-		t.Error("CreatedAt does not equal UpdatedAt.")
-	}
 }
 
 func TestReadRow(t *testing.T) {
@@ -51,31 +44,13 @@ func TestReadRow(t *testing.T) {
 	}
 	if result == nil {
 		t.Error("no results were returned from Create.")
+		return
 	}
-	if result != nil && result.UserID != testRole.UserID {
+	if result.UserID != testRole.UserID {
 		t.Error("mutated UserID.")
 	}
-	if result != nil && result.Role != testRole.Role {
-		t.Error("failed to updated roles.")
-	}
-}
-
-func TestUpdateRow(t *testing.T) {
-	result, err := Update(&testRoleUpdate)
-	if err != nil {
-		t.Error("error updating roles row.")
-	}
-	if result == nil {
-		t.Error("no results were returned from Update.")
-	}
-	if result != nil && result.UserID != testRoleUpdate.UserID {
-		t.Error("mutated UserID.")
-	}
-	if result != nil && result.Role == testRole.Role {
-		t.Error("failed to updated roles.")
-	}
-	if result != nil && result.CreatedAt == result.UpdatedAt {
-		t.Error("CreatedAt should not equal UpdatedAt.")
+	if result.Role != testRole.Role {
+		t.Error("failed to read roles.")
 	}
 }
 
@@ -86,11 +61,12 @@ func TestRemoveRow(t *testing.T) {
 	}
 	if result == nil {
 		t.Error("No results were returned from Remove.")
+		return
 	}
-	if result != nil && result.UserID != testRoleUpdate.UserID {
+	if result.UserID != testRole.UserID {
 		t.Error("Mutated UserID.")
 	}
-	if result != nil && result.Role != testRoleUpdate.Role {
+	if result.Role != testRole.Role {
 		t.Error("Deleted Role does not match correct Role.")
 	}
 }

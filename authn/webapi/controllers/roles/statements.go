@@ -19,20 +19,18 @@ type SQL struct {
 const createTableRoles = `
 CREATE TABLE IF NOT EXISTS %s (
 	id BIGSERIAL PRIMARY KEY,
-	user_id BIGINT UNIQUE NOT NULL,
+	user_id BIGINT NOT NULL,
 	role VARCHAR(128),
 	created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-	updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 	CONSTRAINT unique_role UNIQUE (user_id, role)
 );
 `
 
 const insertRole = `
-INSERT INTO 
-	%s (
-  	user_id,
-    role
-  )
+INSERT INTO %s (
+	user_id,
+	role
+)
 VALUES
 	($1, $2)
 RETURNING
@@ -45,21 +43,8 @@ SELECT
 FROM
 	%s
 WHERE
-	user_id = $1;
-`
-
-const updateRole = `
-UPDATE
-	%s
-SET
-  role = $2,
-  updated_at = CURRENT_TIMESTAMP(3)
-WHERE
 	user_id = $1 AND
-	TO_TIMESTAMP($3::DOUBLE PRECISION * 0.001) 
-		BETWEEN updated_at AND CURRENT_TIMESTAMP(3)
-RETURNING 
-	*;
+	role = $2;
 `
 
 const removeRole = `
@@ -67,8 +52,7 @@ DELETE FROM
 	%s
 WHERE
 	user_id = $1 AND
-	TO_TIMESTAMP($2::DOUBLE PRECISION * 0.001) 
-		BETWEEN updated_at AND CURRENT_TIMESTAMP(3)
+	role = $2
 RETURNING 
 	*;
 `
@@ -78,7 +62,6 @@ func createRoles() *SQL {
 		CreateTable: fmt.Sprintf(createTableRoles, constants.Tables.Roles),
 		Create:      fmt.Sprintf(insertRole, constants.Tables.Roles),
 		Read:        fmt.Sprintf(readRole, constants.Tables.Roles),
-		Update:      fmt.Sprintf(updateRole, constants.Tables.Roles),
 		Remove:      fmt.Sprintf(removeRole, constants.Tables.Roles),
 	}
 
