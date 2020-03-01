@@ -12,6 +12,7 @@ import (
 	"errors"
 	"time"
 
+	"webapi/controllers/roles"
 	"webapi/controllers/users"
 	"webapi/interfaces/passwordx"
 	"webapi/interfaces/storex"
@@ -62,9 +63,13 @@ func getNowAsMS() MilliSeconds {
 func CreateRequiredTables() (bool, error) {
 	_, errUsers := users.CreateTable()
 	if errUsers != nil {
-		return false, errors.New("Error creating users table")
+		return false, errUsers
 	}
 
+	_, errRoles := roles.CreateTable()
+	if errRoles != nil {
+		return false, errRoles
+	}
 	return true, nil
 }
 
@@ -169,7 +174,6 @@ func UpdatePassword(p *UpdatePasswordParams) (*UserRow, error) {
 func RemoveUser(p *RemoveUserParams) (*UserRow, error) {
 	return users.Remove(p)
 }
-
 
 // ReviveUser - soft deletes a person in our store, returns UserRow
 func ReviveUser(p *ReviveUserParams) (*UserRow, error) {
