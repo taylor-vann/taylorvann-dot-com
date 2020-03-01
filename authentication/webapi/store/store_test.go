@@ -191,3 +191,26 @@ func TestRemoveUser(t *testing.T) {
 		t.Error("Wrong user was deleted")
 	}
 }
+
+
+func TestReviveUser(t *testing.T) {
+	user, errRemoveUser := ReviveUser(
+		&removeTestUser,
+	)
+
+	if errRemoveUser != nil {
+		t.Error("Error removing user")
+	}
+
+	if user == nil {
+		t.Error("nil result returned")
+		return
+	}
+	if user.IsDeleted != false {
+		t.Error("User is_deleted should be false")
+	}
+
+	if user.Email != removeTestUser.Email {
+		t.Error("Wrong user was deleted")
+	}
+}

@@ -41,6 +41,9 @@ type ValidateUserParams struct {
 // RemoveUserParams -
 type RemoveUserParams = ReadUserParams
 
+// ReviveUserParams -
+type ReviveUserParams = ReadUserParams
+
 // UpdatePasswordParams -
 type UpdatePasswordParams struct {
 	Email           string
@@ -75,7 +78,7 @@ func ReadUser(p *ReadUserParams) (*UserRow, error) {
 	return users.Read(p)
 }
 
-// ValidateUser - creates a new person in our store, returns UserRow
+// ValidateUser - match user passwrods, returns UserRow
 func ValidateUser(p *ValidateUserParams) (*UserRow, error) {
 	if p == nil {
 		return nil, errors.New("store.ValidateUser() - nil parameters given")
@@ -110,7 +113,7 @@ func ValidateUser(p *ValidateUserParams) (*UserRow, error) {
 	return nil, nil
 }
 
-// UpdateEmail - creates a new person in our store, returns UserRow
+// UpdateEmail - updates a user's email in our store, returns UserRow
 func UpdateEmail(p *UpdateEmailParams) (*UserRow, error) {
 	if p == nil {
 		return nil, errors.New("store.UpdateEmail() - nil parameters given")
@@ -128,7 +131,7 @@ func UpdateEmail(p *UpdateEmailParams) (*UserRow, error) {
 	return users.CreateRow(userRow)
 }
 
-// UpdatePassword - creates a new person in our store, returns UserRow
+// UpdatePassword - change a users password, returns UserRow
 func UpdatePassword(p *UpdatePasswordParams) (*UserRow, error) {
 	if p == nil {
 		return nil, errors.New("store.UpdatePassword() - nil parameters given")
@@ -162,7 +165,25 @@ func UpdatePassword(p *UpdatePasswordParams) (*UserRow, error) {
 	return users.CreateRow(userRow)
 }
 
-// RemoveUser - creates a new person in our store, returns UserRow
+// RemoveUser - soft deletes a person in our store, returns UserRow
 func RemoveUser(p *RemoveUserParams) (*UserRow, error) {
 	return users.Remove(p)
+}
+
+
+// ReviveUser - soft deletes a person in our store, returns UserRow
+func ReviveUser(p *ReviveUserParams) (*UserRow, error) {
+	if p == nil {
+		return nil, errors.New("store.UpdateEmail() - nil parameters given")
+	}
+	userRow, errUserRow := storex.Query(
+		SQLStatements.ReviveUser,
+		p.Email,
+		getNowAsMS(),
+	)
+	if errUserRow != nil {
+		return nil, errUserRow
+	}
+
+	return users.CreateRow(userRow)
 }
