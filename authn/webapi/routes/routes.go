@@ -1,11 +1,12 @@
 //	brian taylor vann
 //	taylorvann dot com
 
+// 	Authn - Routes / Gateway
+//
 //	Keep routes separate and isolated for easier scaling.
-//	Each route could potentially be replaced by a simple
+//	Each route should be potentially replaced by a simple
 //	http request to an external service.
 
-// Package routes -
 package routes
 
 import (

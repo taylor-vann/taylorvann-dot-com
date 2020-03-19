@@ -12,11 +12,8 @@ func CreateServer(port int) {
 	store.CreateRequiredTables()
 	store.InitFromJSON()
 
-	// create failsafe users
-	
-	mux := http.NewServeMux()
-
 	// send mux to local routes package to append hooks
+	mux := http.NewServeMux()
 	routes.CreateRoutes(mux)
 
 	// start app
