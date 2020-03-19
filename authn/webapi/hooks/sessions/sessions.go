@@ -1,115 +1,92 @@
 package sessions
 
 import (
-	"bytes"
 	"encoding/json"
-	"fmt"
-	"io/ioutil"
 	"net/http"
 
 	"webapi/hooks/sessions/errors"
 	"webapi/hooks/sessions/mutations"
+	"webapi/hooks/sessions/queries"
 )
 
-// ReadSessionAction -
 type ReadSessionAction struct {
 	SessionSignature string `json:"session_signature"`
 }
-
-// RemoveSessionAction -
 type RemoveSessionAction = ReadSessionAction
-
-// RequestBodyParams -
-type RequestBodyParams struct {
-	Action string
-	Params interface{}
-}
+type MutationRequestPayload = mutations.RequestPayload
+type MutationRequestBody = mutations.RequestBody
+type MutationResponseBody = mutations.ResponseBody
+type QueryRequestBody = queries.RequestBody
+type QueryRequestPayload = queries.RequestPayload
+type ErrorsPayload = mutations.ErrorsPayload
 
 // Actions
 const (
-	// CreateGuestSession -
-	CreateGuestSession = "CREATE_GUEST_SESSION"
-	// CreatePublicSession -
-	CreatePublicSession = "CREATE_PUBLIC_SESSION"
-	// CreatePublicPasswordResetSession -
+	CreateGuestSession               = "CREATE_GUEST_SESSION"
+	CreateGuestDocumentSession			 = "CREATE_GUEST_DOCUMENT_SESSION"
+	CreatePublicSession              = "CREATE_PUBLIC_SESSION"
+	CreatePublicDocumentSession			 = "CREATE_PUBLIC_DOCUMENT_SESSION"
 	CreatePublicPasswordResetSession = "CREATE_PUBLIC_PASSWORD_RESET_SESSION"
-	// ReadSession -
-	ReadSession = "READ_SESSION"
-	// ValidateSession -
-	ValidateSession = "VALIDATE_SESSION"
-	// RemoveSession -
-	RemoveSession = "REMOVE_SESSION"
+	UpdateSession                    = "UPDATE_SESSION"
+	ValidateSession                  = "VALIDATE_SESSION"
+	RemoveSession                    = "REMOVE_SESSION"
 )
 
-// Query - read information from session whitelist
 func Query(w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
-		errors.BadRequest(w, &errors.Response{
-			Body: &errors.BadBodyFail,
-		})
+		errors.CustomErrorResponse(w, errors.BadBodyFail)
 		return
 	}
 
-	var body RequestBodyParams
+	var body queries.RequestBody
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
 		errAsStr := err.Error()
-		errors.BadRequest(w, &errors.Response{
+		errors.BadRequest(w, &ErrorsPayload{
 			Session: &errors.BadBodyFail,
 			Default: &errAsStr,
 		})
 	}
 
 	switch body.Action {
-	case ReadSession:
+	case ValidateSession:
+		queries.ValidateSession(w, &body)
 	default:
-		errors.BadRequest(w, &errors.Response{
+		errors.BadRequest(w, &ErrorsPayload{
 			Session: &errors.UnrecognizedQuery,
 		})
 	}
 }
 
-// Mutation - mutate session whitelist
 func Mutation(w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
-		errors.BadRequest(w, &errors.Response{
-			Body: &errors.BadBodyFail,
-		})
+		errors.CustomErrorResponse(w, errors.BadBodyFail)
 		return
 	}
 
-	var body RequestBodyParams
-	if r.Body != nil {
-		b, _ := ioutil.ReadAll(r.Body)
-
-		err := json.NewDecoder(
-			ioutil.NopCloser(bytes.NewReader(b)),
-		).Decode(&body)
-
-		if err != nil {
-			errors.BadRequest(w, &errors.Response{
-				Default: &errors.BadBodyFail,
-			})
-			return
-		}
-
-		r.Body = ioutil.NopCloser(bytes.NewReader(b))
+	var body MutationRequestBody
+	errJsonDecode := json.NewDecoder(r.Body).Decode(&body)
+	if errJsonDecode != nil {
+		errors.CustomErrorResponse(w, errors.BadBodyFail)
+		return
 	}
 
 	switch body.Action {
 	case CreateGuestSession:
-		mutations.CreateGuestSession(w, r)
+		mutations.CreateGuestSession(w)
+	case CreateGuestDocumentSession:
+		mutations.CreateGuestDocumentSession(w)
 	case CreatePublicSession:
-		fmt.Println("create public session action")
-		mutations.CreatePublicSession(w, r)
+		mutations.CreatePublicSession(w, &body)
+	case CreatePublicDocumentSession:
+		mutations.CreatePublicDocumentSession(w, &body)
 	case CreatePublicPasswordResetSession:
-		mutations.CreatePublicPasswordResetSession(w, r)
-	// case ValidateSession:
+		mutations.CreatePublicPasswordResetSession(w, &body)
+	case UpdateSession:
+		mutations.UpdateSession(w, &body)
 	case RemoveSession:
-		mutations.RemoveSession(w, r)
+		mutations.RemoveSession(w, &body)
 	default:
-		errors.BadRequest(w, &errors.Response{
-			Session: &errors.UnrecognizedMutation,
-		})
+		errors.CustomErrorResponse(w, errors.UnrecognizedMutation)
 	}
 }

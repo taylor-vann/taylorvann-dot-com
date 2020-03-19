@@ -2,90 +2,146 @@ package mutations
 
 import (
 	"encoding/base64"
-	"net/http"
-	"webapi/hooks/constants"
+	"errors"
+
+	sessionErrors "webapi/hooks/sessions/errors"
 	"webapi/interfaces/jwtx"
 	"webapi/sessions"
-	sessionsc "webapi/sessions/constants"
+	"webapi/sessions/constants"
 )
 
-// BadSessionRequestErrResponse -
-type BadSessionRequestErrResponse struct {
-	Session string `json:"session"`
-}
+type RequestPayload = sessionErrors.RequestPayload
+type RequestBody = sessionErrors.RequestBody
+type ResponsePayload = sessionErrors.SessionResponsePayload
+type ErrorsPayload = sessionErrors.ResponsePayload
+type ResponseBody = sessionErrors.ResponseBody
 
-// RemoveSessionRequestParams -
-type RemoveSessionRequestParams struct {
-	Signature string `json:"session_signature"`
-}
+var (
+	CreateGuestSessionErrorMessage = "error creating guest session"
+	InvalidSessionProvided         = "invalid session provided"
+	UnableToMarshalSession         = "unable to marshal session"
+)
 
-// RemoveSessionRequest -
-type RemoveSessionRequest struct {
-	Action string `json:"action"`
-}
-
-// ResponseErrors -
-type ResponseErrors struct {
-	Session *string `json:"session"`
-	Default *string `json:"default"`
-}
-
-// ResponseBody -
-type ResponseBody struct {
-	Errors *ResponseErrors `json:"errors"`
-}
-
-// CreateGuestSessionErrorMessage -
-var CreateGuestSessionErrorMessage = "error creating guest session"
-
-// InvalidHeadersProvided -
-var InvalidHeadersProvided = "invalid headers provided"
-
-func validateGuestSessionToken(token *string) bool {
+func validateGenericSessionToken(token *string) bool {
+	nowAsMS := sessions.GetNowAsMS()
+	threeDaysAgoAsMS := nowAsMS - jwtx.ThreeDaysAsMS
 	tokenDetails, errTokenDetails := jwtx.RetrieveTokenDetailsFromString(token)
-	if errTokenDetails != nil {
-		return false
-	}
-	if tokenDetails.Payload.Iss != sessionsc.TaylorVannDotCom {
-		return false
-	}
-	if tokenDetails.Payload.Sub != sessionsc.Guest {
-		return false
-	}
-	if tokenDetails.Payload.Aud != sessionsc.Public {
-		return false
-	}
-	return true
-}
-
-// validateGuestHeaders - valid guest session and csrf are required
-func validateGuestHeaders(r *http.Request) bool {
-	sessionToken := r.Header.Get(constants.SessionTokenHeader)
-	if sessionToken == "" {
-		return false
-	}
-	csrfTokenBase64 := r.Header.Get(constants.CsrfTokenHeader)
-	if csrfTokenBase64 == "" {
-		return false
-	}
-
-	csrfToken, errCsrfToken := base64.StdEncoding.DecodeString(csrfTokenBase64)
-	if errCsrfToken != nil {
-		return false
-	}
-
-	result, errEntry := sessions.Check(&sessions.CheckParams{
-		SessionToken: &sessionToken,
-		CsrfToken:    &csrfToken,
-	})
-	if errEntry != nil {
-		return false
-	}
-
-	if result != nil {
-		// check for guest session
-		return validateGuestSessionToken(&sessionToken)
+	if errTokenDetails == nil &&
+		tokenDetails.Payload.Iss == constants.TaylorVannDotCom &&
+		threeDaysAgoAsMS < tokenDetails.Payload.Exp &&
+		tokenDetails.Payload.Iat < nowAsMS {
+		return true
 	}
 
 	return false
+}
+
+func validateGuestSessionToken(token *string) bool {
+	if !validateGenericSessionToken(token) {
+		return false
+	}
+
+	tokenDetails, errTokenDetails := jwtx.RetrieveTokenDetailsFromString(token)
+	if errTokenDetails == nil && tokenDetails.Payload.Sub == constants.Guest {
+		return true
+	}
+
+	return false
+}
+
+func validateAndRemoveGuestSession(requestBody *RequestBody) (bool, error) {
+	if requestBody.Params == nil {
+		return false, errors.New("request params are nil")
+	}
+
+	csrfToken, errCsrfToken := base64.StdEncoding.DecodeString(
+		*requestBody.Params.CsrfToken,
+	)
+	if errCsrfToken != nil {
+		return false, nil
+	}
+
+	if !validateGuestSessionToken(requestBody.Params.SessionToken) {
+		return false, nil
+	}
+
+	result, errEntry := sessions.ValidateAndRemove(
+		&sessions.ValidateAndRemoveParams{
+			SessionToken: requestBody.Params.SessionToken,
+			CsrfToken:    &csrfToken,
+		},
+	)
+	if errEntry != nil {
+		return false, errEntry
+	}
+	if result != nil {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+func validateGenericSession(requestBody *RequestBody) (bool, error) {
+	if requestBody.Params == nil {
+		return false, errors.New("request params are nil")
+	}
+
+	csrfToken, errCsrfToken := base64.StdEncoding.DecodeString(
+		*requestBody.Params.CsrfToken,
+	)
+	if errCsrfToken != nil {
+		return false, nil
+	}
+
+	if !validateGenericSessionToken(requestBody.Params.SessionToken) {
+		return false, nil
+	}
+
+	result, errEntry := sessions.ValidateAndRemove(&sessions.ValidateAndRemoveParams{
+		SessionToken: requestBody.Params.SessionToken,
+		CsrfToken:    &csrfToken,
+	})
+	if errEntry != nil {
+		return false, errEntry
+	}
+	if result != nil {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+func updateGenericSession(requestBody *RequestBody) (*sessions.Session, error) {
+	if requestBody == nil {
+		return nil, errors.New("request body is nil")
+	}
+
+	if requestBody.Params == nil {
+		return nil, errors.New("request params are nil")
+	}
+
+	csrfToken, errCsrfToken := base64.StdEncoding.DecodeString(
+		*requestBody.Params.CsrfToken,
+	)
+	if errCsrfToken != nil {
+		return nil, errCsrfToken
+	}
+
+	if !validateGenericSessionToken(requestBody.Params.SessionToken) {
+		return nil, errors.New("error validating session token")
+	}
+
+	session, errSession := sessions.Update(&sessions.UpdateParams{
+		SessionToken: requestBody.Params.SessionToken,
+		CsrfToken:    &csrfToken,
+	})
+
+	if errSession != nil {
+		return nil, errSession
+	}
+	if session != nil {
+		return session, nil
+	}
+
+	return nil, nil
 }

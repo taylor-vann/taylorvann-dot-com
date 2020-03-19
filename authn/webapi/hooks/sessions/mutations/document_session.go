@@ -9,9 +9,9 @@ import (
 	"webapi/sessions"
 )
 
-func CreateGuestSession(w http.ResponseWriter) {	
+func CreateGuestDocumentSession(w http.ResponseWriter) {	
 	session, errSession := sessions.Create(
-		sessions.ComposeGuestSessionParams(),
+		sessions.ComposeGuestDocumentSessionParams(),
 	)
 
 	if errSession == nil {

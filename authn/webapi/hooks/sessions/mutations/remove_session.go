@@ -1,44 +1,50 @@
 package mutations
 
 import (
-	"fmt"
 	"net/http"
 	"webapi/sessions"
 
-	"webapi/hooks/constants"
 	"webapi/hooks/sessions/errors"
 	"webapi/interfaces/jwtx"
 )
 
-// RemoveSession - mutate session whitelist
-func RemoveSession(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Println("remove session")
+func RemoveSession(w http.ResponseWriter, requestBody *RequestBody) {
+	if requestBody == nil {
+		errors.CustomErrorResponse(w, InvalidSessionProvided)
+	}
 
-	sessionTokenHeader := r.Header.Get(constants.SessionTokenHeader)
-	token, _ := jwtx.RetrieveTokenDetailsFromString(&sessionTokenHeader)
+	token, errSignature := jwtx.RetrieveTokenFromString(
+		requestBody.Params.SessionToken,
+	)
+	if errSignature != nil {
+		errAsStr := errSignature.Error()
+		errors.BadRequest(w, &errors.ResponsePayload{
+			Session: &InvalidSessionProvided,
+			Default: &errAsStr,
+		})
+		return
+	}
 
 	result, errResponseBody := sessions.Remove(
 		&sessions.RemoveParams{
-			Signature: token.Signature,
+			Signature: &token.Signature,
 		},
 	)
 
 	if errResponseBody != nil {
 		errAsStr := errResponseBody.Error()
-		errors.BadRequest(w, &errors.Response{
-			Session: &InvalidHeadersProvided,
+		errors.BadRequest(w, &errors.ResponsePayload{
+			Session: &InvalidSessionProvided,
 			Default: &errAsStr,
 		})
 		return
 	}
 
 	if result == true {
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 
-	errors.BadRequest(w, &errors.Response{
-		Session: &InvalidHeadersProvided,
-	})
+	errors.CustomErrorResponse(w, InvalidSessionProvided)
 }

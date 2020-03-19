@@ -3,55 +3,36 @@ package mutations
 import (
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"webapi/hooks/constants"
+
 	"webapi/hooks/sessions/errors"
 	"webapi/sessions"
-	"webapi/store"
 )
 
-// CreateUserRequestBodyParams -
-type CreateUserRequestBodyParams struct {
-	Action string                 `json:"action"`
-	Params store.CreateUserParams `json:"params"`
-}
-
-func defaultErrorResponse(w http.ResponseWriter, err error) {
-	errAsStr := err.Error()
-	errors.BadRequest(w, &errors.Response{
-		Default: &errAsStr,
-	})
-}
-
-// CreatePublicSession - mutate session whitelist
-func CreatePublicSession(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("creating public session")
-	if !validateGuestHeaders(r) {
-		errors.BadRequest(w, &errors.Response{
-			Session: &InvalidHeadersProvided,
+func CreatePublicSession(w http.ResponseWriter, requestBody *RequestBody) {
+	validRequest, errValidRequest := validateAndRemoveGuestSession(requestBody)
+	if errValidRequest != nil {
+		errAsStr := errValidRequest.Error()
+		errors.BadRequest(w, &errors.ResponsePayload{
+			Session: &InvalidSessionProvided,
+			Default: &errAsStr,
 		})
 		return
 	}
-
-	// different name
-	var body CreateUserRequestBodyParams
-	err := json.NewDecoder(r.Body).Decode(&body)
-	if err != nil {
-		defaultErrorResponse(w, err)
+	if !validRequest {
+		errors.CustomErrorResponse(w, InvalidSessionProvided)
 		return
 	}
 
-	userSessionToken, errUserSessionToken := sessions.ComposeCreatePublicSessionParams(
+	userSessionToken, errUserSessionToken := sessions.ComposePublicSessionParams(
 		&sessions.CreatePublicJWTParams{
-			Email:    body.Params.Email,
-			Password: body.Params.Password,
+			Email:    *requestBody.Params.Credentials.Email,
+			Password: *requestBody.Params.Credentials.Password,
 		},
 	)
-	// create guest session
 	if errUserSessionToken != nil {
 		errorAsStr := errUserSessionToken.Error()
-		errors.BadRequest(w, &errors.Response{
+		errors.BadRequest(w, &errors.ResponsePayload{
 			Session: &errors.InvalidSessionCredentials,
 			Default: &errorAsStr,
 		})
@@ -64,15 +45,22 @@ func CreatePublicSession(w http.ResponseWriter, r *http.Request) {
 
 	if errUserSession == nil {
 		csrfAsBase64 := base64.StdEncoding.EncodeToString(userSession.CsrfToken)
-		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set(constants.SessionTokenHeader, userSession.SessionToken)
-		w.Header().Set(constants.CsrfTokenHeader, csrfAsBase64)
-		w.WriteHeader(http.StatusOK)
+		marshalledJSON, errMarshal := json.Marshal(&ResponsePayload{
+			SessionToken: &userSession.SessionToken,
+			CsrfToken:    &csrfAsBase64,
+		})
+		if errMarshal == nil {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(&marshalledJSON)
+			return
+		}
+
+		errors.CustomErrorResponse(w, UnableToMarshalSession)
 		return
 	}
 
 	errorAsStr := errUserSession.Error()
-	errors.BadRequest(w, &errors.Response{
+	errors.BadRequest(w, &errors.ResponsePayload{
 		Session: &errors.UnableToCreatePublicSession,
 		Default: &errorAsStr,
 	})
