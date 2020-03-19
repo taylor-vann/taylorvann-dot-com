@@ -14,60 +14,28 @@ import (
 	"webapi/whitelist"
 )
 
-// MilliSeconds -
 type MilliSeconds = int64
-
-// Session -
 type Session struct {
-	SessionToken string	`json:"session_token"`
-	CsrfToken    []byte	`json:"csrf_token"`
+	SessionToken string `json:"session_token"`
+	CsrfToken    []byte `json:"csrf_token"`
 }
-
-// CreatePublicJWTParams -
 type CreatePublicJWTParams struct {
 	Email    string
 	Password string
 }
-
-// CreateParams -
-type CreateParams struct {
-	Issuer   string
-	Subject  string
-	Audience string
-}
-
-// ReadParams -
+type CreateParams = jwtx.Claims
 type ReadParams struct {
-	SessionToken	*string
+	SessionToken *string
 }
-
-// CheckParams -
-type CheckParams struct {
-	SessionToken	*string
-	CsrfToken			*[]byte
+type UpdateParams struct {
+	SessionToken *string
+	CsrfToken    *[]byte
 }
-
-// UpdateParams -
-type UpdateParams = CheckParams
-
-// RemoveParams -
+type ValidateAndRemoveParams = UpdateParams
 type RemoveParams = whitelist.RemoveEntryParams
 
-// getNowAsMS -
-func getNowAsMS() MilliSeconds {
+func GetNowAsMS() MilliSeconds {
 	return time.Now().UnixNano() / int64(time.Millisecond)
-}
-
-func composeJWTClaims(p *CreateParams, issuedAt int64, expiresAt int64) *jwtx.Claims {
-	jwtClaims := jwtx.Claims{
-		Iss: p.Issuer,
-		Sub: p.Subject,
-		Aud: p.Audience,
-		Iat: issuedAt,
-		Exp: expiresAt,
-	}
-
-	return &jwtClaims
 }
 
 func validateCsrfTokens(external *[]byte, whitelist *[]byte) bool {
@@ -84,30 +52,55 @@ func validateCsrfTokens(external *[]byte, whitelist *[]byte) bool {
 	return false
 }
 
-// ComposeCreateGuestSessionParams -
-func ComposeCreateGuestSessionParams() *CreateParams {
+func ComposeGuestSessionParams() *CreateParams {
+	issuedAt := GetNowAsMS()
+	expiresAt := issuedAt + constants.ThreeDaysAsMS
+
 	params := CreateParams{
-		Issuer:   constants.TaylorVannDotCom,
-		Subject:  constants.Guest,
-		Audience: constants.Public,
+		Iss: constants.TaylorVannDotCom,
+		Sub: constants.Guest,
+		Aud: constants.Public,
+		Iat: issuedAt,
+		Exp: expiresAt,
 	}
 
 	return &params
 }
 
-// ComposeCreateResetPasswordSessionParams -
-func ComposeCreateResetPasswordSessionParams() *CreateParams {
+// ComposeGuestDocumentSessionParams -
+func ComposeGuestDocumentSessionParams() *CreateParams {
+	issuedAt := GetNowAsMS()
+	expiresAt := issuedAt + constants.ThreeDaysAsMS
+
 	params := CreateParams{
-		Issuer:   constants.TaylorVannDotCom,
-		Subject:  constants.ResetPassword,
-		Audience: constants.Public,
+		Iss: constants.TaylorVannDotCom,
+		Sub: constants.Guest,
+		Aud: constants.Document,
+		Iat: issuedAt,
+		Exp: expiresAt,
 	}
 
 	return &params
 }
 
-// ComposeCreatePublicSessionParams - validate user through store
-func ComposeCreatePublicSessionParams(p *CreatePublicJWTParams) (*CreateParams, error) {
+// ComposeResetPasswordSessionParams -
+func ComposeResetPasswordSessionParams() *CreateParams {
+	issuedAt := GetNowAsMS()
+	expiresAt := issuedAt + constants.ThreeDaysAsMS
+
+	params := CreateParams{
+		Iss: constants.TaylorVannDotCom,
+		Sub: constants.ResetPassword,
+		Aud: constants.Public,
+		Iat: issuedAt,
+		Exp: expiresAt,
+	}
+
+	return &params
+}
+
+// ComposePublicSessionParams - validate user through store
+func ComposePublicSessionParams(p *CreatePublicJWTParams) (*CreateParams, error) {
 	userRow, errValidUser := store.ValidateUser(
 		&store.ValidateUserParams{
 			Email:    p.Email,
@@ -121,37 +114,62 @@ func ComposeCreatePublicSessionParams(p *CreatePublicJWTParams) (*CreateParams, 
 		return nil, errValidUser
 	}
 
+	issuedAt := GetNowAsMS()
+	expiresAt := issuedAt + constants.ThreeDaysAsMS
+
 	params := CreateParams{
-		Issuer:   constants.TaylorVannDotCom,
-		Subject:  string(userRow.ID),
-		Audience: constants.Public,
+		Iss: constants.TaylorVannDotCom,
+		Sub: string(userRow.ID),
+		Aud: constants.Public,
+		Iat: issuedAt,
+		Exp: expiresAt,
 	}
 
 	return &params, nil
 }
 
-// Create -
+func ComposePublicDocumentSessionParams(p *CreatePublicJWTParams) (*CreateParams, error) {
+	userRow, errValidUser := store.ValidateUser(
+		&store.ValidateUserParams{
+			Email:    p.Email,
+			Password: p.Password,
+		},
+	)
+	if userRow == nil {
+		return nil, errors.New("bad credentials provided")
+	}
+	if errValidUser != nil {
+		return nil, errValidUser
+	}
+
+	issuedAt := GetNowAsMS()
+	expiresAt := issuedAt + constants.ThreeDaysAsMS
+
+	params := CreateParams{
+		Iss: constants.TaylorVannDotCom,
+		Sub: string(userRow.ID),
+		Aud: constants.Document,
+		Iat: issuedAt,
+		Exp: expiresAt,
+	}
+
+	return &params, nil
+}
+
 func Create(p *CreateParams) (*Session, error) {
 	if p == nil {
 		return nil, errors.New("nil CreateParams provided")
 	}
-	
-	// create guest jwt
-	issuedAt := getNowAsMS()
-	lifetime := constants.ThreeDaysAsMS
-	expiresAt := issuedAt + lifetime
 
-	token, errToken := jwtx.CreateJWT(
-		composeJWTClaims(p, issuedAt, expiresAt),
-	)
+	token, errToken := jwtx.CreateJWT(p)
 	if errToken != nil {
 		return nil, errToken
 	}
 
-	// add entry
+	lifetime := p.Exp - p.Iat
 	entry, errEntry := whitelist.CreateEntry(
 		&whitelist.CreateEntryParams{
-			CreatedAt:  issuedAt,
+			CreatedAt:  p.Iat,
 			Lifetime:   lifetime,
 			SessionKey: token.RandomSecret,
 			Signature:  &token.Token.Signature,
@@ -161,7 +179,6 @@ func Create(p *CreateParams) (*Session, error) {
 		return nil, errEntry
 	}
 
-	// compose session
 	sessionTokenAsStr, errSessionTokenAsStr := jwtx.ConvertTokenToString(
 		token.Token,
 	)
@@ -177,7 +194,6 @@ func Create(p *CreateParams) (*Session, error) {
 	return &session, nil
 }
 
-// Read -
 func Read(p *ReadParams) (bool, error) {
 	if p.SessionToken == nil {
 		return false, errors.New("nil session token provided")
@@ -199,16 +215,18 @@ func Read(p *ReadParams) (bool, error) {
 		return false, errEntry
 	}
 
-	result := jwtx.ValidateJWT(&jwtx.TokenPayload{
-		Token: tokenDetails,
-		RandomSecret: &entry.SessionKey,
-	})
+	if entry != nil {
+		result := jwtx.ValidateJWT(&jwtx.TokenPayload{
+			Token:        tokenDetails,
+			RandomSecret: &entry.SessionKey,
+		})
+		return result, nil
+	}
 
-	return result, nil
+	return false, nil
 }
 
-// Check -
-func Check(p *CheckParams) (*whitelist.Entry, error) {
+func ValidateAndRemove(p *ValidateAndRemoveParams) (*whitelist.Entry, error) {
 	if p.SessionToken == nil {
 		return nil, nil
 	}
@@ -234,7 +252,7 @@ func Check(p *CheckParams) (*whitelist.Entry, error) {
 
 	if entry != nil {
 		resultJwt := jwtx.ValidateJWT(&jwtx.TokenPayload{
-			Token: tokenDetails,
+			Token:        tokenDetails,
 			RandomSecret: &entry.SessionKey,
 		})
 		resultCsrf := validateCsrfTokens(p.CsrfToken, &entry.CsrfToken)
@@ -257,7 +275,6 @@ func Check(p *CheckParams) (*whitelist.Entry, error) {
 	return nil, nil
 }
 
-// Update -
 func Update(p *UpdateParams) (*Session, error) {
 	tokenDetails, errTokenDetails := jwtx.RetrieveTokenFromString(
 		p.SessionToken,
@@ -279,18 +296,18 @@ func Update(p *UpdateParams) (*Session, error) {
 	}
 
 	resultJwt := jwtx.ValidateJWT(&jwtx.TokenPayload{
-		Token: tokenDetails,
+		Token:        tokenDetails,
 		RandomSecret: &entry.SessionKey,
 	})
-	resultCsrf := validateCsrfTokens(p.CsrfToken, &entry.CsrfToken)
 
+	resultCsrf := validateCsrfTokens(p.CsrfToken, &entry.CsrfToken)
 	if resultJwt && resultCsrf {
 		sessionDetails, errSessionDetails := jwtx.RetrieveTokenDetailsFromString(
 			p.SessionToken,
 		)
 		if errSessionDetails != nil {
 			return nil, errSessionDetails
-		}		
+		}
 
 		removeResult, errRemoveResult := whitelist.RemoveEntry(
 			&whitelist.RemoveEntryParams{
@@ -304,17 +321,21 @@ func Update(p *UpdateParams) (*Session, error) {
 			return nil, errRemoveResult
 		}
 
+		issuedAt := GetNowAsMS()
+		expiresAt := issuedAt + constants.ThreeDaysAsMS
+
 		return Create(&CreateParams{
-			Issuer:   sessionDetails.Payload.Iss,
-			Subject:  sessionDetails.Payload.Sub,
-			Audience: sessionDetails.Payload.Aud,
+			Iss: sessionDetails.Payload.Iss,
+			Sub: sessionDetails.Payload.Sub,
+			Aud: sessionDetails.Payload.Aud,
+			Iat: issuedAt,
+			Exp: expiresAt,
 		})
 	}
 
 	return nil, nil
 }
 
-// Remove -
 func Remove(p *RemoveParams) (bool, error) {
 	return whitelist.RemoveEntry(p)
 }

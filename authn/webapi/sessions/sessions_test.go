@@ -11,7 +11,7 @@ var storeSuccess, errStore = store.CreateRequiredTables()
 
 func TestCreateGuestSession(t *testing.T) {
 	session, errSession := Create(
-		ComposeCreateGuestSessionParams(),
+		ComposeGuestSessionParams(),
 	)
 	if session == nil {
 		t.Error("Nil value returned")
@@ -23,7 +23,7 @@ func TestCreateGuestSession(t *testing.T) {
 
 func TestRetrieveGuestSession(t *testing.T) {
 	session, errSession := Create(
-		ComposeCreateGuestSessionParams(),
+		ComposeGuestSessionParams(),
 	)
 	if session == nil {
 		t.Error("Nil value returned")
@@ -79,9 +79,9 @@ func TestRetrieveGuestSession(t *testing.T) {
 	}
 }
 
-func TestCheckSession(t *testing.T) {
+func TestUpdateSession(t *testing.T) {
 	session, errSession := Create(
-		ComposeCreateGuestSessionParams(),
+		ComposeGuestSessionParams(),
 	)
 	if session == nil {
 		t.Error("Nil value returned")
@@ -102,8 +102,8 @@ func TestCheckSession(t *testing.T) {
 	}
 
 	// update the token
-	ReadSession, errReadSession := Check(
-		&CheckParams{
+	ReadSession, errReadSession := Update(
+		&UpdateParams{
 			SessionToken: &session.SessionToken,
 			CsrfToken: &session.CsrfToken,
 		},
@@ -117,9 +117,9 @@ func TestCheckSession(t *testing.T) {
 	}
 }
 
-func TestDoubleCheckSession(t *testing.T) {
+func TestValidateAndRemoveSession(t *testing.T) {
 	session, errSession := Create(
-		ComposeCreateGuestSessionParams(),
+		ComposeGuestSessionParams(),
 	)
 	if session == nil {
 		t.Error("Nil value returned")
@@ -140,15 +140,16 @@ func TestDoubleCheckSession(t *testing.T) {
 	}
 
 	// update the token
-	readSession, errReadSession := Read(
-		&ReadParams{
+	removedSession, errRemovedSession := ValidateAndRemove(
+		&UpdateParams{
 			SessionToken: &session.SessionToken,
+			CsrfToken: &session.CsrfToken,
 		},
 	)
-	if errReadSession != nil {
+	if errRemovedSession != nil {
 		t.Error("error updated session")
 	}
-	if readSession == false {
+	if removedSession == nil {
 		t.Error("could not find session")
 		return
 	}
@@ -156,14 +157,14 @@ func TestDoubleCheckSession(t *testing.T) {
 	// update the token
 	reReadSession, errReReadSession := Read(
 		&ReadParams{
-			SessionToken: &(session.SessionToken),
+			SessionToken: &session.SessionToken,
 		},
 	)
 	if errReReadSession != nil {
 		t.Error("error updated session")
 	}
-	if reReadSession == false {
-		t.Error("could not find session")
+	if reReadSession != false {
+		t.Error("should not have found session")
 		return
 	}
 }
@@ -171,8 +172,8 @@ func TestDoubleCheckSession(t *testing.T) {
 func TestCheckBadSession(t *testing.T) {
 	signature := "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ5b2Rhd2ciLCJpYXQiOjE1ODIzMTU0NDYsImV4cCI6MTYxMzg1MTQ0NiwiYXVkIjoid3d3LmJsYWhibGFoLmNvbSIsInN1YiI6ImpvaG5ueUBxdWVzdC5jb20iLCJHaXZlbk5hbWUiOiJKb2hubnkiLCJTdXJuYW1lIjoiUXVlc3QiLCJFbWFpbCI6Impyb2NrZXRAZXhhbXBsZS5jb20ifQ.hPmDUos2HzRgn-OfFcC3gzhi28xa5YEDAVwfxWYfvdY"
 	csrf := make([]byte, 0)
-	readSession, errReadSession := Check(
-		&CheckParams{
+	readSession, errReadSession := Update(
+		&UpdateParams{
 			SessionToken: &signature,
 			CsrfToken: &csrf,
 		},
@@ -198,10 +199,10 @@ func TestRetrievePublicSession(t *testing.T) {
 		t.Error("error creating user row")
 	}
 
-	sessionParams, errSessionParams := ComposeCreatePublicSessionParams(
+	sessionParams, errSessionParams := ComposePublicSessionParams(
 		&CreatePublicJWTParams{
-			Email:    &userParams.Email,
-			Password: &userParams.Password,
+			Email:    userParams.Email,
+			Password: userParams.Password,
 		},
 	)
 	if errSessionParams != nil {
@@ -272,7 +273,7 @@ func TestRetrievePublicSession(t *testing.T) {
 func TestRemoveSession(t *testing.T) {
 	// create public session
 	session, errSession := Create(
-		ComposeCreateGuestSessionParams(),
+		ComposeGuestSessionParams(),
 	)
 	if session == nil {
 		t.Error("Nil value returned")
