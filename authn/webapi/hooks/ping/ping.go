@@ -9,14 +9,12 @@ import (
 	"net/http"
 )
 
-// VersionDetails -
 type VersionDetails struct {
 	Major int64 `json:"major"`
 	Minor int64 `json:"minor"`
 	Build int64 `json:"build"`
 }
 
-// AuthenticationDetails -
 type AuthenticationDetails struct {
 	Service string         `json:"service"`
 	Build   string         `json:"build"`
@@ -38,7 +36,6 @@ var authnDetails = AuthenticationDetails{
 	Version: version,
 }
 
-// Details - get information about our api
 func Details(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(authnDetails)
 }
