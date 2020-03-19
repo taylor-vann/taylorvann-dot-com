@@ -1,12 +1,11 @@
 package users
 
 import (
-	"fmt"
 	"testing"
 )
 
 var testUser = CreateParams{
-	Email: "test_user@test_email.test",
+	Email:    "test_user@test_email.test",
 	Password: "pazzw0rd",
 }
 
@@ -17,7 +16,7 @@ var testUserRead = ReadParams{
 var testUserUpdated = UpdateParams{
 	CurrentEmail: "test_user@test_email.test",
 	UpdatedEmail: "next_test_user@test_email.test",
-	IsDeleted: false,
+	IsDeleted:    false,
 }
 
 var testUserRemoveUpdated = RemoveParams{
@@ -38,7 +37,6 @@ func TestCreateRow(t *testing.T) {
 	result, err := Create(&testUser)
 	if err != nil {
 		t.Error("Error creating user row.")
-		fmt.Println(err)
 	}
 
 	if result == nil {
@@ -59,7 +57,6 @@ func TestReadRow(t *testing.T) {
 	result, err := Read(&testUserRead)
 	if err != nil {
 		t.Error("Error reading user row.")
-		fmt.Println(err)
 	}
 	if result == nil {
 		t.Error("No results were returned from Read.")
@@ -76,7 +73,6 @@ func TestUpdateRow(t *testing.T) {
 	result, err := Update(&testUserUpdated)
 	if err != nil {
 		t.Error("Error updating user row.")
-		fmt.Println(err)
 	}
 	if result == nil {
 		t.Error("No results were returned from Update.")
@@ -96,7 +92,6 @@ func TestRemoveRow(t *testing.T) {
 	result, err := Remove(&testUserRemoveUpdated)
 	if err != nil {
 		t.Error("Error removing user row.")
-		fmt.Println(err)
 	}
 	if result == nil {
 		t.Error("No results were returned from Remove.")
