@@ -3,7 +3,9 @@ package whitelist
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math/rand"
+
 	"webapi/interfaces/whitelistx"
 )
 
@@ -64,7 +66,7 @@ func CreateEntry(p *CreateEntryParams) (*Entry, error) {
 
 	entry := Entry{
 		CsrfToken:  *csrfToken,
-		SessionKey: *(p.SessionKey),
+		SessionKey: *p.SessionKey,
 		CreatedAt:  p.CreatedAt,
 		Lifetime:   p.Lifetime,
 	}
@@ -83,6 +85,8 @@ func CreateEntry(p *CreateEntryParams) (*Entry, error) {
 	)
 
 	if errWhitelist != nil {
+		fmt.Println("err whitelist")
+		fmt.Println(errWhitelist)
 		return nil, errWhitelist
 	}
 
