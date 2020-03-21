@@ -13,9 +13,14 @@ func CreateServer(port int) {
 	store.InitFromJSON()
 
 	// send mux to local routes package to append hooks
-	mux := http.NewServeMux()
-	routes.CreateRoutes(mux)
+	muxHttps := http.NewServeMux()
+	routes.CreateRoutes(muxHttps)
 
 	// start app
-	http.ListenAndServe(":5000", mux)
+	http.ListenAndServeTLS(
+		":5000",
+		"/usr/local/certs/local_gateway/https-server.crt",
+		"/usr/local/certs/local_gateway/https-server.key",
+		muxHttps,
+	)
 }

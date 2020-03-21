@@ -8,19 +8,21 @@ import (
 
 	"webapi/hooks/store/errors"
 	"webapi/hooks/store/mutations"
-	"webapi/hooks/store/queries"
 )
 
-// RequestBodyParams -
-type RequestBodyParams struct {
-	Action string      `json:"action"`
-	Params interface{} `json:"params`
+// SessionParams -
+type SessionParams = errors.SessionParams
+
+// RequestPayload -
+type RequestPayload struct {
+	User    interface{}   `json:"user"`
+	Session SessionParams `json:"session"`
 }
 
-// ResponseResult -
-type ResponseResult struct {
-	UserID int64  `json:"user_id"`
-	Email  string `json:"email"`
+// RequestBody -
+type RequestBody struct {
+	Action string         `json:"action"`
+	Params RequestPayload `json:"params`
 }
 
 // ResponseErrors -
@@ -31,10 +33,7 @@ type ResponseErrors struct {
 }
 
 // ResponseBody -
-type ResponseBody struct {
-	Results *ResponseResult `json:"result"`
-	Errors  *ResponseErrors `json:"errors"`
-}
+type ResponseBody = errors.ResponseBody
 
 // Actions
 const (
@@ -54,7 +53,7 @@ const (
 
 func defaultErrorResponse(w http.ResponseWriter, err error) {
 	errAsStr := err.Error()
-	errors.BadRequest(w, &errors.Response{
+	errors.BadRequest(w, &errors.Payload{
 		Default: &errAsStr,
 	})
 }
@@ -62,13 +61,13 @@ func defaultErrorResponse(w http.ResponseWriter, err error) {
 // Query - read information from session whitelist
 func Query(w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
-		errors.BadRequest(w, &errors.Response{
+		errors.BadRequest(w, &errors.Payload{
 			Body: &errors.BadBodyFail,
 		})
 		return
 	}
 
-	var body RequestBodyParams
+	var body RequestBody
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
 		defaultErrorResponse(w, err)
@@ -78,7 +77,7 @@ func Query(w http.ResponseWriter, r *http.Request) {
 	switch body.Action {
 	case ReadUser:
 	default:
-		errors.BadRequest(w, &errors.Response{
+		errors.BadRequest(w, &errors.Payload{
 			Store: &errors.UnrecognizedQuery,
 		})
 	}
@@ -87,45 +86,70 @@ func Query(w http.ResponseWriter, r *http.Request) {
 // Mutation - mutate session whitelist
 func Mutation(w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
-		errors.BadRequest(w, &errors.Response{
+		errors.BadRequest(w, &errors.Payload{
 			Body: &errors.BadBodyFail,
 		})
 		return
 	}
 
-	var body RequestBodyParams
-	if r.Body != nil {
-		b, _ := ioutil.ReadAll(r.Body)
-
-		err := json.NewDecoder(
-			ioutil.NopCloser(bytes.NewReader(b)),
-		).Decode(&body)
-
-		if err != nil {
-			errors.BadRequest(w, &errors.Response{
-				Default: &errors.BadBodyFail,
-			})
-			return
-		}
-
-		r.Body = ioutil.NopCloser(bytes.NewReader(b))
+	// get request body
+	var body RequestBody
+	bodyBytes, errBodyBytes := ioutil.ReadAll(r.Body)
+	if errBodyBytes != nil {
+		errors.BadRequest(w, &errors.Payload{
+			Default: &errors.BadBodyFail,
+		})
+		return
 	}
+	errJsonDecode := json.NewDecoder(
+		ioutil.NopCloser(bytes.NewReader(bodyBytes)),
+	).Decode(&body)
+	if errJsonDecode != nil {
+		errors.BadRequest(w, &errors.Payload{
+			Default: &errors.BadBodyFail,
+		})
+		return
+	}
+
+	// validate session
+	validSession, errValidSession := mutations.UpdateSession(
+		&body.Params.Session,
+	)
+	if errValidSession != nil {
+		errAsStr := errValidSession.Error()
+		errors.BadRequest(w, &errors.Payload{
+			Session: &errors.InvalidSessionCredentials,
+			Default: &errAsStr,
+		})
+		return
+	}
+	if validSession == nil {
+		errors.BadRequest(w, &errors.Payload{
+			Session: &errors.InvalidSessionCredentials,
+		})
+		return
+	}
+
+	r.Body = ioutil.NopCloser(bytes.NewReader(bodyBytes))
 
 	switch body.Action {
 	case CreateUser:
+		// mutations.CreateUser(w, r, validSession)
 		mutations.CreateUser(w, r)
-	case ReadUser:
-		queries.ReadUser()
 	case UpdateUserEmail:
-		mutations.UpdateEmail(w, r)
+		// mutations.UpdateEmail(w, r)
 	case UpdateUserPassword:
-		mutations.UpdatePassword(w, r)
+		// mutations.UpdatePassword(w, r)
 	case RemoveUser:
-		mutations.RemoveUser(w, r)
+		// mutations.RemoveUser(w, r)
 	case ReviveUser:
-		mutations.ReviveUser(w, r)
+		// mutations.ReviveUser(w, r)
+	case CreateRole:
+		// mutations.CreateRole(w, r)
+	case RemoveRole:
+		// mutations.CreateRole(w, r)
 	default:
-		errors.BadRequest(w, &errors.Response{
+		errors.BadRequest(w, &errors.Payload{
 			Store: &errors.UnrecognizedMutation,
 		})
 	}

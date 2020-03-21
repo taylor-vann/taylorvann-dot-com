@@ -31,7 +31,6 @@ func CreatePublicPasswordResetSession(w http.ResponseWriter, requestBody *Reques
 	if errSession == nil {
 		csrfAsBase64 := base64.StdEncoding.EncodeToString(session.CsrfToken)
 
-
 		marshalledJSON, errMarshal := json.Marshal(&ResponsePayload{
 			SessionToken: &session.SessionToken,
 			CsrfToken:    &csrfAsBase64,

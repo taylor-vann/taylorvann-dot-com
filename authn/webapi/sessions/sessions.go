@@ -52,9 +52,20 @@ func validateCsrfTokens(external *[]byte, whitelist *[]byte) bool {
 	return false
 }
 
+func getLifetimeByAudience(audience string) int64 {
+	switch audience{
+	case constants.Guest:
+		return constants.OneDayAsMS
+	case constants.Public:
+		return constants.ThreeDaysAsMS
+	default:
+		return constants.OneDayAsMS
+	}
+}
+
 func ComposeGuestSessionParams() *CreateParams {
 	issuedAt := GetNowAsMS()
-	expiresAt := issuedAt + constants.ThreeDaysAsMS
+	expiresAt := issuedAt + getLifetimeByAudience(constants.Guest)
 
 	params := CreateParams{
 		Iss: constants.TaylorVannDotCom,
@@ -67,10 +78,9 @@ func ComposeGuestSessionParams() *CreateParams {
 	return &params
 }
 
-// ComposeGuestDocumentSessionParams -
 func ComposeGuestDocumentSessionParams() *CreateParams {
 	issuedAt := GetNowAsMS()
-	expiresAt := issuedAt + constants.ThreeDaysAsMS
+	expiresAt := issuedAt + getLifetimeByAudience(constants.Guest)
 
 	params := CreateParams{
 		Iss: constants.TaylorVannDotCom,
@@ -83,15 +93,14 @@ func ComposeGuestDocumentSessionParams() *CreateParams {
 	return &params
 }
 
-// ComposeResetPasswordSessionParams -
 func ComposeResetPasswordSessionParams() *CreateParams {
 	issuedAt := GetNowAsMS()
-	expiresAt := issuedAt + constants.ThreeDaysAsMS
+	expiresAt := issuedAt + getLifetimeByAudience(constants.Guest)
 
 	params := CreateParams{
 		Iss: constants.TaylorVannDotCom,
 		Sub: constants.ResetPassword,
-		Aud: constants.Public,
+		Aud: constants.Guest,
 		Iat: issuedAt,
 		Exp: expiresAt,
 	}
@@ -99,7 +108,6 @@ func ComposeResetPasswordSessionParams() *CreateParams {
 	return &params
 }
 
-// ComposePublicSessionParams - validate user through store
 func ComposePublicSessionParams(p *CreatePublicJWTParams) (*CreateParams, error) {
 	userRow, errValidUser := store.ValidateUser(
 		&store.ValidateUserParams{
@@ -115,7 +123,7 @@ func ComposePublicSessionParams(p *CreatePublicJWTParams) (*CreateParams, error)
 	}
 
 	issuedAt := GetNowAsMS()
-	expiresAt := issuedAt + constants.ThreeDaysAsMS
+	expiresAt := issuedAt + getLifetimeByAudience(constants.Public)
 
 	params := CreateParams{
 		Iss: constants.TaylorVannDotCom,
@@ -143,7 +151,7 @@ func ComposePublicDocumentSessionParams(p *CreatePublicJWTParams) (*CreateParams
 	}
 
 	issuedAt := GetNowAsMS()
-	expiresAt := issuedAt + constants.ThreeDaysAsMS
+	expiresAt := issuedAt + getLifetimeByAudience(constants.Public)
 
 	params := CreateParams{
 		Iss: constants.TaylorVannDotCom,
@@ -166,11 +174,10 @@ func Create(p *CreateParams) (*Session, error) {
 		return nil, errToken
 	}
 
-	lifetime := p.Exp - p.Iat
 	entry, errEntry := whitelist.CreateEntry(
 		&whitelist.CreateEntryParams{
 			CreatedAt:  p.Iat,
-			Lifetime:   lifetime,
+			Lifetime:   getLifetimeByAudience(p.Aud),
 			SessionKey: token.RandomSecret,
 			Signature:  &token.Token.Signature,
 		},
@@ -322,7 +329,7 @@ func Update(p *UpdateParams) (*Session, error) {
 		}
 
 		issuedAt := GetNowAsMS()
-		expiresAt := issuedAt + constants.ThreeDaysAsMS
+		expiresAt := issuedAt + getLifetimeByAudience(sessionDetails.Payload.Aud)
 
 		return Create(&CreateParams{
 			Iss: sessionDetails.Payload.Iss,
