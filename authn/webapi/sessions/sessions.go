@@ -7,7 +7,6 @@ package sessions
 
 import (
 	"errors"
-	"time"
 	"webapi/interfaces/jwtx"
 	"webapi/sessions/constants"
 	"webapi/store"
@@ -15,45 +14,36 @@ import (
 )
 
 type MilliSeconds = int64
+
 type Session struct {
 	SessionToken string `json:"session_token"`
-	CsrfToken    []byte `json:"csrf_token"`
 }
+
 type CreatePublicJWTParams struct {
 	Email    string
 	Password string
 }
+
+type CreateAccountParams struct {
+	Email string
+}
+
 type CreateParams = jwtx.Claims
+
 type ReadParams struct {
 	SessionToken *string
 }
+
 type UpdateParams struct {
 	SessionToken *string
-	CsrfToken    *[]byte
 }
+
 type ValidateAndRemoveParams = UpdateParams
+
 type RemoveParams = whitelist.RemoveEntryParams
 
-func GetNowAsMS() MilliSeconds {
-	return time.Now().UnixNano() / int64(time.Millisecond)
-}
-
-func validateCsrfTokens(external *[]byte, whitelist *[]byte) bool {
-	if len(*external) == len(*whitelist) {
-		for index, bit := range *whitelist {
-			if (*external)[index] != bit {
-				return false
-			}
-		}
-
-		return true
-	}
-
-	return false
-}
-
 func getLifetimeByAudience(audience string) int64 {
-	switch audience{
+	switch audience {
 	case constants.Guest:
 		return constants.OneDayAsMS
 	case constants.Public:
@@ -63,23 +53,8 @@ func getLifetimeByAudience(audience string) int64 {
 	}
 }
 
-func ComposeGuestSessionParams() *CreateParams {
-	issuedAt := GetNowAsMS()
-	expiresAt := issuedAt + getLifetimeByAudience(constants.Guest)
-
-	params := CreateParams{
-		Iss: constants.TaylorVannDotCom,
-		Sub: constants.Guest,
-		Aud: constants.Public,
-		Iat: issuedAt,
-		Exp: expiresAt,
-	}
-
-	return &params
-}
-
-func ComposeGuestDocumentSessionParams() *CreateParams {
-	issuedAt := GetNowAsMS()
+func ComposeDocumentSessionParams() *CreateParams {
+	issuedAt := jwtx.GetNowAsMS()
 	expiresAt := issuedAt + getLifetimeByAudience(constants.Guest)
 
 	params := CreateParams{
@@ -93,14 +68,14 @@ func ComposeGuestDocumentSessionParams() *CreateParams {
 	return &params
 }
 
-func ComposeResetPasswordSessionParams() *CreateParams {
-	issuedAt := GetNowAsMS()
+func ComposeGuestSessionParams() *CreateParams {
+	issuedAt := jwtx.GetNowAsMS()
 	expiresAt := issuedAt + getLifetimeByAudience(constants.Guest)
 
 	params := CreateParams{
 		Iss: constants.TaylorVannDotCom,
-		Sub: constants.ResetPassword,
-		Aud: constants.Guest,
+		Sub: constants.Guest,
+		Aud: constants.Session,
 		Iat: issuedAt,
 		Exp: expiresAt,
 	}
@@ -108,27 +83,33 @@ func ComposeResetPasswordSessionParams() *CreateParams {
 	return &params
 }
 
-func ComposePublicSessionParams(p *CreatePublicJWTParams) (*CreateParams, error) {
-	userRow, errValidUser := store.ValidateUser(
-		&store.ValidateUserParams{
-			Email:    p.Email,
-			Password: p.Password,
-		},
-	)
-	if userRow == nil {
-		return nil, errors.New("bad credentials provided")
-	}
-	if errValidUser != nil {
-		return nil, errValidUser
-	}
-
-	issuedAt := GetNowAsMS()
-	expiresAt := issuedAt + getLifetimeByAudience(constants.Public)
+func ComposeResetPasswordSessionParams(p *CreateAccountParams) *CreateParams {
+	issuedAt := jwtx.GetNowAsMS()
+	expiresAt := issuedAt + getLifetimeByAudience(constants.Guest)
 
 	params := CreateParams{
 		Iss: constants.TaylorVannDotCom,
-		Sub: string(userRow.ID),
-		Aud: constants.Public,
+		Sub: p.Email,
+		Aud: constants.ResetPassword,
+		Iat: issuedAt,
+		Exp: expiresAt,
+	}
+
+	return &params
+}
+
+func ComposeAccountCreationSessionParams(p *CreateAccountParams) (*CreateParams, error) {
+	if p == nil {
+		return nil, errors.New("ComposeAccountCreationSessionParams - nil parameters provided")
+	}
+
+	issuedAt := jwtx.GetNowAsMS()
+	expiresAt := issuedAt + getLifetimeByAudience(constants.Guest)
+
+	params := CreateParams{
+		Iss: constants.TaylorVannDotCom,
+		Sub: p.Email,
+		Aud: constants.CreateAccount,
 		Iat: issuedAt,
 		Exp: expiresAt,
 	}
@@ -136,27 +117,30 @@ func ComposePublicSessionParams(p *CreatePublicJWTParams) (*CreateParams, error)
 	return &params, nil
 }
 
-func ComposePublicDocumentSessionParams(p *CreatePublicJWTParams) (*CreateParams, error) {
+func ComposePublicSessionParams(p *CreatePublicJWTParams) (*CreateParams, error) {
+	if p == nil {
+		return nil, errors.New("ComposePublicSessionParams - nil parameters provided")
+	}
 	userRow, errValidUser := store.ValidateUser(
 		&store.ValidateUserParams{
 			Email:    p.Email,
 			Password: p.Password,
 		},
 	)
-	if userRow == nil {
-		return nil, errors.New("bad credentials provided")
-	}
 	if errValidUser != nil {
 		return nil, errValidUser
 	}
+	if userRow == nil {
+		return nil, errors.New("bad credentials provided")
+	}
 
-	issuedAt := GetNowAsMS()
+	issuedAt := jwtx.GetNowAsMS()
 	expiresAt := issuedAt + getLifetimeByAudience(constants.Public)
 
 	params := CreateParams{
 		Iss: constants.TaylorVannDotCom,
 		Sub: string(userRow.ID),
-		Aud: constants.Document,
+		Aud: constants.Public,
 		Iat: issuedAt,
 		Exp: expiresAt,
 	}
@@ -174,7 +158,7 @@ func Create(p *CreateParams) (*Session, error) {
 		return nil, errToken
 	}
 
-	entry, errEntry := whitelist.CreateEntry(
+	_, errEntry := whitelist.CreateEntry(
 		&whitelist.CreateEntryParams{
 			CreatedAt:  p.Iat,
 			Lifetime:   getLifetimeByAudience(p.Aud),
@@ -195,13 +179,16 @@ func Create(p *CreateParams) (*Session, error) {
 
 	session := Session{
 		SessionToken: *sessionTokenAsStr,
-		CsrfToken:    entry.CsrfToken,
 	}
 
 	return &session, nil
 }
 
 func Read(p *ReadParams) (bool, error) {
+	if p == nil {
+		return false, errors.New("nil params")
+	}
+
 	if p.SessionToken == nil {
 		return false, errors.New("nil session token provided")
 	}
@@ -234,11 +221,11 @@ func Read(p *ReadParams) (bool, error) {
 }
 
 func ValidateAndRemove(p *ValidateAndRemoveParams) (*whitelist.Entry, error) {
-	if p.SessionToken == nil {
-		return nil, nil
+	if p == nil {
+		return nil, errors.New("nil parameters provided")
 	}
-	if p.CsrfToken == nil {
-		return nil, nil
+	if p.SessionToken == nil {
+		return nil, errors.New("nil sesion provided")
 	}
 
 	tokenDetails, errTokenDetails := jwtx.RetrieveTokenFromString(
@@ -262,8 +249,7 @@ func ValidateAndRemove(p *ValidateAndRemoveParams) (*whitelist.Entry, error) {
 			Token:        tokenDetails,
 			RandomSecret: &entry.SessionKey,
 		})
-		resultCsrf := validateCsrfTokens(p.CsrfToken, &entry.CsrfToken)
-		if resultJwt && resultCsrf {
+		if resultJwt {
 			removeResult, errRemoveResult := whitelist.RemoveEntry(
 				&whitelist.RemoveEntryParams{
 					Signature: &tokenDetails.Signature,
@@ -307,8 +293,7 @@ func Update(p *UpdateParams) (*Session, error) {
 		RandomSecret: &entry.SessionKey,
 	})
 
-	resultCsrf := validateCsrfTokens(p.CsrfToken, &entry.CsrfToken)
-	if resultJwt && resultCsrf {
+	if resultJwt {
 		sessionDetails, errSessionDetails := jwtx.RetrieveTokenDetailsFromString(
 			p.SessionToken,
 		)
@@ -328,7 +313,7 @@ func Update(p *UpdateParams) (*Session, error) {
 			return nil, errRemoveResult
 		}
 
-		issuedAt := GetNowAsMS()
+		issuedAt := jwtx.GetNowAsMS()
 		expiresAt := issuedAt + getLifetimeByAudience(sessionDetails.Payload.Aud)
 
 		return Create(&CreateParams{

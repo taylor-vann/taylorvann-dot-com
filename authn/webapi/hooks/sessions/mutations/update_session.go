@@ -1,7 +1,6 @@
 package mutations
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"net/http"
 	"webapi/hooks/sessions/errors"
@@ -19,15 +18,14 @@ func UpdateSession(w http.ResponseWriter, requestBody *RequestBody) {
 	}
 
 	if userSession != nil {
-		csrfAsBase64 := base64.StdEncoding.EncodeToString(userSession.CsrfToken)
 		marshalledJSON, errMarshal := json.Marshal(&ResponsePayload{
 			SessionToken: &userSession.SessionToken,
-			CsrfToken:    &csrfAsBase64,
 		})
 		if errMarshal != nil {
 			errors.BadRequest(w, &errors.ResponsePayload{
 				Session: &UnableToMarshalSession,
 			})
+			return
 		}
 
 		w.Header().Set("Content-Type", "application/json")

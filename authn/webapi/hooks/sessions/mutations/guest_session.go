@@ -1,7 +1,6 @@
 package mutations
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"net/http"
 	
@@ -15,11 +14,8 @@ func CreateGuestSession(w http.ResponseWriter) {
 	)
 
 	if errSession == nil {
-		csrfAsBase64 := base64.StdEncoding.EncodeToString(session.CsrfToken)
-
 		payload := ResponsePayload{
 			SessionToken: &session.SessionToken,
-			CsrfToken:    &csrfAsBase64,
 		}
 		body := ResponseBody{
 			Session: &payload,

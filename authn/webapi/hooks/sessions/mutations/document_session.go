@@ -1,25 +1,21 @@
 package mutations
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"net/http"
-	
+
 	"webapi/hooks/sessions/errors"
 	"webapi/sessions"
 )
 
-func CreateGuestDocumentSession(w http.ResponseWriter) {	
+func CreateDocumentSession(w http.ResponseWriter) {
 	session, errSession := sessions.Create(
-		sessions.ComposeGuestDocumentSessionParams(),
+		sessions.ComposeDocumentSessionParams(),
 	)
 
 	if errSession == nil {
-		csrfAsBase64 := base64.StdEncoding.EncodeToString(session.CsrfToken)
-
 		payload := ResponsePayload{
 			SessionToken: &session.SessionToken,
-			CsrfToken:    &csrfAsBase64,
 		}
 		body := ResponseBody{
 			Session: &payload,

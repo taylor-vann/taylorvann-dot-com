@@ -31,7 +31,6 @@ type Payload struct {
 // ResponseBody -
 type ResponseBody struct {
 	User		*ResponsePayload `json:"user"`
-	Session *SessionParams  `json:"session"`
 	Errors	*Payload       	 `json:"errors"`
 }
 

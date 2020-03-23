@@ -41,3 +41,13 @@ yarn.lock
 
 # Keep Hack
 !.keep
+
+# Do not save keys, ever
+gateway/certs/gateway/*
+!/gateway/certs/gateway/cert.conf
+
+/statics/certs/statics/*
+!/statics/certs/statics/cert.conf
+
+authn/certs/authn/*
+!/authn/certs/authn/cert.conf

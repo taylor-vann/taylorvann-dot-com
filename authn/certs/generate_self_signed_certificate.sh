@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # generate self-signed certificate from openssl
-location=/usr/local/certs/local_gateway/
+location=/usr/local/certs/authn/
 
 openssl genrsa -out ${location}https-server.key 2048
 openssl ecparam -genkey -name secp384r1 -out ${location}https-server.key

@@ -97,6 +97,7 @@ func TestCreateUser(t *testing.T) {
 		Password: "passwerd",
 	}
 
+	// not out of the head anymore
 	sessionToken := httpTestGuest.Header().Get(constants.SessionTokenHeader)
 	csrfToken := httpTestGuest.Header().Get(constants.CsrfTokenHeader)
 	sessionParams := mutations.SessionParams{

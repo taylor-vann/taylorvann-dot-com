@@ -3,10 +3,13 @@ package sessions
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"webapi/hooks/sessions/errors"
 )
 
 func TestCreateGuestSessionBadRequest(t *testing.T) {
@@ -92,9 +95,9 @@ func TestCreateGuestSession(t *testing.T) {
 	}
 }
 
-func TestCreateGuestDocumentSession(t *testing.T) {
+func TestCreateDocumentSession(t *testing.T) {
 	requestBody := MutationRequestBody{
-		Action: CreateGuestDocumentSession,
+		Action: CreateDocumentSession,
 	}
 
 	marshalBytes := new(bytes.Buffer)
@@ -129,9 +132,9 @@ func TestCreateGuestDocumentSession(t *testing.T) {
 	}
 }
 
-func TestCreatePublicPasswordResetSessionBadRequest(t *testing.T) {
+func TestCreateResetPasswordSessionBadRequest(t *testing.T) {
 	requestBody := MutationRequestBody{
-		Action: CreatePublicPasswordResetSession,
+		Action: CreateResetPasswordSession,
 	}
 
 	marshalBytes := new(bytes.Buffer)
@@ -155,9 +158,9 @@ func TestCreatePublicPasswordResetSessionBadRequest(t *testing.T) {
 	}
 }
 
-func TestCreatePublicPasswordResetSession(t *testing.T) {
+func TestCreateResetPasswordSession(t *testing.T) {
 	requestBody := MutationRequestBody{
-		Action: CreateGuestSession,
+		Action: CreateDocumentSession,
 	}
 
 	marshalBytes := new(bytes.Buffer)
@@ -177,7 +180,7 @@ func TestCreatePublicPasswordResetSession(t *testing.T) {
 
 	status := httpTest.Code
 	if status != http.StatusOK {
-		t.Error("handler returned incorrect status code")
+		t.Error("guest session returned incorrect status code")
 		return
 	}
 
@@ -191,12 +194,15 @@ func TestCreatePublicPasswordResetSession(t *testing.T) {
 		return
 	}
 
+	email := "something@darkside.complete"
 	// public session from guest sesion
 	requestBodyPublic := MutationRequestBody{
-		Action: CreatePublicPasswordResetSession,
+		Action: CreateResetPasswordSession,
 		Params: &MutationRequestPayload{
 			SessionToken: responseBody.Session.SessionToken,
-			CsrfToken:    responseBody.Session.CsrfToken,
+			Credentials: &errors.Credentials{
+				Email: &email,
+			},
 		},
 	}
 
@@ -218,6 +224,79 @@ func TestCreatePublicPasswordResetSession(t *testing.T) {
 
 	statusPublic := httpTestPublic.Code
 	if statusPublic != http.StatusOK {
+		fmt.Println(httpTestPublic)
+		t.Error("handler returned incorrect status code")
+	}
+}
+
+
+func TestCreateUpdateEmailSession(t *testing.T) {
+	requestBody := MutationRequestBody{
+		Action: CreateDocumentSession,
+	}
+
+	marshalBytes := new(bytes.Buffer)
+	json.NewEncoder(marshalBytes).Encode(requestBody)
+	resp, errResp := http.NewRequest(
+		"POST",
+		"/sessions/m/",
+		marshalBytes,
+	)
+	if errResp != nil {
+		t.Error("error making guest session request")
+	}
+
+	httpTest := httptest.NewRecorder()
+	handler := http.HandlerFunc(Mutation)
+	handler.ServeHTTP(httpTest, resp)
+
+	status := httpTest.Code
+	if status != http.StatusOK {
+		t.Error("guest session returned incorrect status code")
+		return
+	}
+
+	time.Sleep(10 * time.Millisecond)
+
+	// decode body to response
+	var responseBody MutationResponseBody
+	errResponseBody := json.NewDecoder(httpTest.Body).Decode(&responseBody)
+	if errResponseBody != nil {
+		t.Error(errResponseBody)
+		return
+	}
+
+	email := "something@darkside.complete"
+	// public session from guest sesion
+	requestBodyPublic := MutationRequestBody{
+		Action: CreateUpdateEmailSession,
+		Params: &MutationRequestPayload{
+			SessionToken: responseBody.Session.SessionToken,
+			Credentials: &errors.Credentials{
+				Email: &email,
+			},
+		},
+	}
+
+	marshalBytesPublic := new(bytes.Buffer)
+	json.NewEncoder(marshalBytesPublic).Encode(requestBodyPublic)
+	req, errReq := http.NewRequest(
+		"POST",
+		"/sessions/m/",
+		marshalBytesPublic,
+	)
+	if errReq != nil {
+		t.Error("error making guest session request")
+	}
+
+	httpTestPublic := httptest.NewRecorder()
+	handlerPublic := http.HandlerFunc(Mutation)
+
+	handlerPublic.ServeHTTP(httpTestPublic, req)
+
+	statusPublic := httpTestPublic.Code
+	if statusPublic != http.StatusOK {
+		fmt.Println(httpTestPublic)
 		t.Error("handler returned incorrect status code")
 	}
 }
@@ -263,7 +342,6 @@ func TestUpdateSession(t *testing.T) {
 		Action: UpdateSession,
 		Params: &MutationRequestPayload{
 			SessionToken: responseBody.Session.SessionToken,
-			CsrfToken:    responseBody.Session.CsrfToken,
 		},
 	}
 

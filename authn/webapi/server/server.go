@@ -19,8 +19,8 @@ func CreateServer(port int) {
 	// start app
 	http.ListenAndServeTLS(
 		":5000",
-		"/usr/local/certs/local_gateway/https-server.crt",
-		"/usr/local/certs/local_gateway/https-server.key",
+		"/usr/local/certs/authn/https-server.crt",
+		"/usr/local/certs/authn/https-server.key",
 		muxHttps,
 	)
 }

@@ -7,6 +7,7 @@ import (
 	"webapi/hooks/sessions/errors"
 	"webapi/hooks/sessions/mutations"
 	"webapi/hooks/sessions/queries"
+	"webapi/sessions/constants"
 )
 
 type ReadSessionAction struct {
@@ -22,14 +23,15 @@ type ErrorsPayload = mutations.ErrorsPayload
 
 // Actions
 const (
-	CreateGuestSession               = "CREATE_GUEST_SESSION"
-	CreateGuestDocumentSession			 = "CREATE_GUEST_DOCUMENT_SESSION"
-	CreatePublicSession              = "CREATE_PUBLIC_SESSION"
-	CreatePublicDocumentSession			 = "CREATE_PUBLIC_DOCUMENT_SESSION"
-	CreatePublicPasswordResetSession = "CREATE_PUBLIC_PASSWORD_RESET_SESSION"
-	UpdateSession                    = "UPDATE_SESSION"
-	ValidateSession                  = "VALIDATE_SESSION"
-	RemoveSession                    = "REMOVE_SESSION"
+	CreateDocumentSession      = "CREATE_DOCUMENT_SESSION"
+	CreateGuestSession         = "CREATE_GUEST_SESSION"
+	CreatePublicSession        = "CREATE_PUBLIC_SESSION"
+	CreateCreateAccountSession = "CREATE_CREATE_ACCOUNT_SESSION"
+	CreateResetPasswordSession = "CREATE_RESET_PASSWORD_SESSION"
+	CreateUpdateEmailSession   = "CREATE_UPDATE_EMAIL_SESSION"
+	UpdateSession              = "UPDATE_SESSION"
+	ValidateSession            = "VALIDATE_SESSION"
+	RemoveSession              = "REMOVE_SESSION"
 )
 
 func Query(w http.ResponseWriter, r *http.Request) {
@@ -70,18 +72,20 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 		errors.CustomErrorResponse(w, errors.BadBodyFail)
 		return
 	}
-
+	
 	switch body.Action {
+	case CreateDocumentSession:
+		mutations.CreateDocumentSession(w)
 	case CreateGuestSession:
 		mutations.CreateGuestSession(w)
-	case CreateGuestDocumentSession:
-		mutations.CreateGuestDocumentSession(w)
 	case CreatePublicSession:
-		mutations.CreatePublicSession(w, &body)
-	case CreatePublicDocumentSession:
-		mutations.CreatePublicDocumentSession(w, &body)
-	case CreatePublicPasswordResetSession:
-		mutations.CreatePublicPasswordResetSession(w, &body)
+		mutations.CreatePublicSession(w, &body, constants.Session)
+	case CreateCreateAccountSession:
+		mutations.CreateCreateAccountSession(w, &body)
+	case CreateResetPasswordSession:
+		mutations.CreateResetPasswordSession(w, &body)
+	case CreateUpdateEmailSession:
+		mutations.CreateUpdateEmailSession(w, &body)
 	case UpdateSession:
 		mutations.UpdateSession(w, &body)
 	case RemoveSession:

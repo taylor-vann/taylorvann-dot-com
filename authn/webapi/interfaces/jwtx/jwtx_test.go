@@ -7,11 +7,8 @@ package jwtx
 import (
 	"encoding/base64"
 	"encoding/json"
-	"strconv"
 	"testing"
 	"time"
-
-	"webapi/utils"
 )
 
 type JWTClaimTestPlan = []Claims
@@ -21,23 +18,26 @@ var HeaderParamsDoubleCheck = Header{
 	Typ: "JWT",
 }
 
-var randomJWTClaims = generateRandomJWTClaims("public", 5)
+var OneDayAsMS = int64(1000 * 60 * 60 * 24)
+var ThreeDaysAsMS = 3 * OneDayAsMS
+
+var randomJWTClaims = generateRandomJWTClaims("session", 5)
 
 func getLaterAsMS() MilliSeconds {
-	return (time.Now().UnixNano() + DayAsMS) / int64(time.Millisecond)
+	return (time.Now().UnixNano() + OneDayAsMS) / int64(time.Millisecond)
 }
 
-func generateRandomJWTClaims(sub string, num int) *JWTClaimTestPlan {
+func generateRandomJWTClaims(subject string, num int) *JWTClaimTestPlan {
 	jwtClaims := make(JWTClaimTestPlan, num)
 
 	for index := range jwtClaims {
-		nowAsMS := utils.GetNowAsMS()
+		nowAsMS := GetNowAsMS()
 		laterAsMS := getLaterAsMS()
 
 		jwtClaims[index] = Claims{
 			Iss: "taylorvann_dot_com",
-			Sub: sub,
-			Aud: "username" + strconv.Itoa(index),
+			Sub: subject,
+			Aud: "guest",
 			Iat: nowAsMS,
 			Exp: laterAsMS,
 		}
@@ -106,8 +106,8 @@ func TestFailValidateJWT(t *testing.T) {
 
 		badToken := Token{
 			Header:    tokenPayload.Token.Header,
-			Payload:   offsetToken.Token.Payload,
-			Signature: tokenPayload.Token.Signature,
+			Payload:   tokenPayload.Token.Payload,
+			Signature: offsetToken.Token.Signature,
 		}
 		badTokenPayload := TokenPayload{
 			Token:        &badToken,
@@ -174,6 +174,36 @@ func TestRetrieveTokenDetailsFromString(t *testing.T) {
 
 		if retrievedToken.Signature != tokenPayload.Token.Signature {
 			t.Error("mismatching signatures")
+		}
+	}
+}
+
+func TestValidateSessionTokenByParams(t *testing.T) {
+	for _, claim := range *randomJWTClaims {
+		tokenPayload, errToken := CreateJWT(&claim)
+		if errToken != nil {
+			t.Error("Unable to create jwt")
+		}
+
+		strippedToken := Token{
+			Header:    tokenPayload.Token.Header,
+			Payload:   tokenPayload.Token.Payload,
+			Signature: tokenPayload.Token.Signature,
+		}
+
+		tokenString, errTokenString := ConvertTokenToString(&strippedToken)
+		if errTokenString != nil {
+			t.Error(errTokenString)
+			return
+		}
+		isValid := ValidateSessionTokenByParams(&ValidateTokenParams{
+			Token:    tokenString,
+			Issuer:   "taylorvann_dot_com",
+			Audience: "guest",
+			Subject:  "session",
+		})
+		if !isValid {
+			t.Error("session is not valid")
 		}
 	}
 }

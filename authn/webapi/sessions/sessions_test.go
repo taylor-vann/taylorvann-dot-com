@@ -7,6 +7,7 @@ import (
 	"webapi/store"
 )
 
+var fakeSession = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ5b2Rhd2ciLCJpYXQiOjE1ODIzMTU0NDYsImV4cCI6MTYxMzg1MTQ0NiwiYXVkIjoid3d3LmJsYWhibGFoLmNvbSIsInN1YiI6ImpvaG5ueUBxdWVzdC5jb20iLCJHaXZlbk5hbWUiOiJKb2hubnkiLCJTdXJuYW1lIjoiUXVlc3QiLCJFbWFpbCI6Impyb2NrZXRAZXhhbXBsZS5jb20ifQ.hPmDUos2HzRgn-OfFcC3gzhi28xa5YEDAVwfxWYfvdY"
 var storeSuccess, errStore = store.CreateRequiredTables()
 
 func TestCreateGuestSession(t *testing.T) {
@@ -47,7 +48,6 @@ func TestRetrieveGuestSession(t *testing.T) {
 	updatedSession, errUpdatedSession := Update(
 		&UpdateParams{
 			SessionToken: &(session.SessionToken),
-			CsrfToken:    &(session.CsrfToken),
 		},
 	)
 	if errUpdatedSession != nil {
@@ -105,7 +105,6 @@ func TestUpdateSession(t *testing.T) {
 	ReadSession, errReadSession := Update(
 		&UpdateParams{
 			SessionToken: &session.SessionToken,
-			CsrfToken: &session.CsrfToken,
 		},
 	)
 	if errReadSession != nil {
@@ -143,7 +142,6 @@ func TestValidateAndRemoveSession(t *testing.T) {
 	removedSession, errRemovedSession := ValidateAndRemove(
 		&UpdateParams{
 			SessionToken: &session.SessionToken,
-			CsrfToken: &session.CsrfToken,
 		},
 	)
 	if errRemovedSession != nil {
@@ -170,12 +168,10 @@ func TestValidateAndRemoveSession(t *testing.T) {
 }
 
 func TestCheckBadSession(t *testing.T) {
-	signature := "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ5b2Rhd2ciLCJpYXQiOjE1ODIzMTU0NDYsImV4cCI6MTYxMzg1MTQ0NiwiYXVkIjoid3d3LmJsYWhibGFoLmNvbSIsInN1YiI6ImpvaG5ueUBxdWVzdC5jb20iLCJHaXZlbk5hbWUiOiJKb2hubnkiLCJTdXJuYW1lIjoiUXVlc3QiLCJFbWFpbCI6Impyb2NrZXRAZXhhbXBsZS5jb20ifQ.hPmDUos2HzRgn-OfFcC3gzhi28xa5YEDAVwfxWYfvdY"
-	csrf := make([]byte, 0)
+	signature := fakeSession
 	readSession, errReadSession := Update(
 		&UpdateParams{
 			SessionToken: &signature,
-			CsrfToken: &csrf,
 		},
 	)
 	if errReadSession != nil {
@@ -234,7 +230,6 @@ func TestRetrievePublicSession(t *testing.T) {
 	updatedSession, errUpdatedSession := Update(
 		&UpdateParams{
 			SessionToken: &(session.SessionToken),
-			CsrfToken:    &(session.CsrfToken),
 		},
 	)
 	if errUpdatedSession != nil {

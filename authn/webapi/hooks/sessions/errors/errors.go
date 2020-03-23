@@ -12,7 +12,6 @@ type Credentials struct {
 
 type RequestPayload struct {
 	SessionToken	*string				`json:"session_token"`
-	CsrfToken			*string				`json:"csrf_token"`
 	Credentials		*Credentials	`json:"credentials"`
 }
 

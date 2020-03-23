@@ -1,3 +1,0 @@
-FROM nginx:alpine
-VOLUME ["/etc/nginx/"]
-EXPOSE ["80"]

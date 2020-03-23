@@ -32,7 +32,7 @@ func generateRandomJWTClaims(sub string, num int) *JWTClaimTestPlan {
 		jwtClaims[index] = jwtx.Claims{
 			Iss: constants.TaylorVannDotCom,
 			Sub: sub,
-			Aud: "username" + strconv.Itoa(index),
+			Aud: strconv.Itoa(index),
 			Iat: nowAsMS,
 			Exp: laterAsMS,
 		}

@@ -1,16 +1,20 @@
 package mutations
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"net/http"
 
 	"webapi/hooks/sessions/errors"
 	"webapi/sessions"
+	"webapi/sessions/constants"
 )
 
-func CreatePublicSession(w http.ResponseWriter, requestBody *RequestBody) {
-	validRequest, errValidRequest := validateAndRemoveGuestSession(requestBody)
+func CreatePublicSession(w http.ResponseWriter, requestBody *RequestBody, subject string) {
+	validRequest, errValidRequest := validateAndRemoveSession(
+		requestBody,
+		constants.Guest,
+		subject,
+	)
 	if errValidRequest != nil {
 		errAsStr := errValidRequest.Error()
 		errors.BadRequest(w, &errors.ResponsePayload{
@@ -44,10 +48,8 @@ func CreatePublicSession(w http.ResponseWriter, requestBody *RequestBody) {
 	)
 
 	if errUserSession == nil {
-		csrfAsBase64 := base64.StdEncoding.EncodeToString(userSession.CsrfToken)
 		marshalledJSON, errMarshal := json.Marshal(&ResponsePayload{
 			SessionToken: &userSession.SessionToken,
-			CsrfToken:    &csrfAsBase64,
 		})
 		if errMarshal == nil {
 			w.Header().Set("Content-Type", "application/json")

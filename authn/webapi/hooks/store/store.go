@@ -16,7 +16,6 @@ type SessionParams = errors.SessionParams
 // RequestPayload -
 type RequestPayload struct {
 	User    interface{}   `json:"user"`
-	Session SessionParams `json:"session"`
 }
 
 // RequestBody -
@@ -37,18 +36,14 @@ type ResponseBody = errors.ResponseBody
 
 // Actions
 const (
-	// CreateUser -
 	CreateUser = "CREATE_USER"
-	// ReadUser -
 	ReadUser = "READ_USER"
-	// UpdateUserEmail -
 	UpdateUserEmail = "UPDATE_USER_EMAIL"
-	// UpdateUserPassword -
 	UpdateUserPassword = "UPDATE_USER_PASSWORD"
-	// RemoveUser -
 	RemoveUser = "REMOVE_USER"
-	// ReviveUser -
 	ReviveUser = "REVIVE_USER"
+	CreateRole = "CREATE_ROLE"
+	RemoveRole = "REMOVE_ROLE"
 )
 
 func defaultErrorResponse(w http.ResponseWriter, err error) {
@@ -107,25 +102,6 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 	if errJsonDecode != nil {
 		errors.BadRequest(w, &errors.Payload{
 			Default: &errors.BadBodyFail,
-		})
-		return
-	}
-
-	// validate session
-	validSession, errValidSession := mutations.UpdateSession(
-		&body.Params.Session,
-	)
-	if errValidSession != nil {
-		errAsStr := errValidSession.Error()
-		errors.BadRequest(w, &errors.Payload{
-			Session: &errors.InvalidSessionCredentials,
-			Default: &errAsStr,
-		})
-		return
-	}
-	if validSession == nil {
-		errors.BadRequest(w, &errors.Payload{
-			Session: &errors.InvalidSessionCredentials,
 		})
 		return
 	}

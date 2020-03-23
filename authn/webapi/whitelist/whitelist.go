@@ -3,7 +3,6 @@ package whitelist
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"math/rand"
 
 	"webapi/interfaces/whitelistx"
@@ -14,7 +13,6 @@ type MilliSeconds = int64
 
 // Entry -
 type Entry struct {
-	CsrfToken  []byte       `json:"csrf_token"`
 	SessionKey []byte       `json:"session_key"`
 	CreatedAt  MilliSeconds `json:"created_at"`
 	Lifetime   MilliSeconds `json:"expires_at"`
@@ -59,13 +57,7 @@ func CreateEntry(p *CreateEntryParams) (*Entry, error) {
 		return nil, errors.New("nil parameters provided")
 	}
 
-	csrfToken, errCsrfToken := generateRandomByteArray(128)
-	if errCsrfToken != nil {
-		return nil, errCsrfToken
-	}
-
 	entry := Entry{
-		CsrfToken:  *csrfToken,
 		SessionKey: *p.SessionKey,
 		CreatedAt:  p.CreatedAt,
 		Lifetime:   p.Lifetime,
@@ -84,17 +76,11 @@ func CreateEntry(p *CreateEntryParams) (*Entry, error) {
 		p.Lifetime,
 	)
 
-	if errWhitelist != nil {
-		fmt.Println("err whitelist")
-		fmt.Println(errWhitelist)
-		return nil, errWhitelist
-	}
-
 	if whitelistResult == true {
 		return &entry, errWhitelist
 	}
 
-	return nil, errCsrfToken
+	return nil, errWhitelist
 }
 
 // ReadEntry -

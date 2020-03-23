@@ -13,24 +13,22 @@ import (
 	"fmt"
 	"math/rand"
 	"strings"
+	"time"
 )
 
-// MilliSeconds -
 type MilliSeconds = int64
 
-// Header - Standard
 type Header struct {
 	Alg string `json:"alg"`
 	Typ string `json:"typ"`
 }
 
-// Claims - Payload body of a JWT
 type Claims struct {
-	Iss string             	`json:"iss"` // taylorvann-dot-com
-	Sub string             	`json:"sub"` // subject: public, internal, infra, auth
-	Aud string             	`json:"aud"` // audience: guest, public
-	Iat MilliSeconds 				`json:"iat"` // timestamp
-	Exp MilliSeconds				`json:"exp"` // timestamp
+	Iss string       `json:"iss"` // taylorvann-dot-com
+	Sub string       `json:"sub"` // subject: session, document, password_reset, etc ...
+	Aud string       `json:"aud"` // audience: guest, username
+	Iat MilliSeconds `json:"iat"` // timestamp
+	Exp MilliSeconds `json:"exp"` // timestamp
 }
 
 // TokenDetails -
@@ -40,32 +38,34 @@ type TokenDetails struct {
 	Signature *string
 }
 
-// Signature - Unique hash of header and payload
-type Signature = string
-
-// Token - Contains contents of
 type Token struct {
 	Header    string
 	Payload   string
 	Signature string
 }
 
-// TokenPayload -
 type TokenPayload struct {
 	Token        *Token
 	RandomSecret *[]byte
 }
 
+type ValidateTokenParams struct {
+	Token     *string
+	Issuer		string
+	Audience  string
+	Subject   string
+}
+
+type ValidateGenericTokenParams struct {
+	Token     *string
+	Issuer		string
+}
+
+
 var headerDefaultParams = Header{
 	Alg: "HS256",
 	Typ: "JWT",
 }
-
-// DayAsMS -
-var DayAsMS = int64(1000 * 60 * 60 * 24)
-
-// ThreeDaysAsMS -
-var ThreeDaysAsMS = 3 * DayAsMS
 
 // HeaderBase64 - Default payload for all JWTs
 var HeaderBase64 = createDefaultHeaderAsBase64(&headerDefaultParams)
@@ -129,6 +129,10 @@ func generateSignature(
 	)
 
 	return &signatureBase64
+}
+
+func GetNowAsMS() MilliSeconds {
+	return time.Now().UnixNano() / int64(time.Millisecond)
 }
 
 // CreateJWT - Return JWT Token
@@ -259,4 +263,47 @@ func RetrieveTokenDetailsFromString(tokenStr *string) (*TokenDetails, error) {
 	}
 
 	return &tokenDetails, nil
+}
+
+func ValidateGenericToken(p *ValidateGenericTokenParams) bool {
+	if p == nil {
+		return false
+	}
+	if p.Token == nil {
+		return false
+	}
+
+	nowAsMS := GetNowAsMS()
+	tokenDetails, errTokenDetails := RetrieveTokenDetailsFromString(p.Token)
+	if errTokenDetails == nil &&
+		tokenDetails.Payload.Iss == p.Issuer &&
+		nowAsMS < tokenDetails.Payload.Exp &&
+		tokenDetails.Payload.Iat < nowAsMS {
+		return true
+	}
+
+	return false
+}
+
+func ValidateSessionTokenByParams(p *ValidateTokenParams) bool {
+	if p == nil {
+		return false
+	}
+	if p.Token == nil {
+		return false
+	}
+
+	nowAsMS := GetNowAsMS()
+	tokenDetails, errTokenDetails := RetrieveTokenDetailsFromString(p.Token)
+	if errTokenDetails == nil &&
+		tokenDetails.Payload.Iss == p.Issuer &&
+		tokenDetails.Payload.Iat < tokenDetails.Payload.Exp &&
+		tokenDetails.Payload.Iat < nowAsMS &&
+		nowAsMS < tokenDetails.Payload.Exp  &&
+		tokenDetails.Payload.Aud == p.Audience &&
+		tokenDetails.Payload.Sub == p.Subject {
+		return true
+	}
+
+	return false
 }
