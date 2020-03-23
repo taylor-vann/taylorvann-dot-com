@@ -7,7 +7,6 @@ import (
 	"webapi/hooks/sessions/errors"
 	"webapi/hooks/sessions/mutations"
 	"webapi/hooks/sessions/queries"
-	"webapi/sessions/constants"
 )
 
 type ReadSessionAction struct {
@@ -72,14 +71,14 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 		errors.CustomErrorResponse(w, errors.BadBodyFail)
 		return
 	}
-	
+
 	switch body.Action {
 	case CreateDocumentSession:
 		mutations.CreateDocumentSession(w)
 	case CreateGuestSession:
 		mutations.CreateGuestSession(w)
 	case CreatePublicSession:
-		mutations.CreatePublicSession(w, &body, constants.Session)
+		mutations.CreatePublicSession(w, &body)
 	case CreateCreateAccountSession:
 		mutations.CreateCreateAccountSession(w, &body)
 	case CreateResetPasswordSession:

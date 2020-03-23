@@ -9,11 +9,11 @@ import (
 	"webapi/sessions/constants"
 )
 
-func CreatePublicSession(w http.ResponseWriter, requestBody *RequestBody, subject string) {
+func CreatePublicSession(w http.ResponseWriter, requestBody *RequestBody) {
 	validRequest, errValidRequest := validateAndRemoveSession(
 		requestBody,
 		constants.Guest,
-		subject,
+		constants.Document,
 	)
 	if errValidRequest != nil {
 		errAsStr := errValidRequest.Error()
