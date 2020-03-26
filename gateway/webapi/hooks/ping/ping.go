@@ -16,8 +16,8 @@ type VersionDetails struct {
 	Build int64 `json:"build"`
 }
 
-// AuthenticationDetails -
-type AuthenticationDetails struct {
+// GatewayDetails -
+type GatewayDetails struct {
 	Service string         `json:"service"`
 	Build   string         `json:"build"`
 	Version VersionDetails `json:"version"`
@@ -29,10 +29,10 @@ var version = VersionDetails{
 	Build: 1,
 }
 
-const service = "taylorvann_local_gateway"
+const service = "taylorvann_gateway"
 const build = "single_server"
 
-var authnDetails = AuthenticationDetails{
+var authnDetails = GatewayDetails{
 	Service: service,
 	Build:   build,
 	Version: version,

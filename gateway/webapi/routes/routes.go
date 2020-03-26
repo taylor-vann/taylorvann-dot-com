@@ -31,7 +31,7 @@ func (proxyMux ProxyMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// mux.ServeHTTP(w, r)
 
 		// for now get hostname
-		json.NewEncoder(w).Encode(r.URL.Hostname())
+		json.NewEncoder(w).Encode(r.URL)
 		return
 	}
 
@@ -42,22 +42,17 @@ func (proxyMux ProxyMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func getRedirectURL(r *http.Request) string {
-	return "https://" + r.URL.Hostname() + ": 3005" + r.URL.String()
+	return "https://" + r.Host + r.RequestURI
 }
 
 func passToHttps(w http.ResponseWriter, r *http.Request) {
 	redirectURL := getRedirectURL(r)
-
 	http.Redirect(
 		w,
 		r,
 		redirectURL,
 		http.StatusMovedPermanently,
 	)
-}
-
-func helloHttps(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode("we're in https! " + r.URL.Hostname())
 }
 
 func CreateProxyMux() *ProxyMux {
