@@ -16,18 +16,22 @@ import (
 	"webapi/hooks/store"
 )
 
-// CreateRoutes - add hooks to route callbacks
+//	CreateRoutes - add hooks to route callbacks
 func CreateRoutes(mux *http.ServeMux) *http.ServeMux {
 	//	ping
 	mux.HandleFunc("/", ping.Details)
 
-	//	store
-	mux.HandleFunc("/store/q/", store.Query)
-	mux.HandleFunc("/store/m/", store.Mutation)
+	//	users
+	mux.HandleFunc("/q/users/", store.Query)
+	mux.HandleFunc("/m/users/", store.Mutation)
 
+	//	roles
+	mux.HandleFunc("/q/roles/", store.Query)
+	mux.HandleFunc("/m/roles/", store.Mutation)
+		
 	//	sessions
-	mux.HandleFunc("/sessions/q/", sessions.Query)
-	mux.HandleFunc("/sessions/m/", sessions.Mutation)
+	mux.HandleFunc("/q/sessions/", sessions.Query)
+	mux.HandleFunc("/m/sessions/", sessions.Mutation)
 
 	return mux
 }
