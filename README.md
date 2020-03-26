@@ -1,9 +1,13 @@
 # taylorvann-dot-com
 
-## client
+## gateway
 
-front-end build
+local loadbalancing between services
 
-## infra
+## statics
 
-scripts to setup servers
+front-end clients and static assets
+
+## authn
+
+session management and user auth

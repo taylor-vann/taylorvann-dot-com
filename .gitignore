@@ -5,6 +5,8 @@
 #    Keep example environment files 
 *.env
 !*.example.env
+*.init.json
+!*.example.init.json
 
 ## Client
 #    ignore all node modules
@@ -12,17 +14,15 @@
 
 ## Whitelist
 #    ignore all backups
-/authentication/whitelist_cache/redis_data/*
-!/authentication/whitelist_cache/redis_data/.keep
+/authn/whitelist_cache/redis_data/*
 
 ## Store
 #    ignore all backups
-/authentication/store_cache/redis_data/*
-!/authentication/store_cache/redis_data/.keep
+/authn/store_cache/redis_data/*
 
 ## Webapi build
 #   ignore binary
-/authentication/webapi/webapi
+/authn/webapi/webapi
 
 # ignore the build
 web_client/prod/
@@ -37,5 +37,17 @@ yarn.lock
 # created by postgresql.
 
 # This pattern will ignore all files but a simple empty ".keep" file.
-/authentication/store_db/postgres_data/*
-!/authentication/store_db/postgres_data/.keep
+/authn/store_db/postgres/*
+
+# Keep Hack
+!.keep
+
+# Do not save keys, ever
+gateway/certs/gateway/*
+!/gateway/certs/gateway/cert.conf
+
+/statics/certs/statics/*
+!/statics/certs/statics/cert.conf
+
+authn/certs/authn/*
+!/authn/certs/authn/cert.conf

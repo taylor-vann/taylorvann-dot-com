@@ -1,4 +1,0 @@
-FROM node:13-alpine
-VOLUME [ "/home/node/app" ]
-WORKDIR /home/node/app
-EXPOSE "8081"
