@@ -26,12 +26,16 @@ func (proxyMux ProxyMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		//	if present, send to authn for verification
 		//		if valid, continue onto request
 
-		//	if no cookies redirect to homepage / 404
+		//	if no cookies redirect to"you made it to https" homepage / 404
 		//		via dev.taylorvann.com/404 or taylorvann
 		// mux.ServeHTTP(w, r)
-		json.NewEncoder(w).Encode("you made it to https")
+
+		// for now get hostname
+		json.NewEncoder(w).Encode(r.URL.Hostname())
 		return
 	}
+
+	// obscure print everything if hostname doesn't work
 	json.NewEncoder(w).Encode(r.URL)
 
 	http.Error(w, r.URL.Hostname(), 404)
@@ -57,24 +61,18 @@ func helloHttps(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateProxyMux() *ProxyMux {
-	// mux := http.NewServeMux()
-
-	// mux.HandleFunc("/", helloHttps)
-
-	// return mux
 	proxyMux := make(ProxyMux)
 	for _, details := range *constants.RouteMap {
 		url, errUrl := url.Parse(details.RequestedAddress)
 		if errUrl != nil {
 			continue
 		}
-
-		hostname := url.Hostname()
-
 		urlTarget, errUrlTarget := url.Parse(details.TargetAddress)
 		if errUrlTarget != nil {
 			continue
 		}
+
+		hostname := url.Hostname()
 
 		proxyMux[hostname] = httputil.NewSingleHostReverseProxy(urlTarget)
 	}
