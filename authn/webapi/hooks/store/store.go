@@ -10,6 +10,9 @@ import (
 	"webapi/hooks/store/mutations"
 )
 
+// We need to handle both users and roles and in a cache
+// action 
+
 // SessionParams -
 type SessionParams = errors.SessionParams
 
@@ -38,11 +41,14 @@ type ResponseBody = errors.ResponseBody
 const (
 	CreateUser = "CREATE_USER"
 	ReadUser = "READ_USER"
+	RetrieveUsers = "RETRIEVE_USERS"
 	UpdateUserEmail = "UPDATE_USER_EMAIL"
 	UpdateUserPassword = "UPDATE_USER_PASSWORD"
 	RemoveUser = "REMOVE_USER"
 	ReviveUser = "REVIVE_USER"
 	CreateRole = "CREATE_ROLE"
+	ReadRole 	 = "READ_ROLE"
+	RetrieveRoles = "RETRIEVE_ROLES"
 	RemoveRole = "REMOVE_ROLE"
 )
 

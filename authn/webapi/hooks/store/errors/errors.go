@@ -5,6 +5,8 @@ import (
 	"net/http"
 )
 
+// problematic because user / roles are different
+
 // SessionParams -
 type SessionParams struct {
 	SessionToken	*string	`json:"session_token"`
@@ -21,7 +23,6 @@ type ResponsePayload struct {
 type Payload struct {
 	Headers  *string `json:"headers"`
 	Body     *string `json:"body"`
-	Session	 *string `json:"session"`
 	Store    *string `json:"store"`
 	Email    *string `json:"session"`
 	Password *string `json:"password"`
@@ -34,46 +35,45 @@ type ResponseBody struct {
 	Errors	*Payload       	 `json:"errors"`
 }
 
-var (
-	// InvalidHeadersProvided -
-	InvalidHeadersProvided = "invalid headers provided"
-	// BadBodyFail -
-	BadBodyFail = "unable to decode request body"
-	// UnrecognizedQuery -
+const (
+	BadRequest = "unable to decode request body"
 	UnrecognizedQuery = "unrecognized query action requested"
-	// UnrecognizedMutation -
 	UnrecognizedMutation = "unrecognized mutation action requested"
-	// InvalidSessionCredentials -
 	InvalidSessionCredentials = "invalid session credentials provided"
-	// UnableToCreatePublicSession -
 	UnableToCreatePublicSession = "unable to create public session"
-	// UnableToCreateUser -
 	UnableToCreateUser = "unable to create user"
-	// UserAlreadyExists -
 	UserAlreadyExists = "user already exists"
-	// UserDoesNotExist -
 	UserDoesNotExist = "user does not exist"
-	// UnableToValidateUser -
 	UnableToValidateUser = "unable to validate user"
+	DefaultFail = "unable to write custom error messages"
 )
 
-var defaultFail = "unable to write custom error messages"
+func DefaultErrorResponse(w http.ResponseWriter, err error) {
+	errAsStr := err.Error()
+	BadRequest(w, &ResponsePayload{
+		Default: &errAsStr,
+	})
+}
 
-// BadRequest - mutate session whitelist
-func BadRequest(w http.ResponseWriter, errors *Payload) {
+func CustomErrorResponse(w http.ResponseWriter, err string) {
+	BadRequest(w, &ResponsePayload{
+		Default: &err,
+	})
+}
+
+func BadRequest(w http.ResponseWriter, errors *ResponsePayload) {
 	w.WriteHeader(http.StatusBadRequest)
 	w.Header().Set("Content-Type", "application/json")
 
 	if errors != nil {
-		json.NewEncoder(w).Encode(&ResponseBody{
-			Errors: errors,
-		})
+		json.NewEncoder(w).Encode(&ResponseBody{Errors: errors})
 		return
 	}
 
 	json.NewEncoder(w).Encode(&ResponseBody{
-		Errors: &Payload{
-			Default: &defaultFail,
+		Errors: &ResponsePayload{
+			Default:	&DefaultFail,
 		},
 	})
 }
+

@@ -15,7 +15,7 @@ import (
 func TestCreateGuestSessionBadRequest(t *testing.T) {
 	resp, errResp := http.NewRequest(
 		"POST",
-		"/sessions/m/",
+		"/m/sessions/",
 		nil,
 	)
 	if errResp != nil {
@@ -41,7 +41,7 @@ func TestCreateGuestSessionBadHeadersRequest(t *testing.T) {
 	json.NewEncoder(marshalBytes).Encode(requestBody)
 	req, errReq := http.NewRequest(
 		"POST",
-		"/sessions/m/",
+		"/m/sessions/",
 		marshalBytes,
 	)
 	if errReq != nil {
@@ -67,7 +67,7 @@ func TestCreateGuestSession(t *testing.T) {
 	json.NewEncoder(marshalBytes).Encode(requestBody)
 	resp, errResp := http.NewRequest(
 		"POST",
-		"/sessions/m/",
+		"/m/sessions/",
 		marshalBytes,
 	)
 	if errResp != nil {
@@ -104,7 +104,7 @@ func TestCreateDocumentSession(t *testing.T) {
 	json.NewEncoder(marshalBytes).Encode(requestBody)
 	resp, errResp := http.NewRequest(
 		"POST",
-		"/sessions/m/",
+		"/m/sessions/",
 		marshalBytes,
 	)
 	if errResp != nil {
@@ -141,7 +141,7 @@ func TestCreateResetPasswordSessionBadRequest(t *testing.T) {
 	json.NewEncoder(marshalBytes).Encode(requestBody)
 	resp, errResp := http.NewRequest(
 		"POST",
-		"/sessions/m/",
+		"/m/sessions/",
 		marshalBytes,
 	)
 	if errResp != nil {
@@ -167,7 +167,7 @@ func TestCreateResetPasswordSession(t *testing.T) {
 	json.NewEncoder(marshalBytes).Encode(requestBody)
 	resp, errResp := http.NewRequest(
 		"POST",
-		"/sessions/m/",
+		"/m/sessions/",
 		marshalBytes,
 	)
 	if errResp != nil {
@@ -210,7 +210,7 @@ func TestCreateResetPasswordSession(t *testing.T) {
 	json.NewEncoder(marshalBytesPublic).Encode(requestBodyPublic)
 	req, errReq := http.NewRequest(
 		"POST",
-		"/sessions/m/",
+		"/m/sessions/",
 		marshalBytesPublic,
 	)
 	if errReq != nil {
@@ -239,7 +239,7 @@ func TestCreateUpdateEmailSession(t *testing.T) {
 	json.NewEncoder(marshalBytes).Encode(requestBody)
 	resp, errResp := http.NewRequest(
 		"POST",
-		"/sessions/m/",
+		"/m/sessions/",
 		marshalBytes,
 	)
 	if errResp != nil {
@@ -282,7 +282,7 @@ func TestCreateUpdateEmailSession(t *testing.T) {
 	json.NewEncoder(marshalBytesPublic).Encode(requestBodyPublic)
 	req, errReq := http.NewRequest(
 		"POST",
-		"/sessions/m/",
+		"/m/sessions/",
 		marshalBytesPublic,
 	)
 	if errReq != nil {
@@ -310,7 +310,7 @@ func TestUpdateSession(t *testing.T) {
 	json.NewEncoder(marshalBytes).Encode(requestBody)
 	resp, errResp := http.NewRequest(
 		"POST",
-		"/sessions/m/",
+		"/m/sessions/",
 		marshalBytes,
 	)
 	if errResp != nil {
@@ -349,7 +349,7 @@ func TestUpdateSession(t *testing.T) {
 	json.NewEncoder(marshalBytesPublic).Encode(requestBodyPublic)
 	req, errReq := http.NewRequest(
 		"POST",
-		"/sessions/m/",
+		"/m/sessions/",
 		marshalBytesPublic,
 	)
 	if errReq != nil {
@@ -376,7 +376,7 @@ func TestValidateSession(t *testing.T) {
 	json.NewEncoder(marshalBytes).Encode(requestBody)
 	resp, errResp := http.NewRequest(
 		"POST",
-		"/sessions/m/",
+		"/m/sessions/",
 		marshalBytes,
 	)
 	if errResp != nil {
@@ -442,7 +442,7 @@ func TestRemoveSession(t *testing.T) {
 	json.NewEncoder(marshalBytes).Encode(requestBody)
 	resp, errResp := http.NewRequest(
 		"POST",
-		"/sessions/m/",
+		"/m/sessions/",
 		marshalBytes,
 	)
 	if errResp != nil {
@@ -481,7 +481,7 @@ func TestRemoveSession(t *testing.T) {
 	}
 	req, errReq := http.NewRequest(
 		"POST",
-		"/sessions/m/",
+		"/m/sessions/",
 		marshalBytesRemove,
 	)
 	if errReq != nil {
