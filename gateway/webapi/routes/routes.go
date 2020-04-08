@@ -20,7 +20,9 @@ import (
 type ProxyMux map[string]http.Handler
 
 func (proxyMux ProxyMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	mux := proxyMux[r.URL.Hostname()]
+	subdomain := getSubdomain(r.Host)
+	mux := proxyMux[subdomain]
+
 	if mux != nil {
 		// check for document cookies
 		//	if present, send to authn for verification
@@ -31,14 +33,40 @@ func (proxyMux ProxyMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// mux.ServeHTTP(w, r)
 
 		// for now get hostname
-		json.NewEncoder(w).Encode(r.URL)
+		json.NewEncoder(w).Encode("subdomain! " + r.Host)
 		return
 	}
 
-	// obscure print everything if hostname doesn't work
-	json.NewEncoder(w).Encode(r.URL)
+	json.NewEncoder(w).Encode(r.Host)
+}
 
-	http.Error(w, r.URL.Hostname(), 404)
+func getSubdomain(host string) string {
+	initialIndex := 0
+	delimiterIndex := getDelimiterIndex(initialIndex, host, ".")
+
+	subdomain := host[initialIndex:delimiterIndex]
+	if subdomain == "www" {
+		initialIndex = delimiterIndex + 1
+		delimiterIndex = getDelimiterIndex(initialIndex, host, ".")
+		subdomain = host[initialIndex:delimiterIndex]
+	}
+
+	return subdomain
+}
+
+func getDelimiterIndex(index int, host string, delimiter string) int {
+	byteDelimiter := byte(delimiter[0])
+	initialIndex := index
+	searchIndex := initialIndex + 1
+
+	for searchIndex < len(host) {
+		if host[searchIndex] == byteDelimiter {
+			break
+		}
+		searchIndex += 1
+	}
+
+	return searchIndex
 }
 
 func getRedirectURL(r *http.Request) string {
@@ -58,18 +86,11 @@ func passToHttps(w http.ResponseWriter, r *http.Request) {
 func CreateProxyMux() *ProxyMux {
 	proxyMux := make(ProxyMux)
 	for _, details := range *constants.RouteMap {
-		url, errUrl := url.Parse(details.RequestedAddress)
-		if errUrl != nil {
-			continue
-		}
 		urlTarget, errUrlTarget := url.Parse(details.TargetAddress)
 		if errUrlTarget != nil {
 			continue
 		}
-
-		hostname := url.Hostname()
-
-		proxyMux[hostname] = httputil.NewSingleHostReverseProxy(urlTarget)
+		proxyMux[details.SubDomain] = httputil.NewSingleHostReverseProxy(urlTarget)
 	}
 
 	return &proxyMux
@@ -77,7 +98,6 @@ func CreateProxyMux() *ProxyMux {
 
 func RedirectToHttpsMux() *http.ServeMux {
 	mux := http.NewServeMux()
-
 	mux.HandleFunc("/", passToHttps)
 
 	return mux

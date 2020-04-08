@@ -12,7 +12,7 @@ services:
       dockerfile: dockerfile
     restart: always
     env_file:
-      - ./environment-variables.dev.env
+      - ./environment-variables.env
     ports:
       - "80:80"
       - "443:443"

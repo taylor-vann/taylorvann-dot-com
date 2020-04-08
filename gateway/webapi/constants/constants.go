@@ -22,8 +22,6 @@ const (
 	// Ports
 	HttpPort       = ":80"
 	HttpsPort      = ":443"
-	HttpPortLocal  = ":3000"
-	HttpsPortLocal = ":3005"
 
 	// Cert Locations
 	certLocal       = "/usr/local/certs/gateway/https-server.crt"
@@ -37,20 +35,6 @@ const (
 )
 
 var enviornment = os.Getenv("STAGE")
-
-func createPortsConstants() *PortAddressList {
-	if enviornment == "PRODUCTION" {
-		return &PortAddressList{
-			Http:  HttpPort,
-			Https: HttpsPort,
-		}
-	}
-
-	return &PortAddressList{
-		Http:  HttpPortLocal,
-		Https: HttpsPortLocal,
-	}
-}
 
 func createCertConstants() *CertAddressList {
 	if enviornment == "PRODUCTION" {
@@ -68,5 +52,9 @@ func createCertConstants() *CertAddressList {
 	}
 }
 
-var Ports = createPortsConstants()
+var Ports = &PortAddressList{
+	Http: HttpPort,
+	Https: HttpsPort,
+}
+
 var CertAddresses = createCertConstants()

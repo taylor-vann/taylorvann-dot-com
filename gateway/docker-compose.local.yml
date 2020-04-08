@@ -14,8 +14,8 @@ services:
     env_file:
       - ./environment-variables.dev.env
     ports:
-      - "3000:3000"
-      - "3005:3005"
+      - "3000:80"
+      - "3005:443"
     volumes:
       - ./webapi/:/go/src/webapi/
       - ./certs/:/usr/local/certs/

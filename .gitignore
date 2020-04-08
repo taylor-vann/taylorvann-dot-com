@@ -24,6 +24,9 @@
 #   ignore binary
 /authn/webapi/webapi
 
+## Builds
+/gateway/webapi/main
+
 # ignore the build
 web_client/prod/
 

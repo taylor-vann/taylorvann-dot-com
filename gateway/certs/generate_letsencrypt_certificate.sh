@@ -11,6 +11,8 @@ domains=(
   www.statics.taylorvann.com
   authn.taylorvann.com
   www.authn.taylorvann.com
+  clients.taylorvann.com
+  www.clients.taylorvann.com
   mail.taylorvann.com
   www.mail.taylorvann.com
 )
@@ -27,8 +29,5 @@ function create_domain_string_list()
 }
 
 create_domain_string_list ${domains[@]}
-
-# echo ${email}
-# echo ${domain_string}
 
 certbot certonly --standalone --non-interactive --agree-tos --email ${email} --domains ${domain_string}
