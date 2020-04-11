@@ -13,19 +13,19 @@ import (
 	"strconv"
 
 	"webapi/interfaces/pgsqlx"
-	storexc "webapi/interfaces/storex/constants"
+	"webapi/interfaces/storex/constants"
 )
 
 // getConfigFromEnv -
 func getConfigFromEnv() (*pgsqlx.PGConfig, error) {
-	if storexc.Host == "" || storexc.Port == "" || storexc.User == "" || storexc.Password == "" || storexc.Database == "" {
+	if constants.Host == "" || constants.Port == "" || constants.User == "" || constants.Password == "" || constants.Database == "" {
 		return nil, errors.New(
 			"storex.getConfigFromEnv() - unable to import required evnironment variables",
 		)
 	}
 
 	// get port string as integer
-	portAsInt, err := strconv.Atoi(storexc.Port)
+	portAsInt, err := strconv.Atoi(constants.Port)
 	if err != nil {
 		return nil, errors.New(
 			"storex.getConfigFromEnv() - could not convert env variable 'port' to int",
@@ -34,11 +34,11 @@ func getConfigFromEnv() (*pgsqlx.PGConfig, error) {
 
 	// apply env variables to config
 	config := pgsqlx.PGConfig{
-		Host:         storexc.Host,
+		Host:         constants.Host,
 		Port:         portAsInt,
-		Username:     storexc.User,
-		Password:     storexc.Password,
-		DatabaseName: storexc.Database,
+		Username:     constants.User,
+		Password:     constants.Password,
+		DatabaseName: constants.Database,
 	}
 
 	// return address of config
