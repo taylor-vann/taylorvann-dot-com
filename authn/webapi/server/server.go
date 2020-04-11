@@ -10,7 +10,7 @@ import (
 func CreateServer(port int) {
 	// create databases
 	store.CreateRequiredTables()
-	store.InitFromJSON()
+	// store.InitFromJSON()
 
 	// send mux to local routes package to append hooks
 	muxHttps := http.NewServeMux()

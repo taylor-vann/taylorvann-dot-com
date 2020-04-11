@@ -40,10 +40,8 @@ yarn.lock
 # created by postgresql.
 
 # This pattern will ignore all files but a simple empty ".keep" file.
-/authn/store_db/postgres/*
-
-# Keep Hack
-!.keep
+/authn/store_db/data/*
+!/authn/store_db/data
 
 # Do not save keys, ever
 gateway/certs/gateway/*

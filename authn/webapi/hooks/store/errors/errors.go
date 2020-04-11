@@ -50,13 +50,13 @@ const (
 
 func DefaultErrorResponse(w http.ResponseWriter, err error) {
 	errAsStr := err.Error()
-	BadRequest(w, &ResponsePayload{
+	BadRequest(w, &Payload{
 		Default: &errAsStr,
 	})
 }
 
 func CustomErrorResponse(w http.ResponseWriter, err string) {
-	BadRequest(w, &ResponsePayload{
+	BadRequest(w, &Payload{
 		Default: &err,
 	})
 }

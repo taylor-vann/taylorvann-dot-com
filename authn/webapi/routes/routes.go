@@ -13,7 +13,7 @@ import (
 	"net/http"
 	"webapi/hooks/ping"
 	"webapi/hooks/sessions"
-	"webapi/hooks/store"
+	// "webapi/hooks/store"
 )
 
 //	CreateRoutes - add hooks to route callbacks
@@ -21,13 +21,13 @@ func CreateRoutes(mux *http.ServeMux) *http.ServeMux {
 	//	ping
 	mux.HandleFunc("/", ping.Details)
 
-	//	users
-	mux.HandleFunc("/q/users/", store.Query)
-	mux.HandleFunc("/m/users/", store.Mutation)
+	// //	users
+	// mux.HandleFunc("/q/users/", store.Query)
+	// mux.HandleFunc("/m/users/", store.Mutation)
 
-	//	roles
-	mux.HandleFunc("/q/roles/", store.Query)
-	mux.HandleFunc("/m/roles/", store.Mutation)
+	// //	roles
+	// mux.HandleFunc("/q/roles/", store.Query)
+	// mux.HandleFunc("/m/roles/", store.Mutation)
 		
 	//	sessions
 	mux.HandleFunc("/q/sessions/", sessions.Query)

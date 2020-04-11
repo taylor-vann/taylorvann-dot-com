@@ -1,5 +1,5 @@
 FROM postgres:alpine
 
-VOLUME ["/var/lib/postgresql/data/store_db_data/"]
+VOLUME ["/var/lib/postgresql/data/"]
 
 EXPOSE 5100

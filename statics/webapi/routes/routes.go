@@ -28,7 +28,6 @@ func CreateRoutes(mux *http.ServeMux) *http.ServeMux {
 	//	request session, needs guest jwt
 	mux.HandleFunc("/login/", documents.Login)
 	mux.HandleFunc("/logout/", documents.Logout)
-	mux.HandleFunc("/request_session/", documents.Homepage)
 
 	return mux
 }
