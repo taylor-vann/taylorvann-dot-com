@@ -9,11 +9,15 @@ import (
 
 // SQL - container of valid sql strings
 type SQL struct {
-	CreateTable string
-	Create      string
-	Read        string
-	Update      string
-	Remove      string
+	CreateTable 	 string
+	Create      	 string
+	Read        	 string
+	Search				 string
+	Update      	 string
+	UpdateEmail 	 string
+	UpdatePassword string
+	Remove      	 string
+	Revive  			 string
 }
 
 const createTableUsers = `
@@ -42,7 +46,7 @@ RETURNING
 	*;
 `
 
-const readUser = `
+const read = `
 SELECT
   *
 FROM
@@ -51,7 +55,16 @@ WHERE
 	email = $1;
 `
 
-const updateUser = `
+const search = `
+SELECT
+  *
+FROM
+  %s
+WHERE
+  POSITION($1 in email) > 0;
+`
+
+const update = `
 UPDATE
 	%s
 SET
@@ -69,6 +82,36 @@ RETURNING
 	*;
 `
 
+const updateEmail = `
+UPDATE
+	%s
+SET
+	email = $2,
+  updated_at = CURRENT_TIMESTAMP(3)
+WHERE
+	email = $1 AND
+	TO_TIMESTAMP($3::DOUBLE PRECISION * 0.001) 
+		BETWEEN updated_at AND CURRENT_TIMESTAMP(3)
+RETURNING
+	*;
+`
+
+const updatePassword = `
+UPDATE
+	%s
+SET
+	salt = $2,
+	hash = $3,
+	params = $4,
+	updated_at = CURRENT_TIMESTAMP(3)
+WHERE
+	email = $1 AND
+	TO_TIMESTAMP($5::DOUBLE PRECISION * 0.001) 
+		BETWEEN updated_at AND CURRENT_TIMESTAMP(3)
+RETURNING
+	*;
+`
+
 const updateAsDeletedUser = `
 UPDATE
   %s
@@ -77,6 +120,22 @@ SET
   updated_at = CURRENT_TIMESTAMP(3)
 WHERE
 	email = $1 AND
+	is_deleted = FALSE AND
+	TO_TIMESTAMP($2::DOUBLE PRECISION * 0.001) 
+		BETWEEN updated_at AND CURRENT_TIMESTAMP(3)
+RETURNING
+	*;
+`
+
+const updateAsRevivedUser = `
+UPDATE
+  %s
+SET
+  is_deleted = FALSE,
+  updated_at = CURRENT_TIMESTAMP(3)
+WHERE
+	email = $1 AND
+	is_deleted = TRUE AND
 	TO_TIMESTAMP($2::DOUBLE PRECISION * 0.001) 
 		BETWEEN updated_at AND CURRENT_TIMESTAMP(3)
 RETURNING
@@ -84,16 +143,21 @@ RETURNING
 `
 
 func createUsersStatements() *SQL {
-	Users := SQL{
-		CreateTable: fmt.Sprintf(createTableUsers, constants.Tables.Users),
-		Create:      fmt.Sprintf(insertUser, constants.Tables.Users),
-		Read:        fmt.Sprintf(readUser, constants.Tables.Users),
-		Update:      fmt.Sprintf(updateUser, constants.Tables.Users),
-		Remove:      fmt.Sprintf(updateAsDeletedUser, constants.Tables.Users),
+	userStatements := SQL{
+		CreateTable: 		fmt.Sprintf(createTableUsers, constants.Tables.Users),
+		Create:      		fmt.Sprintf(insertUser, constants.Tables.Users),
+		Read:        		fmt.Sprintf(read, constants.Tables.Users),
+		Search:			 		fmt.Sprintf(search, constants.Tables.Users),
+		Update:      		fmt.Sprintf(update, constants.Tables.Users),
+		UpdateEmail:    fmt.Sprintf(updateEmail, constants.Tables.Users),
+		UpdatePassword: fmt.Sprintf(updatePassword, constants.Tables.Users),
+		Remove:      		fmt.Sprintf(updateAsDeletedUser, constants.Tables.Users),
+		Revive:      		fmt.Sprintf(updateAsRevivedUser, constants.Tables.Users),
 	}
 
-	return &Users
+	return &userStatements
 }
 
 // SQLStatements - interface to production SQL Userss
 var SQLStatements = createUsersStatements()
+

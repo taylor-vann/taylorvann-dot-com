@@ -10,13 +10,13 @@ type TableNames struct {
 }
 
 const (
-	users     = "users"
-	usersTest = "users_test"
+	users     			= "users"
+	usersTest 			= "users_test"
+	usersUnitTests  = "users_unit_tests"
 )
 
 // Tables -
 var Tables = getUsersTablesConstants()
-
 // getUsersTablesConstants -
 func getUsersTablesConstants() *TableNames {
 	if constants.Environment == constants.Production {
@@ -25,7 +25,13 @@ func getUsersTablesConstants() *TableNames {
 		}
 	}
 
+	if constants.Environment == constants.Development {
+		return &TableNames{
+			Users: usersTest,
+		}
+	}
+
 	return &TableNames{
-		Users: usersTest,
+		Users: usersUnitTests,
 	}
 }

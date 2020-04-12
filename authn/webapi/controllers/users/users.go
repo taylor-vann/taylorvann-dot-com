@@ -1,12 +1,7 @@
 // brian taylor vann
 // taylorvann dot com
 //
-// represents a user's password credentials in a store
-// it can be considered a vertex
-//
-// all CRUR methods must return the entire row of created or altered entries
 
-// Package users - Controller to interact with sql table on device
 package users
 
 import (
@@ -49,28 +44,48 @@ type ReadParams struct {
 	Email string	`json:"email"`
 }
 
+// SearchParams - arguments needed too remove entry
+type SearchParams struct {
+	EmailSubstring string	`json:"email_substring"`
+}
+
 // UpdateParams - identical arguments needed for password update
 type UpdateParams struct {
 	CurrentEmail  string	`json:"current_email"`
 	UpdatedEmail  string	`json:"updated_email"`
 	Password      string	`json:"password"`
 	IsDeleted			bool		`json:"is_deleted"`
-	RequestedAt		int64		`json:"requested_at"`
 }
+
+// UpdateEmailParams - identical arguments needed for password update
+type UpdateEmailParams struct {
+	CurrentEmail  string	`json:"current_email"`
+	UpdatedEmail  string	`json:"updated_email"`
+}
+
+// UpdatePasswordParams - identical arguments needed for password update
+type UpdatePasswordParams = CreateParams
 
 // RemoveParams - identical arguments needed to remove an entry
 type RemoveParams = ReadParams
 
-// CreateRow -
-func CreateRow(rows *sql.Rows) (*Row, error) {
+// ReviveParams - identical arguments needed to remove an entry
+type ReviveParams = ReadParams
+
+
+// CreateRows -
+func CreateRows(rows *sql.Rows) (Users, error) {
 	if rows == nil {
-		return nil, errors.New("users.CreateRow() - nil params provided")
+		return nil, errors.New("users.CreateRows() - nil params provided")
 	}
 
+	var users Users
+
 	defer rows.Close()
-	if rows.Next() {
+	for rows.Next() {
 		var userRow Row
 		var jsonParamsAsStr string
+		
 		errScan := rows.Scan(
 			&userRow.ID,
 			&userRow.Email,
@@ -81,7 +96,6 @@ func CreateRow(rows *sql.Rows) (*Row, error) {
 			&userRow.CreatedAt,
 			&userRow.UpdatedAt,
 		)
-
 		if errScan != nil {
 			return nil, errScan
 		}
@@ -90,15 +104,14 @@ func CreateRow(rows *sql.Rows) (*Row, error) {
 			[]byte(jsonParamsAsStr),
 			&userRow.Params,
 		)
-
 		if errMarshal != nil {
 			return nil, errMarshal
 		}
 
-		return &userRow, nil
+		users = append(users, userRow)
 	}
 
-	return nil, nil
+	return users, nil
 }
 
 // CreateTable -
@@ -108,7 +121,7 @@ func CreateTable() (*sql.Result, error) {
 }
 
 // Create - create a password entry in our store
-func Create(p *CreateParams) (*Row, error) {
+func Create(p *CreateParams) (Users, error) {
 	if p == nil {
 		return nil, errors.New("users.Create() - nil parameters provided")
 	}
@@ -126,7 +139,7 @@ func Create(p *CreateParams) (*Row, error) {
 		return nil, errMarshal
 	}
 
-	row, errQueryRow := storex.Query(
+	rows, errQueryRow := storex.Query(
 		SQLStatements.Create,
 		p.Email,
 		hashedPassword.Salt,
@@ -137,16 +150,16 @@ func Create(p *CreateParams) (*Row, error) {
 		return nil, errQueryRow
 	}
 
-	return CreateRow(row)
+	return CreateRows(rows)
 }
 
 // Read - update an entry in our store
-func Read(p *ReadParams) (*Row, error) {
+func Read(p *ReadParams) (Users, error) {
 	if p == nil {
 		return nil, errors.New("users.Read() - nil parameters provided")
 	}
 
-	row, errQueryRow := storex.Query(
+	rows, errQueryRow := storex.Query(
 		SQLStatements.Read,
 		p.Email,
 	)
@@ -154,13 +167,42 @@ func Read(p *ReadParams) (*Row, error) {
 		return nil, errQueryRow
 	}
 
-	return CreateRow(row)
+	return CreateRows(rows)
+}
+
+// Search - find entries similar to a substring
+func Search(p *SearchParams) (Users, error) {
+	if p == nil {
+		return nil, errors.New("users.Search() - nil parameters provided")
+	}
+
+	rows, errQueryRow := storex.Query(
+		SQLStatements.Search,
+		p.EmailSubstring,
+	)
+	if errQueryRow != nil {
+		return nil, errQueryRow
+	}
+
+	return CreateRows(rows)
 }
 
 // Update - update an entry in our store
-func Update(p *UpdateParams) (*Row, error) {
+func Update(p *UpdateParams) (Users, error) {
 	if p == nil {
 		return nil, errors.New("users.Updated() - nil parameters provided")
+	}
+
+	if p.Password == "" {
+		return nil, errors.New("users.Updated() - password cannot be empty string")
+	}
+
+	if p.CurrentEmail == "" {
+		return nil, errors.New("users.Updated() - current email cannot be empty string")
+	}
+
+	if p.UpdatedEmail == "" {
+		return nil, errors.New("users.Updated() - updated email cannot be empty string")
 	}
 
 	hashedPassword, errHashPassword := passwordx.HashPassword(
@@ -176,7 +218,7 @@ func Update(p *UpdateParams) (*Row, error) {
 		return nil, errMarshal
 	}
 
-	row, errQueryRow := storex.Query(
+	rows, errQueryRow := storex.Query(
 		SQLStatements.Update,
 		p.CurrentEmail,
 		p.UpdatedEmail,
@@ -190,16 +232,81 @@ func Update(p *UpdateParams) (*Row, error) {
 		return nil, errQueryRow
 	}
 
-	return CreateRow(row)
+	return CreateRows(rows)
+}
+
+// UpdateEmail - update an entry email in our store
+func UpdateEmail(p *UpdateEmailParams) (Users, error) {
+	if p == nil {
+		return nil, errors.New("users.Updated() - nil parameters provided")
+	}
+
+	if p.CurrentEmail == "" {
+		return nil, errors.New("users.Updated() - current email cannot be empty string")
+	}
+
+	if p.UpdatedEmail == "" {
+		return nil, errors.New("users.Updated() - updated email cannot be empty string")
+	}
+
+	rows, errQueryRow := storex.Query(
+		SQLStatements.UpdateEmail,
+		p.CurrentEmail,
+		p.UpdatedEmail,
+		utils.GetNowAsMS(),
+	)
+	if errQueryRow != nil {
+		return nil, errQueryRow
+	}
+
+	return CreateRows(rows)
+}
+
+// Update - update an entry password in our store
+func UpdatePassword(p *UpdatePasswordParams) (Users, error) {
+	if p == nil {
+		return nil, errors.New("users.Updated() - nil parameters provided")
+	}
+
+	if p.Password == "" {
+		return nil, errors.New("users.Updated() - password cannot be empty string")
+	}
+
+	hashedPassword, errHashPassword := passwordx.HashPassword(
+		p.Password,
+		&passwordx.DefaultHashParams,
+	)
+	if errHashPassword != nil {
+		return nil, errHashPassword
+	}
+
+	marshaledParams, errMarshal := json.Marshal(passwordx.DefaultHashParams)
+	if errMarshal != nil {
+		return nil, errMarshal
+	}
+
+	rows, errQueryRow := storex.Query(
+		SQLStatements.UpdatePassword,
+		p.Email,
+		hashedPassword.Salt,
+		hashedPassword.Hash,
+		marshaledParams,
+		utils.GetNowAsMS(),
+	)
+	if errQueryRow != nil {
+		return nil, errQueryRow
+	}
+
+	return CreateRows(rows)
 }
 
 // Remove - remove an entry from our store
-func Remove(p *RemoveParams) (*Row, error) {
+func Remove(p *RemoveParams) (Users, error) {
 	if p == nil {
 		return nil, errors.New("users.Remove() - nil parameters provided")
 	}
 
-	row, errQueryRow := storex.Query(
+	rows, errQueryRow := storex.Query(
 		SQLStatements.Remove,
 		p.Email,
 		utils.GetNowAsMS(),
@@ -208,5 +315,23 @@ func Remove(p *RemoveParams) (*Row, error) {
 		return nil, errQueryRow
 	}
 
-	return CreateRow(row)
+	return CreateRows(rows)
+}
+
+// Revive - revive an entry from our store
+func Revive(p *RemoveParams) (Users, error) {
+	if p == nil {
+		return nil, errors.New("users.Revive() - nil parameters provided")
+	}
+
+	rows, errQueryRow := storex.Query(
+		SQLStatements.Revive,
+		p.Email,
+		utils.GetNowAsMS(),
+	)
+	if errQueryRow != nil {
+		return nil, errQueryRow
+	}
+
+	return CreateRows(rows)
 }

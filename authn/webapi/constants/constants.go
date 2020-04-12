@@ -2,13 +2,16 @@ package constants
 
 import "os"
 
+const (
 // Stage -
-const Stage = "STAGE"
+	Stage = "STAGE"
 
 // Production -
-const Production = "PRODUCTION"
+	Production = "PRODUCTION"
+	Development = "DEVELOPMENT"
+	Local = "LOCAL"
 
-const TaylorVannDotCom = "taylorvann.com"
-
+	TaylorVannDotCom = "taylorvann.com"
+)
 // Environment -
 var Environment = os.Getenv(Stage)
