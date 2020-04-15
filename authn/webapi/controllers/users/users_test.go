@@ -1,70 +1,91 @@
+// brian taylor vann
+// taylorvann-dot-com
+
 package users
 
 import (
 	"testing"
 )
 
+var createTable = CreateTableParams{
+	Environment: "LOCAL",
+}
+
 var testUser = CreateParams{
+	Environment: "LOCAL",
 	Email:    "test_user@test_email.test",
 	Password: "pazzw0rd",
 }
 
 var testUserTwo = CreateParams{
+	Environment: "LOCAL",
 	Email:    "test_user2@test_email.test",
 	Password: "pazzw0rd",
 }
 
 var testUserRead = ReadParams{
+	Environment: "LOCAL",
 	Email: "test_user@test_email.test",
 }
 
 var testUserSearch = SearchParams{
+	Environment: "LOCAL",
 	EmailSubstring: "test_email",
 }
 
 var testUserUpdated = UpdateParams{
+	Environment: "LOCAL",
 	CurrentEmail: "test_user@test_email.test",
-	UpdatedEmail: "next_test_user@test_email.test",
+	UpdatedEmail: "complete_update_test_user@test_email.test",
 	Password: "pazzword",
 	IsDeleted: false,
 }
 
 var testUserUpdatedEmail = UpdateEmailParams {
-	CurrentEmail: "next_test_user@test_email.test",
-	UpdatedEmail: "another_test_user@test_email.test",
+	Environment: "LOCAL",
+	CurrentEmail: "complete_update_test_user@test_email.test",
+	UpdatedEmail: "updated_email_test_user@test_email.test",
 }
 
 var testUserUpdatedPassword = UpdatePasswordParams {
-	Email: "another_test_user@test_email.test",
+	Environment: "LOCAL",
+	Email: "updated_email_test_user@test_email.test",
 	Password: "pazzw3rd",
 }
 
 var testUserRemoveUpdated = RemoveParams{
-	Email: "another_test_user@test_email.test",
+	Environment: "LOCAL",
+	Email: "updated_email_test_user@test_email.test",
 }
 
 var testUserReviveUpdated = ReviveParams{
-	Email: "another_test_user@test_email.test",
+	Environment: "LOCAL",
+	Email: "updated_email_test_user@test_email.test",
 }
 
 func TestCreateTestTable(t *testing.T) {
-	results, err := CreateTable()
+	results, err := CreateTable(&createTable)
 	if err != nil {
-		t.Error("Error creating test table.")
+		t.Error(err.Error())
 	}
 	if results == nil {
 		t.Error("No results were returned from CreateTable.")
 	}
+	
 }
 
 func TestCreateRow(t *testing.T) {
 	rows, err := Create(&testUser)
 	if err != nil {
-		t.Error("Error creating user row.")
+		t.Error(err.Error())
 		return
 	}
-	if len(rows) > 1 || len(rows) == 0 {
-		t.Error("No results were returned from Update.")
+	if len(rows) == 0 {
+		t.Error("No results were returned from Create.")
+		return
+	}
+	if len(rows) != 1 {
+		t.Error("Incorrect amount of results were returned from Create.")
 		return
 	}
 
@@ -84,11 +105,15 @@ func TestCreateRow(t *testing.T) {
 func TestReadRow(t *testing.T) {
 	rows, err := Read(&testUserRead)
 	if err != nil {
-		t.Error("Error reading user row.")
+		t.Error(err.Error())
 		return
 	}
-	if len(rows) > 1 || len(rows) == 0 {
-		t.Error("No results were returned from Update.")
+	if len(rows) == 0 {
+		t.Error("No results were returned from Read.")
+		return
+	}
+	if  len(rows) != 1 {
+		t.Error("Incorrect amount of rows were returned from Read.")
 		return
 	}
 
@@ -105,7 +130,7 @@ func TestReadRow(t *testing.T) {
 func TestSearchRows(t *testing.T) {
 	newUserRow, err := Create(&testUserTwo)
 	if err != nil {
-		t.Error("Error creating user row.")
+		t.Error(err.Error())
 		return
 	}
 	if len(newUserRow) == 0 {
@@ -115,7 +140,7 @@ func TestSearchRows(t *testing.T) {
 
 	rows, err := Search(&testUserSearch)
 	if err != nil {
-		t.Error("Error reading user row.")
+		t.Error(err.Error())
 		return
 	}
 	if len(rows) == 0 {
@@ -132,11 +157,15 @@ func TestSearchRows(t *testing.T) {
 func TestUpdateRow(t *testing.T) {
 	rows, err := Update(&testUserUpdated)
 	if err != nil {
-		t.Error("Error updating user row.")
+		t.Error(err.Error())
 		return
 	}
-	if len(rows) > 1 || len(rows) == 0 {
+	if len(rows) == 0 {
 		t.Error("No results were returned from Update.")
+		return
+	}
+	if  len(rows) != 1 {
+		t.Error("Incorrect amount of rows were returned from Read.")
 		return
 	}
 
@@ -146,7 +175,7 @@ func TestUpdateRow(t *testing.T) {
 		t.Error("Failed to updated email.")
 	}
 	if result.Email != testUserUpdated.UpdatedEmail {
-		t.Error("Failed to correctly update email.")
+		t.Error("Failed to correctly update user.")
 	}
 	if result.CreatedAt == result.UpdatedAt {
 		t.Error("CreatedAt should not equal UpdatedAt.")
@@ -156,18 +185,22 @@ func TestUpdateRow(t *testing.T) {
 func TestUpdateEmail(t *testing.T) {
 	rows, err := UpdateEmail(&testUserUpdatedEmail)
 	if err != nil {
-		t.Error("Error updating user row.")
+		t.Error(err.Error())
 		return
 	}
-	if len(rows) > 1 || len(rows) == 0 {
-		t.Error("No results were returned from Update.")
+	if len(rows) == 0 {
+		t.Error("No results were returned from UpdateEmail.")
+		return
+	}
+	if  len(rows) != 1 {
+		t.Error("Incorrect amount of rows were returned from Read.")
 		return
 	}
 
 	result := rows[0]
 
 	if result.Email == testUser.Email {
-		t.Error("Failed to updated email.")
+		t.Error("Failed to update email.")
 	}
 	if result.Email != testUserUpdatedEmail.UpdatedEmail {
 		t.Error("Failed to correctly update email.")
@@ -180,32 +213,40 @@ func TestUpdateEmail(t *testing.T) {
 func TestUpdatePassword(t *testing.T) {
 	rows, err := UpdatePassword(&testUserUpdatedPassword)
 	if err != nil {
-		t.Error("Error updating user row.")
+		t.Error(err.Error())
 		return
 	}
-	if len(rows) > 1 || len(rows) == 0 {
-		t.Error("No results were returned from Update.")
+	if len(rows) == 0 {
+		t.Error("No results were returned from UpdatePassword.")
+		return
+	}
+	if  len(rows) != 1 {
+		t.Error("Incorrect amount of rows were returned from UpdatePassword.")
 		return
 	}
 
 	result := rows[0]
 
 	if result.Email != testUserUpdatedPassword.Email {
-		t.Error("Failed to update correct account password.")
+		t.Error("Failed to update password.")
 	}
 	if result.CreatedAt == result.UpdatedAt {
 		t.Error("CreatedAt should not equal UpdatedAt.")
 	}
 }
 
-func TestRemoveRow(t *testing.T) {
+func TestRemove(t *testing.T) {
 	rows, err := Remove(&testUserRemoveUpdated)
 	if err != nil {
-		t.Error("Error removing user row.")
+		t.Error(err.Error())
 		return
 	}
 	if len(rows) == 0 {
-		t.Error("No results were returned from removal.")
+		t.Error("No results were returned from Remove.")
+		return
+	}
+	if len(rows) != 1 {
+		t.Error("Incorrect amount of rows were returned from Remove.")
 		return
 	}
 
@@ -219,23 +260,38 @@ func TestRemoveRow(t *testing.T) {
 	}
 }
 
-func TestReviveRow(t *testing.T) {
+func TestRevive(t *testing.T) {
 	rows, err := Revive(&testUserReviveUpdated)
 	if err != nil {
-		t.Error("Error reviving user row.")
+		t.Error(err.Error())
 		return
 	}
 	if len(rows) == 0 {
-		t.Error("No results were returned from removal.")
+		t.Error("No results were returned from Revive.")
+		return
+	}
+	if len(rows) != 1 {
+		t.Error("Incorrect amount of rows were returned from Revive.")
 		return
 	}
 
 	result := rows[0]
 
 	if result.Email != testUserReviveUpdated.Email {
-		t.Error("Failed to remove correct user.")
+		t.Error("Failed to revive correct user.")
 	}
 	if result.IsDeleted == true {
 		t.Error("IsDeleted should be false")
+	}
+}
+
+func TestDangerouslyDropUnitTestsTable(t *testing.T) {
+	result, err := DangerouslyDropUnitTestsTable()
+
+	if result == nil {
+		t.Error("Failed to drop table")
+	}
+	if err != nil {
+		t.Error(err.Error())
 	}
 }

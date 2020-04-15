@@ -1,6 +1,5 @@
 // brian taylor vann
 // taylorvann dot com
-//
 
 package users
 
@@ -13,12 +12,12 @@ import (
 	"webapi/controllers/utils"
 	"webapi/interfaces/passwordx"
 	"webapi/interfaces/storex"
+	"webapi/controllers/users/constants"
+	"webapi/controllers/users/statements"
 )
 
-// HashParams -
 type HashParams = passwordx.HashParams
 
-// Row - Expected PostgreSQL structure
 type Row struct {
 	ID        int64       `json:"id"`
 	Email     string      `json:"email"`
@@ -30,50 +29,54 @@ type Row struct {
 	UpdatedAt time.Time   `json:"updated_at"` // milli seconds
 }
 
-// Users -
 type Users = []Row
 
-// CreateParams - arguments needed for entry
+type CreateTableParams struct {
+	Environment string `json:"environment"`
+}
+
 type CreateParams struct {
-	Email    string	`json:"email"`	
-	Password string	`json:"password"`
+	Environment string `json:"environment"`
+	Email    		string `json:"email"`	
+	Password 		string `json:"password"`
 }
 
-// ReadParams - arguments needed too remove entry
 type ReadParams struct {
-	Email string	`json:"email"`
+	Environment string `json:"environment"`
+	Email 			string `json:"email"`
 }
 
-// SearchParams - arguments needed too remove entry
 type SearchParams struct {
+	Environment 	 string `json:"environment"`
 	EmailSubstring string	`json:"email_substring"`
 }
 
-// UpdateParams - identical arguments needed for password update
 type UpdateParams struct {
-	CurrentEmail  string	`json:"current_email"`
-	UpdatedEmail  string	`json:"updated_email"`
-	Password      string	`json:"password"`
-	IsDeleted			bool		`json:"is_deleted"`
+	Environment 	string `json:"environment"`
+	CurrentEmail  string `json:"current_email"`
+	UpdatedEmail  string `json:"updated_email"`
+	Password      string `json:"password"`
+	IsDeleted			bool	 `json:"is_deleted"`
 }
 
-// UpdateEmailParams - identical arguments needed for password update
 type UpdateEmailParams struct {
-	CurrentEmail  string	`json:"current_email"`
-	UpdatedEmail  string	`json:"updated_email"`
+	Environment 	string `json:"environment"`
+	CurrentEmail  string `json:"current_email"`
+	UpdatedEmail  string `json:"updated_email"`
 }
 
-// UpdatePasswordParams - identical arguments needed for password update
 type UpdatePasswordParams = CreateParams
-
-// RemoveParams - identical arguments needed to remove an entry
 type RemoveParams = ReadParams
-
-// ReviveParams - identical arguments needed to remove an entry
 type ReviveParams = ReadParams
 
 
-// CreateRows -
+func getDefaultEnvironment(environment string) string {
+	if environment != "" {
+		return environment
+	}
+	return constants.UsersTest
+}
+
 func CreateRows(rows *sql.Rows) (Users, error) {
 	if rows == nil {
 		return nil, errors.New("users.CreateRows() - nil params provided")
@@ -114,13 +117,14 @@ func CreateRows(rows *sql.Rows) (Users, error) {
 	return users, nil
 }
 
-// CreateTable -
-func CreateTable() (*sql.Result, error) {
-	result, err := storex.Exec(SQLStatements.CreateTable)
+func CreateTable(p *CreateTableParams) (*sql.Result, error) {
+	environment := getDefaultEnvironment(p.Environment)
+	statement := statements.SqlMap[environment].CreateTable
+
+	result, err := storex.Exec(statement)
 	return &result, err
 }
 
-// Create - create a password entry in our store
 func Create(p *CreateParams) (Users, error) {
 	if p == nil {
 		return nil, errors.New("users.Create() - nil parameters provided")
@@ -139,8 +143,10 @@ func Create(p *CreateParams) (Users, error) {
 		return nil, errMarshal
 	}
 
+	environment := getDefaultEnvironment(p.Environment)
+	statement := statements.SqlMap[environment].Create
 	rows, errQueryRow := storex.Query(
-		SQLStatements.Create,
+		statement,
 		p.Email,
 		hashedPassword.Salt,
 		hashedPassword.Hash,
@@ -153,14 +159,15 @@ func Create(p *CreateParams) (Users, error) {
 	return CreateRows(rows)
 }
 
-// Read - update an entry in our store
 func Read(p *ReadParams) (Users, error) {
 	if p == nil {
 		return nil, errors.New("users.Read() - nil parameters provided")
 	}
 
+	environment := getDefaultEnvironment(p.Environment)
+	statement := statements.SqlMap[environment].Read
 	rows, errQueryRow := storex.Query(
-		SQLStatements.Read,
+		statement,
 		p.Email,
 	)
 	if errQueryRow != nil {
@@ -170,14 +177,15 @@ func Read(p *ReadParams) (Users, error) {
 	return CreateRows(rows)
 }
 
-// Search - find entries similar to a substring
 func Search(p *SearchParams) (Users, error) {
 	if p == nil {
 		return nil, errors.New("users.Search() - nil parameters provided")
 	}
 
+	environment := getDefaultEnvironment(p.Environment)
+	statement := statements.SqlMap[environment].Search
 	rows, errQueryRow := storex.Query(
-		SQLStatements.Search,
+		statement,
 		p.EmailSubstring,
 	)
 	if errQueryRow != nil {
@@ -187,7 +195,6 @@ func Search(p *SearchParams) (Users, error) {
 	return CreateRows(rows)
 }
 
-// Update - update an entry in our store
 func Update(p *UpdateParams) (Users, error) {
 	if p == nil {
 		return nil, errors.New("users.Updated() - nil parameters provided")
@@ -218,8 +225,10 @@ func Update(p *UpdateParams) (Users, error) {
 		return nil, errMarshal
 	}
 
+	environment := getDefaultEnvironment(p.Environment)
+	statement := statements.SqlMap[environment].Update
 	rows, errQueryRow := storex.Query(
-		SQLStatements.Update,
+		statement,
 		p.CurrentEmail,
 		p.UpdatedEmail,
 		p.IsDeleted,
@@ -235,7 +244,6 @@ func Update(p *UpdateParams) (Users, error) {
 	return CreateRows(rows)
 }
 
-// UpdateEmail - update an entry email in our store
 func UpdateEmail(p *UpdateEmailParams) (Users, error) {
 	if p == nil {
 		return nil, errors.New("users.Updated() - nil parameters provided")
@@ -249,8 +257,10 @@ func UpdateEmail(p *UpdateEmailParams) (Users, error) {
 		return nil, errors.New("users.Updated() - updated email cannot be empty string")
 	}
 
+	environment := getDefaultEnvironment(p.Environment)
+	statement := statements.SqlMap[environment].UpdateEmail
 	rows, errQueryRow := storex.Query(
-		SQLStatements.UpdateEmail,
+		statement,
 		p.CurrentEmail,
 		p.UpdatedEmail,
 		utils.GetNowAsMS(),
@@ -262,7 +272,6 @@ func UpdateEmail(p *UpdateEmailParams) (Users, error) {
 	return CreateRows(rows)
 }
 
-// Update - update an entry password in our store
 func UpdatePassword(p *UpdatePasswordParams) (Users, error) {
 	if p == nil {
 		return nil, errors.New("users.Updated() - nil parameters provided")
@@ -285,8 +294,10 @@ func UpdatePassword(p *UpdatePasswordParams) (Users, error) {
 		return nil, errMarshal
 	}
 
+	environment := getDefaultEnvironment(p.Environment)
+	statement := statements.SqlMap[environment].UpdatePassword
 	rows, errQueryRow := storex.Query(
-		SQLStatements.UpdatePassword,
+		statement,
 		p.Email,
 		hashedPassword.Salt,
 		hashedPassword.Hash,
@@ -300,14 +311,15 @@ func UpdatePassword(p *UpdatePasswordParams) (Users, error) {
 	return CreateRows(rows)
 }
 
-// Remove - remove an entry from our store
 func Remove(p *RemoveParams) (Users, error) {
 	if p == nil {
 		return nil, errors.New("users.Remove() - nil parameters provided")
 	}
 
+	environment := getDefaultEnvironment(p.Environment)
+	statement := statements.SqlMap[environment].Remove
 	rows, errQueryRow := storex.Query(
-		SQLStatements.Remove,
+		statement,
 		p.Email,
 		utils.GetNowAsMS(),
 	)
@@ -318,14 +330,15 @@ func Remove(p *RemoveParams) (Users, error) {
 	return CreateRows(rows)
 }
 
-// Revive - revive an entry from our store
 func Revive(p *RemoveParams) (Users, error) {
 	if p == nil {
 		return nil, errors.New("users.Revive() - nil parameters provided")
 	}
 
+	environment := getDefaultEnvironment(p.Environment)
+	statement := statements.SqlMap[environment].Revive
 	rows, errQueryRow := storex.Query(
-		SQLStatements.Revive,
+		statement,
 		p.Email,
 		utils.GetNowAsMS(),
 	)
@@ -334,4 +347,9 @@ func Revive(p *RemoveParams) (Users, error) {
 	}
 
 	return CreateRows(rows)
+}
+
+
+func DangerouslyDropUnitTestsTable() (sql.Result, error) {
+	return storex.Exec(statements.DangerouslyDropUnitTestsTable)
 }

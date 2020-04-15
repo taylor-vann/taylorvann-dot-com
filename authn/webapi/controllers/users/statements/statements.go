@@ -1,5 +1,4 @@
-// Package users - statements required of users table
-package users
+package statements
 
 import (
 	"fmt"
@@ -7,7 +6,6 @@ import (
 	"webapi/controllers/users/constants"
 )
 
-// SQL - container of valid sql strings
 type SQL struct {
 	CreateTable 	 string
 	Create      	 string
@@ -19,6 +17,8 @@ type SQL struct {
 	Remove      	 string
 	Revive  			 string
 }
+
+type StatementMap = map[string]SQL
 
 const createTableUsers = `
 CREATE TABLE IF NOT EXISTS %s (
@@ -142,22 +142,34 @@ RETURNING
 	*;
 `
 
-func createUsersStatements() *SQL {
+func createUsersStatements(tableName string) SQL {
 	userStatements := SQL{
-		CreateTable: 		fmt.Sprintf(createTableUsers, constants.Tables.Users),
-		Create:      		fmt.Sprintf(insertUser, constants.Tables.Users),
-		Read:        		fmt.Sprintf(read, constants.Tables.Users),
-		Search:			 		fmt.Sprintf(search, constants.Tables.Users),
-		Update:      		fmt.Sprintf(update, constants.Tables.Users),
-		UpdateEmail:    fmt.Sprintf(updateEmail, constants.Tables.Users),
-		UpdatePassword: fmt.Sprintf(updatePassword, constants.Tables.Users),
-		Remove:      		fmt.Sprintf(updateAsDeletedUser, constants.Tables.Users),
-		Revive:      		fmt.Sprintf(updateAsRevivedUser, constants.Tables.Users),
+		CreateTable: 		fmt.Sprintf(createTableUsers, tableName),
+		Create:      		fmt.Sprintf(insertUser, tableName),
+		Read:        		fmt.Sprintf(read, tableName),
+		Search:			 		fmt.Sprintf(search, tableName),
+		Update:      		fmt.Sprintf(update, tableName),
+		UpdateEmail:    fmt.Sprintf(updateEmail, tableName),
+		UpdatePassword: fmt.Sprintf(updatePassword, tableName),
+		Remove:      		fmt.Sprintf(updateAsDeletedUser, tableName),
+		Revive:      		fmt.Sprintf(updateAsRevivedUser, tableName),
 	}
 
-	return &userStatements
+	return userStatements
 }
 
-// SQLStatements - interface to production SQL Userss
-var SQLStatements = createUsersStatements()
+func createStatementMap() StatementMap {
+	sqlMap := make(StatementMap)
+	
+	sqlMap[constants.Production] = createUsersStatements(constants.Users)
+	sqlMap[constants.Development] = createUsersStatements(constants.UsersTest)
+	sqlMap[constants.Local] = createUsersStatements(constants.UsersUnitTests)
 
+	return sqlMap
+}
+
+var SqlMap = createStatementMap()
+
+const DangerouslyDropUnitTestsTable =`
+DROP TABLE users_unit_tests;
+`
