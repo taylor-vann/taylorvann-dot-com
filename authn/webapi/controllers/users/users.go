@@ -9,7 +9,7 @@ import (
 	"errors"
 	"time"
 
-	"webapi/controllers/utils"
+	"webapi/controllers/users/utils"
 	"webapi/interfaces/passwordx"
 	"webapi/interfaces/storex"
 	"webapi/controllers/users/constants"
