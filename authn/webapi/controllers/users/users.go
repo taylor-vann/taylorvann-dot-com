@@ -133,7 +133,7 @@ func CreateRows(rows *sql.Rows) (Users, error) {
 
 func Create(p *CreateParams) (Users, error) {
 	if p == nil {
-		return nil, errors.New("users.Create() - nil parameters provided")
+		return nil, errors.New("nil parameters provided")
 	}
 
 	hashedPassword, errHashPassword := passwordx.HashPassword(
@@ -168,7 +168,7 @@ func Create(p *CreateParams) (Users, error) {
 
 func Read(p *ReadParams) (Users, error) {
 	if p == nil {
-		return nil, errors.New("users.Read() - nil parameters provided")
+		return nil, errors.New("nil parameters provided")
 	}
 
 	environment := getDefaultEnvironment(p.Environment)
@@ -206,7 +206,7 @@ func Index(p *IndexParams) (Users, error) {
 
 func Search(p *SearchParams) (Users, error) {
 	if p == nil {
-		return nil, errors.New("users.Search() - nil parameters provided")
+		return nil, errors.New("nil parameters provided")
 	}
 
 	environment := getDefaultEnvironment(p.Environment)
@@ -224,19 +224,19 @@ func Search(p *SearchParams) (Users, error) {
 
 func Update(p *UpdateParams) (Users, error) {
 	if p == nil {
-		return nil, errors.New("users.Updated() - nil parameters provided")
+		return nil, errors.New("nil parameters provided")
 	}
 
 	if p.Password == "" {
-		return nil, errors.New("users.Updated() - password cannot be empty string")
+		return nil, errors.New("password cannot be empty string")
 	}
 
 	if p.CurrentEmail == "" {
-		return nil, errors.New("users.Updated() - current email cannot be empty string")
+		return nil, errors.New("current email cannot be empty string")
 	}
 
 	if p.UpdatedEmail == "" {
-		return nil, errors.New("users.Updated() - updated email cannot be empty string")
+		return nil, errors.New("updated email cannot be empty string")
 	}
 
 	hashedPassword, errHashPassword := passwordx.HashPassword(
@@ -273,15 +273,15 @@ func Update(p *UpdateParams) (Users, error) {
 
 func UpdateEmail(p *UpdateEmailParams) (Users, error) {
 	if p == nil {
-		return nil, errors.New("users.Updated() - nil parameters provided")
+		return nil, errors.New("nil parameters provided")
 	}
 
 	if p.CurrentEmail == "" {
-		return nil, errors.New("users.Updated() - current email cannot be empty string")
+		return nil, errors.New("current email cannot be empty string")
 	}
 
 	if p.UpdatedEmail == "" {
-		return nil, errors.New("users.Updated() - updated email cannot be empty string")
+		return nil, errors.New("updated email cannot be empty string")
 	}
 
 	environment := getDefaultEnvironment(p.Environment)
@@ -301,11 +301,11 @@ func UpdateEmail(p *UpdateEmailParams) (Users, error) {
 
 func UpdatePassword(p *UpdatePasswordParams) (Users, error) {
 	if p == nil {
-		return nil, errors.New("users.Updated() - nil parameters provided")
+		return nil, errors.New("nil parameters provided")
 	}
 
 	if p.Password == "" {
-		return nil, errors.New("users.Updated() - password cannot be empty string")
+		return nil, errors.New("password cannot be empty string")
 	}
 
 	hashedPassword, errHashPassword := passwordx.HashPassword(
@@ -340,7 +340,7 @@ func UpdatePassword(p *UpdatePasswordParams) (Users, error) {
 
 func Delete(p *DeleteParams) (Users, error) {
 	if p == nil {
-		return nil, errors.New("users.Remove() - nil parameters provided")
+		return nil, errors.New("nil parameters provided")
 	}
 
 	environment := getDefaultEnvironment(p.Environment)
@@ -359,7 +359,7 @@ func Delete(p *DeleteParams) (Users, error) {
 
 func Undelete(p *UndeleteParams) (Users, error) {
 	if p == nil {
-		return nil, errors.New("users.Revive() - nil parameters provided")
+		return nil, errors.New("nil parameters provided")
 	}
 
 	environment := getDefaultEnvironment(p.Environment)

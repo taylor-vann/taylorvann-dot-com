@@ -32,37 +32,37 @@ type CreateTableParams struct {
 }
 
 type CreateParams struct {
-	Environment  string
-	UserID			 int64
-	Organization string
-	ReadAccess	 bool
-	WriteAccess	 bool
+	Environment  string `json:"environment`
+	UserID			 int64	`json:"user_id"`
+	Organization string `json:"organization"`
+	ReadAccess	 bool		`json:"read_access"`
+	WriteAccess	 bool		`json:"write_access"`
 }
 
 type ReadParams struct {
-	Environment  string
-	UserID			 int64
-	Organization string
+	Environment  string `json:"environment`
+	UserID			 int64	`json:"user_id"`
+	Organization string `json:"organization"`
 }
 
 type IndexParams struct {
-	Environment  string
+	Environment  string `json:"environment`
 	StartIndex	 int64
 	Length  		 int64
 }
 
 type SearchParams struct {
-	Environment string
-	UserID 			int64
+	Environment  string `json:"environment`
+	UserID			 int64	`json:"user_id"`
 }
 
 type UpdateParams struct {
-	Environment  string
-	UserID			 int64
-	Organization string
-	ReadAccess	 bool
-	WriteAccess	 bool
-	IsDeleted		 bool
+	Environment  string `json:"environment`
+	UserID			 int64	`json:"user_id"`
+	Organization string `json:"organization"`
+	ReadAccess	 bool		`json:"read_access"`
+	WriteAccess	 bool		`json:"write_access"`
+	IsDeleted		 bool		`json:"is_deleted"`
 }
 
 type UpdateAccessParams = CreateParams
@@ -86,7 +86,7 @@ func CreateTable(p *CreateTableParams) (*sql.Result, error) {
 
 func CreateRows(rows *sql.Rows) (Roles, error) {
 	if rows == nil {
-		return nil, errors.New("roles.CreateRows() - nil params provided")
+		return nil, errors.New("nil params provided")
 	}
 
 	var roles Roles
@@ -117,7 +117,7 @@ func CreateRows(rows *sql.Rows) (Roles, error) {
 
 func Create(p *CreateParams) (Roles, error) {
 	if p == nil {
-		return nil, errors.New("Nil parameters provided.")
+		return nil, errors.New("nil parameters provided.")
 	}
 
 	environment := getDefaultEnvironment(p.Environment)
