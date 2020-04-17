@@ -1,3 +1,6 @@
+// brian taylor vann
+// taylorvann dot com
+
 package statements
 
 import (
@@ -6,14 +9,12 @@ import (
 	"webapi/controllers/roles/constants"
 )
 
-// SQL - container of valid SQL Rolesss
 type SQL struct {
 	CreateTable  string
 	Create       string
 	Read         string
 	Search			 string
 	Index				 string
-
 	Update       string
 	UpdateAccess string
 	Delete       string
