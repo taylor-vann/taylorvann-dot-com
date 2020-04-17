@@ -1,31 +1,18 @@
 package constants
 
-import (
-	"webapi/constants"
-)
-
-// TableNames -
-type TableNames struct {
-	Roles string
-}
+import "os"
 
 const (
-	roles     = "roles"
-	rolesTest = "roles_test"
+	Production 			= "PRODUCTION"
+	Development			= "DEVELOPMENT"
+	Local						= "LOCAL"
+
+	Roles     			= "roles"
+	RolesTest 			= "roles_test"
+	RolesUnitTests  = "roles_unit_tests"
 )
 
-// Tables -
-var Tables = getRolesTablesConstants()
+var (
+	Environment = os.Getenv("STAGE")
+)
 
-// getrolesTablesConstants -
-func getRolesTablesConstants() *TableNames {
-	if constants.Environment == constants.Production {
-		return &TableNames{
-			Roles: roles,
-		}
-	}
-
-	return &TableNames{
-		Roles: rolesTest,
-	}
-}

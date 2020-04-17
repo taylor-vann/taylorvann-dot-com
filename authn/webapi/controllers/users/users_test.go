@@ -33,6 +33,12 @@ var testUserSearch = SearchParams{
 	EmailSubstring: "test_email",
 }
 
+var testUserIndex = IndexParams{
+	Environment: "LOCAL",
+	StartIndex: 0,
+	Length: 1024,
+}
+
 var testUserUpdated = UpdateParams{
 	Environment: "LOCAL",
 	CurrentEmail: "test_user@test_email.test",
@@ -53,12 +59,12 @@ var testUserUpdatedPassword = UpdatePasswordParams {
 	Password: "pazzw3rd",
 }
 
-var testUserRemoveUpdated = RemoveParams{
+var testUserRemoveUpdated = DeleteParams{
 	Environment: "LOCAL",
 	Email: "updated_email_test_user@test_email.test",
 }
 
-var testUserReviveUpdated = ReviveParams{
+var testUserReviveUpdated = UndeleteParams{
 	Environment: "LOCAL",
 	Email: "updated_email_test_user@test_email.test",
 }
@@ -139,6 +145,23 @@ func TestSearchRows(t *testing.T) {
 	}
 
 	rows, err := Search(&testUserSearch)
+	if err != nil {
+		t.Error(err.Error())
+		return
+	}
+	if len(rows) == 0 {
+		t.Error("No results were returned from Update.")
+		return
+	}
+
+	if len(rows) < 2 {
+		t.Error("More than two results were supposed to be returned")
+		return
+	}
+}
+
+func TestIndex(t *testing.T) {
+	rows, err := Index(&testUserIndex)
 	if err != nil {
 		t.Error(err.Error())
 		return
@@ -235,8 +258,8 @@ func TestUpdatePassword(t *testing.T) {
 	}
 }
 
-func TestRemove(t *testing.T) {
-	rows, err := Remove(&testUserRemoveUpdated)
+func TestDelete(t *testing.T) {
+	rows, err := Delete(&testUserRemoveUpdated)
 	if err != nil {
 		t.Error(err.Error())
 		return
@@ -260,8 +283,8 @@ func TestRemove(t *testing.T) {
 	}
 }
 
-func TestRevive(t *testing.T) {
-	rows, err := Revive(&testUserReviveUpdated)
+func TestUndelete(t *testing.T) {
+	rows, err := Undelete(&testUserReviveUpdated)
 	if err != nil {
 		t.Error(err.Error())
 		return

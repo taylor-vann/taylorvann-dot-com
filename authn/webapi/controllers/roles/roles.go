@@ -1,11 +1,6 @@
 // brian taylor vann
 // taylorvann dot com
-//
-// Represents a connection between user and a microservice
-//
-// all CRUR methods must return entire created or altered entries
 
-// Package roles -  Controller to interact with sql table on device
 package roles
 
 import (
@@ -14,104 +9,277 @@ import (
 	"time"
 
 	"webapi/interfaces/storex"
+	"webapi/controllers/roles/constants"
+	"webapi/controllers/roles/statements"
+	"webapi/controllers/roles/utils"
 )
 
-// Row -
 type Row struct {
-	ID        int64     `json:"id"`
-	UserID    int64     `json:"user_id"`
-	Role      string    `json:"role"`
-	CreatedAt time.Time `json:"created_at"`
+	ID					 int64     `json:"id"`
+	UserID    	 int64     `json:"user_id"`
+	Organization string    `json:"organization"`
+	ReadAccess	 bool			 `json:"read_access"`
+	WriteAccess	 bool			 `json:"write_access"`
+	IsDeleted		 bool			 `json:"is_deleted"`
+	CreatedAt		 time.Time `json:"created_at"`
+	UpdatedAt		 time.Time `json:"updated_at"`
 }
 
-// CreateParams - arguments for clearer execution
+type Roles = []Row
+
 type CreateParams struct {
-	UserID int64
-	Role   string
+	Environment  string
+	UserID			 int64
+	Organization string
+	ReadAccess	 bool
+	WriteAccess	 bool
 }
 
-// ReadParams -
-type ReadParams = CreateParams
+type ReadParams struct {
+	Environment  string
+	UserID			 int64
+	Organization string
+}
 
-// RemoveParams -
-type RemoveParams = CreateParams
+type IndexParams struct {
+	Environment  string
+	StartIndex	 int64
+	Length  		 int64
+}
 
-// createUsersRow -
-func createRow(rows *sql.Rows) (*Row, error) {
-	var rolesRow Row
-	if rows.Next() {
+type SearchParams struct {
+	Environment string
+	UserID 			int64
+}
+
+type UpdateParams struct {
+	Environment  string
+	UserID			 int64
+	Organization string
+	ReadAccess	 bool
+	WriteAccess	 bool
+	IsDeleted		 bool
+}
+
+type UpdateAccessParams = CreateParams
+type DeleteParams = ReadParams
+type UndeleteParams = ReadParams
+
+func getDefaultEnvironment(environment string) string {
+	if environment != "" {
+		return environment
+	}
+	return constants.RolesTest
+}
+
+func CreateRows(rows *sql.Rows) (Roles, error) {
+	if rows == nil {
+		return nil, errors.New("roles.CreateRows() - nil params provided")
+	}
+
+	var roles Roles
+
+	defer rows.Close()
+	for rows.Next() {
+		var roleRow Row
+		
 		errScan := rows.Scan(
 			&rolesRow.ID,
 			&rolesRow.UserID,
-			&rolesRow.Role,
+			&rolesRow.Organization,
+			&rolesRow.ReadAccess,
+			&rolesRow.WriteAccess,
+			&rolesRow.IsDeleted,
 			&rolesRow.CreatedAt,
+			&rolesRow.UpdatedAt,
 		)
 		if errScan != nil {
 			return nil, errScan
 		}
+
+		users = append(roles, roleRow)
 	}
 
-	rows.Close()
-
-	return &rolesRow, nil
+	return roles, nil
 }
 
-// CreateTable -
 func CreateTable() (*sql.Result, error) {
-	result, err := storex.Exec(SQLStatements.CreateTable)
+	environment := getDefaultEnvironment(p.Environment)
+	statement := statements.SqlMap[environment].CreateTable
+
+	result, err := storex.Exec(statement)
 	return &result, err
 }
 
-// Create - create a password entry in our store
-func Create(p *CreateParams) (*Row, error) {
+func Create(p *CreateParams) (Roles, error) {
 	if p == nil {
 		return nil, errors.New("Nil parameters provided.")
 	}
 
-	row, errQueryRow := storex.Query(
-		SQLStatements.Create,
+	environment := getDefaultEnvironment(p.Environment)
+	statement := statements.SqlMap[environment].Create
+
+	rows, errQueryRows := storex.Query(
+		statement,
 		p.UserID,
-		p.Role,
+		p.Organization,
+		p.ReadAccess,
+		p.WriteAccess,
 	)
-	if errQueryRow != nil {
-		return nil, errQueryRow
+
+	if errQueryRows != nil {
+		return nil, errQueryRows
 	}
 
-	return createRow(row)
+	return CreateRows(rows)
 }
 
-// Read - update an entry in our store
-func Read(p *ReadParams) (*Row, error) {
+func Read(p *ReadParams) (Roles, error) {
 	if p == nil {
 		return nil, errors.New("nil parameters provided")
 	}
 
-	row, errQueryRow := storex.Query(
-		SQLStatements.Read,
+	environment := getDefaultEnvironment(p.Environment)
+	statement := statements.SqlMap[environment].Read
+
+	rows, errQueryRows := storex.Query(
+		statement,
 		p.UserID,
-		p.Role,
+		p.Organization,
 	)
-	if errQueryRow != nil {
-		return nil, errQueryRow
+	if errQueryRows != nil {
+		return nil, errQueryRows
 	}
 
-	return createRow(row)
+	return CreateRows(rows)
 }
 
-// Remove - remove an entry from our store
-func Remove(p *RemoveParams) (*Row, error) {
+func Index(p *IndexParams) (Roles, error) {
 	if p == nil {
 		return nil, errors.New("nil parameters provided")
 	}
 
-	row, errQueryRow := storex.Query(
-		SQLStatements.Remove,
+	environment := getDefaultEnvironment(p.Environment)
+	statement := statements.SqlMap[environment].Index
+
+	rows, errQueryRows := storex.Query(
+		statement,
+		p.StartIndex,
+		p.Length,
+	)
+	if errQueryRows != nil {
+		return nil, errQueryRows
+	}
+
+	return CreateRows(rows)
+}
+
+func Search(p *SearchParams) (Roles, error) {
+	if p == nil {
+		return nil, errors.New("nil parameters provided")
+	}
+
+	environment := getDefaultEnvironment(p.Environment)
+	statement := statements.SqlMap[environment].Search
+
+	rows, errQueryRows := storex.Query(
+		statement,
 		p.UserID,
-		p.Role,
+	)
+	if errQueryRows != nil {
+		return nil, errQueryRows
+	}
+
+	return CreateRows(rows)
+}
+
+func Update(p *UpdateParams) (Roles, error) {
+	if p == nil {
+		return nil, errors.New("nil parameters provided")
+	}
+
+	environment := getDefaultEnvironment(p.Environment)
+	statement := statements.SqlMap[environment].Update
+
+	rows, errQueryRows := storex.Query(
+		statement,
+		p.UserID,
+		p.Organization,
+		p.ReadAccess,
+		p.WriteAccess,
+		p.IsDeleted,
+		utils.GetNowAsMS(),
+	)
+	if errQueryRows != nil {
+		return nil, errQueryRows
+	}
+
+	return CreateRows(rows)
+}
+
+func UpdateAccess(p *UpdateParams) (Roles, error) {
+	if p == nil {
+		return nil, errors.New("nil parameters provided")
+	}
+
+	environment := getDefaultEnvironment(p.Environment)
+	statement := statements.SqlMap[environment].Update
+
+	rows, errQueryRows := storex.Query(
+		statement,
+		p.UserID,
+		p.Organization,
+		p.ReadAccess,
+		p.WriteAccess,
+		utils.GetNowAsMS(),
+	)
+	if errQueryRows != nil {
+		return nil, errQueryRows
+	}
+
+	return CreateRows(rows)
+}
+
+func Delete(p *RemoveParams) (Roles, error) {
+	if p == nil {
+		return nil, errors.New("nil parameters provided")
+	}
+
+	environment := getDefaultEnvironment(p.Environment)
+	statement := statements.SqlMap[environment].Delete
+
+	row, errQueryRow := storex.Query(
+		statement,
+		p.UserID,
+		p.Organization,
 	)
 	if errQueryRow != nil {
 		return nil, errQueryRow
 	}
 
-	return createRow(row)
+	return CreateRows(row)
+}
+
+func Undelete(p *RemoveParams) (Roles, error) {
+	if p == nil {
+		return nil, errors.New("nil parameters provided")
+	}
+
+	environment := getDefaultEnvironment(p.Environment)
+	statement := statements.SqlMap[environment].Undelete
+
+	row, errQueryRow := storex.Query(
+		statement,
+		p.UserID,
+		p.Organization,
+	)
+	if errQueryRow != nil {
+		return nil, errQueryRow
+	}
+
+	return CreateRows(row)
+}
+
+func DangerouslyDropUnitTestsTable() (sql.Result, error) {
+	return storex.Exec(statements.DangerouslyDropUnitTestsTable)
 }

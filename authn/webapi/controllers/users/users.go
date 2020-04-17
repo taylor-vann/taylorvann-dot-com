@@ -46,6 +46,12 @@ type ReadParams struct {
 	Email 			string `json:"email"`
 }
 
+type IndexParams struct {
+	Environment  string
+	StartIndex	 int64
+	Length  		 int64
+}
+
 type SearchParams struct {
 	Environment 	 string `json:"environment"`
 	EmailSubstring string	`json:"email_substring"`
@@ -66,8 +72,8 @@ type UpdateEmailParams struct {
 }
 
 type UpdatePasswordParams = CreateParams
-type RemoveParams = ReadParams
-type ReviveParams = ReadParams
+type DeleteParams = ReadParams
+type UndeleteParams = ReadParams
 
 
 func getDefaultEnvironment(environment string) string {
@@ -145,15 +151,16 @@ func Create(p *CreateParams) (Users, error) {
 
 	environment := getDefaultEnvironment(p.Environment)
 	statement := statements.SqlMap[environment].Create
-	rows, errQueryRow := storex.Query(
+	rows, errQueryRows := storex.Query(
 		statement,
 		p.Email,
 		hashedPassword.Salt,
 		hashedPassword.Hash,
 		marshaledParams,
 	)
-	if errQueryRow != nil {
-		return nil, errQueryRow
+
+	if errQueryRows != nil {
+		return nil, errQueryRows
 	}
 
 	return CreateRows(rows)
@@ -172,6 +179,26 @@ func Read(p *ReadParams) (Users, error) {
 	)
 	if errQueryRow != nil {
 		return nil, errQueryRow
+	}
+
+	return CreateRows(rows)
+}
+
+func Index(p *IndexParams) (Users, error) {
+	if p == nil {
+		return nil, errors.New("nil parameters provided")
+	}
+
+	environment := getDefaultEnvironment(p.Environment)
+	statement := statements.SqlMap[environment].Index
+
+	rows, errQueryRows := storex.Query(
+		statement,
+		p.StartIndex,
+		p.Length,
+	)
+	if errQueryRows != nil {
+		return nil, errQueryRows
 	}
 
 	return CreateRows(rows)
@@ -311,13 +338,13 @@ func UpdatePassword(p *UpdatePasswordParams) (Users, error) {
 	return CreateRows(rows)
 }
 
-func Remove(p *RemoveParams) (Users, error) {
+func Delete(p *DeleteParams) (Users, error) {
 	if p == nil {
 		return nil, errors.New("users.Remove() - nil parameters provided")
 	}
 
 	environment := getDefaultEnvironment(p.Environment)
-	statement := statements.SqlMap[environment].Remove
+	statement := statements.SqlMap[environment].Delete
 	rows, errQueryRow := storex.Query(
 		statement,
 		p.Email,
@@ -330,13 +357,13 @@ func Remove(p *RemoveParams) (Users, error) {
 	return CreateRows(rows)
 }
 
-func Revive(p *RemoveParams) (Users, error) {
+func Undelete(p *UndeleteParams) (Users, error) {
 	if p == nil {
 		return nil, errors.New("users.Revive() - nil parameters provided")
 	}
 
 	environment := getDefaultEnvironment(p.Environment)
-	statement := statements.SqlMap[environment].Revive
+	statement := statements.SqlMap[environment].Undelete
 	rows, errQueryRow := storex.Query(
 		statement,
 		p.Email,

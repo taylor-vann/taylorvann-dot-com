@@ -2,10 +2,6 @@ package constants
 
 import "os"
 
-type TableNames struct {
-	Users string
-}
-
 const (
 	Production 			= "PRODUCTION"
 	Development			= "DEVELOPMENT"

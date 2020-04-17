@@ -9,13 +9,14 @@ import (
 type SQL struct {
 	CreateTable 	 string
 	Create      	 string
+	Index					 string
 	Read        	 string
 	Search				 string
 	Update      	 string
 	UpdateEmail 	 string
 	UpdatePassword string
-	Remove      	 string
-	Revive  			 string
+	Delete      	 string
+	Undelete  		 string
 }
 
 type StatementMap = map[string]SQL
@@ -33,7 +34,7 @@ CREATE TABLE IF NOT EXISTS %s (
 );
 `
 
-const insertUser = `
+const create = `
 INSERT INTO %s (
 	email,
 	salt,
@@ -44,6 +45,15 @@ VALUES
 	($1, $2, $3, $4)
 RETURNING
 	*;
+`
+
+const index = `
+SELECT
+  *
+FROM
+  %s
+WHERE
+  id BETWEEN $1 AND ($1 + $2);
 `
 
 const read = `
@@ -78,7 +88,7 @@ WHERE
 	email = $1 AND
 	TO_TIMESTAMP($7::DOUBLE PRECISION * 0.001) 
 		BETWEEN updated_at AND CURRENT_TIMESTAMP(3)
-RETURNING 
+RETURNING
 	*;
 `
 
@@ -112,7 +122,7 @@ RETURNING
 	*;
 `
 
-const updateAsDeletedUser = `
+const updateAsDeleted = `
 UPDATE
   %s
 SET
@@ -120,14 +130,13 @@ SET
   updated_at = CURRENT_TIMESTAMP(3)
 WHERE
 	email = $1 AND
-	is_deleted = FALSE AND
 	TO_TIMESTAMP($2::DOUBLE PRECISION * 0.001) 
 		BETWEEN updated_at AND CURRENT_TIMESTAMP(3)
 RETURNING
 	*;
 `
 
-const updateAsRevivedUser = `
+const updateAsUndeleted = `
 UPDATE
   %s
 SET
@@ -135,7 +144,6 @@ SET
   updated_at = CURRENT_TIMESTAMP(3)
 WHERE
 	email = $1 AND
-	is_deleted = TRUE AND
 	TO_TIMESTAMP($2::DOUBLE PRECISION * 0.001) 
 		BETWEEN updated_at AND CURRENT_TIMESTAMP(3)
 RETURNING
@@ -145,14 +153,15 @@ RETURNING
 func createUsersStatements(tableName string) SQL {
 	userStatements := SQL{
 		CreateTable: 		fmt.Sprintf(createTableUsers, tableName),
-		Create:      		fmt.Sprintf(insertUser, tableName),
+		Create:      		fmt.Sprintf(create, tableName),
+		Index:					fmt.Sprintf(index, tableName),
 		Read:        		fmt.Sprintf(read, tableName),
 		Search:			 		fmt.Sprintf(search, tableName),
 		Update:      		fmt.Sprintf(update, tableName),
 		UpdateEmail:    fmt.Sprintf(updateEmail, tableName),
 		UpdatePassword: fmt.Sprintf(updatePassword, tableName),
-		Remove:      		fmt.Sprintf(updateAsDeletedUser, tableName),
-		Revive:      		fmt.Sprintf(updateAsRevivedUser, tableName),
+		Delete:      		fmt.Sprintf(updateAsDeleted, tableName),
+		Undelete:      	fmt.Sprintf(updateAsUndeleted, tableName),
 	}
 
 	return userStatements
