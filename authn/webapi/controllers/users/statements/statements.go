@@ -21,7 +21,7 @@ type SQL struct {
 
 type StatementMap = map[string]SQL
 
-const createTableUsers = `
+const createTable = `
 CREATE TABLE IF NOT EXISTS %s (
   id BIGSERIAL PRIMARY KEY,
 	email VARCHAR(512) UNIQUE NOT NULL,
@@ -151,8 +151,8 @@ RETURNING
 `
 
 func createUsersStatements(tableName string) SQL {
-	userStatements := SQL{
-		CreateTable: 		fmt.Sprintf(createTableUsers, tableName),
+	statements := SQL{
+		CreateTable: 		fmt.Sprintf(createTable, tableName),
 		Create:      		fmt.Sprintf(create, tableName),
 		Index:					fmt.Sprintf(index, tableName),
 		Read:        		fmt.Sprintf(read, tableName),
@@ -164,7 +164,7 @@ func createUsersStatements(tableName string) SQL {
 		Undelete:      	fmt.Sprintf(updateAsUndeleted, tableName),
 	}
 
-	return userStatements
+	return statements
 }
 
 func createStatementMap() StatementMap {

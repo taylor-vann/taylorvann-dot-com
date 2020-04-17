@@ -77,10 +77,9 @@ func TestCreateTestTable(t *testing.T) {
 	if results == nil {
 		t.Error("No results were returned from CreateTable.")
 	}
-	
 }
 
-func TestCreateRow(t *testing.T) {
+func TestCreate(t *testing.T) {
 	rows, err := Create(&testUser)
 	if err != nil {
 		t.Error(err.Error())
@@ -108,7 +107,7 @@ func TestCreateRow(t *testing.T) {
 	}
 }
 
-func TestReadRow(t *testing.T) {
+func TestRead(t *testing.T) {
 	rows, err := Read(&testUserRead)
 	if err != nil {
 		t.Error(err.Error())
@@ -133,7 +132,7 @@ func TestReadRow(t *testing.T) {
 	}
 }
 
-func TestSearchRows(t *testing.T) {
+func TestSearch(t *testing.T) {
 	newUserRow, err := Create(&testUserTwo)
 	if err != nil {
 		t.Error(err.Error())
@@ -167,7 +166,7 @@ func TestIndex(t *testing.T) {
 		return
 	}
 	if len(rows) == 0 {
-		t.Error("No results were returned from Update.")
+		t.Error("No results were returned from Index.")
 		return
 	}
 
@@ -177,7 +176,7 @@ func TestIndex(t *testing.T) {
 	}
 }
 
-func TestUpdateRow(t *testing.T) {
+func TestUpdate(t *testing.T) {
 	rows, err := Update(&testUserUpdated)
 	if err != nil {
 		t.Error(err.Error())

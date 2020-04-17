@@ -27,6 +27,10 @@ type Row struct {
 
 type Roles = []Row
 
+type CreateTableParams struct {
+	Environment string `json:"environment"`
+}
+
 type CreateParams struct {
 	Environment  string
 	UserID			 int64
@@ -72,6 +76,14 @@ func getDefaultEnvironment(environment string) string {
 	return constants.RolesTest
 }
 
+func CreateTable(p *CreateTableParams) (*sql.Result, error) {
+	environment := getDefaultEnvironment(p.Environment)
+	statement := statements.SqlMap[environment].CreateTable
+
+	result, err := storex.Exec(statement)
+	return &result, err
+}
+
 func CreateRows(rows *sql.Rows) (Roles, error) {
 	if rows == nil {
 		return nil, errors.New("roles.CreateRows() - nil params provided")
@@ -81,7 +93,7 @@ func CreateRows(rows *sql.Rows) (Roles, error) {
 
 	defer rows.Close()
 	for rows.Next() {
-		var roleRow Row
+		var rolesRow Row
 		
 		errScan := rows.Scan(
 			&rolesRow.ID,
@@ -97,18 +109,10 @@ func CreateRows(rows *sql.Rows) (Roles, error) {
 			return nil, errScan
 		}
 
-		users = append(roles, roleRow)
+		roles = append(roles, rolesRow)
 	}
 
 	return roles, nil
-}
-
-func CreateTable() (*sql.Result, error) {
-	environment := getDefaultEnvironment(p.Environment)
-	statement := statements.SqlMap[environment].CreateTable
-
-	result, err := storex.Exec(statement)
-	return &result, err
 }
 
 func Create(p *CreateParams) (Roles, error) {
@@ -217,13 +221,13 @@ func Update(p *UpdateParams) (Roles, error) {
 	return CreateRows(rows)
 }
 
-func UpdateAccess(p *UpdateParams) (Roles, error) {
+func UpdateAccess(p *UpdateAccessParams) (Roles, error) {
 	if p == nil {
 		return nil, errors.New("nil parameters provided")
 	}
 
 	environment := getDefaultEnvironment(p.Environment)
-	statement := statements.SqlMap[environment].Update
+	statement := statements.SqlMap[environment].UpdateAccess
 
 	rows, errQueryRows := storex.Query(
 		statement,
@@ -240,7 +244,7 @@ func UpdateAccess(p *UpdateParams) (Roles, error) {
 	return CreateRows(rows)
 }
 
-func Delete(p *RemoveParams) (Roles, error) {
+func Delete(p *DeleteParams) (Roles, error) {
 	if p == nil {
 		return nil, errors.New("nil parameters provided")
 	}
@@ -252,6 +256,7 @@ func Delete(p *RemoveParams) (Roles, error) {
 		statement,
 		p.UserID,
 		p.Organization,
+		utils.GetNowAsMS(),
 	)
 	if errQueryRow != nil {
 		return nil, errQueryRow
@@ -260,7 +265,7 @@ func Delete(p *RemoveParams) (Roles, error) {
 	return CreateRows(row)
 }
 
-func Undelete(p *RemoveParams) (Roles, error) {
+func Undelete(p *UndeleteParams) (Roles, error) {
 	if p == nil {
 		return nil, errors.New("nil parameters provided")
 	}
@@ -272,6 +277,7 @@ func Undelete(p *RemoveParams) (Roles, error) {
 		statement,
 		p.UserID,
 		p.Organization,
+		utils.GetNowAsMS(),
 	)
 	if errQueryRow != nil {
 		return nil, errQueryRow

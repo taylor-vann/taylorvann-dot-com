@@ -1,4 +1,4 @@
-package roles
+package statements
 
 import (
 	"fmt"
@@ -10,9 +10,10 @@ import (
 type SQL struct {
 	CreateTable  string
 	Create       string
-	Index				 string
 	Read         string
 	Search			 string
+	Index				 string
+
 	Update       string
 	UpdateAccess string
 	Delete       string
@@ -21,7 +22,7 @@ type SQL struct {
 
 type StatementMap = map[string]SQL
 
-const createTableRoles = `
+const createTable = `
 CREATE TABLE IF NOT EXISTS %s (
 	id BIGSERIAL PRIMARY KEY,
 	user_id BIGINT NOT NULL,
@@ -35,7 +36,7 @@ CREATE TABLE IF NOT EXISTS %s (
 );
 `
 
-const insert = `
+const create = `
 INSERT INTO %s (
 	user_id,
 	organization,
@@ -80,14 +81,14 @@ const update = `
 UPDATE
 	%s
 SET
-	read_access = $2,
-	write_access = $3,
-	is_deleted = $4,
+	read_access = $3,
+	write_access = $4,
+	is_deleted = $5,
   updated_at = CURRENT_TIMESTAMP(3)
 WHERE
 	user_id = $1 AND
 	organization = $2 AND
-	TO_TIMESTAMP($7::DOUBLE PRECISION * 0.001) 
+	TO_TIMESTAMP($6::DOUBLE PRECISION * 0.001) 
 		BETWEEN updated_at AND CURRENT_TIMESTAMP(3)
 RETURNING 
 	*;
@@ -97,13 +98,13 @@ const updateAccess = `
 UPDATE
 	%s
 SET
-	read_access = $2,
-	write_access = $3,
+	read_access = $3,
+	write_access = $4,
   updated_at = CURRENT_TIMESTAMP(3)
 WHERE
 	user_id = $1 AND
 	organization = $2 AND
-	TO_TIMESTAMP($7::DOUBLE PRECISION * 0.001) 
+	TO_TIMESTAMP($5::DOUBLE PRECISION * 0.001) 
 		BETWEEN updated_at AND CURRENT_TIMESTAMP(3)
 RETURNING 
 	*;
@@ -118,7 +119,7 @@ SET
 WHERE
 	user_id = $1 AND
 	organization = $2 AND
-	TO_TIMESTAMP($2::DOUBLE PRECISION * 0.001) 
+	TO_TIMESTAMP($3::DOUBLE PRECISION * 0.001) 
 		BETWEEN updated_at AND CURRENT_TIMESTAMP(3)
 RETURNING
 	*;
@@ -133,38 +134,39 @@ SET
 WHERE
 	user_id = $1 AND
 	organization = $2 AND
-	TO_TIMESTAMP($2::DOUBLE PRECISION * 0.001) 
+	TO_TIMESTAMP($3::DOUBLE PRECISION * 0.001) 
 		BETWEEN updated_at AND CURRENT_TIMESTAMP(3)
 RETURNING
 	*;
 `
 
 func createRolesStatements(tableName string) SQL {
-	Roles := SQL{
+	statements := SQL{
 		CreateTable:	fmt.Sprintf(createTable, tableName),
-		Create:				fmt.Sprintf(insert, tableName),
+		Create:				fmt.Sprintf(create, tableName),
 		Read:					fmt.Sprintf(read, tableName),
 		Search:				fmt.Sprintf(search, tableName),
+		Index:				fmt.Sprintf(index, tableName),
 		Update:				fmt.Sprintf(update, tableName),
 		UpdateAccess: fmt.Sprintf(updateAccess, tableName),
 		Delete:				fmt.Sprintf(updateAsDeleted, tableName),
-		Undelete:			fmt.Sprintf(undelete, tableName)
+		Undelete:			fmt.Sprintf(undelete, tableName),
 	}
 
-	return &Roles
+	return statements
 }
 
 func createStatementMap() StatementMap {
 	sqlMap := make(StatementMap)
 	
-	sqlMap[constants.Production] = createRolesStatements(constants.Users)
-	sqlMap[constants.Development] = createRolesStatements(constants.UsersTest)
-	sqlMap[constants.Local] = createRolesStatements(constants.UsersUnitTests)
+	sqlMap[constants.Production] = createRolesStatements(constants.Roles)
+	sqlMap[constants.Development] = createRolesStatements(constants.RolesTest)
+	sqlMap[constants.Local] = createRolesStatements(constants.RolesUnitTests)
 
 	return sqlMap
 }
 
-var SQLStatements = createStatementMap()
+var SqlMap = createStatementMap()
 
 const DangerouslyDropUnitTestsTable =`
 DROP TABLE roles_unit_tests;

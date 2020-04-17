@@ -47,9 +47,9 @@ type ReadParams struct {
 }
 
 type IndexParams struct {
-	Environment  string
-	StartIndex	 int64
-	Length  		 int64
+	Environment  string `json:"environment"`
+	StartIndex	 int64  `json:"start_index"`
+	Length  		 int64	`json:"length"`
 }
 
 type SearchParams struct {
@@ -81,6 +81,14 @@ func getDefaultEnvironment(environment string) string {
 		return environment
 	}
 	return constants.UsersTest
+}
+
+func CreateTable(p *CreateTableParams) (*sql.Result, error) {
+	environment := getDefaultEnvironment(p.Environment)
+	statement := statements.SqlMap[environment].CreateTable
+
+	result, err := storex.Exec(statement)
+	return &result, err
 }
 
 func CreateRows(rows *sql.Rows) (Users, error) {
@@ -121,14 +129,6 @@ func CreateRows(rows *sql.Rows) (Users, error) {
 	}
 
 	return users, nil
-}
-
-func CreateTable(p *CreateTableParams) (*sql.Result, error) {
-	environment := getDefaultEnvironment(p.Environment)
-	statement := statements.SqlMap[environment].CreateTable
-
-	result, err := storex.Exec(statement)
-	return &result, err
 }
 
 func Create(p *CreateParams) (Users, error) {
@@ -375,7 +375,6 @@ func Undelete(p *UndeleteParams) (Users, error) {
 
 	return CreateRows(rows)
 }
-
 
 func DangerouslyDropUnitTestsTable() (sql.Result, error) {
 	return storex.Exec(statements.DangerouslyDropUnitTestsTable)
