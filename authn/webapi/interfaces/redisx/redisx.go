@@ -1,7 +1,6 @@
 // brian taylor vann
 // taylorvann dot com
 
-// Package redisx - utility methods to connect to a redis instance
 package redisx
 
 import (
@@ -12,7 +11,6 @@ import (
 	"github.com/gomodule/redigo/redis"
 )
 
-// RedisConfig - Required properties for redis connection
 type RedisConfig struct {
 	Host                string
 	Port                int
@@ -22,16 +20,14 @@ type RedisConfig struct {
 	MaxActive           int
 }
 
-// RedisConnection - Reference to our database and config
-type RedisConnection struct {
+type Connection struct {
 	Store  *redis.Pool
 	Config *RedisConfig
 }
 
-// Close - RedisConnection associative method, close redis pool connections
-func (rdsConn *RedisConnection) Close() (*RedisConnection, error) {
+func (rdsConn *Connection) Close() (*Connection, error) {
 	if rdsConn.Store == nil {
-		return rdsConn, errors.New("RedisConnection.Close() - Store is nil")
+		return rdsConn, errors.New("Connection.Close() - Store is nil")
 	}
 
 	err := rdsConn.Store.Close()
@@ -42,8 +38,7 @@ func (rdsConn *RedisConnection) Close() (*RedisConnection, error) {
 	return rdsConn, nil
 }
 
-// Create - module function, create a new radis connection through a config
-func Create(config *RedisConfig) (*RedisConnection, error) {
+func Create(config *RedisConfig) (*Connection, error) {
 	if config == nil {
 		return nil, errors.New(
 			"redix.Create() - nil config provided",
@@ -53,7 +48,6 @@ func Create(config *RedisConfig) (*RedisConnection, error) {
 	portAsStr := strconv.Itoa(config.Port)
 	redisAddress := config.Host + ":" + portAsStr
 
-	// attempt to connect to redis through radix
 	pool := redis.Pool{
 		MaxIdle:     config.MaxIdle,
 		IdleTimeout: config.IdleTimeout,
@@ -72,8 +66,7 @@ func Create(config *RedisConfig) (*RedisConnection, error) {
 		},
 	}
 
-	// return our redis connection interface
-	redisConn := RedisConnection{
+	redisConn := Connection{
 		Store:  &pool,
 		Config: config,
 	}
