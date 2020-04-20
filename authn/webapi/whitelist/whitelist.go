@@ -3,77 +3,86 @@ package whitelist
 import (
 	"encoding/json"
 	"errors"
-	"math/rand"
 
-	"webapi/interfaces/whitelistx"
+	"webapi/interfaces/graylistx"
+	"webapi/whitelist/constants"
 )
 
-// MilliSeconds -
 type MilliSeconds = int64
 
-// Entry -
 type Entry struct {
+	Signature	 string				`json:"signature"`
 	SessionKey []byte       `json:"session_key"`
 	CreatedAt  MilliSeconds `json:"created_at"`
 	Lifetime   MilliSeconds `json:"expires_at"`
 }
 
-// CreateEntryParams -
 type CreateEntryParams struct {
-	SessionKey *[]byte
-	Signature  *string
-	CreatedAt  MilliSeconds
-	Lifetime   MilliSeconds
+	Environment	string				`json:"environment"`
+	Signature		string				`json:"signature"`
+	SessionKey	[]byte				`json:"session_key"`
+	CreatedAt		MilliSeconds	`json:"created_at"`
+	Lifetime		MilliSeconds	`json:"lifetime"`
 }
 
-// ReadEntryParams -
 type ReadEntryParams struct {
-	Signature *string
+	Environment	string
+	Signature 	string
 }
 
-// DayAsMS -
-var DayAsMS = int64(1000 * 60 * 60 * 24)
-
-// ThreeDaysAsMS -
-var ThreeDaysAsMS = 3 * DayAsMS
-
-// RemoveEntryParams -
 type RemoveEntryParams = ReadEntryParams
 
-// generateRandomByteArray -
-func generateRandomByteArray(n uint32) (*[]byte, error) {
-	token := make([]byte, n)
-	_, err := rand.Read(token)
-	if err != nil {
-		return nil, err
+var (
+	DayAsMS = int64(1000 * 60 * 60 * 24)
+	ThreeDaysAsMS = 3 * DayAsMS
+	config = graylistx.Config{
+		Host:        constants.Env.Host,
+		Port:        constants.Env.Port,
+		Protocol:    constants.Env.Protocol,
+		MaxIdle:     constants.Env.MaxIdle,
+		IdleTimeout: constants.Env.IdleTimeout,
+		MaxActive:   constants.Env.MaxActive,
+	}
+)
+
+var graylist, errGraylist = graylistx.Create(&config)
+
+func getEnvironmentKey(key string, environment string) string {
+	if environment != "" {
+		environment = constants.Development
 	}
 
-	return &token, nil
+	return key + "_" + environment
 }
 
-// CreateEntry -
+
 func CreateEntry(p *CreateEntryParams) (*Entry, error) {
 	if p == nil {
 		return nil, errors.New("nil parameters provided")
 	}
+	if graylist == nil {
+		return nil, errors.New("error creating graylist")
+	}
 
 	entry := Entry{
-		SessionKey: *p.SessionKey,
+		Signature:	p.Signature,
+		SessionKey: p.SessionKey,
 		CreatedAt:  p.CreatedAt,
 		Lifetime:   p.Lifetime,
 	}
 
-	// marshal entry to byte array
 	entryAsJSON, errEntryAsJSON := json.Marshal(entry)
 	if errEntryAsJSON != nil {
 		return nil, errEntryAsJSON
 	}
 
-	// save to whitelist
-	whitelistResult, errWhitelist := whitelistx.SetAndExpire(
-		*(p.Signature),
-		&entryAsJSON,
-		p.Lifetime,
+	environmentKey := getEnvironmentKey(p.Signature, p.Environment)
+	whitelistResult, errWhitelist := graylist.SetAndExpire(
+		&graylistx.SetAndExpireParams{
+			Key: environmentKey,
+			Value: entryAsJSON,
+			ExpiryInMS: p.Lifetime,
+		},
 	)
 
 	if whitelistResult == true {
@@ -83,13 +92,18 @@ func CreateEntry(p *CreateEntryParams) (*Entry, error) {
 	return nil, errWhitelist
 }
 
-// ReadEntry -
 func ReadEntry(p *ReadEntryParams) (*Entry, error) {
 	if p == nil {
 		return nil, errors.New("nil parameters provided")
 	}
+	if graylist == nil {
+		return nil, errors.New("error creating graylist")
+	}
 
-	entryAsByte, errEntryAsByte := whitelistx.Get(*(p.Signature))
+	environmentKey := getEnvironmentKey(p.Signature, p.Environment)
+	entryAsByte, errEntryAsByte := graylist.Get(&graylistx.GetParams{
+		Key: environmentKey,
+	})
 	if errEntryAsByte != nil {
 		return nil, errEntryAsByte
 	}
@@ -107,10 +121,16 @@ func ReadEntry(p *ReadEntryParams) (*Entry, error) {
 	return &entry, errUnmarshal
 }
 
-// RemoveEntry -
 func RemoveEntry(p *RemoveEntryParams) (bool, error) {
 	if p == nil {
 		return false, errors.New("nil parameters provided")
 	}
-	return whitelistx.Remove(*(p.Signature))
+	if graylist == nil {
+		return false, errors.New("error creating graylist")
+	}
+
+	environmentKey := getEnvironmentKey(p.Signature, p.Environment)
+	return graylist.Remove(&graylistx.RemoveParams{
+		Key: environmentKey,
+	})
 }

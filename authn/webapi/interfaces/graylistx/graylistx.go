@@ -123,8 +123,11 @@ func (instance *Instance) Remove(p *RemoveParams) (bool, error) {
 	return result == 1, errResult
 }
 
-func Create(config Config) (*Instance, error) {
-	connection, errConnection := redisx.Create(&config)
+func Create(config *Config) (*Instance, error) {
+	if config == nil {
+		return nil, errors.New("nil config provided")
+	}
+	connection, errConnection := redisx.Create(config)
 	if errConnection != nil {
 		return nil, errConnection
 	}

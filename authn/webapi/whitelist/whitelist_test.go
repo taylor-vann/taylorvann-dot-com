@@ -11,6 +11,7 @@ import (
 
 type JWTClaimTestPlan = []jwtx.Claims
 
+const TestEnvironment = "UNIT_TESTS"
 var randomJWTClaims = generateRandomJWTClaims("public", 5)
 
 func getNowAsMS() MilliSeconds {
@@ -51,10 +52,11 @@ func TestCreateEntry(t *testing.T) {
 		}
 		tokens[index] = token
 		entry, errEntry := CreateEntry(&CreateEntryParams{
+			Environment: TestEnvironment,
 			CreatedAt:  claim.Iat,
 			Lifetime:   DayAsMS,
-			SessionKey: token.RandomSecret,
-			Signature:  &token.Token.Signature,
+			SessionKey: *token.RandomSecret,
+			Signature:  token.Token.Signature,
 		})
 
 		if errEntry != nil {
@@ -77,10 +79,11 @@ func TestReadEntry(t *testing.T) {
 		}
 		tokens[index] = token
 		entry, errEntry := CreateEntry(&CreateEntryParams{
+			Environment: TestEnvironment,
 			CreatedAt:  claim.Iat,
 			Lifetime:   DayAsMS,
-			SessionKey: token.RandomSecret,
-			Signature:  &token.Token.Signature,
+			SessionKey: *token.RandomSecret,
+			Signature:  token.Token.Signature,
 		})
 
 		if errEntry != nil {
@@ -95,7 +98,8 @@ func TestReadEntry(t *testing.T) {
 	// check entries for accuracy
 	for _, token := range tokens {
 		readEntry, errReadEntry := ReadEntry(&ReadEntryParams{
-			Signature: &token.Token.Signature,
+			Environment: TestEnvironment,
+			Signature: token.Token.Signature,
 		})
 		if errReadEntry != nil {
 			t.Error("error reading entry")
@@ -124,10 +128,11 @@ func TestRemoveEntry(t *testing.T) {
 		}
 		tokens[index] = token
 		entry, errEntry := CreateEntry(&CreateEntryParams{
+			Environment: TestEnvironment,
 			CreatedAt:  claim.Iat,
 			Lifetime:   DayAsMS,
-			SessionKey: token.RandomSecret,
-			Signature:  &token.Token.Signature,
+			SessionKey: *token.RandomSecret,
+			Signature:  token.Token.Signature,
 		})
 
 		if errEntry != nil {
@@ -142,7 +147,8 @@ func TestRemoveEntry(t *testing.T) {
 	// check entries for accuracy
 	for _, token := range tokens {
 		removeEntry, errRemoveEntry := RemoveEntry(&RemoveEntryParams{
-			Signature: &token.Token.Signature,
+			Environment: TestEnvironment,
+			Signature: token.Token.Signature,
 		})
 		if errRemoveEntry != nil {
 			t.Error("error removing entry")

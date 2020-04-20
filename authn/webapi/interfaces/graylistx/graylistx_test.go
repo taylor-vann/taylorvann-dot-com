@@ -23,7 +23,7 @@ const (
 )
 
 var graylistConfig, errGraylistConfig = getWhitelistxEnvConstants()
-var graylist, errGraylist = Create(*graylistConfig)
+var graylist, errGraylist = Create(graylistConfig)
 
 func getWhitelistxEnvConstants() (*Config, error) {
 	host := os.Getenv(whitelistHost)
