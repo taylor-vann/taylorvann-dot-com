@@ -19,9 +19,9 @@ const (
 )
 
 const (
-	Production = "PRODUCTION"
+	Production 	= "PRODUCTION"
 	Development = "TEST"
-	Local	= "UNIT_TESTS"
+	Local				= "UNIT_TESTS"
 )
 
 var Env, ErrEnv = getConfig()

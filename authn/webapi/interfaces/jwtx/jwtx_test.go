@@ -1,7 +1,6 @@
 // brian taylor vann
 // taylorvann dot com
 
-// Package jwtx - utility library for JWTs
 package jwtx
 
 import (
@@ -47,7 +46,7 @@ func generateRandomJWTClaims(subject string, num int) *JWTClaimTestPlan {
 }
 
 func TestDefaultHeaderParams(t *testing.T) {
-	if HeaderBase64 == nil {
+	if HeaderBase64 == "" {
 		t.Error("HeaderBase64 is nil")
 	}
 
@@ -57,7 +56,7 @@ func TestDefaultHeaderParams(t *testing.T) {
 	}
 	headerTest := base64.RawStdEncoding.EncodeToString(marhalledHeader)
 
-	if headerTest != *HeaderBase64 {
+	if headerTest != HeaderBase64 {
 		t.Error("Unrecongnized change in JWT Header")
 	}
 }
@@ -110,7 +109,7 @@ func TestFailValidateJWT(t *testing.T) {
 			Signature: offsetToken.Token.Signature,
 		}
 		badTokenPayload := TokenPayload{
-			Token:        &badToken,
+			Token:        badToken,
 			RandomSecret: tokenPayload.RandomSecret,
 		}
 

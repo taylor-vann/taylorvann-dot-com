@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"webapi/interfaces/graylistx"
-	"webapi/whitelist/constants"
+	"webapi/sessions/whitelist/constants"
 )
 
 type MilliSeconds = int64

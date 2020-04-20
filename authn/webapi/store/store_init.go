@@ -20,6 +20,19 @@ type InitDetails struct {
 
 const initFilname = "./store_db.init.json"
 
+// func getConfigFromEnv() (*redisx.RedisConfig, error) {
+// 	config := redisx.RedisConfig{
+// 		Host:        constants.Env.Host,
+// 		Port:        constants.Env.Port,
+// 		Protocol:    constants.Env.Protocol,
+// 		MaxIdle:     constants.Env.MaxIdle,
+// 		IdleTimeout: constants.Env.IdleTimeout,
+// 		MaxActive:   constants.Env.MaxActive,
+// 	}
+
+// 	return &config, nil
+// }
+
 // InitFromJSON -
 func InitFromJSON() {
 	initJSON, _ := ioutil.ReadFile(initFilname)
@@ -32,7 +45,7 @@ func InitFromJSON() {
 	}
 
 	for email, details := range initDetails.Users {
-		userRow, errUserRow := users.Create(&users.CreateParams{
+		userRows, errUserRow := users.Create(&users.CreateParams{
 			Email:    email,
 			Password: details.Password,
 		})
@@ -42,15 +55,18 @@ func InitFromJSON() {
 			continue
 		}
 
-		if userRow != nil {
-			for _, role := range details.Roles {
-				_, errRoleRow := roles.Create(&roles.CreateParams{
-					UserID: userRow.ID,
-					Role:   role,
-				})
-				if errRoleRow != nil {
-					// TODO: log failure
-				}
+		if len(userRows) == 0 {
+			continue
+		}
+
+		userRow := userRows[0]
+		for _, organization := range details.Roles {
+			_, errRoleRow := roles.Create(&roles.CreateParams{
+				UserID: userRow.ID,
+				Organization: organization,
+			})
+			if errRoleRow != nil {
+				// TODO: log failure
 			}
 		}
 	}

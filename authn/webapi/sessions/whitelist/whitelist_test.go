@@ -60,7 +60,7 @@ func TestCreateEntry(t *testing.T) {
 		})
 
 		if errEntry != nil {
-			t.Error("error creating entry")
+			t.Error(errEntry.Error())
 		}
 
 		if entry == nil {
@@ -75,7 +75,7 @@ func TestReadEntry(t *testing.T) {
 	for index, claim := range *randomJWTClaims {
 		token, errToken := jwtx.CreateJWT(&claim)
 		if errToken != nil {
-			t.Error("Unable to create jwt")
+			t.Error(errToken.Error())
 		}
 		tokens[index] = token
 		entry, errEntry := CreateEntry(&CreateEntryParams{
@@ -87,7 +87,7 @@ func TestReadEntry(t *testing.T) {
 		})
 
 		if errEntry != nil {
-			t.Error("error creating entry")
+			t.Error(errEntry.Error())
 		}
 
 		if entry == nil {
@@ -102,7 +102,7 @@ func TestReadEntry(t *testing.T) {
 			Signature: token.Token.Signature,
 		})
 		if errReadEntry != nil {
-			t.Error("error reading entry")
+			t.Error(errReadEntry.Error())
 		}
 
 		randomSecret := *(token.RandomSecret)
@@ -136,7 +136,7 @@ func TestRemoveEntry(t *testing.T) {
 		})
 
 		if errEntry != nil {
-			t.Error("error creating entry")
+			t.Error(errEntry.Error())
 		}
 
 		if entry == nil {
@@ -151,7 +151,7 @@ func TestRemoveEntry(t *testing.T) {
 			Signature: token.Token.Signature,
 		})
 		if errRemoveEntry != nil {
-			t.Error("error removing entry")
+			t.Error(errRemoveEntry.Error())
 		}
 		if removeEntry == false {
 			t.Error("couldn't remove entry")

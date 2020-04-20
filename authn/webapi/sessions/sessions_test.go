@@ -1,41 +1,44 @@
 package sessions
 
 import (
-	"fmt"
 	"testing"
 	"webapi/interfaces/jwtx"
 	"webapi/store"
 )
 
+const unitTests = "UNIT_TESTS"
 var fakeSession = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ5b2Rhd2ciLCJpYXQiOjE1ODIzMTU0NDYsImV4cCI6MTYxMzg1MTQ0NiwiYXVkIjoid3d3LmJsYWhibGFoLmNvbSIsInN1YiI6ImpvaG5ueUBxdWVzdC5jb20iLCJHaXZlbk5hbWUiOiJKb2hubnkiLCJTdXJuYW1lIjoiUXVlc3QiLCJFbWFpbCI6Impyb2NrZXRAZXhhbXBsZS5jb20ifQ.hPmDUos2HzRgn-OfFcC3gzhi28xa5YEDAVwfxWYfvdY"
 var storeSuccess, errStore = store.CreateRequiredTables()
 
 func TestCreateGuestSession(t *testing.T) {
-	session, errSession := Create(
-		ComposeGuestSessionParams(),
-	)
+	session, errSession := Create(&CreateParams{
+		Environment: unitTests,
+		Claims: *CreateGuestSessionClaims(),
+	})
 	if session == nil {
 		t.Error("Nil value returned")
 	}
 	if errSession != nil {
-		t.Error("Error creating public JWT")
+		t.Error(errSession.Error())
 	}
 }
 
 func TestRetrieveGuestSession(t *testing.T) {
-	session, errSession := Create(
-		ComposeGuestSessionParams(),
-	)
+	session, errSession := Create(&CreateParams{
+		Environment: unitTests,
+		Claims: *CreateGuestSessionClaims(),
+	})
+
 	if session == nil {
 		t.Error("Nil value returned")
 	}
 	if errSession != nil {
-		t.Error("Error creating public JWT")
+		t.Error(errSession.Error())
 	}
 
 	// get the session token
 	tokenDetails, errTokenDetails := jwtx.RetrieveTokenDetailsFromString(
-		&(session.SessionToken),
+		session.SessionToken,
 	)
 	if tokenDetails == nil {
 		t.Error("token is nil")
@@ -47,11 +50,12 @@ func TestRetrieveGuestSession(t *testing.T) {
 	// update the token
 	updatedSession, errUpdatedSession := Update(
 		&UpdateParams{
-			SessionToken: &(session.SessionToken),
+			Environment:  unitTests,
+			SessionToken: session.SessionToken,
 		},
 	)
 	if errUpdatedSession != nil {
-		t.Error("error updated session")
+		t.Error(errUpdatedSession.Error())
 	}
 	if updatedSession == nil {
 		t.Error("nil value returned instead of session")
@@ -59,13 +63,13 @@ func TestRetrieveGuestSession(t *testing.T) {
 	}
 
 	updatedTokenDetails, errUpdatedTokenDetails := jwtx.RetrieveTokenDetailsFromString(
-		&(updatedSession.SessionToken),
+		updatedSession.SessionToken,
 	)
 	if updatedTokenDetails == nil {
 		t.Error("token is nil")
 	}
 	if errUpdatedTokenDetails != nil {
-		t.Error("error interpreting token")
+		t.Error(errUpdatedTokenDetails.Error())
 	}
 
 	if tokenDetails.Payload.Iss != updatedTokenDetails.Payload.Iss {
@@ -80,35 +84,37 @@ func TestRetrieveGuestSession(t *testing.T) {
 }
 
 func TestUpdateSession(t *testing.T) {
-	session, errSession := Create(
-		ComposeGuestSessionParams(),
-	)
+	session, errSession := Create(&CreateParams{
+		Environment: unitTests,
+		Claims: *CreateGuestSessionClaims(),
+	})
 	if session == nil {
 		t.Error("Nil value returned")
 	}
 	if errSession != nil {
-		t.Error("Error creating public JWT")
+		t.Error(errSession.Error())
 	}
 
 	// get the session token
 	tokenDetails, errTokenDetails := jwtx.RetrieveTokenDetailsFromString(
-		&(session.SessionToken),
+		session.SessionToken,
 	)
 	if tokenDetails == nil {
 		t.Error("token is nil")
 	}
 	if errTokenDetails != nil {
-		t.Error("error interpreting token")
+		t.Error(errTokenDetails.Error())
 	}
 
 	// update the token
 	ReadSession, errReadSession := Update(
 		&UpdateParams{
-			SessionToken: &session.SessionToken,
+			Environment: unitTests,
+			SessionToken: session.SessionToken,
 		},
 	)
 	if errReadSession != nil {
-		t.Error("error updated session")
+		t.Error(errReadSession.Error())
 	}
 	if ReadSession == nil {
 		t.Error("nil value returned instead of session")
@@ -117,9 +123,10 @@ func TestUpdateSession(t *testing.T) {
 }
 
 func TestValidateAndRemoveSession(t *testing.T) {
-	session, errSession := Create(
-		ComposeGuestSessionParams(),
-	)
+	session, errSession := Create(&CreateParams{
+		Environment: unitTests,
+		Claims: *CreateGuestSessionClaims(),
+	})
 	if session == nil {
 		t.Error("Nil value returned")
 	}
@@ -129,23 +136,24 @@ func TestValidateAndRemoveSession(t *testing.T) {
 
 	// get the session token
 	tokenDetails, errTokenDetails := jwtx.RetrieveTokenDetailsFromString(
-		&(session.SessionToken),
+		session.SessionToken,
 	)
 	if tokenDetails == nil {
 		t.Error("token is nil")
 	}
 	if errTokenDetails != nil {
-		t.Error("error interpreting token")
+		t.Error(errTokenDetails.Error())
 	}
 
 	// update the token
 	removedSession, errRemovedSession := ValidateAndRemove(
 		&UpdateParams{
-			SessionToken: &session.SessionToken,
+			Environment: unitTests,
+			SessionToken: session.SessionToken,
 		},
 	)
 	if errRemovedSession != nil {
-		t.Error("error updated session")
+		t.Error(errRemovedSession.Error())
 	}
 	if removedSession == nil {
 		t.Error("could not find session")
@@ -155,11 +163,12 @@ func TestValidateAndRemoveSession(t *testing.T) {
 	// update the token
 	reReadSession, errReReadSession := Read(
 		&ReadParams{
-			SessionToken: &session.SessionToken,
+			Environment: unitTests,
+			SessionToken: session.SessionToken,
 		},
 	)
 	if errReReadSession != nil {
-		t.Error("error updated session")
+		t.Error(errReReadSession.Error())
 	}
 	if reReadSession != false {
 		t.Error("should not have found session")
@@ -171,12 +180,12 @@ func TestCheckBadSession(t *testing.T) {
 	signature := fakeSession
 	readSession, errReadSession := Update(
 		&UpdateParams{
-			SessionToken: &signature,
+			Environment: unitTests,
+			SessionToken: signature,
 		},
 	)
 	if errReadSession != nil {
-		fmt.Println(errReadSession)
-		t.Error("error check bad session")
+		t.Error(errReadSession.Error())
 	}
 	if readSession != nil {
 		t.Error("value returned instead of nil")
@@ -184,56 +193,53 @@ func TestCheckBadSession(t *testing.T) {
 }
 
 // Test Create Public JWT
-func TestRetrievePublicSession(t *testing.T) {
-	userParams := store.CreateUserParams{
-		Email:    "testorino@booyakasha.com",
-		Password: "pesswerd",
-	}
-	// create user
-	_, errUserRow := store.CreateUser(&userParams)
-	if errUserRow != nil {
-		t.Error("error creating user row")
-	}
-
-	sessionParams, errSessionParams := ComposePublicSessionParams(
-		&CreatePublicJWTParams{
-			Email:    userParams.Email,
-			Password: userParams.Password,
+func TestRetrieveUserSession(t *testing.T) {
+	sessionClaims, errSessionClaims := CreateUserSessionClaims(
+		&CreateUserClaimsParams{
+			UserID: -1,
 		},
 	)
-	if errSessionParams != nil {
-		fmt.Println(errSessionParams)
-		t.Error("error creating session params")
+	if errSessionClaims != nil {
+		t.Error(errSessionClaims.Error())
 		return
 	}
+	if sessionClaims == nil {
+		t.Error("nil session claims")
+		return
+	}
+
 	// create session
-	session, errSession := Create(sessionParams)
+	session, errSession := Create(&CreateParams{
+		Environment: unitTests,
+		Claims: *sessionClaims,
+	})
 	if session == nil {
 		t.Error("Nil value returned")
 	}
 	if errSession != nil {
-		t.Error("Error creating public JWT")
+		t.Error(errSession.Error())
 	}
 
 	// get the session token
 	tokenDetails, errTokenDetails := jwtx.RetrieveTokenDetailsFromString(
-		&(session.SessionToken),
+		session.SessionToken,
 	)
 	if tokenDetails == nil {
 		t.Error("token is nil")
 	}
 	if errTokenDetails != nil {
-		t.Error("error interpreting token")
+		t.Error(errTokenDetails.Error())
 	}
 
 	// update the token
 	updatedSession, errUpdatedSession := Update(
 		&UpdateParams{
-			SessionToken: &(session.SessionToken),
+			Environment: unitTests,
+			SessionToken: session.SessionToken,
 		},
 	)
 	if errUpdatedSession != nil {
-		t.Error("error updated session")
+		t.Error(errUpdatedSession.Error())
 	}
 	if updatedSession == nil {
 		t.Error("nil value returned instead of session")
@@ -245,13 +251,13 @@ func TestRetrievePublicSession(t *testing.T) {
 	}
 
 	updatedTokenDetails, errUpdatedTokenDetails := jwtx.RetrieveTokenDetailsFromString(
-		&(updatedSession.SessionToken),
+		updatedSession.SessionToken,
 	)
 	if updatedTokenDetails == nil {
 		t.Error("toke is nil")
 	}
 	if errUpdatedTokenDetails != nil {
-		t.Error("error interpreting token")
+		t.Error(errUpdatedTokenDetails.Error())
 	}
 
 	if tokenDetails.Payload.Iss != updatedTokenDetails.Payload.Iss {
@@ -267,32 +273,35 @@ func TestRetrievePublicSession(t *testing.T) {
 
 func TestRemoveSession(t *testing.T) {
 	// create public session
-	session, errSession := Create(
-		ComposeGuestSessionParams(),
-	)
+	session, errSession := Create(&CreateParams{
+		Environment: unitTests,
+		Claims: *CreateGuestSessionClaims(),
+	})
 	if session == nil {
 		t.Error("Nil value returned")
+
 	}
 	if errSession != nil {
-		t.Error("Error creating public JWT")
+		t.Error(errSession.Error())
 	}
 
 	// get the session token
 	tokenDetails, errTokenDetails := jwtx.RetrieveTokenDetailsFromString(
-		&(session.SessionToken),
+		session.SessionToken,
 	)
 	if tokenDetails == nil {
 		t.Error("token is nil")
 	}
 	if errTokenDetails != nil {
-		t.Error("error interpreting token")
+		t.Error(errTokenDetails.Error())
 	}
 
 	entryRemoved, errEntryRemoved := Remove(&RemoveParams{
+		Environment: unitTests,
 		Signature: tokenDetails.Signature,
 	})
 	if errEntryRemoved != nil {
-		t.Error("error removing session")
+		t.Error(errEntryRemoved.Error())
 	}
 
 	if entryRemoved == false {
@@ -303,10 +312,11 @@ func TestRemoveSession(t *testing.T) {
 func TestRemoveSessionRespondsFalse(t *testing.T) {
 	badSignature := "animal_crackers_with_nutella"
 	entryRemoved, errEntryRemoved := Remove(&RemoveParams{
-		Signature: &badSignature,
+		Environment: unitTests,
+		Signature: badSignature,
 	})
 	if errEntryRemoved != nil {
-		t.Error("error removing session")
+		t.Error(errEntryRemoved.Error())
 	}
 
 	if entryRemoved == true {
