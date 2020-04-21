@@ -1,10 +1,5 @@
 package responses
 
-// import (
-// 	"encoding/json"
-// 	"net/http"
-// )
-
 type UserCredentials struct {
 	UserID int64 `json:"user_id"`
 }

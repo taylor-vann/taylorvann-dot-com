@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"webapi/hooks/sessions/errors"
+	"webapi/hooks/sessions/responses"
 	"webapi/hooks/sessions/mutations"
 	"webapi/hooks/sessions/queries"
 )
@@ -13,13 +14,13 @@ type ReadSessionAction struct {
 	SessionSignature string `json:"session_signature"`
 }
 type RemoveSessionAction = ReadSessionAction
-type MutationRequestPayload = errors.RequestPayload
-type MutationRequestBody = errors.RequestBody
-type MutationResponseBody = errors.ResponseBody
+type MutationRequestPayload = responses.RequestParams
+type MutationRequestBody = responses.RequestBody
+type MutationResponseBody = responses.ResponseBody
 type QueryRequestPayload = queries.RequestPayload
 type QueryRequestBody = queries.RequestBody
-type ErrorsPayload = errors.ResponsePayload
-type ResponseBody = errors.ResponseBody
+type ErrorsPayload = responses.ErrorsResponsePayload
+type ResponseBody = responses.ResponseBody
 
 // Actions
 const (

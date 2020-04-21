@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"webapi/hooks/sessions/errors"
+	"webapi/hooks/sessions/responses"
 )
 
 func TestCreateGuestSessionBadRequest(t *testing.T) {
@@ -200,7 +200,7 @@ func TestCreateResetPasswordSession(t *testing.T) {
 		Action: CreateUpdatePasswordSession,
 		Params: &MutationRequestPayload{
 			SessionToken: responseBody.Session.SessionToken,
-			Credentials: &errors.Credentials{
+			AccountCredentials: &responses.AccountCredentials{
 				Email: email,
 			},
 		},
@@ -272,7 +272,7 @@ func TestCreateUpdateEmailSession(t *testing.T) {
 		Action: CreateUpdateEmailSession,
 		Params: &MutationRequestPayload{
 			SessionToken: responseBody.Session.SessionToken,
-			Credentials: &errors.Credentials{
+			AccountCredentials: &responses.AccountCredentials{
 				Email: email,
 			},
 		},

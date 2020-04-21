@@ -5,12 +5,13 @@ import (
 	"net/http"
 
 	"webapi/hooks/sessions/errors"
+	"webapi/hooks/sessions/responses"
 	"webapi/sessions"
 	"webapi/sessions/constants"
 )
 
-func CreateCreateAccountSession(w http.ResponseWriter, requestBody *RequestBody) {
-	if requestBody.Params == nil || requestBody.Params.Credentials == nil {
+func CreateCreateAccountSession(w http.ResponseWriter, requestBody *responses.RequestBody) {
+	if requestBody.Params == nil || requestBody.Params.AccountCredentials == nil {
 		errors.CustomErrorResponse(w, InvalidSessionProvided)
 		return
 	}
@@ -22,7 +23,7 @@ func CreateCreateAccountSession(w http.ResponseWriter, requestBody *RequestBody)
 	)
 	if errValidRequest != nil {
 		errAsStr := errValidRequest.Error()
-		errors.BadRequest(w, &errors.ResponsePayload{
+		errors.BadRequest(w, &responses.ErrorsResponsePayload{
 			Session: &InvalidSessionProvided,
 			Default: &errAsStr,
 		})
@@ -35,7 +36,7 @@ func CreateCreateAccountSession(w http.ResponseWriter, requestBody *RequestBody)
 
 	sessionParams, errSessionParams := sessions.CreateAccountCreationSessionClaims(
 		&sessions.CreateUserAccountClaimsParams{
-			Email: requestBody.Params.Credentials.Email,
+			Email: requestBody.Params.AccountCredentials.Email,
 		},
 	)
 
@@ -64,7 +65,7 @@ func CreateCreateAccountSession(w http.ResponseWriter, requestBody *RequestBody)
 	}
 
 	errorAsStr := errSession.Error()
-	errors.BadRequest(w, &errors.ResponsePayload{
+	errors.BadRequest(w, &responses.ErrorsResponsePayload{
 		Session: &CreateGuestSessionErrorMessage,
 		Default: &errorAsStr,
 	})

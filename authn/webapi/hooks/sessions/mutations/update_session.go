@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"net/http"
 	"webapi/hooks/sessions/errors"
+	"webapi/hooks/sessions/responses"
 )
 
-func UpdateSession(w http.ResponseWriter, requestBody *RequestBody) {
+func UpdateSession(w http.ResponseWriter, requestBody *responses.RequestBody) {
 	userSession, errUserSession := updateGenericSession(requestBody)
 	if errUserSession != nil {
 		errAsStr := errUserSession.Error()
-		errors.BadRequest(w, &errors.ResponsePayload{
+		errors.BadRequest(w, &responses.ErrorsResponsePayload{
 			Session: &InvalidSessionProvided,
 			Default: &errAsStr,
 		})
@@ -24,7 +25,7 @@ func UpdateSession(w http.ResponseWriter, requestBody *RequestBody) {
 			},
 		)
 		if errMarshal != nil {
-			errors.BadRequest(w, &errors.ResponsePayload{
+			errors.BadRequest(w, &responses.ErrorsResponsePayload{
 				Session: &UnableToMarshalSession,
 			})
 			return
@@ -36,7 +37,7 @@ func UpdateSession(w http.ResponseWriter, requestBody *RequestBody) {
 	}
 
 	errorAsStr := errUserSession.Error()
-	errors.BadRequest(w, &errors.ResponsePayload{
+	errors.BadRequest(w, &responses.ErrorsResponsePayload{
 		Session: &errors.UnableToUpdateSession,
 		Default: &errorAsStr,
 	})

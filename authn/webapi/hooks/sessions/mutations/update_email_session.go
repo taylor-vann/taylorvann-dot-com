@@ -5,12 +5,14 @@ import (
 	"net/http"
 
 	"webapi/hooks/sessions/errors"
+	"webapi/hooks/sessions/responses"
+
 	"webapi/sessions"
 	"webapi/sessions/constants"
 )
 
-func CreateUpdateEmailSession(w http.ResponseWriter, requestBody *RequestBody) {
-	if requestBody.Params == nil || requestBody.Params.Credentials == nil {
+func CreateUpdateEmailSession(w http.ResponseWriter, requestBody *responses.RequestBody) {
+	if requestBody.Params == nil || requestBody.Params.AccountCredentials == nil {
 		errors.CustomErrorResponse(w, InvalidSessionProvided)
 		return
 	}
@@ -22,7 +24,7 @@ func CreateUpdateEmailSession(w http.ResponseWriter, requestBody *RequestBody) {
 	)
 	if errValidRequest != nil {
 		errAsStr := errValidRequest.Error()
-		errors.BadRequest(w, &errors.ResponsePayload{
+		errors.BadRequest(w, &responses.ErrorsResponsePayload{
 			Session: &InvalidSessionProvided,
 			Default: &errAsStr,
 		})
@@ -35,12 +37,12 @@ func CreateUpdateEmailSession(w http.ResponseWriter, requestBody *RequestBody) {
 
 	userSessionToken, errUserSessionToken := sessions.CreateUpdatePasswordSessionClaims(
 		&sessions.CreateUserAccountClaimsParams{
-			Email: requestBody.Params.Credentials.Email,
+			Email: requestBody.Params.AccountCredentials.Email,
 		},
 	)
 	if errUserSessionToken != nil {
 		errorAsStr := errUserSessionToken.Error()
-		errors.BadRequest(w, &errors.ResponsePayload{
+		errors.BadRequest(w, &responses.ErrorsResponsePayload{
 			Session: &errors.InvalidSessionCredentials,
 			Default: &errorAsStr,
 		})
@@ -68,7 +70,7 @@ func CreateUpdateEmailSession(w http.ResponseWriter, requestBody *RequestBody) {
 	}
 
 	errorAsStr := errSession.Error()
-	errors.BadRequest(w, &errors.ResponsePayload{
+	errors.BadRequest(w, &responses.ErrorsResponsePayload{
 		Session: &CreateGuestSessionErrorMessage,
 		Default: &errorAsStr,
 	})

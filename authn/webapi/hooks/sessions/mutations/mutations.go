@@ -4,6 +4,7 @@ import (
 	err "errors"
 
 	"webapi/hooks/sessions/errors"
+	"webapi/hooks/sessions/responses"
 	"webapi/interfaces/jwtx"
 	"webapi/sessions"
 	"webapi/sessions/constants"
@@ -20,7 +21,7 @@ var (
 	UnableToMarshalSession         = "unable to marshal session"
 )
 
-func validateAndRemoveSession(requestBody *RequestBody, audience string, subject string) (bool, error) {
+func validateAndRemoveSession(requestBody *responses.RequestBody, audience string, subject string) (bool, error) {
 	if requestBody.Params == nil {
 		return false, err.New("request params are nil")
 	}
@@ -51,7 +52,7 @@ func validateAndRemoveSession(requestBody *RequestBody, audience string, subject
 	return false, nil
 }
 
-func updateGenericSession(requestBody *RequestBody) (*sessions.Session, error) {
+func updateGenericSession(requestBody *responses.RequestBody) (*sessions.Session, error) {
 	if requestBody == nil {
 		return nil, err.New("request body is nil")
 	}

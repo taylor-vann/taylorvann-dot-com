@@ -5,11 +5,12 @@ import (
 	"net/http"
 
 	"webapi/hooks/sessions/errors"
+	"webapi/hooks/sessions/responses"
 	"webapi/sessions"
 	"webapi/sessions/constants"
 )
 
-func CreatePublicSession(w http.ResponseWriter, requestBody *RequestBody) {
+func CreatePublicSession(w http.ResponseWriter, requestBody *responses.RequestBody) {
 	validRequest, errValidRequest := validateAndRemoveSession(
 		requestBody,
 		constants.Guest,
@@ -17,7 +18,7 @@ func CreatePublicSession(w http.ResponseWriter, requestBody *RequestBody) {
 	)
 	if errValidRequest != nil {
 		errAsStr := errValidRequest.Error()
-		errors.BadRequest(w, &errors.ResponsePayload{
+		errors.BadRequest(w, &responses.ErrorsResponsePayload{
 			Session: &InvalidSessionProvided,
 			Default: &errAsStr,
 		})
@@ -30,12 +31,12 @@ func CreatePublicSession(w http.ResponseWriter, requestBody *RequestBody) {
 
 	userSessionToken, errUserSessionToken := sessions.CreateUserSessionClaims(
 		&sessions.CreateUserClaimsParams{
-			UserID: requestBody.Params.Credentials.UserID,
+			UserID: requestBody.Params.UserCredentials.UserID,
 		},
 	)
 	if errUserSessionToken != nil {
 		errorAsStr := errUserSessionToken.Error()
-		errors.BadRequest(w, &errors.ResponsePayload{
+		errors.BadRequest(w, &responses.ErrorsResponsePayload{
 			Session: &errors.InvalidSessionCredentials,
 			Default: &errorAsStr,
 		})
@@ -63,7 +64,7 @@ func CreatePublicSession(w http.ResponseWriter, requestBody *RequestBody) {
 	}
 
 	errorAsStr := errUserSession.Error()
-	errors.BadRequest(w, &errors.ResponsePayload{
+	errors.BadRequest(w, &responses.ErrorsResponsePayload{
 		Session: &errors.UnableToCreatePublicSession,
 		Default: &errorAsStr,
 	})

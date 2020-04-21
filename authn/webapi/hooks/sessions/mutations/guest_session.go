@@ -5,6 +5,7 @@ import (
 	"net/http"
 	
 	"webapi/hooks/sessions/errors"
+	"webapi/hooks/sessions/responses"
 	"webapi/sessions"
 )
 
@@ -14,10 +15,10 @@ func CreateGuestSession(w http.ResponseWriter) {
 	})
 
 	if errSession == nil {
-		payload := errors.SessionResponsePayload{
+		payload := responses.SessionResponsePayload{
 			SessionToken: session.SessionToken,
 		}
-		body := errors.ResponseBody{
+		body := responses.ResponseBody{
 			Session: &payload,
 		}
 
@@ -27,7 +28,7 @@ func CreateGuestSession(w http.ResponseWriter) {
 	}
 
 	errorAsStr := errSession.Error()
-	errors.BadRequest(w, &errors.ResponsePayload{
+	errors.BadRequest(w, &responses.ErrorsResponsePayload{
 		Session: &CreateGuestSessionErrorMessage,
 		Default: &errorAsStr,
 	})
