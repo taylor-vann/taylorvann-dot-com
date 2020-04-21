@@ -3,23 +3,23 @@ package errors
 import (
 	"encoding/json"
 	"net/http"
+
+	"webapi/hooks/sessions/responses"
 )
 
 type Credentials struct {
 	Email			string		`json:"email"`
-	UserID		int64			`json::"user_id"`
 	Password	string		`json:"password"`
 }
 
 type RequestPayload struct {
-	Environment		string				`json:"environment"`
-	SessionToken	string				`json:"session_token"`
-	Credentials		*Credentials	`json:"credentials"`
+	SessionToken	string			`json:"session_token"`
+	Credentials		Credentials	`json:"credentials"`
 }
 
 type RequestBody struct {
 	Action string          `json:"action"`
-	Params *RequestPayload `json:"params"`
+	Params RequestPayload `json:"params"`
 }
 
 type SessionResponsePayload struct {
@@ -32,11 +32,6 @@ type ResponsePayload struct {
 	Body		*string `json:"body"`
 	Session *string `json:"session"`
 	Default *string `json:"default"`
-}
-
-type ResponseBody struct {
-	Session *SessionResponsePayload	`json:"session"`
-	Errors  *ResponsePayload				`json:"errors"`
 }
 
 var (
@@ -54,28 +49,28 @@ var defaultFail = "unable to write custom error messages"
 
 func DefaultErrorResponse(w http.ResponseWriter, err error) {
 	errAsStr := err.Error()
-	BadRequest(w, &ResponsePayload{
+	BadRequest(w, &responses.ErrorsResponsePayload{
 		Default: &errAsStr,
 	})
 }
 
 func CustomErrorResponse(w http.ResponseWriter, err string) {
-	BadRequest(w, &ResponsePayload{
+	BadRequest(w, &responses.ErrorsResponsePayload{
 		Default: &err,
 	})
 }
 
-func BadRequest(w http.ResponseWriter, errors *ResponsePayload) {
+func BadRequest(w http.ResponseWriter, errors *responses.ErrorsResponsePayload) {
 	w.WriteHeader(http.StatusBadRequest)
 	w.Header().Set("Content-Type", "application/json")
 
 	if errors != nil {
-		json.NewEncoder(w).Encode(&ResponseBody{Errors: errors})
+		json.NewEncoder(w).Encode(&responses.ResponseBody{Errors: errors})
 		return
 	}
 
-	json.NewEncoder(w).Encode(&ResponseBody{
-		Errors: &ResponsePayload{
+	json.NewEncoder(w).Encode(&responses.ResponseBody{
+		Errors: &responses.ErrorsResponsePayload{
 			Default:	&defaultFail,
 		},
 	})
