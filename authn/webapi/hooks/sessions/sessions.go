@@ -11,10 +11,6 @@ import (
 	"webapi/hooks/sessions/queries"
 )
 
-type ReadSessionAction struct {
-	SessionSignature string `json:"session_signature"`
-}
-
 const (
 	CreateDocumentSession     	= "CREATE_DOCUMENT_SESSION"
 	CreateGuestSession        	= "CREATE_GUEST_SESSION"

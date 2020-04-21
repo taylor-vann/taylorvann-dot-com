@@ -7,33 +7,6 @@ import (
 	"webapi/hooks/sessions/responses"
 )
 
-type Credentials struct {
-	Email			string		`json:"email"`
-	Password	string		`json:"password"`
-}
-
-type RequestPayload struct {
-	SessionToken	string			`json:"session_token"`
-	Credentials		Credentials	`json:"credentials"`
-}
-
-type RequestBody struct {
-	Action string          `json:"action"`
-	Params RequestPayload `json:"params"`
-}
-
-type SessionResponsePayload struct {
-	SessionToken	string	`json:"session_token"`
-	CsrfToken			string	`json:"csrf_token"`
-}
-
-type ResponsePayload struct {
-	Headers	*string `json:"headers"`
-	Body		*string `json:"body"`
-	Session *string `json:"session"`
-	Default *string `json:"default"`
-}
-
 var (
 	BadBodyFail = "unable to decode request body"
 	UnrecognizedQuery = "unrecognized query action requested"

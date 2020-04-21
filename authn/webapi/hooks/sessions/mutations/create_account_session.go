@@ -52,7 +52,7 @@ func CreateCreateAccountSession(w http.ResponseWriter, requestBody *requests.Bod
 	})
 
 	if errSession == nil {
-		marshalledJSON, errMarshal := json.Marshal(&errors.SessionResponsePayload{
+		marshalledJSON, errMarshal := json.Marshal(&responses.SessionPayload{
 			SessionToken: session.SessionToken,
 		})
 		if errMarshal == nil {

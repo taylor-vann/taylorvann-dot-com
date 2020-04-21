@@ -3,16 +3,11 @@ package mutations
 import (
 	err "errors"
 
-	"webapi/hooks/sessions/errors"
 	"webapi/hooks/sessions/requests"
 	"webapi/interfaces/jwtx"
 	"webapi/sessions"
 	"webapi/sessions/constants"
 )
-
-type RequestBody = errors.RequestBody
-
-type ValidateTokenParams = jwtx.ValidateTokenParams
 
 var (
 	CreateGuestSessionErrorMessage = "error creating guest session"
@@ -26,7 +21,7 @@ func validateAndRemoveSession(requestBody *requests.Body, audience string, subje
 		return false, err.New("request params are nil")
 	}
 
-	tokenResults := jwtx.ValidateSessionTokenByParams(&ValidateTokenParams{
+	tokenResults := jwtx.ValidateSessionTokenByParams(&jwtx.ValidateTokenParams{
 		Token:    requestBody.Params.SessionToken,
 		Issuer:		constants.TaylorVannDotCom,
 		Audience: audience,

@@ -56,7 +56,7 @@ func CreateUpdateEmailSession(w http.ResponseWriter, requestBody *requests.Body)
 
 	if errSession == nil {
 		marshalledJSON, errMarshal := json.Marshal(
-			&errors.SessionResponsePayload{
+			&responses.SessionPayload{
 				SessionToken: session.SessionToken,
 			},
 		)
