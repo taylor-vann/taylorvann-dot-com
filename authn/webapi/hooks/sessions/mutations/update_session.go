@@ -18,9 +18,11 @@ func UpdateSession(w http.ResponseWriter, requestBody *RequestBody) {
 	}
 
 	if userSession != nil {
-		marshalledJSON, errMarshal := json.Marshal(&ResponsePayload{
-			SessionToken: userSession.SessionToken,
-		})
+		marshalledJSON, errMarshal := json.Marshal(
+			&errors.SessionResponsePayload{
+				SessionToken: userSession.SessionToken,
+			},
+		)
 		if errMarshal != nil {
 			errors.BadRequest(w, &errors.ResponsePayload{
 				Session: &UnableToMarshalSession,

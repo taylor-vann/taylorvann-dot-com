@@ -52,9 +52,11 @@ func CreateUpdateEmailSession(w http.ResponseWriter, requestBody *RequestBody) {
 	})
 
 	if errSession == nil {
-		marshalledJSON, errMarshal := json.Marshal(&ResponsePayload{
-			SessionToken: session.SessionToken,
-		})
+		marshalledJSON, errMarshal := json.Marshal(
+			&errors.SessionResponsePayload{
+				SessionToken: session.SessionToken,
+			},
+		)
 		if errMarshal == nil {
 			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(&marshalledJSON)

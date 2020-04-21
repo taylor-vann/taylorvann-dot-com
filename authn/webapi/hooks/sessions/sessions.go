@@ -13,12 +13,12 @@ type ReadSessionAction struct {
 	SessionSignature string `json:"session_signature"`
 }
 type RemoveSessionAction = ReadSessionAction
-type MutationRequestPayload = mutations.RequestPayload
-type MutationRequestBody = mutations.RequestBody
-type MutationResponseBody = mutations.ResponseBody
+type MutationRequestPayload = errors.RequestPayload
+type MutationRequestBody = errors.RequestBody
+type MutationResponseBody = errors.ResponseBody
 type QueryRequestPayload = queries.RequestPayload
 type QueryRequestBody = queries.RequestBody
-type ErrorsPayload = mutations.ErrorsPayload
+type ErrorsPayload = errors.ResponsePayload
 type ResponseBody = errors.ResponseBody
 
 // Actions

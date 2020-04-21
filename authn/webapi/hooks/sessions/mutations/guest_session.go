@@ -14,10 +14,10 @@ func CreateGuestSession(w http.ResponseWriter) {
 	})
 
 	if errSession == nil {
-		payload := ResponsePayload{
+		payload := errors.SessionResponsePayload{
 			SessionToken: session.SessionToken,
 		}
-		body := ResponseBody{
+		body := errors.ResponseBody{
 			Session: &payload,
 		}
 

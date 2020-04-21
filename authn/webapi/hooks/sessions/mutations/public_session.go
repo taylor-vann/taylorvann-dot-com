@@ -47,9 +47,11 @@ func CreatePublicSession(w http.ResponseWriter, requestBody *RequestBody) {
 	})
 
 	if errUserSession == nil {
-		marshalledJSON, errMarshal := json.Marshal(&ResponsePayload{
-			SessionToken: userSession.SessionToken,
-		})
+		marshalledJSON, errMarshal := json.Marshal(
+			&errors.SessionResponsePayload{
+				SessionToken: userSession.SessionToken,
+			},
+		)
 		if errMarshal == nil {
 			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(&marshalledJSON)

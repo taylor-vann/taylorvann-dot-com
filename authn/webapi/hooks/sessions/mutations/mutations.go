@@ -9,7 +9,7 @@ import (
 	"webapi/sessions/constants"
 )
 
-type RequestBody = sessionErr.RequestBody
+type RequestBody = errors.RequestBody
 
 type ValidateTokenParams = jwtx.ValidateTokenParams
 
