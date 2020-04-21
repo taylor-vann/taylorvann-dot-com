@@ -201,7 +201,7 @@ func TestCreateResetPasswordSession(t *testing.T) {
 		Params: &MutationRequestPayload{
 			SessionToken: responseBody.Session.SessionToken,
 			Credentials: &errors.Credentials{
-				Email: &email,
+				Email: email,
 			},
 		},
 	}
@@ -273,7 +273,7 @@ func TestCreateUpdateEmailSession(t *testing.T) {
 		Params: &MutationRequestPayload{
 			SessionToken: responseBody.Session.SessionToken,
 			Credentials: &errors.Credentials{
-				Email: &email,
+				Email: email,
 			},
 		},
 	}

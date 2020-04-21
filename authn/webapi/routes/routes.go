@@ -23,8 +23,8 @@ func CreateRoutes(mux *http.ServeMux) *http.ServeMux {
 	mux.HandleFunc("/", ping.Details)
 
 	//	users
-	mux.HandleFunc("/q/users/", users.Query)
-	mux.HandleFunc("/m/users/", users.Mutation)
+	// mux.HandleFunc("/q/users/", users.Query)
+	// mux.HandleFunc("/m/users/", users.Mutation)
 
 	// //	roles
 	// mux.HandleFunc("/q/roles/", roles.Query)

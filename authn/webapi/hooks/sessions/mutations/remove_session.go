@@ -27,7 +27,7 @@ func RemoveSession(w http.ResponseWriter, requestBody *RequestBody) {
 
 	result, errResponseBody := sessions.Remove(
 		&sessions.RemoveParams{
-			Signature: &token.Signature,
+			Signature: token.Signature,
 		},
 	)
 

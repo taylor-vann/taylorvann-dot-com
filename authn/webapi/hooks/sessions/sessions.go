@@ -47,6 +47,7 @@ func Query(w http.ResponseWriter, r *http.Request) {
 			Session: &errors.BadBodyFail,
 			Default: &errAsStr,
 		})
+		return
 	}
 
 	switch body.Action {

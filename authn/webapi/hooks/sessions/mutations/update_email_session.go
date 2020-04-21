@@ -33,17 +33,27 @@ func CreateUpdateEmailSession(w http.ResponseWriter, requestBody *RequestBody) {
 		return
 	}
 
-	session, errSession := sessions.Create(
-		sessions.ComposeResetPasswordSessionParams(
-			&sessions.CreateAccountParams{
-				Email: *requestBody.Params.Credentials.Email,
-			},
-		),
+	userSessionToken, errUserSessionToken := sessions.CreateUpdatePasswordSessionClaims(
+		&sessions.CreateUserAccountClaimsParams{
+			Email: requestBody.Params.Credentials.Email,
+		},
 	)
+	if errUserSessionToken != nil {
+		errorAsStr := errUserSessionToken.Error()
+		errors.BadRequest(w, &errors.ResponsePayload{
+			Session: &errors.InvalidSessionCredentials,
+			Default: &errorAsStr,
+		})
+		return
+	}
+
+	session, errSession := sessions.Create(&sessions.CreateParams{
+		Claims: *userSessionToken,
+	})
 
 	if errSession == nil {
 		marshalledJSON, errMarshal := json.Marshal(&ResponsePayload{
-			SessionToken: &session.SessionToken,
+			SessionToken: session.SessionToken,
 		})
 		if errMarshal == nil {
 			w.Header().Set("Content-Type", "application/json")

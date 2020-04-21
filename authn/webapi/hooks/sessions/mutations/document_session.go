@@ -9,13 +9,13 @@ import (
 )
 
 func CreateDocumentSession(w http.ResponseWriter) {
-	session, errSession := sessions.Create(
-		sessions.ComposeDocumentSessionParams(),
-	)
+	session, errSession := sessions.Create(&sessions.CreateParams{
+		Claims: *sessions.CreateDocumentSessionClaims(),
+	})
 
 	if errSession == nil {
 		payload := ResponsePayload{
-			SessionToken: &session.SessionToken,
+			SessionToken: session.SessionToken,
 		}
 		body := ResponseBody{
 			Session: &payload,

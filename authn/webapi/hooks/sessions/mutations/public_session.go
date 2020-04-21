@@ -28,10 +28,9 @@ func CreatePublicSession(w http.ResponseWriter, requestBody *RequestBody) {
 		return
 	}
 
-	userSessionToken, errUserSessionToken := sessions.ComposePublicSessionParams(
-		&sessions.CreatePublicJWTParams{
-			Email:    *requestBody.Params.Credentials.Email,
-			Password: *requestBody.Params.Credentials.Password,
+	userSessionToken, errUserSessionToken := sessions.CreateUserSessionClaims(
+		&sessions.CreateUserClaimsParams{
+			UserID: requestBody.Params.Credentials.UserID,
 		},
 	)
 	if errUserSessionToken != nil {
@@ -43,13 +42,13 @@ func CreatePublicSession(w http.ResponseWriter, requestBody *RequestBody) {
 		return
 	}
 
-	userSession, errUserSession := sessions.Create(
-		userSessionToken,
-	)
+	userSession, errUserSession := sessions.Create(&sessions.CreateParams{
+		Claims:	*userSessionToken,
+	})
 
 	if errUserSession == nil {
 		marshalledJSON, errMarshal := json.Marshal(&ResponsePayload{
-			SessionToken: &userSession.SessionToken,
+			SessionToken: userSession.SessionToken,
 		})
 		if errMarshal == nil {
 			w.Header().Set("Content-Type", "application/json")

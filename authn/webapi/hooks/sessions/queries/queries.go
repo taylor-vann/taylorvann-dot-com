@@ -7,12 +7,13 @@ import (
 )
 
 type RequestPayload struct {
-	SessionToken *string `json:"session_token"`
+	Environment	 string `json:"environment"`
+	SessionToken string `json:"session_token"`
 }
 
 type RequestBody struct {
-	Action string          `json:"action"`
-	Params *RequestPayload `json:"params"`
+	Action 			 string         `json:"action"`
+	Params			 *RequestPayload `json:"params"`
 }
 
 func ValidateSession(w http.ResponseWriter, requestBody *RequestBody) {
@@ -22,6 +23,7 @@ func ValidateSession(w http.ResponseWriter, requestBody *RequestBody) {
 	}
 
 	sessionIsValid, errReadSession := sessions.Read(&sessions.ReadParams{
+		Environment:  requestBody.Params.Environment,
 		SessionToken: requestBody.Params.SessionToken,
 	})
 

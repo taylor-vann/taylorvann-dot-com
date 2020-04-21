@@ -33,9 +33,9 @@ func CreateCreateAccountSession(w http.ResponseWriter, requestBody *RequestBody)
 		return
 	}
 
-	sessionParams, errSessionParams := sessions.ComposeAccountCreationSessionParams(
-		&sessions.CreateAccountParams{
-			Email: *requestBody.Params.Credentials.Email,
+	sessionParams, errSessionParams := sessions.CreateAccountCreationSessionClaims(
+		&sessions.CreateUserAccountClaimsParams{
+			Email: requestBody.Params.Credentials.Email,
 		},
 	)
 
@@ -43,11 +43,15 @@ func CreateCreateAccountSession(w http.ResponseWriter, requestBody *RequestBody)
 		errors.CustomErrorResponse(w, InvalidSessionProvided)
 		return
 	}
-	session, errSession := sessions.Create(sessionParams)
+
+	session, errSession := sessions.Create(&sessions.CreateParams{
+		Environment: requestBody.Params.Environment,
+		Claims: *sessionParams,
+	})
 
 	if errSession == nil {
 		marshalledJSON, errMarshal := json.Marshal(&ResponsePayload{
-			SessionToken: &session.SessionToken,
+			SessionToken: session.SessionToken,
 		})
 		if errMarshal == nil {
 			w.Header().Set("Content-Type", "application/json")

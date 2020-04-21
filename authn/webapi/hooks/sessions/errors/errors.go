@@ -6,12 +6,14 @@ import (
 )
 
 type Credentials struct {
-	Email			*string		`json:"email"`
-	Password	*string		`json:"password"`
+	Email			string		`json:"email"`
+	UserID		int64			`json::"user_id"`
+	Password	string		`json:"password"`
 }
 
 type RequestPayload struct {
-	SessionToken	*string				`json:"session_token"`
+	Environment		string				`json:"environment"`
+	SessionToken	string				`json:"session_token"`
 	Credentials		*Credentials	`json:"credentials"`
 }
 
@@ -21,13 +23,13 @@ type RequestBody struct {
 }
 
 type SessionResponsePayload struct {
-	SessionToken	*string	`json:"session_token"`
-	CsrfToken			*string	`json:"csrf_token"`
+	SessionToken	string	`json:"session_token"`
+	CsrfToken			string	`json:"csrf_token"`
 }
 
 type ResponsePayload struct {
-	Headers	*string	`json:"headers"`
-	Body		*string	`json:"body"`
+	Headers	*string `json:"headers"`
+	Body		*string `json:"body"`
 	Session *string `json:"session"`
 	Default *string `json:"default"`
 }

@@ -9,13 +9,13 @@ import (
 )
 
 func CreateGuestSession(w http.ResponseWriter) {	
-	session, errSession := sessions.Create(
-		sessions.ComposeGuestSessionParams(),
-	)
+	session, errSession := sessions.Create(&sessions.CreateParams{
+		Claims: *sessions.CreateGuestSessionClaims(),
+	})
 
 	if errSession == nil {
 		payload := ResponsePayload{
-			SessionToken: &session.SessionToken,
+			SessionToken: session.SessionToken,
 		}
 		body := ResponseBody{
 			Session: &payload,
