@@ -49,28 +49,28 @@ var defaultFail = "unable to write custom error messages"
 
 func DefaultErrorResponse(w http.ResponseWriter, err error) {
 	errAsStr := err.Error()
-	BadRequest(w, &responses.ErrorsResponsePayload{
+	BadRequest(w, &responses.ErrorsPayload{
 		Default: &errAsStr,
 	})
 }
 
 func CustomErrorResponse(w http.ResponseWriter, err string) {
-	BadRequest(w, &responses.ErrorsResponsePayload{
+	BadRequest(w, &responses.ErrorsPayload{
 		Default: &err,
 	})
 }
 
-func BadRequest(w http.ResponseWriter, errors *responses.ErrorsResponsePayload) {
+func BadRequest(w http.ResponseWriter, errors *responses.ErrorsPayload) {
 	w.WriteHeader(http.StatusBadRequest)
 	w.Header().Set("Content-Type", "application/json")
 
 	if errors != nil {
-		json.NewEncoder(w).Encode(&responses.ResponseBody{Errors: errors})
+		json.NewEncoder(w).Encode(&responses.Body{Errors: errors})
 		return
 	}
 
-	json.NewEncoder(w).Encode(&responses.ResponseBody{
-		Errors: &responses.ErrorsResponsePayload{
+	json.NewEncoder(w).Encode(&responses.Body{
+		Errors: &responses.ErrorsPayload{
 			Default:	&defaultFail,
 		},
 	})

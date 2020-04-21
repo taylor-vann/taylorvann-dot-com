@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"webapi/hooks/sessions/requests"
 	"webapi/hooks/sessions/responses"
 )
 
@@ -33,7 +34,7 @@ func TestCreateGuestSessionBadRequest(t *testing.T) {
 }
 
 func TestCreateGuestSessionBadHeadersRequest(t *testing.T) {
-	requestBody := MutationRequestBody{
+	requestBody := requests.Body{
 		Action: CreateGuestSession,
 	}
 
@@ -59,7 +60,7 @@ func TestCreateGuestSessionBadHeadersRequest(t *testing.T) {
 }
 
 func TestCreateGuestSession(t *testing.T) {
-	requestBody := MutationRequestBody{
+	requestBody := requests.Body{
 		Action: CreateGuestSession,
 	}
 
@@ -81,7 +82,7 @@ func TestCreateGuestSession(t *testing.T) {
 	if resp.Body == nil {
 		t.Error("response body is nil")
 	}
-	var responseBody MutationResponseBody
+	var responseBody responses.Body
 	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON)
@@ -96,7 +97,7 @@ func TestCreateGuestSession(t *testing.T) {
 }
 
 func TestCreateDocumentSession(t *testing.T) {
-	requestBody := MutationRequestBody{
+	requestBody := requests.Body{
 		Action: CreateDocumentSession,
 	}
 
@@ -118,7 +119,7 @@ func TestCreateDocumentSession(t *testing.T) {
 	if resp.Body == nil {
 		t.Error("response body is nil")
 	}
-	var responseBody MutationResponseBody
+	var responseBody responses.Body
 	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON)
@@ -133,7 +134,7 @@ func TestCreateDocumentSession(t *testing.T) {
 }
 
 func TestCreateResetPasswordSessionBadRequest(t *testing.T) {
-	requestBody := MutationRequestBody{
+	requestBody := requests.Body{
 		Action: CreateUpdatePasswordSession,
 	}
 
@@ -159,7 +160,7 @@ func TestCreateResetPasswordSessionBadRequest(t *testing.T) {
 }
 
 func TestCreateResetPasswordSession(t *testing.T) {
-	requestBody := MutationRequestBody{
+	requestBody := requests.Body{
 		Action: CreateDocumentSession,
 	}
 
@@ -187,7 +188,7 @@ func TestCreateResetPasswordSession(t *testing.T) {
 	time.Sleep(10 * time.Millisecond)
 
 	// decode body to response
-	var responseBody MutationResponseBody
+	var responseBody responses.Body
 	errResponseBody := json.NewDecoder(httpTest.Body).Decode(&responseBody)
 	if errResponseBody != nil {
 		t.Error(errResponseBody)
@@ -196,11 +197,11 @@ func TestCreateResetPasswordSession(t *testing.T) {
 
 	email := "something@darkside.complete"
 	// public session from guest sesion
-	requestBodyPublic := MutationRequestBody{
+	requestBodyPublic := requests.Body{
 		Action: CreateUpdatePasswordSession,
-		Params: &MutationRequestPayload{
+		Params: &requests.Params{
 			SessionToken: responseBody.Session.SessionToken,
-			AccountCredentials: &responses.AccountCredentials{
+			AccountCredentials: &requests.AccountCredentials{
 				Email: email,
 			},
 		},
@@ -231,7 +232,7 @@ func TestCreateResetPasswordSession(t *testing.T) {
 
 
 func TestCreateUpdateEmailSession(t *testing.T) {
-	requestBody := MutationRequestBody{
+	requestBody := requests.Body{
 		Action: CreateDocumentSession,
 	}
 
@@ -259,7 +260,7 @@ func TestCreateUpdateEmailSession(t *testing.T) {
 	time.Sleep(10 * time.Millisecond)
 
 	// decode body to response
-	var responseBody MutationResponseBody
+	var responseBody responses.Body
 	errResponseBody := json.NewDecoder(httpTest.Body).Decode(&responseBody)
 	if errResponseBody != nil {
 		t.Error(errResponseBody)
@@ -268,11 +269,11 @@ func TestCreateUpdateEmailSession(t *testing.T) {
 
 	email := "something@darkside.complete"
 	// public session from guest sesion
-	requestBodyPublic := MutationRequestBody{
+	requestBodyPublic := requests.Body{
 		Action: CreateUpdateEmailSession,
-		Params: &MutationRequestPayload{
+		Params: &requests.Params{
 			SessionToken: responseBody.Session.SessionToken,
-			AccountCredentials: &responses.AccountCredentials{
+			AccountCredentials: &requests.AccountCredentials{
 				Email: email,
 			},
 		},
@@ -302,7 +303,7 @@ func TestCreateUpdateEmailSession(t *testing.T) {
 }
 
 func TestUpdateSession(t *testing.T) {
-	requestBody := MutationRequestBody{
+	requestBody := requests.Body{
 		Action: CreateGuestSession,
 	}
 
@@ -328,7 +329,7 @@ func TestUpdateSession(t *testing.T) {
 	}
 
 	// decode body to response
-	var responseBody MutationResponseBody
+	var responseBody responses.Body
 	errResponseBody := json.NewDecoder(httpTest.Body).Decode(&responseBody)
 	if errResponseBody != nil {
 		t.Error(errResponseBody)
@@ -338,9 +339,9 @@ func TestUpdateSession(t *testing.T) {
 	time.Sleep(10 * time.Millisecond)
 
 	// public session from guest sesion
-	requestBodyPublic := MutationRequestBody{
+	requestBodyPublic := requests.Body{
 		Action: UpdateSession,
-		Params: &MutationRequestPayload{
+		Params: &requests.Params{
 			SessionToken: responseBody.Session.SessionToken,
 		},
 	}
@@ -368,7 +369,7 @@ func TestUpdateSession(t *testing.T) {
 }
 
 func TestValidateSession(t *testing.T) {
-	requestBody := MutationRequestBody{
+	requestBody := requests.Body{
 		Action: CreateGuestSession,
 	}
 
@@ -394,16 +395,16 @@ func TestValidateSession(t *testing.T) {
 	}
 
 	// this is the new stuffs
-	var responseBody MutationResponseBody
+	var responseBody responses.Body
 	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON)
 		return
 	}
 	// public session from guest sesion
-	requestBodyValidate := QueryRequestBody{
+	requestBodyValidate := requests.Body{
 		Action: ValidateSession,
-		Params: &QueryRequestPayload{
+		Params: &requests.Params{
 			SessionToken: responseBody.Session.SessionToken,
 		},
 	}
@@ -434,7 +435,7 @@ func TestValidateSession(t *testing.T) {
 }
 
 func TestDeleteSession(t *testing.T) {
-	requestBody := MutationRequestBody{
+	requestBody := requests.Body{
 		Action: CreateGuestSession,
 	}
 
@@ -460,16 +461,16 @@ func TestDeleteSession(t *testing.T) {
 	}
 
 	// this is the new stuffs
-	var responseBody MutationResponseBody
+	var responseBody responses.Body
 	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON)
 		return
 	}
 	// public session from guest sesion
-	requestBodyRemove := MutationRequestBody{
+	requestBodyRemove := requests.Body{
 		Action: DeleteSession,
-		Params: &MutationRequestPayload{
+		Params: &requests.Params{
 			SessionToken: responseBody.Session.SessionToken,
 		},
 	}

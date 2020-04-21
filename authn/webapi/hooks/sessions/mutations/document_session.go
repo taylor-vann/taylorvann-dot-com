@@ -15,10 +15,10 @@ func CreateDocumentSession(w http.ResponseWriter) {
 	})
 
 	if errSession == nil {
-		payload := responses.SessionResponsePayload{
+		payload := responses.SessionPayload{
 			SessionToken: session.SessionToken,
 		}
-		body := responses.ResponseBody{
+		body := responses.Body{
 			Session: &payload,
 		}
 
@@ -28,7 +28,7 @@ func CreateDocumentSession(w http.ResponseWriter) {
 	}
 
 	errorAsStr := errSession.Error()
-	errors.BadRequest(w, &responses.ErrorsResponsePayload{
+	errors.BadRequest(w, &responses.ErrorsPayload{
 		Session: &CreateGuestSessionErrorMessage,
 		Default: &errorAsStr,
 	})

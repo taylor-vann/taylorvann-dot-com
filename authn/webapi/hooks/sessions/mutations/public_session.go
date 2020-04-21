@@ -5,12 +5,13 @@ import (
 	"net/http"
 
 	"webapi/hooks/sessions/errors"
+	"webapi/hooks/sessions/requests"
 	"webapi/hooks/sessions/responses"
 	"webapi/sessions"
 	"webapi/sessions/constants"
 )
 
-func CreatePublicSession(w http.ResponseWriter, requestBody *responses.RequestBody) {
+func CreatePublicSession(w http.ResponseWriter, requestBody *requests.Body) {
 	validRequest, errValidRequest := validateAndRemoveSession(
 		requestBody,
 		constants.Guest,
@@ -18,7 +19,7 @@ func CreatePublicSession(w http.ResponseWriter, requestBody *responses.RequestBo
 	)
 	if errValidRequest != nil {
 		errAsStr := errValidRequest.Error()
-		errors.BadRequest(w, &responses.ErrorsResponsePayload{
+		errors.BadRequest(w, &responses.ErrorsPayload{
 			Session: &InvalidSessionProvided,
 			Default: &errAsStr,
 		})
@@ -36,7 +37,7 @@ func CreatePublicSession(w http.ResponseWriter, requestBody *responses.RequestBo
 	)
 	if errUserSessionToken != nil {
 		errorAsStr := errUserSessionToken.Error()
-		errors.BadRequest(w, &responses.ErrorsResponsePayload{
+		errors.BadRequest(w, &responses.ErrorsPayload{
 			Session: &errors.InvalidSessionCredentials,
 			Default: &errorAsStr,
 		})
@@ -49,7 +50,7 @@ func CreatePublicSession(w http.ResponseWriter, requestBody *responses.RequestBo
 
 	if errUserSession == nil {
 		marshalledJSON, errMarshal := json.Marshal(
-			&errors.SessionResponsePayload{
+			&responses.SessionPayload{
 				SessionToken: userSession.SessionToken,
 			},
 		)
@@ -64,7 +65,7 @@ func CreatePublicSession(w http.ResponseWriter, requestBody *responses.RequestBo
 	}
 
 	errorAsStr := errUserSession.Error()
-	errors.BadRequest(w, &responses.ErrorsResponsePayload{
+	errors.BadRequest(w, &responses.ErrorsPayload{
 		Session: &errors.UnableToCreatePublicSession,
 		Default: &errorAsStr,
 	})

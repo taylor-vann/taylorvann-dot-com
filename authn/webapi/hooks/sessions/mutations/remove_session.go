@@ -5,12 +5,13 @@ import (
 	"webapi/sessions"
 
 	"webapi/hooks/sessions/errors"
+	"webapi/hooks/sessions/requests"
 	"webapi/hooks/sessions/responses"
 
 	"webapi/interfaces/jwtx"
 )
 
-func RemoveSession(w http.ResponseWriter, requestBody *responses.RequestBody) {
+func RemoveSession(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil {
 		errors.CustomErrorResponse(w, InvalidSessionProvided)
 	}
@@ -20,7 +21,7 @@ func RemoveSession(w http.ResponseWriter, requestBody *responses.RequestBody) {
 	)
 	if errSignature != nil {
 		errAsStr := errSignature.Error()
-		errors.BadRequest(w, &responses.ErrorsResponsePayload{
+		errors.BadRequest(w, &responses.ErrorsPayload{
 			Session: &InvalidSessionProvided,
 			Default: &errAsStr,
 		})
@@ -35,7 +36,7 @@ func RemoveSession(w http.ResponseWriter, requestBody *responses.RequestBody) {
 
 	if errResponseBody != nil {
 		errAsStr := errResponseBody.Error()
-		errors.BadRequest(w, &responses.ErrorsResponsePayload{
+		errors.BadRequest(w, &responses.ErrorsPayload{
 			Session: &InvalidSessionProvided,
 			Default: &errAsStr,
 		})

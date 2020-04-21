@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"webapi/hooks/sessions/errors"
+	"webapi/hooks/sessions/requests"
 	"webapi/hooks/sessions/responses"
 	"webapi/hooks/sessions/mutations"
 	"webapi/hooks/sessions/queries"
@@ -13,16 +14,7 @@ import (
 type ReadSessionAction struct {
 	SessionSignature string `json:"session_signature"`
 }
-type RemoveSessionAction = ReadSessionAction
-type MutationRequestPayload = responses.RequestParams
-type MutationRequestBody = responses.RequestBody
-type MutationResponseBody = responses.ResponseBody
-type QueryRequestPayload = queries.RequestPayload
-type QueryRequestBody = queries.RequestBody
-type ErrorsPayload = responses.ErrorsResponsePayload
-type ResponseBody = responses.ResponseBody
 
-// Actions
 const (
 	CreateDocumentSession     	= "CREATE_DOCUMENT_SESSION"
 	CreateGuestSession        	= "CREATE_GUEST_SESSION"
@@ -41,11 +33,11 @@ func Query(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var body queries.RequestBody
+	var body requests.Body
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
 		errAsStr := err.Error()
-		errors.BadRequest(w, &ErrorsPayload{
+		errors.BadRequest(w, &responses.ErrorsPayload{
 			Session: &errors.BadBodyFail,
 			Default: &errAsStr,
 		})
@@ -56,7 +48,7 @@ func Query(w http.ResponseWriter, r *http.Request) {
 	case ValidateSession:
 		queries.ValidateSession(w, &body)
 	default:
-		errors.BadRequest(w, &ErrorsPayload{
+		errors.BadRequest(w, &responses.ErrorsPayload{
 			Session: &errors.UnrecognizedQuery,
 		})
 	}
@@ -68,7 +60,7 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var body MutationRequestBody
+	var body requests.Body
 	errJsonDecode := json.NewDecoder(r.Body).Decode(&body)
 	if errJsonDecode != nil {
 		errors.CustomErrorResponse(w, errors.BadBodyFail)

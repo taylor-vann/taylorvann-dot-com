@@ -5,13 +5,14 @@ import (
 	"net/http"
 
 	"webapi/hooks/sessions/errors"
+	"webapi/hooks/sessions/requests"
 	"webapi/hooks/sessions/responses"
 
 	"webapi/sessions"
 	"webapi/sessions/constants"
 )
 
-func CreateUpdatePasswordSession(w http.ResponseWriter, requestBody *responses.RequestBody) {
+func CreateUpdatePasswordSession(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody.Params == nil || requestBody.Params.AccountCredentials == nil {
 		errors.CustomErrorResponse(w, InvalidRequestProvided)
 		return
@@ -24,7 +25,7 @@ func CreateUpdatePasswordSession(w http.ResponseWriter, requestBody *responses.R
 	)
 	if errValidRequest != nil {
 		errAsStr := errValidRequest.Error()
-		errors.BadRequest(w, &responses.ErrorsResponsePayload{
+		errors.BadRequest(w, &responses.ErrorsPayload{
 			Session: &InvalidSessionProvided,
 			Default: &errAsStr,
 		})
@@ -42,7 +43,7 @@ func CreateUpdatePasswordSession(w http.ResponseWriter, requestBody *responses.R
 	)
 	if errUserSessionToken != nil {
 		errorAsStr := errUserSessionToken.Error()
-		errors.BadRequest(w, &responses.ErrorsResponsePayload{
+		errors.BadRequest(w, &responses.ErrorsPayload{
 			Session: &errors.InvalidSessionCredentials,
 			Default: &errorAsStr,
 		})
@@ -54,7 +55,7 @@ func CreateUpdatePasswordSession(w http.ResponseWriter, requestBody *responses.R
 	})
 
 	if errSession == nil {
-		marshalledJSON, errMarshal := json.Marshal(&responses.SessionResponsePayload{
+		marshalledJSON, errMarshal := json.Marshal(&responses.SessionPayload{
 			SessionToken: session.SessionToken,
 		})
 		if errMarshal == nil {
@@ -68,7 +69,7 @@ func CreateUpdatePasswordSession(w http.ResponseWriter, requestBody *responses.R
 	}
 
 	errorAsStr := errSession.Error()
-	errors.BadRequest(w, &responses.ErrorsResponsePayload{
+	errors.BadRequest(w, &responses.ErrorsPayload{
 		Session: &CreateGuestSessionErrorMessage,
 		Default: &errorAsStr,
 	})

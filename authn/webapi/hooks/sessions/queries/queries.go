@@ -3,20 +3,11 @@ package queries
 import (
 	"net/http"
 	"webapi/hooks/sessions/errors"
+	"webapi/hooks/sessions/requests"
 	"webapi/sessions"
 )
 
-type RequestPayload struct {
-	Environment	 string `json:"environment"`
-	SessionToken string `json:"session_token"`
-}
-
-type RequestBody struct {
-	Action 			 string          `json:"action"`
-	Params			 *RequestPayload `json:"params"`
-}
-
-func ValidateSession(w http.ResponseWriter, requestBody *RequestBody) {
+func ValidateSession(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil {
 		errors.CustomErrorResponse(w, errors.SessionProvidedIsNil)
 		return
