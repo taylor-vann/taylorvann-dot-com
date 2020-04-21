@@ -8,17 +8,18 @@ import (
 )
 
 var (
-	BadBodyFail = "unable to decode request body"
-	UnrecognizedQuery = "unrecognized query action requested"
+	BadRequestFail  		 = "unable to decode request body"
+	UnrecognizedQuery 	 = "unrecognized query action requested"
 	UnrecognizedMutation = "unrecognized mutation action requested"
-	UnableToCreatePublicSession = "unable to create public session"
-	InvalidSessionCredentials = "invalid session credentials provided"
-	UnableToUpdateSession = "unable to update session"
-	SessionProvidedIsNil = "session provided is nil"
-	CredentialsProvidedAreNil = "credentials provided are nil"
+	FailedToCreateRole 	 = "failed to create role"
+	FailedToDeleteRole	 = "failed to update role"
+	FailedToDeleteRole 	 = "failed to delete role"
+	FailedToReviveRole 	 = "failed to revive role"
+	FailedToIndexRoles 	 = "failed to index roles"
+	FailedToSearchRoles  = "failed to search roles"
 )
 
-var defaultFail = "unable to return session"
+var defaultFail = "unable to return Roles"
 
 func DefaultErrorResponse(w http.ResponseWriter, err error) {
 	errAsStr := err.Error()
