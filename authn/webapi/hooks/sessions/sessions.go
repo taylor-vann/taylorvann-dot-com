@@ -16,21 +16,22 @@ type RemoveSessionAction = ReadSessionAction
 type MutationRequestPayload = mutations.RequestPayload
 type MutationRequestBody = mutations.RequestBody
 type MutationResponseBody = mutations.ResponseBody
-type QueryRequestBody = queries.RequestBody
 type QueryRequestPayload = queries.RequestPayload
+type QueryRequestBody = queries.RequestBody
 type ErrorsPayload = mutations.ErrorsPayload
+type ResponseBody = errors.ResponseBody
 
 // Actions
 const (
-	CreateDocumentSession      = "CREATE_DOCUMENT_SESSION"
-	CreateGuestSession         = "CREATE_GUEST_SESSION"
-	CreatePublicSession        = "CREATE_PUBLIC_SESSION"
-	CreateCreateAccountSession = "CREATE_CREATE_ACCOUNT_SESSION"
-	CreateResetPasswordSession = "CREATE_RESET_PASSWORD_SESSION"
-	CreateUpdateEmailSession   = "CREATE_UPDATE_EMAIL_SESSION"
-	UpdateSession              = "UPDATE_SESSION"
-	ValidateSession            = "VALIDATE_SESSION"
-	RemoveSession              = "REMOVE_SESSION"
+	CreateDocumentSession     	= "CREATE_DOCUMENT_SESSION"
+	CreateGuestSession        	= "CREATE_GUEST_SESSION"
+	CreatePublicSession       	= "CREATE_PUBLIC_SESSION"
+	CreateCreateAccountSession	= "CREATE_CREATE_ACCOUNT_SESSION"
+	CreateUpdatePasswordSession	= "CREATE_UPDATE_PASSWORD_SESSION"
+	CreateUpdateEmailSession  	= "CREATE_UPDATE_EMAIL_SESSION"
+	UpdateSession             	= "UPDATE_SESSION"
+	ValidateSession           	= "VALIDATE_SESSION"
+	DeleteSession             	= "DELETE_SESSION"
 )
 
 func Query(w http.ResponseWriter, r *http.Request) {
@@ -82,13 +83,13 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 		mutations.CreatePublicSession(w, &body)
 	case CreateCreateAccountSession:
 		mutations.CreateCreateAccountSession(w, &body)
-	case CreateResetPasswordSession:
-		mutations.CreateResetPasswordSession(w, &body)
+	case CreateUpdatePasswordSession:
+		mutations.CreateUpdatePasswordSession(w, &body)
 	case CreateUpdateEmailSession:
 		mutations.CreateUpdateEmailSession(w, &body)
 	case UpdateSession:
 		mutations.UpdateSession(w, &body)
-	case RemoveSession:
+	case DeleteSession:
 		mutations.RemoveSession(w, &body)
 	default:
 		errors.CustomErrorResponse(w, errors.UnrecognizedMutation)

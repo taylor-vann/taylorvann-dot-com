@@ -9,7 +9,7 @@ import (
 	"webapi/sessions/constants"
 )
 
-func CreateResetPasswordSession(w http.ResponseWriter, requestBody *RequestBody) {
+func CreateUpdatePasswordSession(w http.ResponseWriter, requestBody *RequestBody) {
 	if requestBody.Params == nil || requestBody.Params.Credentials == nil {
 		errors.CustomErrorResponse(w, InvalidRequestProvided)
 		return

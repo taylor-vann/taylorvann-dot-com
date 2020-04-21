@@ -134,7 +134,7 @@ func TestCreateDocumentSession(t *testing.T) {
 
 func TestCreateResetPasswordSessionBadRequest(t *testing.T) {
 	requestBody := MutationRequestBody{
-		Action: CreateResetPasswordSession,
+		Action: CreateUpdatePasswordSession,
 	}
 
 	marshalBytes := new(bytes.Buffer)
@@ -197,7 +197,7 @@ func TestCreateResetPasswordSession(t *testing.T) {
 	email := "something@darkside.complete"
 	// public session from guest sesion
 	requestBodyPublic := MutationRequestBody{
-		Action: CreateResetPasswordSession,
+		Action: CreateUpdatePasswordSession,
 		Params: &MutationRequestPayload{
 			SessionToken: responseBody.Session.SessionToken,
 			Credentials: &errors.Credentials{
@@ -433,7 +433,7 @@ func TestValidateSession(t *testing.T) {
 	}
 }
 
-func TestRemoveSession(t *testing.T) {
+func TestDeleteSession(t *testing.T) {
 	requestBody := MutationRequestBody{
 		Action: CreateGuestSession,
 	}
@@ -468,7 +468,7 @@ func TestRemoveSession(t *testing.T) {
 	}
 	// public session from guest sesion
 	requestBodyRemove := MutationRequestBody{
-		Action: RemoveSession,
+		Action: DeleteSession,
 		Params: &MutationRequestPayload{
 			SessionToken: responseBody.Session.SessionToken,
 		},

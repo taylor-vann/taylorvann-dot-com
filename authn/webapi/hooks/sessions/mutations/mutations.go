@@ -1,19 +1,15 @@
 package mutations
 
 import (
-	"errors"
+	err "errors"
 
-	sessionErrors "webapi/hooks/sessions/errors"
+	"webapi/hooks/sessions/errors"
 	"webapi/interfaces/jwtx"
 	"webapi/sessions"
 	"webapi/sessions/constants"
 )
 
-type RequestPayload = sessionErrors.RequestPayload
-type RequestBody = sessionErrors.RequestBody
-type ResponsePayload = sessionErrors.SessionResponsePayload
-type ErrorsPayload = sessionErrors.ResponsePayload
-type ResponseBody = sessionErrors.ResponseBody
+type RequestBody = sessionErr.RequestBody
 
 type ValidateTokenParams = jwtx.ValidateTokenParams
 
@@ -26,7 +22,7 @@ var (
 
 func validateAndRemoveSession(requestBody *RequestBody, audience string, subject string) (bool, error) {
 	if requestBody.Params == nil {
-		return false, errors.New("request params are nil")
+		return false, err.New("request params are nil")
 	}
 
 	tokenResults := jwtx.ValidateSessionTokenByParams(&ValidateTokenParams{
@@ -57,11 +53,11 @@ func validateAndRemoveSession(requestBody *RequestBody, audience string, subject
 
 func updateGenericSession(requestBody *RequestBody) (*sessions.Session, error) {
 	if requestBody == nil {
-		return nil, errors.New("request body is nil")
+		return nil, err.New("request body is nil")
 	}
 
 	if requestBody.Params == nil {
-		return nil, errors.New("request params are nil")
+		return nil, err.New("request params are nil")
 	}
 
 	tokenResults := jwtx.ValidateGenericToken(&jwtx.ValidateGenericTokenParams{
@@ -69,7 +65,7 @@ func updateGenericSession(requestBody *RequestBody) (*sessions.Session, error) {
 		Issuer:		constants.TaylorVannDotCom,
 	})
 	if !tokenResults {
-		return nil, errors.New("unable to validate generic token")
+		return nil, err.New("unable to validate generic token")
 	}
 
 	session, errSession := sessions.Update(&sessions.UpdateParams{

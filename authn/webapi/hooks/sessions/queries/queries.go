@@ -12,7 +12,7 @@ type RequestPayload struct {
 }
 
 type RequestBody struct {
-	Action 			 string         `json:"action"`
+	Action 			 string          `json:"action"`
 	Params			 *RequestPayload `json:"params"`
 }
 
