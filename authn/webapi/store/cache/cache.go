@@ -1,4 +1,4 @@
-package whitelist
+package cache
 
 import (
 	"encoding/json"
@@ -11,23 +11,23 @@ import (
 type MilliSeconds = int64
 
 type Entry struct {
-	Signature	 string				`json:"signature"`
-	SessionKey []byte       `json:"session_key"`
-	CreatedAt  MilliSeconds `json:"created_at"`
-	Lifetime   MilliSeconds `json:"expires_at"`
+	Key	 			string			 `json:"key"`
+	Payload		interface{}	 `json:"payload"`
+	CreatedAt MilliSeconds `json:"created_at"`
+	Lifetime	MilliSeconds `json:"expires_at"`
 }
 
 type CreateEntryParams struct {
 	Environment	string				`json:"environment"`
-	Signature		string				`json:"signature"`
-	SessionKey	[]byte				`json:"session_key"`
+	Key					string				`json:"key"`
+	Payload			interface{}		`json:"payload"`
 	CreatedAt		MilliSeconds	`json:"created_at"`
 	Lifetime		MilliSeconds	`json:"lifetime"`
 }
 
 type ReadEntryParams struct {
-	Environment	string `json:"environment"`
-	Signature		string `json:"signature"`
+	Environment	string	`json:"environment"`
+	Key 				string	`json:"key"`
 }
 
 type RemoveEntryParams = ReadEntryParams
@@ -65,10 +65,10 @@ func CreateEntry(p *CreateEntryParams) (*Entry, error) {
 	}
 
 	entry := Entry{
-		Signature:	p.Signature,
-		SessionKey: p.SessionKey,
-		CreatedAt:  p.CreatedAt,
-		Lifetime:   p.Lifetime,
+		Key: 			 p.Key,
+		Payload:	 p.Payload,
+		CreatedAt: p.CreatedAt,
+		Lifetime:  p.Lifetime,
 	}
 
 	entryAsJSON, errEntryAsJSON := json.Marshal(entry)
@@ -76,7 +76,7 @@ func CreateEntry(p *CreateEntryParams) (*Entry, error) {
 		return nil, errEntryAsJSON
 	}
 
-	environmentKey := getEnvironmentKey(p.Signature, p.Environment)
+	environmentKey := getEnvironmentKey(p.Key, p.Environment)
 	whitelistResult, errWhitelist := graylist.SetAndExpire(
 		&graylistx.SetAndExpireParams{
 			Key: environmentKey,
@@ -100,7 +100,7 @@ func ReadEntry(p *ReadEntryParams) (*Entry, error) {
 		return nil, errors.New("error creating graylist")
 	}
 
-	environmentKey := getEnvironmentKey(p.Signature, p.Environment)
+	environmentKey := getEnvironmentKey(p.Key, p.Environment)
 	entryAsByte, errEntryAsByte := graylist.Get(&graylistx.GetParams{
 		Key: environmentKey,
 	})
@@ -129,7 +129,7 @@ func RemoveEntry(p *RemoveEntryParams) (bool, error) {
 		return false, errors.New("error creating graylist")
 	}
 
-	environmentKey := getEnvironmentKey(p.Signature, p.Environment)
+	environmentKey := getEnvironmentKey(p.Key, p.Environment)
 	return graylist.Remove(&graylistx.RemoveParams{
 		Key: environmentKey,
 	})

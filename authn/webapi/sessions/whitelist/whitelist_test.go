@@ -43,19 +43,17 @@ func generateRandomJWTClaims(sub string, num int) *JWTClaimTestPlan {
 }
 
 func TestCreateEntry(t *testing.T) {
-	var tokens = make([]*jwtx.TokenPayload, len(*randomJWTClaims))
-
-	for index, claim := range *randomJWTClaims {
+	for _, claim := range *randomJWTClaims {
 		token, errToken := jwtx.CreateJWT(&claim)
 		if errToken != nil {
 			t.Error("Unable to create jwt")
 		}
-		tokens[index] = token
+
 		entry, errEntry := CreateEntry(&CreateEntryParams{
 			Environment: TestEnvironment,
 			CreatedAt:  claim.Iat,
 			Lifetime:   DayAsMS,
-			SessionKey: *token.RandomSecret,
+			SessionKey: token.RandomSecret,
 			Signature:  token.Token.Signature,
 		})
 
@@ -82,7 +80,7 @@ func TestReadEntry(t *testing.T) {
 			Environment: TestEnvironment,
 			CreatedAt:  claim.Iat,
 			Lifetime:   DayAsMS,
-			SessionKey: *token.RandomSecret,
+			SessionKey: token.RandomSecret,
 			Signature:  token.Token.Signature,
 		})
 
@@ -105,11 +103,10 @@ func TestReadEntry(t *testing.T) {
 			t.Error(errReadEntry.Error())
 		}
 
-		randomSecret := *(token.RandomSecret)
-		if len(randomSecret) != len(readEntry.SessionKey) {
+		if len(token.RandomSecret) != len(readEntry.SessionKey) {
 			t.Error("mismatching secret key lengths")
 		}
-		for index, bit := range randomSecret {
+		for index, bit := range token.RandomSecret {
 			if bit != readEntry.SessionKey[index] {
 				t.Error("mismatching secret keys")
 			}
@@ -131,7 +128,7 @@ func TestRemoveEntry(t *testing.T) {
 			Environment: TestEnvironment,
 			CreatedAt:  claim.Iat,
 			Lifetime:   DayAsMS,
-			SessionKey: *token.RandomSecret,
+			SessionKey: token.RandomSecret,
 			Signature:  token.Token.Signature,
 		})
 

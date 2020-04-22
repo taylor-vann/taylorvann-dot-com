@@ -47,8 +47,8 @@ type ReadParams struct {
 
 type IndexParams struct {
 	Environment  string `json:"environment`
-	StartIndex	 int64
-	Length  		 int64
+	StartIndex	 int64	`json:"start_index"`
+	Length  		 int64	`json:"length"`
 }
 
 type SearchParams struct {

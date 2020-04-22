@@ -1,7 +1,6 @@
 // brian taylor vann
 // taylorvann dot com
 
-// Package - ping
 package ping
 
 import (
@@ -27,7 +26,7 @@ var version = VersionDetails{
 	Build: 1,
 }
 
-const service = "taylorvann_authn"
+const service = "authn"
 const build = "single_server"
 
 var authnDetails = AuthenticationDetails{
