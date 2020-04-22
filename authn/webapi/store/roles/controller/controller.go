@@ -1,7 +1,7 @@
 // brian taylor vann
 // taylorvann dot com
 
-package roles
+package controller
 
 import (
 	"database/sql"
@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"webapi/interfaces/storex"
-	"webapi/controllers/roles/constants"
-	"webapi/controllers/roles/statements"
-	"webapi/controllers/roles/utils"
+	"webapi/store/roles/controller/constants"
+	"webapi/store/roles/controller/statements"
+	"webapi/store/roles/controller/utils"
 )
 
 type Row struct {

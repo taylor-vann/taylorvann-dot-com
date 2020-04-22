@@ -1,7 +1,7 @@
 // brian taylor vann
 // taylorvann dot com
 
-package users
+package controller
 
 import (
 	"database/sql"
@@ -9,11 +9,11 @@ import (
 	"errors"
 	"time"
 
-	"webapi/controllers/users/utils"
 	"webapi/interfaces/passwordx"
 	"webapi/interfaces/storex"
-	"webapi/controllers/users/constants"
-	"webapi/controllers/users/statements"
+	"webapi/store/users/controller/constants"
+	"webapi/store/users/controller/statements"
+	"webapi/store/users/controller/utils"
 )
 
 type HashParams = passwordx.HashParams

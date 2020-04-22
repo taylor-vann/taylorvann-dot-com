@@ -9,8 +9,8 @@ import (
 	// "errors"
 	"time"
 
-	"webapi/controllers/roles"
-	"webapi/controllers/users"
+	rolesController "webapi/store/roles/controller"
+	usersController "webapi/store/users/controller"
 	// "webapi/interfaces/passwordx"
 	// "webapi/interfaces/storex"
 )
@@ -19,10 +19,10 @@ import (
 type MilliSeconds = int64
 
 // CreateUserParams -
-type CreateUserParams = users.CreateParams
+type CreateUserParams = usersController.CreateParams
 
 // ReadUserParams -
-type ReadUserParams = users.ReadParams
+type ReadUserParams = usersController.ReadParams
 
 // UpdateEmailParams -
 type UpdateEmailParams struct {
@@ -49,7 +49,7 @@ type UpdatePasswordParams struct {
 }
 
 // UserRow -
-type UserRow = users.Row
+type UserRow = usersController.Row
 
 // getNowAsMS -
 func getNowAsMS() MilliSeconds {
@@ -58,28 +58,28 @@ func getNowAsMS() MilliSeconds {
 
 // CreateRequiredTables -
 func CreateRequiredTables() (bool, error) {
-	_, errDevelopment := users.CreateTable(&users.CreateTableParams{
+	_, errDevelopment := usersController.CreateTable(&usersController.CreateTableParams{
 		Environment: "DEVELOPMENT",
 	})
 	if errDevelopment != nil {
 		return false, errDevelopment
 	}
 
-	_, errProduction := users.CreateTable(&users.CreateTableParams{
+	_, errProduction := usersController.CreateTable(&usersController.CreateTableParams{
 		Environment: "PRODUCTION",
 	})
 	if errProduction != nil {
 		return false, errProduction
 	}
 
-	_, errRolesDevelopment := roles.CreateTable(&roles.CreateTableParams{
+	_, errRolesDevelopment := rolesController.CreateTable(&rolesController.CreateTableParams{
 		Environment: "DEVELOPMENT",
 	})
 	if errRolesDevelopment != nil {
 		return false, errRolesDevelopment
 	}
 
-	_, errRolesProduction := roles.CreateTable(&roles.CreateTableParams{
+	_, errRolesProduction := rolesController.CreateTable(&rolesController.CreateTableParams{
 		Environment: "PRODUCTION",
 	})
 	if errRolesProduction != nil {

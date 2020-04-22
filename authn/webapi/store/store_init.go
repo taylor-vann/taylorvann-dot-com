@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
-	"webapi/controllers/roles"
-	"webapi/controllers/users"
+	rolesController "webapi/store/roles/controller"
+	usersController "webapi/store/users/controller"
 )
 
 type InitUserDetails struct {
@@ -13,27 +13,12 @@ type InitUserDetails struct {
 	Roles    []string `json:"roles"`
 }
 
-// define
 type InitDetails struct {
 	Users map[string]InitUserDetails `json:"users"`
 }
 
 const initFilname = "./store_db.init.json"
 
-// func getConfigFromEnv() (*redisx.RedisConfig, error) {
-// 	config := redisx.RedisConfig{
-// 		Host:        constants.Env.Host,
-// 		Port:        constants.Env.Port,
-// 		Protocol:    constants.Env.Protocol,
-// 		MaxIdle:     constants.Env.MaxIdle,
-// 		IdleTimeout: constants.Env.IdleTimeout,
-// 		MaxActive:   constants.Env.MaxActive,
-// 	}
-
-// 	return &config, nil
-// }
-
-// InitFromJSON -
 func InitFromJSON() {
 	initJSON, _ := ioutil.ReadFile(initFilname)
 	var initDetails InitDetails
@@ -45,7 +30,7 @@ func InitFromJSON() {
 	}
 
 	for email, details := range initDetails.Users {
-		userRows, errUserRow := users.Create(&users.CreateParams{
+		userRows, errUserRow := usersController.Create(&usersController.CreateParams{
 			Email:    email,
 			Password: details.Password,
 		})
@@ -61,7 +46,7 @@ func InitFromJSON() {
 
 		userRow := userRows[0]
 		for _, organization := range details.Roles {
-			_, errRoleRow := roles.Create(&roles.CreateParams{
+			_, errRoleRow := rolesController.Create(&rolesController.CreateParams{
 				UserID: userRow.ID,
 				Organization: organization,
 			})

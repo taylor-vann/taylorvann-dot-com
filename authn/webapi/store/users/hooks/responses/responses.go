@@ -1,8 +1,8 @@
 package responses
 
-import "webapi/controllers/users"
+import "webapi/store/users/controller"
 
-type Users = roles.Users
+type Users = controller.Users
 
 type Errors struct {
 	Body		*string `json:"body"`

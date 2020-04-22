@@ -6,7 +6,7 @@ package statements
 import (
 	"fmt"
 
-	"webapi/controllers/users/constants"
+	"webapi/store/users/controller/constants"
 )
 
 type SQL struct {

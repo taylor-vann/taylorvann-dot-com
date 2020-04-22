@@ -1,6 +1,6 @@
 package responses
 
-import "webapi/controllers/roles"
+import "webapi/store/roles/controller"
 
 type Roles = roles.Roles
 
