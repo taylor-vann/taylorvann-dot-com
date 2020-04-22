@@ -11,7 +11,7 @@ package routes
 
 import (
 	"net/http"
-	"webapi/hooks/ping"
+	"webapi/routes/ping"
 	"webapi/hooks/sessions"
 	// "webapi/hooks/users"
 	// "webapi/hooks/roles"
