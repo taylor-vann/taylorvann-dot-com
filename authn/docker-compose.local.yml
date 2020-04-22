@@ -22,7 +22,7 @@ services:
       - authn_whitelist_cache
     restart: always
     env_file:
-      - ./environment-variables.dev.env
+      - ./environment_variables.dev.env
     ports:
       - "5000:5000"
     volumes:
@@ -36,9 +36,9 @@ services:
       dockerfile: dockerfile.dev
     restart: always
     env_file:
-      - ./environment-variables.dev.env
+      - ./environment_variables.dev.env
     volumes:
-      - ./store_db/postgres/:/var/lib/postgresql/data/
+      - ./store_db/postgres_data/:/var/lib/postgresql/data/
     command: "-p 5100"
   store_cache:
     container_name: authn_store_cache

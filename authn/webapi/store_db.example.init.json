@@ -1,8 +1,12 @@
 {
   "users": {
-    "username1": {
+    "email": {
       "password": "helloworld",
-      "roles": ["person", "internal", "admin"]
+      "roles": [
+        "person",
+        "internal",
+        "admin"
+      ]
     }
   }
 }

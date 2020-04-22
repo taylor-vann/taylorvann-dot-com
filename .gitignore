@@ -24,6 +24,9 @@
 #   ignore binary
 /authn/webapi/webapi
 
+## Builds
+/gateway/webapi/main
+
 # ignore the build
 web_client/prod/
 
@@ -37,10 +40,7 @@ yarn.lock
 # created by postgresql.
 
 # This pattern will ignore all files but a simple empty ".keep" file.
-/authn/store_db/postgres/*
-
-# Keep Hack
-!.keep
+/authn/store_db/postgres_data/*
 
 # Do not save keys, ever
 gateway/certs/gateway/*
@@ -51,3 +51,6 @@ gateway/certs/gateway/*
 
 authn/certs/authn/*
 !/authn/certs/authn/cert.conf
+
+# DeFacto gitkeep
+!.gitkeep

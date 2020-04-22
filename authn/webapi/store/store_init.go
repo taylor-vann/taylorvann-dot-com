@@ -2,11 +2,10 @@ package store
 
 import (
 	"encoding/json"
-	// "fmt"
 	"io/ioutil"
 
-	"webapi/controllers/roles"
-	"webapi/controllers/users"
+	rolesController "webapi/store/roles/controller"
+	usersController "webapi/store/users/controller"
 )
 
 type InitUserDetails struct {
@@ -14,14 +13,12 @@ type InitUserDetails struct {
 	Roles    []string `json:"roles"`
 }
 
-// define
 type InitDetails struct {
 	Users map[string]InitUserDetails `json:"users"`
 }
 
 const initFilname = "./store_db.init.json"
 
-// InitFromJSON -
 func InitFromJSON() {
 	initJSON, _ := ioutil.ReadFile(initFilname)
 	var initDetails InitDetails
@@ -33,7 +30,7 @@ func InitFromJSON() {
 	}
 
 	for email, details := range initDetails.Users {
-		userRow, errUserRow := users.Create(&users.CreateParams{
+		userRows, errUserRow := usersController.Create(&usersController.CreateParams{
 			Email:    email,
 			Password: details.Password,
 		})
@@ -43,15 +40,18 @@ func InitFromJSON() {
 			continue
 		}
 
-		if userRow != nil {
-			for _, role := range details.Roles {
-				_, errRoleRow := roles.Create(&roles.CreateParams{
-					UserID: userRow.ID,
-					Role:   role,
-				})
-				if errRoleRow != nil {
-					// TODO: log failure
-				}
+		if len(userRows) == 0 {
+			continue
+		}
+
+		userRow := userRows[0]
+		for _, organization := range details.Roles {
+			_, errRoleRow := rolesController.Create(&rolesController.CreateParams{
+				UserID: userRow.ID,
+				Organization: organization,
+			})
+			if errRoleRow != nil {
+				// TODO: log failure
 			}
 		}
 	}

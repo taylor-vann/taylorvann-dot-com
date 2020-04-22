@@ -11,5 +11,3 @@ RUN go get golang.org/x/crypto/argon2
 WORKDIR /go/src/webapi
 
 EXPOSE 5000
-EXPOSE 5005
-EXPOSE 5010

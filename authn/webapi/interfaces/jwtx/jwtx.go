@@ -1,7 +1,6 @@
 // brian Taylor Vann
 // taylorvann dot com
 
-// Package jwtx - utility library for creating JWT based Session Tokens
 package jwtx
 
 import (
@@ -33,9 +32,9 @@ type Claims struct {
 
 // TokenDetails -
 type TokenDetails struct {
-	Header    *Header
-	Payload   *Claims
-	Signature *string
+	Header    Header
+	Payload   Claims
+	Signature string
 }
 
 type Token struct {
@@ -45,19 +44,19 @@ type Token struct {
 }
 
 type TokenPayload struct {
-	Token        *Token
-	RandomSecret *[]byte
+	Token        Token
+	RandomSecret []byte
 }
 
 type ValidateTokenParams struct {
-	Token     *string
+	Token     string
 	Issuer		string
 	Audience  string
 	Subject   string
 }
 
 type ValidateGenericTokenParams struct {
-	Token     *string
+	Token     string
 	Issuer		string
 }
 
@@ -67,33 +66,33 @@ var headerDefaultParams = Header{
 	Typ: "JWT",
 }
 
-// HeaderBase64 - Default payload for all JWTs
-var HeaderBase64 = createDefaultHeaderAsBase64(&headerDefaultParams)
+var HeaderBase64 = createDefaultHeaderAsBase64(headerDefaultParams)
 
-// generateRandomByteArray -
-func generateRandomByteArray(n uint32) (*[]byte, error) {
+func generateRandomByteArray(n uint32) ([]byte, error) {
 	token := make([]byte, n)
 	_, err := rand.Read(token)
 	if err != nil {
 		return nil, err
 	}
 
-	return &token, nil
+	return token, nil
 }
 
-func createDefaultHeaderAsBase64(h *Header) *string {
+func createDefaultHeaderAsBase64(h Header) string {
 	marhalledHeader, err := json.Marshal(h)
 	if err != nil {
-		return nil
+		return ""
 	}
-	b64Header := base64.RawStdEncoding.EncodeToString(marhalledHeader)
 
-	return &b64Header
+	return base64.RawStdEncoding.EncodeToString(marhalledHeader)
 }
 
-func createPayloadAsBase64(claims *Claims) (*string, error) {
-	if HeaderBase64 == nil {
-		return nil, errors.New("jwtx.createPayloadAsBase64() - header is nil")
+func createPayloadAsBase64(claims *Claims) (string, error) {
+	if claims == nil {
+		return "", errors.New("claims are nil")
+	}
+	if HeaderBase64 == "" {
+		return "", errors.New("header is nil")
 	}
 
 	payloadResult := Claims{
@@ -106,36 +105,35 @@ func createPayloadAsBase64(claims *Claims) (*string, error) {
 
 	marshalledPayload, err := json.Marshal(payloadResult)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	marshalledPayloadBase64 := base64.RawStdEncoding.EncodeToString(
 		marshalledPayload,
 	)
 
-	return &marshalledPayloadBase64, nil
+	return marshalledPayloadBase64, nil
 }
 
 func generateSignature(
-	header *string,
-	payload *string,
-	randomSecret *[]byte,
-) *string {
-	combinedHeaderAndPayload := *header + "." + *payload
-	signature := hmac.New(sha256.New, *randomSecret)
+	header string,
+	payload string,
+	randomSecret []byte,
+) string {
+	combinedHeaderAndPayload := header + "." + payload
+	signature := hmac.New(sha256.New, randomSecret)
 	signature.Write([]byte(combinedHeaderAndPayload))
 	signatureBase64 := base64.RawStdEncoding.EncodeToString(
 		signature.Sum(nil),
 	)
 
-	return &signatureBase64
+	return signatureBase64
 }
 
 func GetNowAsMS() MilliSeconds {
 	return time.Now().UnixNano() / int64(time.Millisecond)
 }
 
-// CreateJWT - Return JWT Token
 func CreateJWT(
 	claims *Claims,
 ) (*TokenPayload, error) {
@@ -156,38 +154,36 @@ func CreateJWT(
 	)
 
 	token := Token{
-		Header:    *HeaderBase64,
-		Payload:   *marshalledPayloadBase64,
-		Signature: *signatureBase64,
+		Header:    HeaderBase64,
+		Payload:   marshalledPayloadBase64,
+		Signature: signatureBase64,
 	}
 
 	tokenPayload := TokenPayload{
-		Token:        &token,
+		Token:        token,
 		RandomSecret: randomSecret,
 	}
 
 	return &tokenPayload, nil
 }
 
-// ValidateJWT - take token payload and verify signature
 func ValidateJWT(p *TokenPayload) bool {
 	signatureBase64 := generateSignature(
-		&p.Token.Header,
-		&p.Token.Payload,
+		p.Token.Header,
+		p.Token.Payload,
 		p.RandomSecret,
 	)
 
-	if p.Token.Signature == *signatureBase64 {
+	if p.Token.Signature == signatureBase64 {
 		return true
 	}
 
 	return false
 }
 
-// ConvertTokenToString -
-func ConvertTokenToString(token *Token) (*string, error) {
+func ConvertTokenToString(token *Token) (string, error) {
 	if token == nil {
-		return nil, errors.New("jwtx.ConvertTokenToString() - nil token provided")
+		return "", errors.New("nil token provided")
 	}
 
 	tokenStr := fmt.Sprintf(
@@ -197,18 +193,17 @@ func ConvertTokenToString(token *Token) (*string, error) {
 		token.Signature,
 	)
 
-	return &tokenStr, nil
+	return tokenStr, nil
 }
 
-// RetrieveTokenFromString -
-func RetrieveTokenFromString(tokenStr *string) (*Token, error) {
-	if tokenStr == nil {
-		return nil, errors.New("jwtx.RetrieveTokenFromString() - nil token provided")
+func RetrieveTokenFromString(tokenStr string) (*Token, error) {
+	if tokenStr == "" {
+		return nil, errors.New("nil token provided")
 	}
 
-	bricks := strings.Split(*tokenStr, ".")
+	bricks := strings.Split(tokenStr, ".")
 	if len(bricks) != 3 {
-		return nil, errors.New("jwtx.RetrieveTokenFromString() - invalid token")
+		return nil, errors.New("invalid token")
 	}
 
 	token := Token{
@@ -220,10 +215,9 @@ func RetrieveTokenFromString(tokenStr *string) (*Token, error) {
 	return &token, nil
 }
 
-// RetrieveTokenDetailsFromString -
-func RetrieveTokenDetailsFromString(tokenStr *string) (*TokenDetails, error) {
-	if tokenStr == nil {
-		return nil, errors.New("jwtx.RetrieveTokenFromString() - nil token provided")
+func RetrieveTokenDetailsFromString(tokenStr string) (*TokenDetails, error) {
+	if tokenStr == "" {
+		return nil, errors.New("nil token provided")
 	}
 
 	token, errToken := RetrieveTokenFromString(tokenStr)
@@ -257,9 +251,9 @@ func RetrieveTokenDetailsFromString(tokenStr *string) (*TokenDetails, error) {
 	}
 
 	tokenDetails := TokenDetails{
-		Header:    &header,
-		Payload:   &payload,
-		Signature: &token.Signature,
+		Header:    header,
+		Payload:   payload,
+		Signature: token.Signature,
 	}
 
 	return &tokenDetails, nil
@@ -269,7 +263,7 @@ func ValidateGenericToken(p *ValidateGenericTokenParams) bool {
 	if p == nil {
 		return false
 	}
-	if p.Token == nil {
+	if p.Token == "" {
 		return false
 	}
 
@@ -289,7 +283,7 @@ func ValidateSessionTokenByParams(p *ValidateTokenParams) bool {
 	if p == nil {
 		return false
 	}
-	if p.Token == nil {
+	if p.Token == "" {
 		return false
 	}
 

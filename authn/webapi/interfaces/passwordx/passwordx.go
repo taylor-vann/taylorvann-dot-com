@@ -26,9 +26,9 @@ type HashParams struct {
 
 // HashResults - Store for salt, hash, and paramters post hash
 type HashResults struct {
-	Salt   string      `json:"salt"`
-	Hash   string      `json:"hash"`
-	Params *HashParams `json:"params"`
+	Salt   string     `json:"salt"`
+	Hash   string     `json:"hash"`
+	Params HashParams `json:"params"`
 }
 
 // DefaultHashParams - Our default settings for Argon2id
@@ -75,7 +75,7 @@ func HashPassword(password string, p *HashParams) (*HashResults, error) {
 	encodedHash := HashResults{
 		Salt:   saltBase64,
 		Hash:   hashBase64,
-		Params: p,
+		Params: *p,
 	}
 
 	return &encodedHash, nil

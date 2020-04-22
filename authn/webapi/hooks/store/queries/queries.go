@@ -1,3 +1,0 @@
-package queries
-
-func ReadUser() {}
