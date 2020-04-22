@@ -2,13 +2,12 @@ package mutations
 
 import (
 	"net/http"
-	"webapi/sessions"
-
-	"webapi/hooks/sessions/errors"
-	"webapi/hooks/sessions/requests"
-	"webapi/hooks/sessions/responses"
 
 	"webapi/interfaces/jwtx"
+	"webapi/sessions/hooks/errors"
+	"webapi/sessions/hooks/requests"
+	"webapi/sessions/hooks/responses"
+	"webapi/sessions/sessionsx"
 )
 
 func RemoveSession(w http.ResponseWriter, requestBody *requests.Body) {
@@ -28,8 +27,8 @@ func RemoveSession(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	result, errResponseBody := sessions.Remove(
-		&sessions.RemoveParams{
+	result, errResponseBody := sessionsx.Remove(
+		&sessionsx.RemoveParams{
 			Signature: token.Signature,
 		},
 	)

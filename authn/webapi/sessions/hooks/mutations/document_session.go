@@ -4,14 +4,14 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"webapi/hooks/sessions/errors"
-	"webapi/hooks/sessions/responses"
-	"webapi/sessions"
+	"webapi/sessions/hooks/errors"
+	"webapi/sessions/hooks/responses"
+	"webapi/sessions/sessionsx"
 )
 
 func CreateDocumentSession(w http.ResponseWriter) {
-	session, errSession := sessions.Create(&sessions.CreateParams{
-		Claims: *sessions.CreateDocumentSessionClaims(),
+	session, errSession := sessionsx.Create(&sessionsx.CreateParams{
+		Claims: *sessionsx.CreateDocumentSessionClaims(),
 	})
 
 	if errSession == nil {

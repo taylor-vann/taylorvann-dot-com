@@ -2,9 +2,9 @@ package queries
 
 import (
 	"net/http"
-	"webapi/hooks/sessions/errors"
-	"webapi/hooks/sessions/requests"
-	"webapi/sessions"
+	"webapi/sessions/hooks/errors"
+	"webapi/sessions/hooks/requests"
+	"webapi/sessions/sessionsx"
 )
 
 func ValidateSession(w http.ResponseWriter, requestBody *requests.Body) {
@@ -13,7 +13,7 @@ func ValidateSession(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	sessionIsValid, errReadSession := sessions.Read(&sessions.ReadParams{
+	sessionIsValid, errReadSession := sessionsx.Read(&sessionsx.ReadParams{
 		Environment:  requestBody.Params.Environment,
 		SessionToken: requestBody.Params.SessionToken,
 	})

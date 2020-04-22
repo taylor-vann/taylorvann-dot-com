@@ -3,9 +3,9 @@ package mutations
 import (
 	err "errors"
 
-	"webapi/hooks/sessions/requests"
+	"webapi/sessions/hooks/requests"
 	"webapi/interfaces/jwtx"
-	"webapi/sessions"
+	"webapi/sessions/sessionsx"
 	"webapi/sessions/constants"
 )
 
@@ -32,8 +32,8 @@ func validateAndRemoveSession(requestBody *requests.Body, audience string, subje
 		return false, nil
 	}
 
-	result, errEntry := sessions.ValidateAndRemove(
-		&sessions.ValidateAndRemoveParams{
+	result, errEntry := sessionsx.ValidateAndRemove(
+		&sessionsx.ValidateAndRemoveParams{
 			SessionToken: requestBody.Params.SessionToken,
 		},
 	)
@@ -47,7 +47,7 @@ func validateAndRemoveSession(requestBody *requests.Body, audience string, subje
 	return false, nil
 }
 
-func updateGenericSession(requestBody *requests.Body) (*sessions.Session, error) {
+func updateGenericSession(requestBody *requests.Body) (*sessionsx.Session, error) {
 	if requestBody == nil {
 		return nil, err.New("request body is nil")
 	}
@@ -64,7 +64,7 @@ func updateGenericSession(requestBody *requests.Body) (*sessions.Session, error)
 		return nil, err.New("unable to validate generic token")
 	}
 
-	session, errSession := sessions.Update(&sessions.UpdateParams{
+	session, errSession := sessionsx.Update(&sessionsx.UpdateParams{
 		SessionToken: requestBody.Params.SessionToken,
 	})
 

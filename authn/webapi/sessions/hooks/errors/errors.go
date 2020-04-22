@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"webapi/hooks/sessions/responses"
+	"webapi/sessions/hooks/responses"
 )
 
 var (

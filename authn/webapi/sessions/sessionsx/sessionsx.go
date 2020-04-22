@@ -1,7 +1,7 @@
 // brian taylor vann
 // taylorvann dot com
 
-package sessions
+package sessionsx
 
 import (
 	"errors"

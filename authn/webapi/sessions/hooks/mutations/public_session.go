@@ -4,24 +4,18 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"webapi/hooks/sessions/errors"
-	"webapi/hooks/sessions/requests"
-	"webapi/hooks/sessions/responses"
-
-	"webapi/sessions"
+	"webapi/sessions/hooks/errors"
+	"webapi/sessions/hooks/requests"
+	"webapi/sessions/hooks/responses"
+	"webapi/sessions/sessionsx"
 	"webapi/sessions/constants"
 )
 
-func CreateUpdateEmailSession(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody.Params == nil || requestBody.Params.AccountCredentials == nil {
-		errors.CustomErrorResponse(w, InvalidSessionProvided)
-		return
-	}
-
+func CreatePublicSession(w http.ResponseWriter, requestBody *requests.Body) {
 	validRequest, errValidRequest := validateAndRemoveSession(
 		requestBody,
-		constants.Document,
 		constants.Guest,
+		constants.Document,
 	)
 	if errValidRequest != nil {
 		errAsStr := errValidRequest.Error()
@@ -36,9 +30,9 @@ func CreateUpdateEmailSession(w http.ResponseWriter, requestBody *requests.Body)
 		return
 	}
 
-	userSessionToken, errUserSessionToken := sessions.CreateUpdatePasswordSessionClaims(
-		&sessions.CreateUserAccountClaimsParams{
-			Email: requestBody.Params.AccountCredentials.Email,
+	userSessionToken, errUserSessionToken := sessionsx.CreateUserSessionClaims(
+		&sessionsx.CreateUserClaimsParams{
+			UserID: requestBody.Params.UserCredentials.UserID,
 		},
 	)
 	if errUserSessionToken != nil {
@@ -50,14 +44,14 @@ func CreateUpdateEmailSession(w http.ResponseWriter, requestBody *requests.Body)
 		return
 	}
 
-	session, errSession := sessions.Create(&sessions.CreateParams{
-		Claims: *userSessionToken,
+	userSession, errUserSession := sessionsx.Create(&sessionsx.CreateParams{
+		Claims:	*userSessionToken,
 	})
 
-	if errSession == nil {
+	if errUserSession == nil {
 		marshalledJSON, errMarshal := json.Marshal(
 			&responses.SessionPayload{
-				SessionToken: session.SessionToken,
+				SessionToken: userSession.SessionToken,
 			},
 		)
 		if errMarshal == nil {
@@ -65,14 +59,14 @@ func CreateUpdateEmailSession(w http.ResponseWriter, requestBody *requests.Body)
 			json.NewEncoder(w).Encode(&marshalledJSON)
 			return
 		}
-		
+
 		errors.CustomErrorResponse(w, UnableToMarshalSession)
 		return
 	}
 
-	errorAsStr := errSession.Error()
+	errorAsStr := errUserSession.Error()
 	errors.BadRequest(w, &responses.ErrorsPayload{
-		Session: &CreateGuestSessionErrorMessage,
+		Session: &errors.UnableToCreatePublicSession,
 		Default: &errorAsStr,
 	})
 }

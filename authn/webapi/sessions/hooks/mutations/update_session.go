@@ -3,9 +3,10 @@ package mutations
 import (
 	"encoding/json"
 	"net/http"
-	"webapi/hooks/sessions/errors"
-	"webapi/hooks/sessions/requests"
-	"webapi/hooks/sessions/responses"
+
+	"webapi/sessions/hooks/errors"
+	"webapi/sessions/hooks/requests"
+	"webapi/sessions/hooks/responses"
 )
 
 func UpdateSession(w http.ResponseWriter, requestBody *requests.Body) {

@@ -4,23 +4,23 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"webapi/hooks/sessions/errors"
-	"webapi/hooks/sessions/requests"
-	"webapi/hooks/sessions/responses"
-	"webapi/sessions"
+	"webapi/sessions/hooks/errors"
+	"webapi/sessions/hooks/requests"
+	"webapi/sessions/hooks/responses"
+	"webapi/sessions/sessionsx"
 	"webapi/sessions/constants"
 )
 
-func CreateCreateAccountSession(w http.ResponseWriter, requestBody *requests.Body) {
+func CreateUpdatePasswordSession(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody.Params == nil || requestBody.Params.AccountCredentials == nil {
-		errors.CustomErrorResponse(w, InvalidSessionProvided)
+		errors.CustomErrorResponse(w, InvalidRequestProvided)
 		return
 	}
 
 	validRequest, errValidRequest := validateAndRemoveSession(
 		requestBody,
-		constants.Guest,
 		constants.Document,
+		constants.Guest,
 	)
 	if errValidRequest != nil {
 		errAsStr := errValidRequest.Error()
@@ -35,20 +35,22 @@ func CreateCreateAccountSession(w http.ResponseWriter, requestBody *requests.Bod
 		return
 	}
 
-	sessionParams, errSessionParams := sessions.CreateAccountCreationSessionClaims(
-		&sessions.CreateUserAccountClaimsParams{
+	userSessionToken, errUserSessionToken := sessionsx.CreateUpdatePasswordSessionClaims(
+		&sessionsx.CreateUserAccountClaimsParams{
 			Email: requestBody.Params.AccountCredentials.Email,
 		},
 	)
-
-	if errSessionParams != nil {
-		errors.CustomErrorResponse(w, InvalidSessionProvided)
+	if errUserSessionToken != nil {
+		errorAsStr := errUserSessionToken.Error()
+		errors.BadRequest(w, &responses.ErrorsPayload{
+			Session: &errors.InvalidSessionCredentials,
+			Default: &errorAsStr,
+		})
 		return
 	}
 
-	session, errSession := sessions.Create(&sessions.CreateParams{
-		Environment: requestBody.Params.Environment,
-		Claims: *sessionParams,
+	session, errSession := sessionsx.Create(&sessionsx.CreateParams{
+		Claims: *userSessionToken,
 	})
 
 	if errSession == nil {

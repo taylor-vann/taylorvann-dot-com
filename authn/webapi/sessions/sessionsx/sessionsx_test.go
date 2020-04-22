@@ -1,4 +1,4 @@
-package sessions
+package sessionsx
 
 import (
 	"testing"

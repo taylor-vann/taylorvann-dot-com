@@ -1,14 +1,14 @@
-package sessions
+package hooks
 
 import (
 	"encoding/json"
 	"net/http"
 
-	"webapi/hooks/sessions/errors"
-	"webapi/hooks/sessions/requests"
-	"webapi/hooks/sessions/responses"
-	"webapi/hooks/sessions/mutations"
-	"webapi/hooks/sessions/queries"
+	"webapi/sessions/hooks/errors"
+	"webapi/sessions/hooks/requests"
+	"webapi/sessions/hooks/responses"
+	"webapi/sessions/hooks/mutations"
+	"webapi/sessions/hooks/queries"
 )
 
 const (

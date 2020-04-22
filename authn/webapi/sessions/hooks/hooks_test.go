@@ -1,4 +1,4 @@
-package sessions
+package hooks
 
 import (
 	"bytes"
@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"webapi/hooks/sessions/requests"
-	"webapi/hooks/sessions/responses"
+	"webapi/sessions/hooks/requests"
+	"webapi/sessions/hooks/responses"
 )
 
 func TestCreateGuestSessionBadRequest(t *testing.T) {
