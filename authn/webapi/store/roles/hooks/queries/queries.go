@@ -11,7 +11,10 @@ import (
 
 func Read(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil {
-		errors.CustomErrorResponse(w, errors.FailedToReadRole)
+		errors.BadRequest(w, responses.Errors{
+			Roles: errors.FailedToReadRole,
+			Body: errors.BadRequestFail
+		})
 		return
 	}
 
@@ -35,12 +38,17 @@ func Read(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	errors.CustomErrorResponse(w, errors.FailedToReadRole)
+	errors.BadRequest(w, responses.Errors{
+		Roles: errors.FailedToReadRole,
+	})
 }
 
 func Index(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil {
-		errors.CustomErrorResponse(w, errors.FailedToIndexRole)
+		errors.BadRequest(w, responses.Errors{
+			Roles: errors.FailedToIndexRole,
+			Body: errors.BadRequestFail
+		})
 		return
 	}
 
@@ -63,12 +71,17 @@ func Index(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	errors.CustomErrorResponse(w, errors.FailedToIndexRole)
+	errors.BadRequest(w, responses.Errors{
+		Roles: errors.FailedToIndexRole,
+	})
 }
 
 func Search(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil {
-		errors.CustomErrorResponse(w, errors.FailedToSearchRole)
+		errors.BadRequest(w, responses.Errors{
+			Roles: errors.FailedToSearchRoles,
+			Body: errors.BadRequestFail
+		})
 		return
 	}
 
@@ -93,6 +106,8 @@ func Search(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	errors.CustomErrorResponse(w, errors.FailedToSearchRole)
+	errors.BadRequest(w, responses.Errors{
+		Roles: errors.FailedToSearchRoles,
+	})
 }
 

@@ -11,8 +11,10 @@ import (
 
 func Create(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil {
-		errors.CustomErrorResponse(w, errors.FailedToCreateRole)
-		return
+		errors.BadRequest(w, responses.Errors{
+			Roles: errors.FailedToCreateRole,
+			Body: errors.BadRequestFail,
+		})
 	}
 
 	roles, errCreateSession := controller.Create(&controller.CreateParams{
@@ -37,14 +39,16 @@ func Create(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	errors.CustomErrorResponse(w, errors.FailedToCreateRole)
+	errors.BadRequest(w, responses.Errors{
+		Roles: errors.FailedToCreateRole,
+	})
 }
 
 func Update(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil {
-		errors.CustomErrorResponse(w, errors.FailedToUpdateRole)
-		return
-	}
+	errors.BadRequest(w, responses.Errors{
+		Roles: errors.FailedToUpdateRole,
+		Body: errors.BadRequestFail,
+	})
 
 	roles, errUpdateRoles := controller.Update(controller.UpdateParams{
 		Environment: requestBody.Params.Environment,
@@ -69,12 +73,17 @@ func Update(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	errors.CustomErrorResponse(w, errors.FailedToUpdateRole)
+	errors.BadRequest(w, responses.Errors{
+		Roles: errors.FailedToUpdateRole,
+	})
 }
 
 func UpdateAccess(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil {
-		errors.CustomErrorResponse(w, errors.FailedToUpdateAccessRole)
+		errors.BadRequest(w, responses.Errors{
+			Roles: errors.FailedToUpdateAccessRole,
+			Body: errors.BadRequestFail,
+		})
 		return
 	}
 
@@ -102,12 +111,17 @@ func UpdateAccess(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	errors.CustomErrorResponse(w, errors.FailedToUpdateAccessRole)
+	errors.BadRequest(w, responses.Errors{
+		Roles: errors.FailedToUpdateAccessRole,
+	})
 }
 
 func Delete(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil {
-		errors.CustomErrorResponse(w, errors.FailedToDeleteRole)
+		errors.BadRequest(w, responses.Errors{
+			Roles: errors.FailedToDeleteRole,
+			Body: errors.BadRequestFail,
+		})
 		return
 	}
 
@@ -131,12 +145,17 @@ func Delete(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	errors.CustomErrorResponse(w, errors.FailedToDeleteRole)
+	errors.BadRequest(w, responses.Errors{
+		Roles: errors.FailedToDeleteRole,
+	})
 }
 
 func Undelete(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil {
-		errors.CustomErrorResponse(w, errors.FailedToUndeleteRole)
+		errors.BadRequest(w, responses.Errors{
+			Roles: errors.FailedToUndeleteRole,
+			Body: errors.BadRequestFail,
+		})
 		return
 	}
 
@@ -160,5 +179,7 @@ func Undelete(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	errors.CustomErrorResponse(w, errors.FailedToUndeleteRole)
+	errors.BadRequest(w, responses.Errors{
+		Roles: errors.FailedToUndeleteRole,
+	})
 }
