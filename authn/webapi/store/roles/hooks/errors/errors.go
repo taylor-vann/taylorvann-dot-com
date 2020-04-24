@@ -12,6 +12,7 @@ var (
 	UnrecognizedQuery 	 = "unrecognized query action requested"
 	UnrecognizedMutation = "unrecognized mutation action requested"
 	FailedToCreateRole 	 = "failed to create role"
+	FailedToReadRole	 	 = "failed to read role"
 	FailedToDeleteRole	 = "failed to update role"
 	FailedToDeleteRole 	 = "failed to delete role"
 	FailedToReviveRole 	 = "failed to revive role"
