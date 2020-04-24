@@ -70,19 +70,19 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// switch body.Action {
-	// case Create:
-	// 	mutations.Read(w, &body)
-	// case UpdateAccess:
-	// 	mutations.UpdateAccess(w, &body)
-	// case Update:
-	// 	mutations.Update(w, &body)
-	// case Delete:
-	// 	mutations.Delete(w, &body)
-	// case Undelete:
-	// 	mutations.Undelete(w, &body)
-	// default:
-	// 	errors.CustomErrorResponse(w, errors.UnrecognizedMutation)
+	switch body.Action {
+	case Create:
+		mutations.Create(w, &body)
+	case Update:
+		mutations.Update(w, &body)
+	case UpdateAccess:
+		mutations.UpdateAccess(w, &body)
+	case Delete:
+		mutations.Delete(w, &body)
+	case Undelete:
+		mutations.Undelete(w, &body)
+	default:
+		errors.CustomErrorResponse(w, errors.UnrecognizedMutation)
 	}
 }
 

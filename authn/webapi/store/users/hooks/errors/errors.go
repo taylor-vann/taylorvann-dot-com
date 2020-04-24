@@ -19,7 +19,7 @@ var (
 	FailedToSearchUsers  = "failed to search Users"
 )
 
-var defaultFail = "unable to return Roles"
+var defaultFail = "unable to return Users"
 
 func DefaultErrorResponse(w http.ResponseWriter, err error) {
 	errAsStr := err.Error()

@@ -3,10 +3,10 @@ package mutations
 import (
 	"encoding/json"
 	"net/http"
-	"webapi/store/roles/hooks/errors"
-	"webapi/store/roles/hooks/requests"
-	"webapi/store/roles/hooks/responses"
-	"webapi/store/roles/controller"
+	"webapi/store/users/hooks/errors"
+	"webapi/store/users/hooks/requests"
+	"webapi/store/users/hooks/responses"
+	"webapi/store/users/controller"
 )
 
 func Create(w http.ResponseWriter, requestBody *requests.Body) {
