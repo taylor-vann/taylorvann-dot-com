@@ -36,6 +36,8 @@ var testRolesRead = ReadParams{
 var testRolesSearch = SearchParams{
 	Environment: "LOCAL",
 	UserID: 1,
+	StartIndex: 0,
+	Length: 10,
 }
 
 var testRolesIndex = IndexParams{
@@ -64,7 +66,7 @@ var testRolesUpdateAccess = UpdateAccessParams{
 func TestCreateTable(t *testing.T) {
 	results, err := CreateTable(&createTable)
 	if err != nil {
-		t.Error("error creating table.")
+		t.Error(err.Error())
 	}
 	if results == nil {
 		t.Error("no results were returned from CreateTable.")
@@ -139,7 +141,7 @@ func TestSearch(t *testing.T) {
 		return
 	}
 	if len(rows) == 0 {
-		t.Error("No results were returned from Update.")
+		t.Error("No results were returned from Search.")
 		return
 	}
 

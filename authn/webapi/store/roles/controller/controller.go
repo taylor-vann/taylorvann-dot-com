@@ -54,6 +54,8 @@ type IndexParams struct {
 type SearchParams struct {
 	Environment  string `json:"environment`
 	UserID			 int64	`json:"user_id"`
+	StartIndex	 int64	`json::"start_index"`
+	Length  		 int64	`json:"length"`
 }
 
 type UpdateParams struct {
@@ -189,6 +191,8 @@ func Search(p *SearchParams) (Roles, error) {
 	rows, errQueryRows := storex.Query(
 		statement,
 		p.UserID,
+		p.StartIndex,
+		p.Length,
 	)
 	if errQueryRows != nil {
 		return nil, errQueryRows

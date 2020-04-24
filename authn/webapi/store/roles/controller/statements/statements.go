@@ -27,13 +27,13 @@ const createTable = `
 CREATE TABLE IF NOT EXISTS %s (
 	id BIGSERIAL PRIMARY KEY,
 	user_id BIGINT NOT NULL,
-	organization VARCHAR(256),
+	organization VARCHAR(256) NOT NULL,
 	read_access BOOLEAN NOT NULL DEFAULT FALSE,
 	write_access BOOLEAN NOT NULL DEFAULT FALSE,
 	is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
 	created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 	updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-	CONSTRAINT unique_role UNIQUE (user_id, organization)
+	CONSTRAINT uc_user_and_organization UNIQUE (user_id, organization)
 );
 `
 
@@ -75,7 +75,11 @@ SELECT
 FROM
   %s
 WHERE
-  user_id = $1;
+	user_id = $1
+OFFSET
+	$2
+LIMIT
+	($2 + $3)
 `
 
 const update = `
