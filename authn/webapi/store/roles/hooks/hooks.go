@@ -7,39 +7,36 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"webapi/sessions/hooks/errors"
-	"webapi/sessions/hooks/requests"
-	"webapi/sessions/hooks/responses"
-	"webapi/sessions/hooks/mutations"
-	"webapi/sessions/hooks/queries"
+	"webapi/store/roles/hooks/errors"
+	"webapi/store/roles/hooks/requests"
+	"webapi/store/roles/hooks/responses"
+	"webapi/store/roles/hooks/mutations"
+	"webapi/store/roles/hooks/queries"
 )
 
 const (
-	CreateRole					       	= "CREATE_ROLE"
-	ReadRole										= "READ_ROLE"
-	SearchRoles									= "SEARCH_ROLES"
-	IndexRoles									= "INDEX_ROLES"
-	UpdateRole									= "UPDATE_ROLE"
-	UpdateAccess								= "UPDATE_ACCESS"
-	UpdateRole									= "UPDATE_ROLE"
-	DeleteRole									= "DELETE_ROLE"
-	UndeleteRole								= "UNDELETE_ROLE"
+	Create				= "CREATE_ROLE"
+	Read					= "READ_ROLE"
+	Search				= "SEARCH_ROLES"
+	Index					= "INDEX_ROLES"
+	Update				= "UPDATE_ROLE"
+	UpdateAccess	= "UPDATE_ACCESS"
+	Delete				= "DELETE_ROLE"
+	Undelete			= "UNDELETE_ROLE"
 )
 
 func Query(w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
-		errors.CustomErrorResponse(w, errors.BadBodyFail)
+		errors.BadRequest(w, &responses.Errors{
+			Body: &errors.BadRequestFail,
+		})
 		return
 	}
 
 	var body requests.Body
-	err := json.NewDecoder(r.Body).Decode(&body)
-	if err != nil {
-		errAsStr := err.Error()
-		errors.BadRequest(w, &responses.ErrorsPayload{
-			Session: &errors.BadBodyFail,
-			Default: &errAsStr,
-		})
+	errJsonDecode := json.NewDecoder(r.Body).Decode(&body)
+	if errJsonDecode != nil {
+		errors.DefaultResponse(w, errJsonDecode)
 		return
 	}
 
@@ -51,22 +48,24 @@ func Query(w http.ResponseWriter, r *http.Request) {
 	case Index:
 		queries.Index(w, &body)
 	default:
-		errors.BadRequest(w, &responses.ErrorsPayload{
-			Session: &errors.UnrecognizedQuery,
+		errors.BadRequest(w, &responses.Errors{
+			Body: &errors.UnrecognizedQuery,
 		})
 	}
 }
 
 func Mutation(w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
-		errors.CustomErrorResponse(w, errors.BadBodyFail)
+		errors.BadRequest(w, &responses.Errors{
+			Body: &errors.BadRequestFail,
+		})
 		return
 	}
 
 	var body requests.Body
 	errJsonDecode := json.NewDecoder(r.Body).Decode(&body)
 	if errJsonDecode != nil {
-		errors.CustomErrorResponse(w, errors.BadBodyFail)
+		errors.DefaultResponse(w, errJsonDecode)
 		return
 	}
 
@@ -82,7 +81,9 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 	case Undelete:
 		mutations.Undelete(w, &body)
 	default:
-		errors.CustomErrorResponse(w, errors.UnrecognizedMutation)
+		errors.BadRequest(w, &responses.Errors{
+			Body: &errors.UnrecognizedMutation,
+		})	
 	}
 }
 

@@ -2,7 +2,7 @@ package responses
 
 import "webapi/store/roles/controller"
 
-type Roles = roles.Roles
+type Roles = controller.Roles
 
 type Errors struct {
 	Body		*string `json:"body"`

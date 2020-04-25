@@ -11,23 +11,23 @@ import (
 
 func Create(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil {
-		errors.BadRequest(w, responses.Errors{
-			Roles: errors.FailedToCreateRole,
-			Body: errors.BadRequestFail
+		errors.BadRequest(w, &responses.Errors{
+			Roles: &errors.FailedToCreateRole,
+			Body: &errors.BadRequestFail,
 		})
 		return
 	}
 
 	roles, errCreateSession := controller.Create(&controller.CreateParams{
 		Environment: requestBody.Params.Environment,
-		UserID: requestBody.Params.UserID,
-		Organization: requestBody.Params.Organization,
-		ReadAccess: requestBody.Params.ReadAccess,
-		WriteAccess: requestBody.Params.WriteAccess,
+		UserID: requestBody.Params.Create.UserID,
+		Organization: requestBody.Params.Create.Organization,
+		ReadAccess: requestBody.Params.Create.ReadAccess,
+		WriteAccess: requestBody.Params.Create.WriteAccess,
 	})
 
 	if errCreateSession != nil {
-		errors.DefaultErrorResponse(w, errCreateSession)
+		errors.DefaultResponse(w, errCreateSession)
 		return
 	}
 
@@ -35,36 +35,36 @@ func Create(w http.ResponseWriter, requestBody *requests.Body) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&responses.Body{
-			Roles: roles,
+			Roles: &roles,
 		})
 		return
 	}
 
-	errors.BadRequest(w, responses.Errors{
-		Roles: errors.FailedToCreateRole,
+	errors.BadRequest(w, &responses.Errors{
+		Roles: &errors.FailedToCreateRole,
 	})
 }
 
 func Update(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil {
-		errors.BadRequest(w, responses.Errors{
-			Roles: errors.FailedToUpdateRole,
-			Body: errors.BadRequestFail
+		errors.BadRequest(w, &responses.Errors{
+			Roles: &errors.FailedToUpdateRole,
+			Body: &errors.BadRequestFail,
 		})
 		return
 	}
 
-	roles, errUpdateRoles := controller.Update(controller.UpdateParams{
+	roles, errUpdateRoles := controller.Update(&controller.UpdateParams{
 		Environment: requestBody.Params.Environment,
-		UserID: requestBody.Params.UserID,
-		Organization: requestBody.Params.Organization,
-		ReadAccess: requestBody.Params.ReadAccess,
-		WriteAccess: requestBody.Params.WriteAccess,
-		IsDeleted: requestBody.Params.IsDeleted,
+		UserID: requestBody.Params.Update.UserID,
+		Organization: requestBody.Params.Update.Organization,
+		ReadAccess: requestBody.Params.Update.ReadAccess,
+		WriteAccess: requestBody.Params.Update.WriteAccess,
+		IsDeleted: requestBody.Params.Update.IsDeleted,
 	})
 
 	if errUpdateRoles != nil {
-		errors.DefaultErrorResponse(w, errUpdateRoles)
+		errors.DefaultResponse(w, errUpdateRoles)
 		return
 	}
 
@@ -72,21 +72,21 @@ func Update(w http.ResponseWriter, requestBody *requests.Body) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&responses.Body{
-			Roles: roles,
+			Roles: &roles,
 		})
 		return
 	}
 
-	errors.BadRequest(w, responses.Errors{
-		Roles: errors.FailedToUpdateRole,
+	errors.BadRequest(w, &responses.Errors{
+		Roles: &errors.FailedToUpdateRole,
 	})
 }
 
 func UpdateAccess(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil {
-		errors.BadRequest(w, responses.Errors{
-			Roles: errors.FailedToUpdateAccessRole,
-			Body: errors.BadRequestFail
+		errors.BadRequest(w, &responses.Errors{
+			Roles: &errors.FailedToUpdateAccessRole,
+			Body: &errors.BadRequestFail,
 		})
 		return
 	}
@@ -94,15 +94,15 @@ func UpdateAccess(w http.ResponseWriter, requestBody *requests.Body) {
 	roles, errUpdateAccessRoles := controller.UpdateAccess(
 		&controller.UpdateAccessParams{
 			Environment: requestBody.Params.Environment,
-			UserID: requestBody.Params.UserID,
-			Organization: requestBody.Params.Organization,
-			ReadAccess: requestBody.Params.ReadAccess,
-			WriteAccess: requestBody.Params.WriteAccess,
+			UserID: requestBody.Params.UpdateAccess.UserID,
+			Organization: requestBody.Params.UpdateAccess.Organization,
+			ReadAccess: requestBody.Params.UpdateAccess.ReadAccess,
+			WriteAccess: requestBody.Params.UpdateAccess.WriteAccess,
 		},
 	)
 
 	if errUpdateAccessRoles != nil {
-		errors.DefaultErrorResponse(w, errUpdateAccessRoles)
+		errors.DefaultResponse(w, errUpdateAccessRoles)
 		return
 	}
 
@@ -110,33 +110,33 @@ func UpdateAccess(w http.ResponseWriter, requestBody *requests.Body) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&responses.Body{
-			Roles: roles,
+			Roles: &roles,
 		})
 		return
 	}
 
-	errors.BadRequest(w, responses.Errors{
-		Roles: errors.FailedToUpdateAccessRole,
+	errors.BadRequest(w, &responses.Errors{
+		Roles: &errors.FailedToUpdateAccessRole,
 	})
 }
 
 func Delete(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil {
-		errors.BadRequest(w, responses.Errors{
-			Roles: errors.FailedToDeleteRole,
-			Body: errors.BadRequestFail
+		errors.BadRequest(w, &responses.Errors{
+			Roles: &errors.FailedToDeleteRole,
+			Body: &errors.BadRequestFail,
 		})
 		return
 	}
 
 	roles, errDeleteRole := controller.Delete(&controller.DeleteParams{
 		Environment: requestBody.Params.Environment,
-		UserID: requestBody.Params.UserID,
-		Organization: requestBody.Params.Organization,
+		UserID: requestBody.Params.Delete.UserID,
+		Organization: requestBody.Params.Delete.Organization,
 	})
 
 	if errDeleteRole != nil {
-		errors.DefaultErrorResponse(w, errDeleteRole)
+		errors.DefaultResponse(w, errDeleteRole)
 		return
 	}
 
@@ -144,33 +144,33 @@ func Delete(w http.ResponseWriter, requestBody *requests.Body) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&responses.Body{
-			Roles: roles,
+			Roles: &roles,
 		})
 		return
 	}
 
-	errors.BadRequest(w, responses.Errors{
-		Roles: errors.FailedToDeleteRole,
+	errors.BadRequest(w, &responses.Errors{
+		Roles: &errors.FailedToDeleteRole,
 	})
 }
 
 func Undelete(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil {
-		errors.BadRequest(w, responses.Errors{
-			Roles: errors.FailedToUndeleteRole,
-			Body: errors.BadRequestFail
+		errors.BadRequest(w, &responses.Errors{
+			Roles: &errors.FailedToUndeleteRole,
+			Body: &errors.BadRequestFail,
 		})
 		return
 	}
 
 	roles, errUndeleteRole := controller.Undelete(&controller.UndeleteParams{
 		Environment: requestBody.Params.Environment,
-		UserID: requestBody.Params.UserID,
-		Organization: requestBody.Params.Organization,
+		UserID: requestBody.Params.Undelete.UserID,
+		Organization: requestBody.Params.Undelete.Organization,
 	})
 
 	if errUndeleteRole != nil {
-		errors.DefaultErrorResponse(w, errUndeleteRole)
+		errors.DefaultResponse(w, errUndeleteRole)
 		return
 	}
 
@@ -178,12 +178,12 @@ func Undelete(w http.ResponseWriter, requestBody *requests.Body) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&responses.Body{
-			Roles: roles,
+			Roles: &roles,
 		})
 		return
 	}
 
-	errors.BadRequest(w, responses.Errors{
-		Roles: errors.FailedToUndeleteRole,
+	errors.BadRequest(w, &responses.Errors{
+		Roles: &errors.FailedToUndeleteRole,
 	})
 }
