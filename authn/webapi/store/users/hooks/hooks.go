@@ -7,22 +7,23 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"webapi/store/roles/hooks/errors"
-	"webapi/store/roles/hooks/requests"
-	"webapi/store/roles/hooks/responses"
-	"webapi/store/roles/hooks/mutations"
-	"webapi/store/roles/hooks/queries"
+	"webapi/store/users/hooks/errors"
+	"webapi/store/users/hooks/requests"
+	"webapi/store/users/hooks/responses"
+	"webapi/store/users/hooks/mutations"
+	"webapi/store/users/hooks/queries"
 )
 
 const (
-	Create				= "CREATE_ROLE"
-	Read					= "READ_ROLE"
-	Search				= "SEARCH_ROLES"
-	Index					= "INDEX_ROLES"
-	Update				= "UPDATE_ROLE"
-	UpdateAccess	= "UPDATE_ROLE_ACCESS"
-	Delete				= "DELETE_ROLE"
-	Undelete			= "UNDELETE_ROLE"
+	Create				 = "CREATE_USER"
+	Read					 = "READ_USER"
+	Search				 = "SEARCH_USERS"
+	Index					 = "INDEX_USERS"
+	Update				 = "UPDATE_USER"
+	UpdateEmail		 = "UPDATE_USER_EMAIL"
+	UpdatePassword = "UPDATE_USER_PASSWORD"
+	Delete				 = "DELETE_USER"
+	Undelete			 = "UNDELETE_USER"
 )
 
 func Query(w http.ResponseWriter, r *http.Request) {
@@ -74,8 +75,10 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 		mutations.Create(w, &body)
 	case Update:
 		mutations.Update(w, &body)
-	case UpdateAccess:
-		mutations.UpdateAccess(w, &body)
+	case UpdateEmail:
+		mutations.UpdateEmail(w, &body)
+	case UpdatePassword:
+		mutations.UpdatePassword(w, &body)
 	case Delete:
 		mutations.Delete(w, &body)
 	case Undelete:

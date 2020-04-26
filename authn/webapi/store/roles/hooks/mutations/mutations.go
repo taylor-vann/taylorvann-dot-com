@@ -12,7 +12,7 @@ import (
 func Create(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil {
 		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToCreateRole,
+			Roles: &errors.FailedToCreateUser,
 			Body: &errors.BadRequestFail,
 		})
 		return
@@ -41,14 +41,14 @@ func Create(w http.ResponseWriter, requestBody *requests.Body) {
 	}
 
 	errors.BadRequest(w, &responses.Errors{
-		Roles: &errors.FailedToCreateRole,
+		Roles: &errors.FailedToCreateUser,
 	})
 }
 
 func Update(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil {
 		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToUpdateRole,
+			Roles: &errors.FailedToUpdateUser,
 			Body: &errors.BadRequestFail,
 		})
 		return
@@ -78,14 +78,14 @@ func Update(w http.ResponseWriter, requestBody *requests.Body) {
 	}
 
 	errors.BadRequest(w, &responses.Errors{
-		Roles: &errors.FailedToUpdateRole,
+		Roles: &errors.FailedToUpdateUser,
 	})
 }
 
 func UpdateAccess(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil {
 		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToUpdateAccessRole,
+			Roles: &errors.FailedToUpdateAccessUser,
 			Body: &errors.BadRequestFail,
 		})
 		return
@@ -116,14 +116,14 @@ func UpdateAccess(w http.ResponseWriter, requestBody *requests.Body) {
 	}
 
 	errors.BadRequest(w, &responses.Errors{
-		Roles: &errors.FailedToUpdateAccessRole,
+		Roles: &errors.FailedToUpdateAccessUser,
 	})
 }
 
 func Delete(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil {
 		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToDeleteRole,
+			Roles: &errors.FailedToDeleteUser,
 			Body: &errors.BadRequestFail,
 		})
 		return
@@ -150,14 +150,14 @@ func Delete(w http.ResponseWriter, requestBody *requests.Body) {
 	}
 
 	errors.BadRequest(w, &responses.Errors{
-		Roles: &errors.FailedToDeleteRole,
+		Roles: &errors.FailedToDeleteUser,
 	})
 }
 
 func Undelete(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil {
 		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToUndeleteRole,
+			Roles: &errors.FailedToUndeleteUser,
 			Body: &errors.BadRequestFail,
 		})
 		return
@@ -184,6 +184,6 @@ func Undelete(w http.ResponseWriter, requestBody *requests.Body) {
 	}
 
 	errors.BadRequest(w, &responses.Errors{
-		Roles: &errors.FailedToUndeleteRole,
+		Roles: &errors.FailedToUndeleteUser,
 	})
 }

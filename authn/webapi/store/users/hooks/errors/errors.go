@@ -4,37 +4,34 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"webapi/hooks/sessions/responses"
+	"webapi/store/users/hooks/responses"
 )
 
 var (
-	BadRequestFail  		 = "unable to decode request body"
-	UnrecognizedQuery 	 = "unrecognized query action requested"
-	UnrecognizedMutation = "unrecognized mutation action requested"
-	FailedToCreateUser 	 = "failed to create User"
-	FailedToDeleteUser	 = "failed to update User"
-	FailedToDeleteUser 	 = "failed to delete User"
-	FailedToReviveUser 	 = "failed to revive User"
-	FailedToIndexUsers 	 = "failed to index Users"
-	FailedToSearchUsers  = "failed to search Users"
+	BadRequestFail  		 		 	 = "unable to decode request body"
+	UnrecognizedQuery 	 		 	 = "unrecognized query action requested"
+	UnrecognizedMutation 		 	 = "unrecognized mutation action requested"
+	FailedToCreateUser 	 		 	 = "failed to create User"
+	FailedToReadUser	 	 		 	 = "failed to read User"
+	FailedToIndexUsers 	 		 	 = "failed to index Users"
+	FailedToSearchUsers  		 	 = "failed to search Users"
+	FailedToUpdateUser	 	 	 	 = "failed to Update User"
+	FailedToUpdateEmailUser 	 = "failed to Update Email User"
+	FailedToUpdatePasswordUser = "failed to Update Password User"
+	FailedToDeleteUser 	 		 	 = "failed to delete User"
+	FailedToUndeleteUser 		 	 = "failed to undelete User"
 )
 
-var defaultFail = "unable to return Users"
+var defaultFail = "unable to return Roles"
 
-func DefaultErrorResponse(w http.ResponseWriter, err error) {
+func DefaultResponse(w http.ResponseWriter, err error) {
 	errAsStr := err.Error()
-	BadRequest(w, &responses.ErrorsPayload{
+	BadRequest(w, &responses.Errors{
 		Default: &errAsStr,
 	})
 }
 
-func CustomErrorResponse(w http.ResponseWriter, err string) {
-	BadRequest(w, &responses.ErrorsPayload{
-		Default: &err,
-	})
-}
-
-func BadRequest(w http.ResponseWriter, errors *responses.ErrorsPayload) {
+func BadRequest(w http.ResponseWriter, errors *responses.Errors) {
 	w.WriteHeader(http.StatusBadRequest)
 	w.Header().Set("Content-Type", "application/json")
 
@@ -44,7 +41,7 @@ func BadRequest(w http.ResponseWriter, errors *responses.ErrorsPayload) {
 	}
 
 	json.NewEncoder(w).Encode(&responses.Body{
-		Errors: &responses.ErrorsPayload{
+		Errors: &responses.Errors{
 			Default:	&defaultFail,
 		},
 	})

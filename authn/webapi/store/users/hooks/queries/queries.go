@@ -11,102 +11,102 @@ import (
 
 func Read(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil {
-		errors.BadRequest(w, responses.Errors{
-			Roles: errors.FailedToReadRole,
-			Body: errors.BadRequestFail,
+		errors.BadRequest(w, &responses.Errors{
+			Users: &errors.FailedToReadUser,
+			Body: &errors.BadRequestFail,
 		})
 		return
 	}
 
-	roles, errReadSession := controller.Read(&controller.ReadParams{
+	users, errReadRole := controller.Read(&controller.ReadParams{
 		Environment: requestBody.Params.Environment,
-		UserID: requestBody.Params.UserID,
-		Organization: requestBody.Params.Organization,
+		Email: requestBody.Params.Read.Email,
 	})
 
-	if errReadSession != nil {
-		errors.DefaultErrorResponse(w, errReadSession)
+	if errReadRole != nil {
+		errors.DefaultResponse(w, errReadRole)
 		return
 	}
 
-	if roles != nil {
+	if users != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&responses.Body{
-			Roles: roles,
+			Users: &users,
 		})
 		return
 	}
 
-	errors.BadRequest(w, responses.Errors{
-		Roles: errors.FailedToReadRole,
+	errors.BadRequest(w, &responses.Errors{
+		Users: &errors.FailedToReadUser,
 	})
 }
 
 func Index(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil {
-		errors.BadRequest(w, responses.Errors{
-			Roles: errors.FailedToIndexRole,
-			Body: errors.BadRequestFail,
+		errors.BadRequest(w, &responses.Errors{
+			Users: &errors.FailedToIndexUsers,
+			Body: &errors.BadRequestFail,
 		})
 	}
 
-	roles, errIndexRoles := controller.Index(controller.IndexParams{
-		Environment: requestBody.Params.Environment,
-		StartIndex: requestBody.Params.StartIndex,
+	users, errIndexRoles := controller.Index(&controller.IndexParams{
+		Environment: requestBody.Params.Index.Environment,
+		StartIndex: requestBody.Params.Index.StartIndex,
+		Length: requestBody.Params.Index.Length,
 	})
 
 	if errIndexRoles != nil {
-		errors.DefaultErrorResponse(w, errIndexRoles)
+		errors.DefaultResponse(w, errIndexRoles)
 		return
 	}
 
-	if roles != nil {
+	if users != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&responses.Body{
-			Roles: roles,
+			Users: &users,
 		})
 		return
 	}
 
-	errors.BadRequest(w, responses.Errors{
-		Roles: errors.FailedToIndexRoles,
+	errors.BadRequest(w, &responses.Errors{
+		Users: &errors.FailedToIndexUsers,
 	})
 }
 
 func Search(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil {
-		errors.BadRequest(w, responses.Errors{
-			Roles: errors.FailedToSearchRole,
-			Body: errors.BadRequestFail,
+		errors.BadRequest(w, &responses.Errors{
+			Users: &errors.FailedToSearchUsers,
+			Body: &errors.BadRequestFail,
 		})
 		return
 	}
 
-	roles, errSearchRoles := controller.Search(&controller.SearchParams{
+	users, errSearchRoles := controller.Search(&controller.SearchParams{
 		Environment: requestBody.Params.Environment,
-		UserID: requestBody.Params.UserID,
-		StartIndex: requestBody.Params.StartIndex,
-		Length:	requestBody.Params.Length,
+		EmailSubstring: requestBody.Params.Search.EmailSubstring,
+		StartIndex: requestBody.Params.Search.StartIndex,
+		Length:	requestBody.Params.Search.Length,
 	})
 
 	if errSearchRoles != nil {
-		errors.DefaultErrorResponse(w, errSearchRoles)
+		errors.DefaultResponse(w, errSearchRoles)
 		return
 	}
 
-	if roles != nil {
+	if users != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&responses.Body{
-			Roles: roles,
+			Users: &users,
 		})
 		return
 	}
 
-	errors.BadRequest(w, responses.Errors{
-		Roles: errors.FailedToSearchRoles,
+	errors.BadRequest(w, &responses.Errors{
+		Users: &errors.FailedToSearchUsers,
 	})
 }
 

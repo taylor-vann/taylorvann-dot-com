@@ -11,175 +11,204 @@ import (
 
 func Create(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil {
-		errors.BadRequest(w, responses.Errors{
-			Roles: errors.FailedToCreateRole,
-			Body: errors.BadRequestFail,
+		errors.BadRequest(w, &responses.Errors{
+			Users: &errors.FailedToCreateUser,
+			Body: &errors.BadRequestFail,
 		})
 	}
 
-	roles, errCreateSession := controller.Create(&controller.CreateParams{
+	users, errCreateUser := controller.Create(&controller.CreateParams{
 		Environment: requestBody.Params.Environment,
-		UserID: requestBody.Params.UserID,
-		Organization: requestBody.Params.Organization,
-		ReadAccess: requestBody.Params.ReadAccess,
-		WriteAccess: requestBody.Params.WriteAccess,
+		Email: requestBody.Params.Create.Email,
+		Password: requestBody.Params.Create.Password,
 	})
 
-	if errCreateSession != nil {
-		errors.DefaultErrorResponse(w, errCreateSession)
+	if errCreateUser != nil {
+		errors.DefaultResponse(w, errCreateUser)
 		return
 	}
 
-	if roles != nil {
+	if users != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&responses.Body{
-			Roles: roles,
+			Users: &users,
 		})
 		return
 	}
 
-	errors.BadRequest(w, responses.Errors{
-		Roles: errors.FailedToCreateRole,
+	errors.BadRequest(w, &responses.Errors{
+		Users: &errors.FailedToCreateUser,
 	})
 }
 
 func Update(w http.ResponseWriter, requestBody *requests.Body) {
-	errors.BadRequest(w, responses.Errors{
-		Roles: errors.FailedToUpdateRole,
-		Body: errors.BadRequestFail,
+	errors.BadRequest(w, &responses.Errors{
+		Users: &errors.FailedToUpdateUser,
+		Body: &errors.BadRequestFail,
 	})
 
-	roles, errUpdateRoles := controller.Update(controller.UpdateParams{
+	users, errUpdateUsers := controller.Update(&controller.UpdateParams{
 		Environment: requestBody.Params.Environment,
-		UserID: requestBody.Params.UserID,
-		Organization: requestBody.Params.Organization,
-		ReadAccess: requestBody.Params.ReadAccess,
-		WriteAccess: requestBody.Params.WriteAccess,
-		IsDeleted: requestBody.Params.IsDeleted,
+		CurrentEmail: requestBody.Params.Update.CurrentEmail,
+		UpdatedEmail: requestBody.Params.Update.UpdatedEmail,
+		Password: requestBody.Params.Update.Password,
+		IsDeleted: requestBody.Params.Update.IsDeleted,
 	})
 
-	if errUpdateRoles != nil {
-		errors.DefaultErrorResponse(w, errUpdateRoles)
+	if errUpdateUsers != nil {
+		errors.DefaultResponse(w, errUpdateUsers)
 		return
 	}
 
-	if roles != nil {
+	if users != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&responses.Body{
-			Roles: roles,
+			Users: &users,
 		})
 		return
 	}
 
-	errors.BadRequest(w, responses.Errors{
-		Roles: errors.FailedToUpdateRole,
+	errors.BadRequest(w, &responses.Errors{
+		Users: &errors.FailedToUpdateUser,
 	})
 }
 
-func UpdateAccess(w http.ResponseWriter, requestBody *requests.Body) {
+func UpdateEmail(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil {
-		errors.BadRequest(w, responses.Errors{
-			Roles: errors.FailedToUpdateAccessRole,
-			Body: errors.BadRequestFail,
+		errors.BadRequest(w, &responses.Errors{
+			Users: &errors.FailedToUpdateEmailUser,
+			Body: &errors.BadRequestFail,
 		})
 		return
 	}
 
-	roles, errUpdateAccessRoles := controller.UpdateAccess(
-		&controller.UpdateAccessParams{
+	users, errUpdateEmailUser := controller.UpdateEmail(
+		&controller.UpdateEmailParams{
 			Environment: requestBody.Params.Environment,
-			UserID: requestBody.Params.UserID,
-			Organization: requestBody.Params.Organization,
-			ReadAccess: requestBody.Params.ReadAccess,
-			WriteAccess: requestBody.Params.WriteAccess,
+			CurrentEmail: requestBody.Params.UpdateEmail.CurrentEmail,
+			UpdatedEmail: requestBody.Params.UpdateEmail.UpdatedEmail,
 		},
 	)
 
-	if errUpdateAccessRoles != nil {
-		errors.DefaultErrorResponse(w, errUpdateAccessRoles)
+	if errUpdateEmailUser != nil {
+		errors.DefaultResponse(w, errUpdateEmailUser)
 		return
 	}
 
-	if roles != nil {
+	if users != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&responses.Body{
-			Roles: roles,
+			Users: &users,
 		})
 		return
 	}
 
-	errors.BadRequest(w, responses.Errors{
-		Roles: errors.FailedToUpdateAccessRole,
+	errors.BadRequest(w, &responses.Errors{
+		Users: &errors.FailedToUpdateEmailUser,
+	})
+}
+
+func UpdatePassword(w http.ResponseWriter, requestBody *requests.Body) {
+	if requestBody == nil {
+		errors.BadRequest(w, &responses.Errors{
+			Users: &errors.FailedToUpdatePasswordUser,
+			Body: &errors.BadRequestFail,
+		})
+		return
+	}
+
+	users, errUpdatePasswordUser := controller.UpdatePassword(
+		&controller.UpdatePasswordParams{
+			Environment: requestBody.Params.Environment,
+			Email: requestBody.Params.UpdatePassword.Email,
+			Password: requestBody.Params.UpdatePassword.Password,
+		},
+	)
+
+	if errUpdatePasswordUser != nil {
+		errors.DefaultResponse(w, errUpdatePasswordUser)
+		return
+	}
+
+	if users != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(&responses.Body{
+			Users: &users,
+		})
+		return
+	}
+
+	errors.BadRequest(w, &responses.Errors{
+		Users: &errors.FailedToUpdatePasswordUser,
 	})
 }
 
 func Delete(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil {
-		errors.BadRequest(w, responses.Errors{
-			Roles: errors.FailedToDeleteRole,
-			Body: errors.BadRequestFail,
+		errors.BadRequest(w, &responses.Errors{
+			Users: &errors.FailedToDeleteUser,
+			Body: &errors.BadRequestFail,
 		})
 		return
 	}
 
-	roles, errDeleteRole := controller.Delete(&controller.DeleteParams{
+	users, errDeleteUsers := controller.Delete(&controller.DeleteParams{
 		Environment: requestBody.Params.Environment,
-		UserID: requestBody.Params.UserID,
-		Organization: requestBody.Params.Organization,
+		Email: requestBody.Params.Delete.Email,
 	})
 
-	if errDeleteRole != nil {
-		errors.DefaultErrorResponse(w, errDeleteRole)
+	if errDeleteUsers != nil {
+		errors.DefaultResponse(w, errDeleteUsers)
 		return
 	}
 
-	if roles != nil {
+	if users != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&responses.Body{
-			Roles: roles,
+			Users: &users,
 		})
 		return
 	}
 
-	errors.BadRequest(w, responses.Errors{
-		Roles: errors.FailedToDeleteRole,
+	errors.BadRequest(w, &responses.Errors{
+		Users: &errors.FailedToDeleteUser,
 	})
 }
 
 func Undelete(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil {
-		errors.BadRequest(w, responses.Errors{
-			Roles: errors.FailedToUndeleteRole,
-			Body: errors.BadRequestFail,
+		errors.BadRequest(w, &responses.Errors{
+			Users: &errors.FailedToUndeleteUser,
+			Body: &errors.BadRequestFail,
 		})
 		return
 	}
 
-	roles, errUndeleteRole := controller.Undelete(&controller.UndeleteParams{
+	users, errUndeleteUsers := controller.Undelete(&controller.UndeleteParams{
 		Environment: requestBody.Params.Environment,
-		UserID: requestBody.Params.UserID,
-		Organization: requestBody.Params.Organization,
+		Email: requestBody.Params.Undelete.Email,
 	})
 
-	if errUndeleteRole != nil {
-		errors.DefaultErrorResponse(w, errUndeleteRole)
+	if errUndeleteUsers != nil {
+		errors.DefaultResponse(w, errUndeleteUsers)
 		return
 	}
 
-	if roles != nil {
+	if users != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&responses.Body{
-			Roles: roles,
+			Users: &users,
 		})
 		return
 	}
 
-	errors.BadRequest(w, responses.Errors{
-		Roles: errors.FailedToUndeleteRole,
+	errors.BadRequest(w, &responses.Errors{
+		Users: &errors.FailedToUndeleteUser,
 	})
 }

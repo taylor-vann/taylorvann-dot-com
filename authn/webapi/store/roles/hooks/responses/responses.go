@@ -6,7 +6,7 @@ type Roles = controller.Roles
 
 type Errors struct {
 	Body		*string `json:"body"`
-	Roles 	*string `json:"session"`
+	Roles 	*string `json:"roles"`
 	Default *string `json:"default"`
 }
 
