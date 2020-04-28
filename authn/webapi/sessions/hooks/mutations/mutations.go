@@ -16,64 +16,23 @@ var (
 	UnableToMarshalSession         = "unable to marshal session"
 )
 
-func validateAndRemoveSession(requestBody *requests.Body, audience string, subject string) (bool, error) {
-	if requestBody.Params == nil {
-		return false, err.New("request params are nil")
-	}
-
-	tokenResults := jwtx.ValidateSessionTokenByParams(&jwtx.ValidateTokenParams{
-		Token:    requestBody.Params.SessionToken,
-		Issuer:		constants.TaylorVannDotCom,
-		Audience: audience,
-		Subject:  subject,
-	})
-
-	if !tokenResults {
-		return false, nil
-	}
-
-	result, errEntry := sessionsx.ValidateAndRemove(
-		&sessionsx.ValidateAndRemoveParams{
-			SessionToken: requestBody.Params.SessionToken,
-		},
-	)
-	if errEntry != nil {
-		return false, errEntry
-	}
-	if result != nil {
-		return true, nil
-	}
-
-	return false, nil
-}
-
-func updateGenericSession(requestBody *requests.Body) (*sessionsx.Session, error) {
-	if requestBody == nil {
+func updateGenericSession(p *requests.Update) (*sessionsx.Session, error) {
+	if p == nil {
 		return nil, err.New("request body is nil")
 	}
 
-	if requestBody.Params == nil {
-		return nil, err.New("request params are nil")
-	}
-
 	tokenResults := jwtx.ValidateGenericToken(&jwtx.ValidateGenericTokenParams{
-		Token:    requestBody.Params.SessionToken,
+		Token:    p.SessionToken,
 		Issuer:		constants.TaylorVannDotCom,
 	})
 	if !tokenResults {
 		return nil, err.New("unable to validate generic token")
 	}
 
-	session, errSession := sessionsx.Update(&sessionsx.UpdateParams{
-		SessionToken: requestBody.Params.SessionToken,
-	})
-
+	session, errSession := sessionsx.Update(p)
 	if errSession != nil {
 		return nil, errSession
 	}
-	if session != nil {
-		return session, nil
-	}
 
-	return nil, nil
+	return session, nil
 }

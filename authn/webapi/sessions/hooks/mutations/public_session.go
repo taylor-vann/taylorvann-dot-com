@@ -8,36 +8,35 @@ import (
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
 	"webapi/sessions/sessionsx"
-	"webapi/sessions/constants"
 )
 
 func CreatePublicSession(w http.ResponseWriter, requestBody *requests.Body) {
-	validRequest, errValidRequest := validateAndRemoveSession(
-		requestBody,
-		constants.Guest,
-		constants.Document,
-	)
-	if errValidRequest != nil {
-		errAsStr := errValidRequest.Error()
-		errors.BadRequest(w, &responses.ErrorsPayload{
-			Session: &InvalidSessionProvided,
-			Default: &errAsStr,
+	if requestBody == nil || requestBody.Params == nil {
+		errors.BadRequest(w, &responses.Errors{
+			Session: &errors.InvalidSessionCredentials,
+			Body: &errors.BadRequestFail,
 		})
 		return
 	}
-	if !validRequest {
-		errors.CustomErrorResponse(w, InvalidSessionProvided)
+
+	params, errParams := requestBody.Params.(requests.UserParams)
+	if errParams == false {
+		errors.BadRequest(w, &responses.Errors{
+			Session: &errors.InvalidSessionCredentials,
+			Body: &errors.BadRequestFail,
+			Default: &errors.UnrecognizedParams,
+		})
 		return
 	}
 
 	userSessionToken, errUserSessionToken := sessionsx.CreateUserSessionClaims(
-		&sessionsx.CreateUserClaimsParams{
-			UserID: requestBody.Params.UserCredentials.UserID,
+		&sessionsx.UserParams{
+			UserID: params.UserID,
 		},
 	)
 	if errUserSessionToken != nil {
 		errorAsStr := errUserSessionToken.Error()
-		errors.BadRequest(w, &responses.ErrorsPayload{
+		errors.BadRequest(w, &responses.Errors{
 			Session: &errors.InvalidSessionCredentials,
 			Default: &errorAsStr,
 		})
@@ -45,12 +44,13 @@ func CreatePublicSession(w http.ResponseWriter, requestBody *requests.Body) {
 	}
 
 	userSession, errUserSession := sessionsx.Create(&sessionsx.CreateParams{
+		Environment: params.Environment,
 		Claims:	*userSessionToken,
 	})
 
 	if errUserSession == nil {
 		marshalledJSON, errMarshal := json.Marshal(
-			&responses.SessionPayload{
+			&responses.Session{
 				SessionToken: userSession.SessionToken,
 			},
 		)
@@ -65,7 +65,7 @@ func CreatePublicSession(w http.ResponseWriter, requestBody *requests.Body) {
 	}
 
 	errorAsStr := errUserSession.Error()
-	errors.BadRequest(w, &responses.ErrorsPayload{
+	errors.BadRequest(w, &responses.Errors{
 		Session: &errors.UnableToCreatePublicSession,
 		Default: &errorAsStr,
 	})

@@ -1,22 +1,29 @@
 package requests
 
-type UserCredentials struct {
-	UserID int64 `json:"user_id"`
+import (
+	"webapi/sessions/sessionsx"
+)
+
+type Create = sessionsx.CreateParams
+type Read = sessionsx.ReadParams
+type Update = sessionsx.UpdateParams
+type Delete = sessionsx.DeleteParams
+
+type UserParams struct {
+	Environment string
+	UserID			int64
 }
 
-type AccountCredentials struct {
-	Email		 string	`json:"email"`
-	Password string	`json:"password"`
+type AccountParams struct {
+	Environment string
+	Email				string
 }
 
-type Params struct {
-	Environment				 string 						 `json:"environment"`
-	SessionToken			 string			 		 		 `json:"session_token"`
-	AccountCredentials *AccountCredentials `json:"account_credentials"`
-	UserCredentials		 *UserCredentials		 `json:"user_credentials"`
+type SessionParams struct {
+	Environment string
 }
 
 type Body struct {
-	Action string  `json:"action"`
-	Params *Params `json:"params"`
+	Action string 		 `json:"action"`
+	Params interface{} `json:"params"`
 }

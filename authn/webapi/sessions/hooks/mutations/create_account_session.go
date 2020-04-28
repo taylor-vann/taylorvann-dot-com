@@ -8,51 +8,45 @@ import (
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
 	"webapi/sessions/sessionsx"
-	"webapi/sessions/constants"
 )
 
 func CreateCreateAccountSession(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody.Params == nil || requestBody.Params.AccountCredentials == nil {
-		errors.CustomErrorResponse(w, InvalidSessionProvided)
-		return
-	}
-
-	validRequest, errValidRequest := validateAndRemoveSession(
-		requestBody,
-		constants.Guest,
-		constants.Document,
-	)
-	if errValidRequest != nil {
-		errAsStr := errValidRequest.Error()
-		errors.BadRequest(w, &responses.ErrorsPayload{
-			Session: &InvalidSessionProvided,
-			Default: &errAsStr,
+	if requestBody == nil || requestBody.Params == nil {
+		errors.BadRequest(w, &responses.Errors{
+			Session: &errors.InvalidSessionCredentials,
+			Body: &errors.BadRequestFail,
 		})
 		return
 	}
-	if !validRequest {
-		errors.CustomErrorResponse(w, InvalidSessionProvided)
+
+	params, errParams := requestBody.Params.(requests.AccountParams)
+	if errParams == false {
+		errors.BadRequest(w, &responses.Errors{
+			Session: &errors.InvalidSessionCredentials,
+			Body: &errors.BadRequestFail,
+			Default: &errors.UnrecognizedParams,
+		})
 		return
 	}
 
 	sessionParams, errSessionParams := sessionsx.CreateAccountCreationSessionClaims(
-		&sessionsx.CreateUserAccountClaimsParams{
-			Email: requestBody.Params.AccountCredentials.Email,
+		&sessionsx.AccountParams{
+			Email: params.Email,
 		},
 	)
 
 	if errSessionParams != nil {
-		errors.CustomErrorResponse(w, InvalidSessionProvided)
+		errors.CustomErrorResponse(w, errors.InvalidSessionCredentials)
 		return
 	}
 
 	session, errSession := sessionsx.Create(&sessionsx.CreateParams{
-		Environment: requestBody.Params.Environment,
+		Environment: params.Environment,
 		Claims: *sessionParams,
 	})
 
 	if errSession == nil {
-		marshalledJSON, errMarshal := json.Marshal(&responses.SessionPayload{
+		marshalledJSON, errMarshal := json.Marshal(&responses.Session{
 			SessionToken: session.SessionToken,
 		})
 		if errMarshal == nil {
@@ -66,7 +60,7 @@ func CreateCreateAccountSession(w http.ResponseWriter, requestBody *requests.Bod
 	}
 
 	errorAsStr := errSession.Error()
-	errors.BadRequest(w, &responses.ErrorsPayload{
+	errors.BadRequest(w, &responses.Errors{
 		Session: &CreateGuestSessionErrorMessage,
 		Default: &errorAsStr,
 	})

@@ -10,10 +10,28 @@ import (
 )
 
 func UpdateSession(w http.ResponseWriter, requestBody *requests.Body) {
-	userSession, errUserSession := updateGenericSession(requestBody)
+	if requestBody == nil || requestBody.Params == nil {
+		errors.BadRequest(w, &responses.Errors{
+			Session: &errors.UnableToUpdateSession,
+			Body: &errors.BadRequestFail,
+		})
+		return
+	}
+
+	params, errParams := requestBody.Params.(requests.Update)
+	if errParams == false {
+		errors.BadRequest(w, &responses.Errors{
+			Session: &errors.UnableToUpdateSession,
+			Body: &errors.BadRequestFail,
+			Default: &errors.UnrecognizedParams,
+		})
+		return
+	}
+
+	userSession, errUserSession := updateGenericSession(&params)
 	if errUserSession != nil {
 		errAsStr := errUserSession.Error()
-		errors.BadRequest(w, &responses.ErrorsPayload{
+		errors.BadRequest(w, &responses.Errors{
 			Session: &InvalidSessionProvided,
 			Default: &errAsStr,
 		})
@@ -22,12 +40,12 @@ func UpdateSession(w http.ResponseWriter, requestBody *requests.Body) {
 
 	if userSession != nil {
 		marshalledJSON, errMarshal := json.Marshal(
-			&responses.SessionPayload{
+			&responses.Session{
 				SessionToken: userSession.SessionToken,
 			},
 		)
 		if errMarshal != nil {
-			errors.BadRequest(w, &responses.ErrorsPayload{
+			errors.BadRequest(w, &responses.Errors{
 				Session: &UnableToMarshalSession,
 			})
 			return
@@ -38,9 +56,7 @@ func UpdateSession(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	errorAsStr := errUserSession.Error()
-	errors.BadRequest(w, &responses.ErrorsPayload{
+	errors.BadRequest(w, &responses.Errors{
 		Session: &errors.UnableToUpdateSession,
-		Default: &errorAsStr,
 	})
 }

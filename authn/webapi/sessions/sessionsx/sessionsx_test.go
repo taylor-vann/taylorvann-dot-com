@@ -195,7 +195,7 @@ func TestCheckBadSession(t *testing.T) {
 // Test Create Public JWT
 func TestRetrieveUserSession(t *testing.T) {
 	sessionClaims, errSessionClaims := CreateUserSessionClaims(
-		&CreateUserClaimsParams{
+		&UserParams{
 			UserID: -1,
 		},
 	)

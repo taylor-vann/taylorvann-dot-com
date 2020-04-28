@@ -8,9 +8,11 @@ import (
 )
 
 var (
-	BadBodyFail = "unable to decode request body"
+	BadRequestFail = "unable to decode request body"
 	UnrecognizedQuery = "unrecognized query action requested"
 	UnrecognizedMutation = "unrecognized mutation action requested"
+	UnrecognizedParams = "unrecognized parameters"
+	UnableToValidateSession = "unable to create validate session"
 	UnableToCreatePublicSession = "unable to create public session"
 	InvalidSessionCredentials = "invalid session credentials provided"
 	UnableToUpdateSession = "unable to update session"
@@ -22,18 +24,18 @@ var defaultFail = "unable to return session"
 
 func DefaultErrorResponse(w http.ResponseWriter, err error) {
 	errAsStr := err.Error()
-	BadRequest(w, &responses.ErrorsPayload{
+	BadRequest(w, &responses.Errors{
 		Default: &errAsStr,
 	})
 }
 
 func CustomErrorResponse(w http.ResponseWriter, err string) {
-	BadRequest(w, &responses.ErrorsPayload{
+	BadRequest(w, &responses.Errors{
 		Default: &err,
 	})
 }
 
-func BadRequest(w http.ResponseWriter, errors *responses.ErrorsPayload) {
+func BadRequest(w http.ResponseWriter, errors *responses.Errors) {
 	w.WriteHeader(http.StatusBadRequest)
 	w.Header().Set("Content-Type", "application/json")
 
@@ -43,7 +45,7 @@ func BadRequest(w http.ResponseWriter, errors *responses.ErrorsPayload) {
 	}
 
 	json.NewEncoder(w).Encode(&responses.Body{
-		Errors: &responses.ErrorsPayload{
+		Errors: &responses.Errors{
 			Default:	&defaultFail,
 		},
 	})

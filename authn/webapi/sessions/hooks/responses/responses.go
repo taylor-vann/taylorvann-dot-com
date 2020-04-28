@@ -1,11 +1,11 @@
 package responses
 
-type SessionPayload struct {
+type Session struct {
 	SessionToken	string	`json:"session_token"`
 	CsrfToken			string	`json:"csrf_token"`
 }
 
-type ErrorsPayload struct {
+type Errors struct {
 	Headers	*string `json:"headers"`
 	Body		*string `json:"body"`
 	Session *string `json:"session"`
@@ -13,6 +13,6 @@ type ErrorsPayload struct {
 }
 
 type Body struct {
-	Session *SessionPayload	`json:"session"`
-	Errors  *ErrorsPayload	`json:"errors"`
+	Session *Session	`json:"session"`
+	Errors  *Errors		`json:"errors"`
 }

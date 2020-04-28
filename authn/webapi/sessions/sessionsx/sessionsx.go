@@ -24,11 +24,13 @@ type CreateClaimsParams struct {
 
 type SessionClaims = jwtx.Claims
 
-type CreateUserClaimsParams struct {
+type UserParams struct {
+	Environment string
 	UserID int64
 }
 
-type CreateUserAccountClaimsParams struct {
+type AccountParams struct {
+	Environment string
 	Email string
 }
 
@@ -48,7 +50,7 @@ type UpdateParams struct {
 }
 
 type ValidateAndRemoveParams = UpdateParams
-type RemoveParams = whitelist.RemoveEntryParams
+type DeleteParams = whitelist.RemoveEntryParams
 
 func getLifetimeByAudience(audience string) int64 {
 	switch audience {
@@ -92,7 +94,7 @@ func CreateGuestSessionClaims() *SessionClaims {
 	})
 }
 
-func CreateUpdatePasswordSessionClaims(p *CreateUserAccountClaimsParams) (*SessionClaims, error) {
+func CreateUpdatePasswordSessionClaims(p *AccountParams) (*SessionClaims, error) {
 	if p == nil {
 		return nil, errors.New("nil parameters provided")
 	}
@@ -106,7 +108,7 @@ func CreateUpdatePasswordSessionClaims(p *CreateUserAccountClaimsParams) (*Sessi
 	return claims, nil
 }
 
-func CreateUpdateEmailSessionClaims(p *CreateUserAccountClaimsParams) (*SessionClaims, error) {
+func CreateUpdateEmailSessionClaims(p *AccountParams) (*SessionClaims, error) {
 	if p == nil {
 		return nil, errors.New("nil parameters provided")
 	}
@@ -120,7 +122,7 @@ func CreateUpdateEmailSessionClaims(p *CreateUserAccountClaimsParams) (*SessionC
 	return claims, nil
 }
 
-func CreateDeleteAccountSessionClaims(p *CreateUserAccountClaimsParams) (*SessionClaims, error) {
+func CreateDeleteAccountSessionClaims(p *AccountParams) (*SessionClaims, error) {
 	if p == nil {
 		return nil, errors.New("nil parameters provided")
 	}
@@ -134,7 +136,7 @@ func CreateDeleteAccountSessionClaims(p *CreateUserAccountClaimsParams) (*Sessio
 	return claims, nil
 }
 
-func CreateAccountCreationSessionClaims(p *CreateUserAccountClaimsParams) (*SessionClaims, error) {
+func CreateAccountCreationSessionClaims(p *AccountParams) (*SessionClaims, error) {
 	if p == nil {
 		return nil, errors.New("nil parameters provided")
 	}
@@ -148,7 +150,7 @@ func CreateAccountCreationSessionClaims(p *CreateUserAccountClaimsParams) (*Sess
 	return claims, nil
 }
 
-func CreateUserSessionClaims(p *CreateUserClaimsParams) (*SessionClaims, error) {
+func CreateUserSessionClaims(p *UserParams) (*SessionClaims, error) {
 	if p == nil {
 		return nil, errors.New("nil parameters provided")
 	}
@@ -239,59 +241,6 @@ func Read(p *ReadParams) (bool, error) {
 	return false, nil
 }
 
-func ValidateAndRemove(p *ValidateAndRemoveParams) (*whitelist.Entry, error) {
-	if p == nil {
-		return nil, errors.New("nil parameters provided")
-	}
-	if p.SessionToken == "" {
-		return nil, errors.New("nil sesion provided")
-	}
-
-	tokenDetails, errTokenDetails := jwtx.RetrieveTokenFromString(
-		p.SessionToken,
-	)
-	if errTokenDetails != nil {
-		return nil, errTokenDetails
-	}
-	if tokenDetails == nil {
-		return nil, errTokenDetails
-	}
-
-	entry, errEntry := whitelist.ReadEntry(
-		&whitelist.ReadEntryParams{
-			Environment: p.Environment,
-			Signature: tokenDetails.Signature,
-		},
-	)
-	if errEntry != nil {
-		return nil, errEntry
-	}
-
-	if entry != nil {
-		resultJwt := jwtx.ValidateJWT(&jwtx.TokenPayload{
-			Token:        *tokenDetails,
-			RandomSecret: entry.SessionKey,
-		})
-		if resultJwt {
-			removeResult, errRemoveResult := whitelist.RemoveEntry(
-				&whitelist.RemoveEntryParams{
-					Environment: p.Environment,
-					Signature: tokenDetails.Signature,
-				},
-			)
-			if errRemoveResult != nil {
-				return nil, errRemoveResult
-			}
-			if removeResult == false {
-				return nil, errRemoveResult
-			}
-			return entry, nil
-		}
-	}
-
-	return nil, nil
-}
-
 func Update(p *UpdateParams) (*Session, error) {
 	tokenDetails, errTokenDetails := jwtx.RetrieveTokenFromString(
 		p.SessionToken,
@@ -347,6 +296,6 @@ func Update(p *UpdateParams) (*Session, error) {
 	return nil, nil
 }
 
-func Remove(p *RemoveParams) (bool, error) {
+func Delete(p *DeleteParams) (bool, error) {
 	return whitelist.RemoveEntry(p)
 }

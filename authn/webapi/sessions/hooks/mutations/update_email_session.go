@@ -8,41 +8,35 @@ import (
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
 	"webapi/sessions/sessionsx"
-	"webapi/sessions/constants"
 )
 
 func CreateUpdateEmailSession(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody.Params == nil || requestBody.Params.AccountCredentials == nil {
-		errors.CustomErrorResponse(w, InvalidSessionProvided)
-		return
-	}
-
-	validRequest, errValidRequest := validateAndRemoveSession(
-		requestBody,
-		constants.Document,
-		constants.Guest,
-	)
-	if errValidRequest != nil {
-		errAsStr := errValidRequest.Error()
-		errors.BadRequest(w, &responses.ErrorsPayload{
-			Session: &InvalidSessionProvided,
-			Default: &errAsStr,
+	if requestBody == nil || requestBody.Params == nil {
+		errors.BadRequest(w, &responses.Errors{
+			Session: &errors.InvalidSessionCredentials,
+			Body: &errors.BadRequestFail,
 		})
 		return
 	}
-	if !validRequest {
-		errors.CustomErrorResponse(w, InvalidSessionProvided)
+
+	params, errParams := requestBody.Params.(requests.AccountParams)
+	if errParams == false {
+		errors.BadRequest(w, &responses.Errors{
+			Session: &errors.InvalidSessionCredentials,
+			Body: &errors.BadRequestFail,
+			Default: &errors.UnrecognizedParams,
+		})
 		return
 	}
 
 	userSessionToken, errUserSessionToken := sessionsx.CreateUpdatePasswordSessionClaims(
-		&sessionsx.CreateUserAccountClaimsParams{
-			Email: requestBody.Params.AccountCredentials.Email,
+		&sessionsx.AccountParams{
+			Email: params.Email,
 		},
 	)
 	if errUserSessionToken != nil {
 		errorAsStr := errUserSessionToken.Error()
-		errors.BadRequest(w, &responses.ErrorsPayload{
+		errors.BadRequest(w, &responses.Errors{
 			Session: &errors.InvalidSessionCredentials,
 			Default: &errorAsStr,
 		})
@@ -50,12 +44,13 @@ func CreateUpdateEmailSession(w http.ResponseWriter, requestBody *requests.Body)
 	}
 
 	session, errSession := sessionsx.Create(&sessionsx.CreateParams{
+		Environment: params.Environment,
 		Claims: *userSessionToken,
 	})
 
 	if errSession == nil {
 		marshalledJSON, errMarshal := json.Marshal(
-			&responses.SessionPayload{
+			&responses.Session{
 				SessionToken: session.SessionToken,
 			},
 		)
@@ -70,7 +65,7 @@ func CreateUpdateEmailSession(w http.ResponseWriter, requestBody *requests.Body)
 	}
 
 	errorAsStr := errSession.Error()
-	errors.BadRequest(w, &responses.ErrorsPayload{
+	errors.BadRequest(w, &responses.Errors{
 		Session: &CreateGuestSessionErrorMessage,
 		Default: &errorAsStr,
 	})

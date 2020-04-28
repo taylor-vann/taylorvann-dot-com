@@ -3,7 +3,6 @@ package hooks
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -54,14 +53,17 @@ func TestCreateGuestSessionBadHeadersRequest(t *testing.T) {
 	handler.ServeHTTP(httpTest, req)
 
 	status := httpTest.Code
-	if status != http.StatusOK {
-		t.Error("handler returned incorrect status code, should be 200")
+	if status == http.StatusOK {
+		t.Error("handler returned incorrect status code, should not be 200")
 	}
 }
 
 func TestCreateGuestSession(t *testing.T) {
 	requestBody := requests.Body{
 		Action: CreateGuestSession,
+		Params: requests.SessionParams{
+			Environment: "LOCAL",
+		},
 	}
 
 	marshalBytes := new(bytes.Buffer)
@@ -92,13 +94,16 @@ func TestCreateGuestSession(t *testing.T) {
 	}
 
 	if httpTest.Code != http.StatusOK {
-		t.Error("handler returned incorrect status code")
+		t.Error(*responseBody.Errors.Default)
 	}
 }
 
 func TestCreateDocumentSession(t *testing.T) {
 	requestBody := requests.Body{
 		Action: CreateDocumentSession,
+		Params: requests.SessionParams{
+			Environment: "LOCAL",
+		},
 	}
 
 	marshalBytes := new(bytes.Buffer)
@@ -136,6 +141,9 @@ func TestCreateDocumentSession(t *testing.T) {
 func TestCreateResetPasswordSessionBadRequest(t *testing.T) {
 	requestBody := requests.Body{
 		Action: CreateUpdatePasswordSession,
+		Params: requests.SessionParams{
+			Environment: "LOCAL",
+		},
 	}
 
 	marshalBytes := new(bytes.Buffer)
@@ -159,51 +167,14 @@ func TestCreateResetPasswordSessionBadRequest(t *testing.T) {
 	}
 }
 
-func TestCreateResetPasswordSession(t *testing.T) {
-	requestBody := requests.Body{
-		Action: CreateDocumentSession,
-	}
-
-	marshalBytes := new(bytes.Buffer)
-	json.NewEncoder(marshalBytes).Encode(requestBody)
-	resp, errResp := http.NewRequest(
-		"POST",
-		"/m/sessions/",
-		marshalBytes,
-	)
-	if errResp != nil {
-		t.Error("error making guest session request")
-	}
-
-	httpTest := httptest.NewRecorder()
-	handler := http.HandlerFunc(Mutation)
-	handler.ServeHTTP(httpTest, resp)
-
-	status := httpTest.Code
-	if status != http.StatusOK {
-		t.Error("guest session returned incorrect status code")
-		return
-	}
-
-	time.Sleep(10 * time.Millisecond)
-
-	// decode body to response
-	var responseBody responses.Body
-	errResponseBody := json.NewDecoder(httpTest.Body).Decode(&responseBody)
-	if errResponseBody != nil {
-		t.Error(errResponseBody)
-		return
-	}
-
+func TestCreateUpdatePasswordSession(t *testing.T) {
 	email := "something@darkside.complete"
 	// public session from guest sesion
 	requestBodyPublic := requests.Body{
 		Action: CreateUpdatePasswordSession,
-		Params: &requests.Params{
-			SessionToken: responseBody.Session.SessionToken,
-			AccountCredentials: &requests.AccountCredentials{
-				Email: email,
-			},
+		Params: requests.AccountParams{
+			Environment: "LOCAL",
+			Email: email,
 		},
 	}
 
@@ -225,7 +196,6 @@ func TestCreateResetPasswordSession(t *testing.T) {
 
 	statusPublic := httpTestPublic.Code
 	if statusPublic != http.StatusOK {
-		fmt.Println(httpTestPublic)
 		t.Error("handler returned incorrect status code")
 	}
 }
@@ -271,11 +241,9 @@ func TestCreateUpdateEmailSession(t *testing.T) {
 	// public session from guest sesion
 	requestBodyPublic := requests.Body{
 		Action: CreateUpdateEmailSession,
-		Params: &requests.Params{
-			SessionToken: responseBody.Session.SessionToken,
-			AccountCredentials: &requests.AccountCredentials{
-				Email: email,
-			},
+		Params: &requests.AccountParams{
+			Environment: "LOCAL",
+			Email: email,
 		},
 	}
 
@@ -292,12 +260,10 @@ func TestCreateUpdateEmailSession(t *testing.T) {
 
 	httpTestPublic := httptest.NewRecorder()
 	handlerPublic := http.HandlerFunc(Mutation)
-
 	handlerPublic.ServeHTTP(httpTestPublic, req)
 
 	statusPublic := httpTestPublic.Code
 	if statusPublic != http.StatusOK {
-		fmt.Println(httpTestPublic)
 		t.Error("handler returned incorrect status code")
 	}
 }
@@ -305,6 +271,9 @@ func TestCreateUpdateEmailSession(t *testing.T) {
 func TestUpdateSession(t *testing.T) {
 	requestBody := requests.Body{
 		Action: CreateGuestSession,
+		Params: requests.SessionParams{
+			Environment: "LOCAL",
+		},
 	}
 
 	marshalBytes := new(bytes.Buffer)
@@ -341,7 +310,8 @@ func TestUpdateSession(t *testing.T) {
 	// public session from guest sesion
 	requestBodyPublic := requests.Body{
 		Action: UpdateSession,
-		Params: &requests.Params{
+		Params: &requests.Update{
+			Environment: "LOCAL",
 			SessionToken: responseBody.Session.SessionToken,
 		},
 	}
@@ -371,6 +341,9 @@ func TestUpdateSession(t *testing.T) {
 func TestValidateSession(t *testing.T) {
 	requestBody := requests.Body{
 		Action: CreateGuestSession,
+		Params: requests.SessionParams{
+			Environment: "LOCAL",
+		},
 	}
 
 	marshalBytes := new(bytes.Buffer)
@@ -404,7 +377,8 @@ func TestValidateSession(t *testing.T) {
 	// public session from guest sesion
 	requestBodyValidate := requests.Body{
 		Action: ValidateSession,
-		Params: &requests.Params{
+		Params: &requests.Read{
+			Environment: "LOCAL",
 			SessionToken: responseBody.Session.SessionToken,
 		},
 	}
@@ -437,6 +411,9 @@ func TestValidateSession(t *testing.T) {
 func TestDeleteSession(t *testing.T) {
 	requestBody := requests.Body{
 		Action: CreateGuestSession,
+		Params: requests.SessionParams{
+			Environment: "LOCAL",
+		},
 	}
 
 	marshalBytes := new(bytes.Buffer)
@@ -470,8 +447,9 @@ func TestDeleteSession(t *testing.T) {
 	// public session from guest sesion
 	requestBodyRemove := requests.Body{
 		Action: DeleteSession,
-		Params: &requests.Params{
-			SessionToken: responseBody.Session.SessionToken,
+		Params: &requests.Delete{
+			Environment: "LOCAL",
+			Signature: responseBody.Session.SessionToken,
 		},
 	}
 
