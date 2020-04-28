@@ -10,22 +10,25 @@ import (
 )
 
 func Create(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil {
+	if requestBody == nil || requestBody.Params == nil {
 		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToCreateUser,
+			Roles: &errors.FailedToCreateRole,
 			Body: &errors.BadRequestFail,
 		})
 		return
 	}
 
-	roles, errCreateSession := controller.Create(&controller.CreateParams{
-		Environment: requestBody.Params.Environment,
-		UserID: requestBody.Params.Create.UserID,
-		Organization: requestBody.Params.Create.Organization,
-		ReadAccess: requestBody.Params.Create.ReadAccess,
-		WriteAccess: requestBody.Params.Create.WriteAccess,
-	})
+	params, errParams := requestBody.Params.(requests.Create)
+	if errParams == false {
+		errors.BadRequest(w, &responses.Errors{
+			Roles: &errors.FailedToCreateRole,
+			Body: &errors.BadRequestFail,
+			Default: &errors.UnrecognizedParams,
+		})
+		return
+	}
 
+	roles, errCreateSession := controller.Create(&params)
 	if errCreateSession != nil {
 		errors.DefaultResponse(w, errCreateSession)
 		return
@@ -41,28 +44,30 @@ func Create(w http.ResponseWriter, requestBody *requests.Body) {
 	}
 
 	errors.BadRequest(w, &responses.Errors{
-		Roles: &errors.FailedToCreateUser,
+		Roles: &errors.FailedToCreateRole,
 	})
 }
 
 func Update(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil {
+	if requestBody == nil || requestBody.Params == nil {
 		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToUpdateUser,
+			Roles: &errors.FailedToUpdateRole,
 			Body: &errors.BadRequestFail,
 		})
 		return
 	}
 
-	roles, errUpdateRoles := controller.Update(&controller.UpdateParams{
-		Environment: requestBody.Params.Environment,
-		UserID: requestBody.Params.Update.UserID,
-		Organization: requestBody.Params.Update.Organization,
-		ReadAccess: requestBody.Params.Update.ReadAccess,
-		WriteAccess: requestBody.Params.Update.WriteAccess,
-		IsDeleted: requestBody.Params.Update.IsDeleted,
-	})
+	params, errParams := requestBody.Params.(requests.Update)
+	if errParams == false {
+		errors.BadRequest(w, &responses.Errors{
+			Roles: &errors.FailedToUpdateRole,
+			Body: &errors.BadRequestFail,
+			Default: &errors.UnrecognizedParams,
+		})
+		return
+	}
 
+	roles, errUpdateRoles := controller.Update(&params)
 	if errUpdateRoles != nil {
 		errors.DefaultResponse(w, errUpdateRoles)
 		return
@@ -78,29 +83,30 @@ func Update(w http.ResponseWriter, requestBody *requests.Body) {
 	}
 
 	errors.BadRequest(w, &responses.Errors{
-		Roles: &errors.FailedToUpdateUser,
+		Roles: &errors.FailedToUpdateRole,
 	})
 }
 
 func UpdateAccess(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil {
+	if requestBody == nil || requestBody.Params == nil {
 		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToUpdateAccessUser,
+			Roles: &errors.FailedToUpdateAccessRole,
 			Body: &errors.BadRequestFail,
 		})
 		return
 	}
 
-	roles, errUpdateAccessRoles := controller.UpdateAccess(
-		&controller.UpdateAccessParams{
-			Environment: requestBody.Params.Environment,
-			UserID: requestBody.Params.UpdateAccess.UserID,
-			Organization: requestBody.Params.UpdateAccess.Organization,
-			ReadAccess: requestBody.Params.UpdateAccess.ReadAccess,
-			WriteAccess: requestBody.Params.UpdateAccess.WriteAccess,
-		},
-	)
+	params, errParams := requestBody.Params.(requests.UpdateAccess)
+	if errParams == false {
+		errors.BadRequest(w, &responses.Errors{
+			Roles: &errors.FailedToUpdateAccessRole,
+			Body: &errors.BadRequestFail,
+			Default: &errors.UnrecognizedParams,
+		})
+		return
+	}
 
+	roles, errUpdateAccessRoles := controller.UpdateAccess(&params)
 	if errUpdateAccessRoles != nil {
 		errors.DefaultResponse(w, errUpdateAccessRoles)
 		return
@@ -116,25 +122,30 @@ func UpdateAccess(w http.ResponseWriter, requestBody *requests.Body) {
 	}
 
 	errors.BadRequest(w, &responses.Errors{
-		Roles: &errors.FailedToUpdateAccessUser,
+		Roles: &errors.FailedToUpdateAccessRole,
 	})
 }
 
 func Delete(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil {
+	if requestBody == nil || requestBody.Params == nil {
 		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToDeleteUser,
+			Roles: &errors.FailedToDeleteRole,
 			Body: &errors.BadRequestFail,
 		})
 		return
 	}
 
-	roles, errDeleteRole := controller.Delete(&controller.DeleteParams{
-		Environment: requestBody.Params.Environment,
-		UserID: requestBody.Params.Delete.UserID,
-		Organization: requestBody.Params.Delete.Organization,
-	})
+	params, errParams := requestBody.Params.(requests.Delete)
+	if errParams == false {
+		errors.BadRequest(w, &responses.Errors{
+			Roles: &errors.FailedToDeleteRole,
+			Body: &errors.BadRequestFail,
+			Default: &errors.UnrecognizedParams,
+		})
+		return
+	}
 
+	roles, errDeleteRole := controller.Delete(&params)
 	if errDeleteRole != nil {
 		errors.DefaultResponse(w, errDeleteRole)
 		return
@@ -150,25 +161,30 @@ func Delete(w http.ResponseWriter, requestBody *requests.Body) {
 	}
 
 	errors.BadRequest(w, &responses.Errors{
-		Roles: &errors.FailedToDeleteUser,
+		Roles: &errors.FailedToDeleteRole,
 	})
 }
 
 func Undelete(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil {
+	if requestBody == nil || requestBody.Params == nil {
 		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToUndeleteUser,
+			Roles: &errors.FailedToUndeleteRole,
 			Body: &errors.BadRequestFail,
 		})
 		return
 	}
 
-	roles, errUndeleteRole := controller.Undelete(&controller.UndeleteParams{
-		Environment: requestBody.Params.Environment,
-		UserID: requestBody.Params.Undelete.UserID,
-		Organization: requestBody.Params.Undelete.Organization,
-	})
+	params, errParams := requestBody.Params.(requests.Undelete)
+	if errParams == false {
+		errors.BadRequest(w, &responses.Errors{
+			Roles: &errors.FailedToUndeleteRole,
+			Body: &errors.BadRequestFail,
+			Default: &errors.UnrecognizedParams,
+		})
+		return
+	}
 
+	roles, errUndeleteRole := controller.Undelete(&params)
 	if errUndeleteRole != nil {
 		errors.DefaultResponse(w, errUndeleteRole)
 		return
@@ -184,6 +200,6 @@ func Undelete(w http.ResponseWriter, requestBody *requests.Body) {
 	}
 
 	errors.BadRequest(w, &responses.Errors{
-		Roles: &errors.FailedToUndeleteUser,
+		Roles: &errors.FailedToUndeleteRole,
 	})
 }

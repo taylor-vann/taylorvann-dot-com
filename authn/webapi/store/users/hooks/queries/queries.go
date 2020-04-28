@@ -28,9 +28,9 @@ func Read(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	users, errReadRole := controller.Read(&params)
-	if errReadRole != nil {
-		errors.DefaultResponse(w, errReadRole)
+	users, errReadUser := controller.Read(&params)
+	if errReadUser != nil {
+		errors.DefaultResponse(w, errReadUser)
 		return
 	}
 
