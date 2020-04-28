@@ -1,7 +1,9 @@
 package queries
 
 import (
+	"encoding/json"
 	"net/http"
+	
 	"webapi/sessions/hooks/errors"
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
@@ -17,12 +19,14 @@ func ValidateSession(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	params, errParams := requestBody.Params.(requests.Read)
-	if errParams == false {
+	bytes, _ := json.Marshal(requestBody.Params)
+	var params requests.Read
+	errParamsMarshal := json.Unmarshal(bytes, &params)
+	if errParamsMarshal != nil {
+		errAsStr := errParamsMarshal.Error()
 		errors.BadRequest(w, &responses.Errors{
-			Session: &errors.UnableToValidateSession,
 			Body: &errors.BadRequestFail,
-			Default: &errors.UnrecognizedParams,
+			Default: &errAsStr,
 		})
 		return
 	}

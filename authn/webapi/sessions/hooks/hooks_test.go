@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"webapi/interfaces/jwtx"
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
 )
@@ -141,9 +142,6 @@ func TestCreateDocumentSession(t *testing.T) {
 func TestCreateResetPasswordSessionBadRequest(t *testing.T) {
 	requestBody := requests.Body{
 		Action: CreateUpdatePasswordSession,
-		Params: requests.SessionParams{
-			Environment: "LOCAL",
-		},
 	}
 
 	marshalBytes := new(bytes.Buffer)
@@ -200,43 +198,7 @@ func TestCreateUpdatePasswordSession(t *testing.T) {
 	}
 }
 
-
 func TestCreateUpdateEmailSession(t *testing.T) {
-	requestBody := requests.Body{
-		Action: CreateDocumentSession,
-	}
-
-	marshalBytes := new(bytes.Buffer)
-	json.NewEncoder(marshalBytes).Encode(requestBody)
-	resp, errResp := http.NewRequest(
-		"POST",
-		"/m/sessions/",
-		marshalBytes,
-	)
-	if errResp != nil {
-		t.Error("error making guest session request")
-	}
-
-	httpTest := httptest.NewRecorder()
-	handler := http.HandlerFunc(Mutation)
-	handler.ServeHTTP(httpTest, resp)
-
-	status := httpTest.Code
-	if status != http.StatusOK {
-		t.Error("guest session returned incorrect status code")
-		return
-	}
-
-	time.Sleep(10 * time.Millisecond)
-
-	// decode body to response
-	var responseBody responses.Body
-	errResponseBody := json.NewDecoder(httpTest.Body).Decode(&responseBody)
-	if errResponseBody != nil {
-		t.Error(errResponseBody)
-		return
-	}
-
 	email := "something@darkside.complete"
 	// public session from guest sesion
 	requestBodyPublic := requests.Body{
@@ -269,40 +231,37 @@ func TestCreateUpdateEmailSession(t *testing.T) {
 }
 
 func TestUpdateSession(t *testing.T) {
-	requestBody := requests.Body{
+	sessionRequestBody := requests.Body{
 		Action: CreateGuestSession,
 		Params: requests.SessionParams{
 			Environment: "LOCAL",
 		},
 	}
 
-	marshalBytes := new(bytes.Buffer)
-	json.NewEncoder(marshalBytes).Encode(requestBody)
-	resp, errResp := http.NewRequest(
+	sessionMarshalBytes := new(bytes.Buffer)
+	json.NewEncoder(sessionMarshalBytes).Encode(sessionRequestBody)
+	respSession, errSessionResp := http.NewRequest(
 		"POST",
 		"/m/sessions/",
-		marshalBytes,
+		sessionMarshalBytes,
 	)
-	if errResp != nil {
-		t.Error("error making guest session request")
+	if errSessionResp != nil {
+		t.Error(errSessionResp)
 	}
 
-	httpTest := httptest.NewRecorder()
-	handler := http.HandlerFunc(Mutation)
-	handler.ServeHTTP(httpTest, resp)
-
-	status := httpTest.Code
-	if status != http.StatusOK {
-		t.Error("handler returned incorrect status code")
-		return
+	httpTestSession := httptest.NewRecorder()
+	handlerSession := http.HandlerFunc(Mutation)
+	handlerSession.ServeHTTP(httpTestSession, respSession)
+	if respSession.Body == nil {
+		t.Error("response body is nil")
 	}
-
-	// decode body to response
-	var responseBody responses.Body
-	errResponseBody := json.NewDecoder(httpTest.Body).Decode(&responseBody)
-	if errResponseBody != nil {
-		t.Error(errResponseBody)
-		return
+	var responseBodySession responses.Body
+	errJSONSession := json.NewDecoder(httpTestSession.Body).Decode(&responseBodySession)
+	if errJSONSession != nil {
+		t.Error(errJSONSession)
+	}
+	if responseBodySession.Session == nil {
+		t.Error("nil session returned")
 	}
 
 	time.Sleep(10 * time.Millisecond)
@@ -312,7 +271,7 @@ func TestUpdateSession(t *testing.T) {
 		Action: UpdateSession,
 		Params: &requests.Update{
 			Environment: "LOCAL",
-			SessionToken: responseBody.Session.SessionToken,
+			SessionToken: responseBodySession.Session.SessionToken,
 		},
 	}
 
@@ -444,12 +403,20 @@ func TestDeleteSession(t *testing.T) {
 		t.Error(errJSON)
 		return
 	}
+
+	// get signature
+	tokenDetails, errTokenDetails := jwtx.RetrieveTokenDetailsFromString(
+		responseBody.Session.SessionToken,
+	)
+	if errTokenDetails != nil {
+		t.Error(errTokenDetails.Error())
+	}
 	// public session from guest sesion
 	requestBodyRemove := requests.Body{
 		Action: DeleteSession,
 		Params: &requests.Delete{
 			Environment: "LOCAL",
-			Signature: responseBody.Session.SessionToken,
+			Signature: tokenDetails.Signature,
 		},
 	}
 

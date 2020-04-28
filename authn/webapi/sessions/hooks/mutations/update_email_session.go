@@ -19,18 +19,21 @@ func CreateUpdateEmailSession(w http.ResponseWriter, requestBody *requests.Body)
 		return
 	}
 
-	params, errParams := requestBody.Params.(requests.AccountParams)
-	if errParams == false {
+	bytes, _ := json.Marshal(requestBody.Params)
+	var params requests.AccountParams
+	errParamsMarshal := json.Unmarshal(bytes, &params)
+	if errParamsMarshal != nil {
+		errAsStr := errParamsMarshal.Error()
 		errors.BadRequest(w, &responses.Errors{
-			Session: &errors.InvalidSessionCredentials,
 			Body: &errors.BadRequestFail,
-			Default: &errors.UnrecognizedParams,
+			Default: &errAsStr,
 		})
 		return
 	}
 
 	userSessionToken, errUserSessionToken := sessionsx.CreateUpdatePasswordSessionClaims(
 		&sessionsx.AccountParams{
+			Environment: params.Environment,
 			Email: params.Email,
 		},
 	)

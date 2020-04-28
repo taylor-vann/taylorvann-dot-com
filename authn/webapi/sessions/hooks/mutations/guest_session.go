@@ -18,11 +18,14 @@ func CreateGuestSession(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	params, errParams := requestBody.Params.(requests.SessionParams)
-	if errParams == false {
+	bytes, _ := json.Marshal(requestBody.Params)
+	var params requests.SessionParams
+	errParamsMarshal := json.Unmarshal(bytes, &params)
+	if errParamsMarshal != nil {
+		errAsStr := errParamsMarshal.Error()
 		errors.BadRequest(w, &responses.Errors{
 			Body: &errors.BadRequestFail,
-			Default: &errors.UnrecognizedParams,
+			Default: &errAsStr,
 		})
 		return
 	}

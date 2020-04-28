@@ -1,6 +1,7 @@
 package mutations
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"webapi/sessions/hooks/errors"
@@ -18,12 +19,14 @@ func DeleteSession(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	params, errParams := requestBody.Params.(requests.Delete)
-	if errParams == false {
+	bytes, _ := json.Marshal(requestBody.Params)
+	var params requests.Delete
+	errParamsMarshal := json.Unmarshal(bytes, &params)
+	if errParamsMarshal != nil {
+		errAsStr := errParamsMarshal.Error()
 		errors.BadRequest(w, &responses.Errors{
-			Session: &errors.InvalidSessionCredentials,
 			Body: &errors.BadRequestFail,
-			Default: &errors.UnrecognizedParams,
+			Default: &errAsStr,
 		})
 		return
 	}
