@@ -8,16 +8,18 @@ import (
 )
 
 var (
-	BadRequestFail = "unable to decode request body"
-	UnrecognizedQuery = "unrecognized query action requested"
-	UnrecognizedMutation = "unrecognized mutation action requested"
-	UnrecognizedParams = "unrecognized parameters"
-	UnableToValidateSession = "unable to create validate session"
-	UnableToCreatePublicSession = "unable to create public session"
-	InvalidSessionCredentials = "invalid session credentials provided"
-	UnableToUpdateSession = "unable to update session"
-	SessionProvidedIsNil = "session provided is nil"
-	CredentialsProvidedAreNil = "credentials provided are nil"
+	BadRequestFail 								 = "unable to decode request body"
+	UnrecognizedQuery 						 = "unrecognized query action requested"
+	UnrecognizedMutation 					 = "unrecognized mutation action requested"
+	UnrecognizedParams 						 = "unrecognized parameters"
+	UnableToValidateSession 			 = "unable to create validate session"
+	UnableToCreatePublicSession 	 = "unable to create public session"
+	InvalidSessionCredentials 		 = "invalid session credentials provided"
+	InvalidSessionProvided    		 = "invalid session provided"
+	CreateGuestSessionErrorMessage = "error creating guest session"
+	InvalidRequestProvided         = "invalid request provided"
+	UnableToMarshalSession         = "unable to marshal session"
+	UnableToUpdateSession					 = "unable to update session"
 )
 
 var defaultFail = "unable to return session"

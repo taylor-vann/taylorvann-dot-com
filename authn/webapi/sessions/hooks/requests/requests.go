@@ -8,16 +8,8 @@ type Create = sessionsx.CreateParams
 type Read = sessionsx.ReadParams
 type Update = sessionsx.UpdateParams
 type Delete = sessionsx.DeleteParams
-
-type UserParams struct {
-	Environment string
-	UserID			int64
-}
-
-type AccountParams struct {
-	Environment string
-	Email				string
-}
+type UserParams = sessionsx.UserParams
+type AccountParams = sessionsx.AccountParams
 
 type SessionParams struct {
 	Environment string

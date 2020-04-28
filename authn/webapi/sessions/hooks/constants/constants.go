@@ -5,10 +5,6 @@ const (
 	Public           = "public"
 	Document         = "document"
 	Session          = "session"
-	CreateAccount    = "create_account"
-	UpdatePassword   = "update_password"
-	UpdateEmail		   = "update_email"
-	DeleteAccount		 = "delete_account"
 	TaylorVannDotCom = "taylorvann.com"
 )
 

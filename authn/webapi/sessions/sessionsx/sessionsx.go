@@ -6,7 +6,7 @@ package sessionsx
 import (
 	"errors"
 	"webapi/interfaces/jwtx"
-	"webapi/sessions/constants"
+	"webapi/sessions/sessionsx/constants"
 	"webapi/sessions/whitelist"
 )
 

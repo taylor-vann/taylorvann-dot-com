@@ -1,9 +1,10 @@
 package responses
 
-type Session struct {
-	SessionToken	string	`json:"session_token"`
-	CsrfToken			string	`json:"csrf_token"`
-}
+import (
+	"webapi/sessions/sessionsx"
+)
+
+type Session = sessionsx.Session
 
 type Errors struct {
 	Headers	*string `json:"headers"`
