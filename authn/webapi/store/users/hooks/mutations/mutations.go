@@ -10,19 +10,25 @@ import (
 )
 
 func Create(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil {
+	if requestBody == nil || requestBody.Params == nil {
 		errors.BadRequest(w, &responses.Errors{
 			Users: &errors.FailedToCreateUser,
 			Body: &errors.BadRequestFail,
 		})
+		return
 	}
 
-	users, errCreateUser := controller.Create(&controller.CreateParams{
-		Environment: requestBody.Params.Environment,
-		Email: requestBody.Params.Create.Email,
-		Password: requestBody.Params.Create.Password,
-	})
+	params, errParams := requestBody.Params.(requests.Create)
+	if errParams == false {
+		errors.BadRequest(w, &responses.Errors{
+			Users: &errors.FailedToCreateUser,
+			Body: &errors.BadRequestFail,
+			Default: &errors.UnrecognizedParams,
+		})
+		return
+	}
 
+	users, errCreateUser := controller.Create(&params)
 	if errCreateUser != nil {
 		errors.DefaultResponse(w, errCreateUser)
 		return
@@ -43,19 +49,25 @@ func Create(w http.ResponseWriter, requestBody *requests.Body) {
 }
 
 func Update(w http.ResponseWriter, requestBody *requests.Body) {
-	errors.BadRequest(w, &responses.Errors{
-		Users: &errors.FailedToUpdateUser,
-		Body: &errors.BadRequestFail,
-	})
+	if requestBody == nil || requestBody.Params == nil {
+		errors.BadRequest(w, &responses.Errors{
+			Users: &errors.FailedToUpdateUser,
+			Body: &errors.BadRequestFail,
+		})
+		return
+	}
 
-	users, errUpdateUsers := controller.Update(&controller.UpdateParams{
-		Environment: requestBody.Params.Environment,
-		CurrentEmail: requestBody.Params.Update.CurrentEmail,
-		UpdatedEmail: requestBody.Params.Update.UpdatedEmail,
-		Password: requestBody.Params.Update.Password,
-		IsDeleted: requestBody.Params.Update.IsDeleted,
-	})
+	params, errParams := requestBody.Params.(requests.Update)
+	if errParams == false {
+		errors.BadRequest(w, &responses.Errors{
+			Users: &errors.FailedToUpdateUser,
+			Body: &errors.BadRequestFail,
+			Default: &errors.UnrecognizedParams,
+		})
+		return
+	}
 
+	users, errUpdateUsers := controller.Update(&params)
 	if errUpdateUsers != nil {
 		errors.DefaultResponse(w, errUpdateUsers)
 		return
@@ -76,7 +88,7 @@ func Update(w http.ResponseWriter, requestBody *requests.Body) {
 }
 
 func UpdateEmail(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil {
+	if requestBody == nil || requestBody.Params == nil {
 		errors.BadRequest(w, &responses.Errors{
 			Users: &errors.FailedToUpdateEmailUser,
 			Body: &errors.BadRequestFail,
@@ -84,14 +96,17 @@ func UpdateEmail(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	users, errUpdateEmailUser := controller.UpdateEmail(
-		&controller.UpdateEmailParams{
-			Environment: requestBody.Params.Environment,
-			CurrentEmail: requestBody.Params.UpdateEmail.CurrentEmail,
-			UpdatedEmail: requestBody.Params.UpdateEmail.UpdatedEmail,
-		},
-	)
+	params, errParams := requestBody.Params.(requests.UpdateEmail)
+	if errParams == false {
+		errors.BadRequest(w, &responses.Errors{
+			Users: &errors.FailedToUpdateEmailUser,
+			Body: &errors.BadRequestFail,
+			Default: &errors.UnrecognizedParams,
+		})
+		return
+	}
 
+	users, errUpdateEmailUser := controller.UpdateEmail(&params)
 	if errUpdateEmailUser != nil {
 		errors.DefaultResponse(w, errUpdateEmailUser)
 		return
@@ -112,7 +127,7 @@ func UpdateEmail(w http.ResponseWriter, requestBody *requests.Body) {
 }
 
 func UpdatePassword(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil {
+	if requestBody == nil || requestBody.Params == nil {
 		errors.BadRequest(w, &responses.Errors{
 			Users: &errors.FailedToUpdatePasswordUser,
 			Body: &errors.BadRequestFail,
@@ -120,14 +135,17 @@ func UpdatePassword(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	users, errUpdatePasswordUser := controller.UpdatePassword(
-		&controller.UpdatePasswordParams{
-			Environment: requestBody.Params.Environment,
-			Email: requestBody.Params.UpdatePassword.Email,
-			Password: requestBody.Params.UpdatePassword.Password,
-		},
-	)
+	params, errParams := requestBody.Params.(requests.UpdatePassword)
+	if errParams == false {
+		errors.BadRequest(w, &responses.Errors{
+			Users: &errors.FailedToUpdatePasswordUser,
+			Body: &errors.BadRequestFail,
+			Default: &errors.UnrecognizedParams,
+		})
+		return
+	}
 
+	users, errUpdatePasswordUser := controller.UpdatePassword(&params)
 	if errUpdatePasswordUser != nil {
 		errors.DefaultResponse(w, errUpdatePasswordUser)
 		return
@@ -148,7 +166,7 @@ func UpdatePassword(w http.ResponseWriter, requestBody *requests.Body) {
 }
 
 func Delete(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil {
+	if requestBody == nil || requestBody.Params == nil {
 		errors.BadRequest(w, &responses.Errors{
 			Users: &errors.FailedToDeleteUser,
 			Body: &errors.BadRequestFail,
@@ -156,11 +174,17 @@ func Delete(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	users, errDeleteUsers := controller.Delete(&controller.DeleteParams{
-		Environment: requestBody.Params.Environment,
-		Email: requestBody.Params.Delete.Email,
-	})
+	params, errParams := requestBody.Params.(requests.Delete)
+	if errParams == false {
+		errors.BadRequest(w, &responses.Errors{
+			Users: &errors.FailedToDeleteUser,
+			Body: &errors.BadRequestFail,
+			Default: &errors.UnrecognizedParams,
+		})
+		return
+	}
 
+	users, errDeleteUsers := controller.Delete(&params)
 	if errDeleteUsers != nil {
 		errors.DefaultResponse(w, errDeleteUsers)
 		return
@@ -181,7 +205,7 @@ func Delete(w http.ResponseWriter, requestBody *requests.Body) {
 }
 
 func Undelete(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil {
+	if requestBody == nil || requestBody.Params == nil {
 		errors.BadRequest(w, &responses.Errors{
 			Users: &errors.FailedToUndeleteUser,
 			Body: &errors.BadRequestFail,
@@ -189,11 +213,17 @@ func Undelete(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	users, errUndeleteUsers := controller.Undelete(&controller.UndeleteParams{
-		Environment: requestBody.Params.Environment,
-		Email: requestBody.Params.Undelete.Email,
-	})
+	params, errParams := requestBody.Params.(requests.Undelete)
+	if errParams == false {
+		errors.BadRequest(w, &responses.Errors{
+			Users: &errors.FailedToUndeleteUser,
+			Body: &errors.BadRequestFail,
+			Default: &errors.UnrecognizedParams,
+		})
+		return
+	}
 
+	users, errUndeleteUsers := controller.Undelete(&params)
 	if errUndeleteUsers != nil {
 		errors.DefaultResponse(w, errUndeleteUsers)
 		return

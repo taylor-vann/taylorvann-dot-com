@@ -11,6 +11,7 @@ var (
 	BadRequestFail  		 		 	 = "unable to decode request body"
 	UnrecognizedQuery 	 		 	 = "unrecognized query action requested"
 	UnrecognizedMutation 		 	 = "unrecognized mutation action requested"
+	UnrecognizedParams 	 		 	 = "unrecognized params in request"
 	FailedToCreateUser 	 		 	 = "failed to create User"
 	FailedToReadUser	 	 		 	 = "failed to read User"
 	FailedToIndexUsers 	 		 	 = "failed to index Users"

@@ -15,14 +15,15 @@ type Undelete = controller.UndeleteParams
 
 type Params struct {
 	Environment		string				`json:"environment"`
-	Create				*Create				`json:"create"`
-	Read					*Read					`json:"read"`
-	Index					*Index				`json:"index"`
-	Search  			*Search				`json:"search"`
-	Update  			*Update				`json:"update"`
-	UpdateAccess  *UpdateAccess	`json:"update_access"`
-	Delete  			*Delete				`json:"delete"`
-	Undelete  		*Undelete			`json:"undelete"`
+	ActionParams	interface{}		`json:"action_params`
+	// Create				*Create				`json:"create"`
+	// Read					*Read					`json:"read"`
+	// Index					*Index				`json:"index"`
+	// Search  			*Search				`json:"search"`
+	// Update  			*Update				`json:"update"`
+	// UpdateAccess  *UpdateAccess	`json:"update_access"`
+	// Delete  			*Delete				`json:"delete"`
+	// Undelete  		*Undelete			`json:"undelete"`
 }
 
 type Body struct {

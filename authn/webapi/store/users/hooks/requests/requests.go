@@ -14,20 +14,21 @@ type UpdatePassword = controller.UpdatePasswordParams
 type Delete = controller.DeleteParams
 type Undelete = controller.UndeleteParams
 
-type Params struct {
-	Environment			string					`json:"environment"`
-	Create					*Create					`json:"create"`
-	Read						*Read						`json:"read"`
-	Index						*Index					`json:"index"`
-	Search  				*Search					`json:"search"`
-	Update  				*Update					`json:"update"`
-	UpdateEmail  	 	*UpdateEmail		`json:"update_email"`
-	UpdatePassword	*UpdatePassword	`json:"update_password"`
-	Delete  				*Delete					`json:"delete"`
-	Undelete  			*Undelete				`json:"undelete"`
-}
+// type Params struct {
+// 	Environment	string			`json:"environment"`
+// 	Payload			interface{}	`json:"payload"`
+// 	// Create					*Create					`json:"create"`
+// 	// Read						*Read						`json:"read"`
+// 	// Index						*Index					`json:"index"`
+// 	// Search  				*Search					`json:"search"`
+// 	// Update  				*Update					`json:"update"`
+// 	// UpdateEmail  	 	*UpdateEmail		`json:"update_email"`
+// 	// UpdatePassword	*UpdatePassword	`json:"update_password"`
+// 	// Delete  				*Delete					`json:"delete"`
+// 	// Undelete  			*Undelete				`json:"undelete"`
+// }
 
 type Body struct {
-	Action string  `json:"action"`
-	Params *Params `json:"params"`
+	Action string			 `json:"action"`
+	Params interface{} `json:"payload"`
 }

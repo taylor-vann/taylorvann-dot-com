@@ -10,7 +10,7 @@ import (
 )
 
 func Read(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil {
+	if requestBody == nil || requestBody.Params == nil {
 		errors.BadRequest(w, &responses.Errors{
 			Users: &errors.FailedToReadUser,
 			Body: &errors.BadRequestFail,
@@ -18,11 +18,17 @@ func Read(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	users, errReadRole := controller.Read(&controller.ReadParams{
-		Environment: requestBody.Params.Environment,
-		Email: requestBody.Params.Read.Email,
-	})
+	params, errParams := requestBody.Params.(requests.Read)
+	if errParams == false {
+		errors.BadRequest(w, &responses.Errors{
+			Users: &errors.FailedToReadUser,
+			Body: &errors.BadRequestFail,
+			Default: &errors.UnrecognizedParams,
+		})
+		return
+	}
 
+	users, errReadRole := controller.Read(&params)
 	if errReadRole != nil {
 		errors.DefaultResponse(w, errReadRole)
 		return
@@ -43,21 +49,27 @@ func Read(w http.ResponseWriter, requestBody *requests.Body) {
 }
 
 func Index(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil {
+	if requestBody == nil || requestBody.Params == nil {
 		errors.BadRequest(w, &responses.Errors{
 			Users: &errors.FailedToIndexUsers,
 			Body: &errors.BadRequestFail,
 		})
+		return
 	}
 
-	users, errIndexRoles := controller.Index(&controller.IndexParams{
-		Environment: requestBody.Params.Index.Environment,
-		StartIndex: requestBody.Params.Index.StartIndex,
-		Length: requestBody.Params.Index.Length,
-	})
+	params, errParams := requestBody.Params.(requests.Index)
+	if errParams == false {
+		errors.BadRequest(w, &responses.Errors{
+			Users: &errors.FailedToIndexUsers,
+			Body: &errors.BadRequestFail,
+			Default: &errors.UnrecognizedParams,
+		})
+		return
+	}
 
-	if errIndexRoles != nil {
-		errors.DefaultResponse(w, errIndexRoles)
+	users, errIndexUsers := controller.Index(&params)
+	if errIndexUsers != nil {
+		errors.DefaultResponse(w, errIndexUsers)
 		return
 	}
 
@@ -76,7 +88,7 @@ func Index(w http.ResponseWriter, requestBody *requests.Body) {
 }
 
 func Search(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil {
+	if requestBody == nil || requestBody.Params == nil {
 		errors.BadRequest(w, &responses.Errors{
 			Users: &errors.FailedToSearchUsers,
 			Body: &errors.BadRequestFail,
@@ -84,15 +96,19 @@ func Search(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	users, errSearchRoles := controller.Search(&controller.SearchParams{
-		Environment: requestBody.Params.Environment,
-		EmailSubstring: requestBody.Params.Search.EmailSubstring,
-		StartIndex: requestBody.Params.Search.StartIndex,
-		Length:	requestBody.Params.Search.Length,
-	})
+	params, errParams := requestBody.Params.(requests.Search)
+	if errParams == false {
+		errors.BadRequest(w, &responses.Errors{
+			Users: &errors.FailedToSearchUsers,
+			Body: &errors.BadRequestFail,
+			Default: &errors.UnrecognizedParams,
+		})
+		return
+	}
 
-	if errSearchRoles != nil {
-		errors.DefaultResponse(w, errSearchRoles)
+	users, errSearchUsers := controller.Search(&params)
+	if errSearchUsers != nil {
+		errors.DefaultResponse(w, errSearchUsers)
 		return
 	}
 
