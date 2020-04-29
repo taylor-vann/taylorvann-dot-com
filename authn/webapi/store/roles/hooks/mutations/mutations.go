@@ -18,12 +18,15 @@ func Create(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	params, errParams := requestBody.Params.(requests.Create)
-	if errParams == false {
+	bytes, _ := json.Marshal(requestBody.Params)
+	var params requests.Create
+	errParamsMarshal := json.Unmarshal(bytes, &params)
+	if errParamsMarshal != nil {
+		errAsStr := errParamsMarshal.Error()
 		errors.BadRequest(w, &responses.Errors{
 			Roles: &errors.FailedToCreateRole,
 			Body: &errors.BadRequestFail,
-			Default: &errors.UnrecognizedParams,
+			Default: &errAsStr,
 		})
 		return
 	}
@@ -57,12 +60,15 @@ func Update(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	params, errParams := requestBody.Params.(requests.Update)
-	if errParams == false {
+	bytes, _ := json.Marshal(requestBody.Params)
+	var params requests.Update
+	errParamsMarshal := json.Unmarshal(bytes, &params)
+	if errParamsMarshal != nil {
+		errAsStr := errParamsMarshal.Error()
 		errors.BadRequest(w, &responses.Errors{
 			Roles: &errors.FailedToUpdateRole,
 			Body: &errors.BadRequestFail,
-			Default: &errors.UnrecognizedParams,
+			Default: &errAsStr,
 		})
 		return
 	}
@@ -96,12 +102,15 @@ func UpdateAccess(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	params, errParams := requestBody.Params.(requests.UpdateAccess)
-	if errParams == false {
+	bytes, _ := json.Marshal(requestBody.Params)
+	var params requests.UpdateAccess
+	errParamsMarshal := json.Unmarshal(bytes, &params)
+	if errParamsMarshal != nil {
+		errAsStr := errParamsMarshal.Error()
 		errors.BadRequest(w, &responses.Errors{
 			Roles: &errors.FailedToUpdateAccessRole,
 			Body: &errors.BadRequestFail,
-			Default: &errors.UnrecognizedParams,
+			Default: &errAsStr,
 		})
 		return
 	}
@@ -135,12 +144,15 @@ func Delete(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	params, errParams := requestBody.Params.(requests.Delete)
-	if errParams == false {
+	bytes, _ := json.Marshal(requestBody.Params)
+	var params requests.Delete
+	errParamsMarshal := json.Unmarshal(bytes, &params)
+	if errParamsMarshal != nil {
+		errAsStr := errParamsMarshal.Error()
 		errors.BadRequest(w, &responses.Errors{
 			Roles: &errors.FailedToDeleteRole,
 			Body: &errors.BadRequestFail,
-			Default: &errors.UnrecognizedParams,
+			Default: &errAsStr,
 		})
 		return
 	}
@@ -174,12 +186,15 @@ func Undelete(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	params, errParams := requestBody.Params.(requests.Undelete)
-	if errParams == false {
+	bytes, _ := json.Marshal(requestBody.Params)
+	var params requests.Read
+	errParamsMarshal := json.Unmarshal(bytes, &params)
+	if errParamsMarshal != nil {
+		errAsStr := errParamsMarshal.Error()
 		errors.BadRequest(w, &responses.Errors{
 			Roles: &errors.FailedToUndeleteRole,
 			Body: &errors.BadRequestFail,
-			Default: &errors.UnrecognizedParams,
+			Default: &errAsStr,
 		})
 		return
 	}
