@@ -18,12 +18,15 @@ func Read(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	params, errParams := requestBody.Params.(requests.Read)
-	if errParams == false {
+	bytes, _ := json.Marshal(requestBody.Params)
+	var params requests.Read
+	errParamsMarshal := json.Unmarshal(bytes, &params)
+	if errParamsMarshal != nil {
+		errAsStr := errParamsMarshal.Error()
 		errors.BadRequest(w, &responses.Errors{
 			Users: &errors.FailedToReadUser,
 			Body: &errors.BadRequestFail,
-			Default: &errors.UnrecognizedParams,
+			Default: &errAsStr,
 		})
 		return
 	}
@@ -57,12 +60,15 @@ func Index(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	params, errParams := requestBody.Params.(requests.Index)
-	if errParams == false {
+	bytes, _ := json.Marshal(requestBody.Params)
+	var params requests.Index
+	errParamsMarshal := json.Unmarshal(bytes, &params)
+	if errParamsMarshal != nil {
+		errAsStr := errParamsMarshal.Error()
 		errors.BadRequest(w, &responses.Errors{
 			Users: &errors.FailedToIndexUsers,
 			Body: &errors.BadRequestFail,
-			Default: &errors.UnrecognizedParams,
+			Default: &errAsStr,
 		})
 		return
 	}
@@ -96,12 +102,15 @@ func Search(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	params, errParams := requestBody.Params.(requests.Search)
-	if errParams == false {
+	bytes, _ := json.Marshal(requestBody.Params)
+	var params requests.Search
+	errParamsMarshal := json.Unmarshal(bytes, &params)
+	if errParamsMarshal != nil {
+		errAsStr := errParamsMarshal.Error()
 		errors.BadRequest(w, &responses.Errors{
 			Users: &errors.FailedToSearchUsers,
 			Body: &errors.BadRequestFail,
-			Default: &errors.UnrecognizedParams,
+			Default: &errAsStr,
 		})
 		return
 	}

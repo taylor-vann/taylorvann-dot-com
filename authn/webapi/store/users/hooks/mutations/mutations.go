@@ -18,12 +18,15 @@ func Create(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	params, errParams := requestBody.Params.(requests.Create)
-	if errParams == false {
+	bytes, _ := json.Marshal(requestBody.Params)
+	var params requests.Create
+	errParamsMarshal := json.Unmarshal(bytes, &params)
+	if errParamsMarshal != nil {
+		errAsStr := errParamsMarshal.Error()
 		errors.BadRequest(w, &responses.Errors{
 			Users: &errors.FailedToCreateUser,
 			Body: &errors.BadRequestFail,
-			Default: &errors.UnrecognizedParams,
+			Default: &errAsStr,
 		})
 		return
 	}
@@ -57,12 +60,15 @@ func Update(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	params, errParams := requestBody.Params.(requests.Update)
-	if errParams == false {
+	bytes, _ := json.Marshal(requestBody.Params)
+	var params requests.Update
+	errParamsMarshal := json.Unmarshal(bytes, &params)
+	if errParamsMarshal != nil {
+		errAsStr := errParamsMarshal.Error()
 		errors.BadRequest(w, &responses.Errors{
 			Users: &errors.FailedToUpdateUser,
 			Body: &errors.BadRequestFail,
-			Default: &errors.UnrecognizedParams,
+			Default: &errAsStr,
 		})
 		return
 	}
@@ -96,12 +102,15 @@ func UpdateEmail(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	params, errParams := requestBody.Params.(requests.UpdateEmail)
-	if errParams == false {
+	bytes, _ := json.Marshal(requestBody.Params)
+	var params requests.UpdateEmail
+	errParamsMarshal := json.Unmarshal(bytes, &params)
+	if errParamsMarshal != nil {
+		errAsStr := errParamsMarshal.Error()
 		errors.BadRequest(w, &responses.Errors{
 			Users: &errors.FailedToUpdateEmailUser,
 			Body: &errors.BadRequestFail,
-			Default: &errors.UnrecognizedParams,
+			Default: &errAsStr,
 		})
 		return
 	}
@@ -135,12 +144,15 @@ func UpdatePassword(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	params, errParams := requestBody.Params.(requests.UpdatePassword)
-	if errParams == false {
+	bytes, _ := json.Marshal(requestBody.Params)
+	var params requests.UpdatePassword
+	errParamsMarshal := json.Unmarshal(bytes, &params)
+	if errParamsMarshal != nil {
+		errAsStr := errParamsMarshal.Error()
 		errors.BadRequest(w, &responses.Errors{
 			Users: &errors.FailedToUpdatePasswordUser,
 			Body: &errors.BadRequestFail,
-			Default: &errors.UnrecognizedParams,
+			Default: &errAsStr,
 		})
 		return
 	}
@@ -174,12 +186,15 @@ func Delete(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	params, errParams := requestBody.Params.(requests.Delete)
-	if errParams == false {
+	bytes, _ := json.Marshal(requestBody.Params)
+	var params requests.Delete
+	errParamsMarshal := json.Unmarshal(bytes, &params)
+	if errParamsMarshal != nil {
+		errAsStr := errParamsMarshal.Error()
 		errors.BadRequest(w, &responses.Errors{
 			Users: &errors.FailedToDeleteUser,
 			Body: &errors.BadRequestFail,
-			Default: &errors.UnrecognizedParams,
+			Default: &errAsStr,
 		})
 		return
 	}
@@ -213,12 +228,15 @@ func Undelete(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	params, errParams := requestBody.Params.(requests.Undelete)
-	if errParams == false {
+	bytes, _ := json.Marshal(requestBody.Params)
+	var params requests.Undelete
+	errParamsMarshal := json.Unmarshal(bytes, &params)
+	if errParamsMarshal != nil {
+		errAsStr := errParamsMarshal.Error()
 		errors.BadRequest(w, &responses.Errors{
 			Users: &errors.FailedToUndeleteUser,
 			Body: &errors.BadRequestFail,
-			Default: &errors.UnrecognizedParams,
+			Default: &errAsStr,
 		})
 		return
 	}

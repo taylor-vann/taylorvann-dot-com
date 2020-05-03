@@ -187,7 +187,7 @@ func Undelete(w http.ResponseWriter, requestBody *requests.Body) {
 	}
 
 	bytes, _ := json.Marshal(requestBody.Params)
-	var params requests.Read
+	var params requests.Undelete
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
 		errAsStr := errParamsMarshal.Error()

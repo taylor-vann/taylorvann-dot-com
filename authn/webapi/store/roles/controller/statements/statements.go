@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS %s (
 	is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
 	created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 	updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-	CONSTRAINT uc_user_and_organization UNIQUE (user_id, organization)
+	CONSTRAINT uc_%s_user_and_organization UNIQUE (user_id, organization)
 );
 `
 
@@ -147,7 +147,7 @@ RETURNING
 
 func createRolesStatements(tableName string) SQL {
 	statements := SQL{
-		CreateTable:	fmt.Sprintf(createTable, tableName),
+		CreateTable:	fmt.Sprintf(createTable, tableName, tableName),
 		Create:				fmt.Sprintf(create, tableName),
 		Read:					fmt.Sprintf(read, tableName),
 		Search:				fmt.Sprintf(search, tableName),
