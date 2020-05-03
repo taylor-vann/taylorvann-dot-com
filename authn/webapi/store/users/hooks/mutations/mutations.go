@@ -4,12 +4,20 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"webapi/store/users/controller"
 	"webapi/store/users/hooks/cache"
 	"webapi/store/users/hooks/errors"
 	"webapi/store/users/hooks/requests"
 	"webapi/store/users/hooks/responses"
-	"webapi/store/users/controller"
 )
+
+func writeUsersResponse(w http.ResponseWriter, users *controller.Users) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(&responses.Body{
+		Users: users,
+	})
+}
 
 func Create(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil || requestBody.Params == nil {
@@ -41,12 +49,7 @@ func Create(w http.ResponseWriter, requestBody *requests.Body) {
 
 	if users != nil {
 		cache.UpdateReadEntry(params.Environment, &users)
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(&responses.Body{
-			Users: &users,
-		})
+		writeUsersResponse(w, &users)
 		return
 	}
 
@@ -85,12 +88,7 @@ func Update(w http.ResponseWriter, requestBody *requests.Body) {
 
 	if users != nil {
 		cache.UpdateReadEntry(params.Environment, &users)
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(&responses.Body{
-			Users: &users,
-		})
+		writeUsersResponse(w, &users)
 		return
 	}
 
@@ -129,12 +127,7 @@ func UpdateEmail(w http.ResponseWriter, requestBody *requests.Body) {
 
 	if users != nil {
 		cache.UpdateReadEntry(params.Environment, &users)
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(&responses.Body{
-			Users: &users,
-		})
+		writeUsersResponse(w, &users)
 		return
 	}
 
@@ -173,12 +166,7 @@ func UpdatePassword(w http.ResponseWriter, requestBody *requests.Body) {
 
 	if users != nil {
 		cache.UpdateReadEntry(params.Environment, &users)
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(&responses.Body{
-			Users: &users,
-		})
+		writeUsersResponse(w, &users)
 		return
 	}
 
@@ -217,12 +205,7 @@ func Delete(w http.ResponseWriter, requestBody *requests.Body) {
 
 	if users != nil {
 		cache.UpdateReadEntry(params.Environment, &users)
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(&responses.Body{
-			Users: &users,
-		})
+		writeUsersResponse(w, &users)
 		return
 	}
 
@@ -261,12 +244,7 @@ func Undelete(w http.ResponseWriter, requestBody *requests.Body) {
 
 	if users != nil {
 		cache.UpdateReadEntry(params.Environment, &users)
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(&responses.Body{
-			Users: &users,
-		})
+		writeUsersResponse(w, &users)
 		return
 	}
 

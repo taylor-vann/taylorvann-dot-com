@@ -4,12 +4,20 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"webapi/store/users/controller"
 	"webapi/store/users/hooks/cache"
 	"webapi/store/users/hooks/errors"
 	"webapi/store/users/hooks/requests"
 	"webapi/store/users/hooks/responses"
-	"webapi/store/users/controller"
 )
+
+func writeUsersResponse(w http.ResponseWriter, users *controller.Users) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(&responses.Body{
+		Users: users,
+	})
+}
 
 func Read(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil || requestBody.Params == nil {
@@ -33,20 +41,26 @@ func Read(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	users, errReadUser := cache.GetReadEntry(&params)
-	if errReadUser != nil {
-		errors.DefaultResponse(w, errReadUser)
+	users, errReadUserCache := cache.GetReadEntry(&params)
+	if errReadUserCache != nil {
+		errors.DefaultResponse(w, errReadUserCache)
+		return
+	}
+	if users != nil {
+		writeUsersResponse(w, users)
 		return
 	}
 
-	if users != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(&responses.Body{
-			Users: &users,
-		})
+	usersStore, errUserStore := controller.Read(&params)
+	if errUserStore != nil {
+		errors.DefaultResponse(w, errUserStore)
 		return
 	}
+	if users != nil {
+		writeUsersResponse(w, &usersStore)
+		return
+	}
+
 
 	errors.BadRequest(w, &responses.Errors{
 		Users: &errors.FailedToReadUser,
@@ -80,13 +94,8 @@ func Index(w http.ResponseWriter, requestBody *requests.Body) {
 		errors.DefaultResponse(w, errIndexUsers)
 		return
 	}
-
 	if users != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(&responses.Body{
-			Users: &users,
-		})
+		writeUsersResponse(w, &users)
 		return
 	}
 
@@ -122,13 +131,8 @@ func Search(w http.ResponseWriter, requestBody *requests.Body) {
 		errors.DefaultResponse(w, errSearchUsers)
 		return
 	}
-
 	if users != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(&responses.Body{
-			Users: &users,
-		})
+		writeUsersResponse(w, &users)
 		return
 	}
 

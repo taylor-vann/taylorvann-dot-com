@@ -4,12 +4,20 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"webapi/store/roles/controller"
 	"webapi/store/roles/hooks/cache"
 	"webapi/store/roles/hooks/errors"
 	"webapi/store/roles/hooks/requests"
 	"webapi/store/roles/hooks/responses"
-	"webapi/store/roles/controller"
 )
+
+func writeRolesResponse(w http.ResponseWriter, roles *controller.Roles) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(&responses.Body{
+		Roles: roles,
+	})
+}
 
 func Read(w http.ResponseWriter, requestBody *requests.Body)  {
 	if requestBody == nil || requestBody.Params == nil {
@@ -33,22 +41,23 @@ func Read(w http.ResponseWriter, requestBody *requests.Body)  {
 		return
 	}
 
-	roles, errRoles := cache.GetReadEntry(&params)
-	if errRoles != nil {
-		errAsStr := errRoles.Error()
-		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToReadRole,
-			Body: &errors.BadRequestFail,
-			Default: &errAsStr,
-		})
+	roles, errReadUserCache := cache.GetReadEntry(&params)
+	if errReadUserCache != nil {
+		errors.DefaultResponse(w, errReadUserCache)
 		return
 	}
 	if roles != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(&responses.Body{
-			Roles: &roles,
-		})
+		writeRolesResponse(w, roles)
+		return
+	}
+
+	rolesStore, errRolesStore := controller.Read(&params)
+	if errRolesStore != nil {
+		errors.DefaultResponse(w, errRolesStore)
+		return
+	}
+	if rolesStore != nil {
+		writeRolesResponse(w, &rolesStore)
 		return
 	}
 
@@ -86,11 +95,7 @@ func Index(w http.ResponseWriter, requestBody *requests.Body) {
 	}
 
 	if roles != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(&responses.Body{
-			Roles: &roles,
-		})
+		writeRolesResponse(w, &roles)
 		return
 	}
 
@@ -133,11 +138,7 @@ func Search(w http.ResponseWriter, requestBody *requests.Body) {
 	}
 
 	if roles != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(&responses.Body{
-			Roles: &roles,
-		})
+		writeRolesResponse(w, &roles)
 		return
 	}
 

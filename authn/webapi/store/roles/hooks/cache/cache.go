@@ -10,13 +10,12 @@ import (
 
 const Role = "ROLE"
 const Read = "READ"
-const Search = "SEARCH"
 
 func getReadKey(userID int64, organization string) string {
 	return Role + "_" + Read + "_" + string(userID) + "_" + organization
 }
 
-func GetReadEntry(p *requests.Read) (controller.Roles, error) {
+func GetReadEntry(p *requests.Read) (*controller.Roles, error) {
 	key := getReadKey(p.UserID, p.Organization)
 	entry, errReadEntry := cache.ReadEntry(&cache.ReadEntryParams{
 		Environment: p.Environment,
@@ -25,17 +24,12 @@ func GetReadEntry(p *requests.Read) (controller.Roles, error) {
 	if errReadEntry != nil {
 		return nil, errReadEntry
 	}
-	if entry != nil {
-		bytes, _ := json.Marshal(entry.Payload)
-		var roles controller.Roles
-		errRolesUnmarshal := json.Unmarshal(bytes, &roles)
-		if errRolesUnmarshal != nil {
-			return nil, errRolesUnmarshal
-		}
-		return roles, nil
-	}
-	
-	return controller.Read(p)
+
+	bytes, _ := json.Marshal(entry.Payload)
+	var roles controller.Roles
+	errRolesUnmarshal := json.Unmarshal(bytes, &roles)
+
+	return &roles, errRolesUnmarshal
 }
 
 func UpdateReadEntry(env string, roles *controller.Roles) (error) {

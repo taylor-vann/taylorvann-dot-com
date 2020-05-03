@@ -4,12 +4,20 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"webapi/store/roles/controller"
 	"webapi/store/roles/hooks/cache"
 	"webapi/store/roles/hooks/errors"
 	"webapi/store/roles/hooks/requests"
 	"webapi/store/roles/hooks/responses"
-	"webapi/store/roles/controller"
 )
+
+func writeRolesResponse(w http.ResponseWriter, roles *controller.Roles) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(&responses.Body{
+		Roles: roles,
+	})
+}
 
 func Create(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil || requestBody.Params == nil {
@@ -41,12 +49,7 @@ func Create(w http.ResponseWriter, requestBody *requests.Body) {
 
 	if roles != nil {
 		cache.UpdateReadEntry(params.Environment, &roles)
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(&responses.Body{
-			Roles: &roles,
-		})
+		writeRolesResponse(w, &roles)
 		return
 	}
 
@@ -85,12 +88,7 @@ func Update(w http.ResponseWriter, requestBody *requests.Body) {
 
 	if roles != nil {
 		cache.UpdateReadEntry(params.Environment, &roles)
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(&responses.Body{
-			Roles: &roles,
-		})
+		writeRolesResponse(w, &roles)
 		return
 	}
 
@@ -129,12 +127,7 @@ func UpdateAccess(w http.ResponseWriter, requestBody *requests.Body) {
 
 	if roles != nil {
 		cache.UpdateReadEntry(params.Environment, &roles)
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(&responses.Body{
-			Roles: &roles,
-		})
+		writeRolesResponse(w, &roles)
 		return
 	}
 
@@ -173,12 +166,7 @@ func Delete(w http.ResponseWriter, requestBody *requests.Body) {
 
 	if roles != nil {
 		cache.UpdateReadEntry(params.Environment, &roles)
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(&responses.Body{
-			Roles: &roles,
-		})
+		writeRolesResponse(w, &roles)
 		return
 	}
 
@@ -217,12 +205,7 @@ func Undelete(w http.ResponseWriter, requestBody *requests.Body) {
 
 	if roles != nil {
 		cache.UpdateReadEntry(params.Environment, &roles)
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(&responses.Body{
-			Roles: &roles,
-		})
+		writeRolesResponse(w, &roles)
 		return
 	}
 
