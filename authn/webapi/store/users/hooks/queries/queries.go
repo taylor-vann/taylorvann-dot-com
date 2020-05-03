@@ -3,6 +3,8 @@ package queries
 import (
 	"encoding/json"
 	"net/http"
+
+	"webapi/store/users/hooks/cache"
 	"webapi/store/users/hooks/errors"
 	"webapi/store/users/hooks/requests"
 	"webapi/store/users/hooks/responses"
@@ -31,7 +33,7 @@ func Read(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	users, errReadUser := controller.Read(&params)
+	users, errReadUser := cache.GetReadEntry(&params)
 	if errReadUser != nil {
 		errors.DefaultResponse(w, errReadUser)
 		return

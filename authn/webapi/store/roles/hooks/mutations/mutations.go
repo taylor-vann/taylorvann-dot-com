@@ -3,6 +3,8 @@ package mutations
 import (
 	"encoding/json"
 	"net/http"
+
+	"webapi/store/roles/hooks/cache"
 	"webapi/store/roles/hooks/errors"
 	"webapi/store/roles/hooks/requests"
 	"webapi/store/roles/hooks/responses"
@@ -38,6 +40,8 @@ func Create(w http.ResponseWriter, requestBody *requests.Body) {
 	}
 
 	if roles != nil {
+		cache.UpdateReadEntry(params.Environment, &roles)
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&responses.Body{
@@ -80,6 +84,8 @@ func Update(w http.ResponseWriter, requestBody *requests.Body) {
 	}
 
 	if roles != nil {
+		cache.UpdateReadEntry(params.Environment, &roles)
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&responses.Body{
@@ -122,6 +128,8 @@ func UpdateAccess(w http.ResponseWriter, requestBody *requests.Body) {
 	}
 
 	if roles != nil {
+		cache.UpdateReadEntry(params.Environment, &roles)
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&responses.Body{
@@ -164,6 +172,8 @@ func Delete(w http.ResponseWriter, requestBody *requests.Body) {
 	}
 
 	if roles != nil {
+		cache.UpdateReadEntry(params.Environment, &roles)
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&responses.Body{
@@ -187,7 +197,7 @@ func Undelete(w http.ResponseWriter, requestBody *requests.Body) {
 	}
 
 	bytes, _ := json.Marshal(requestBody.Params)
-	var params requests.Undelete
+	var params requests.Read
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
 		errAsStr := errParamsMarshal.Error()
@@ -206,6 +216,8 @@ func Undelete(w http.ResponseWriter, requestBody *requests.Body) {
 	}
 
 	if roles != nil {
+		cache.UpdateReadEntry(params.Environment, &roles)
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&responses.Body{

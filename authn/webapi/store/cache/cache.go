@@ -55,7 +55,6 @@ func getEnvironmentKey(key string, environment string) string {
 	return key + "_" + environment
 }
 
-
 func CreateEntry(p *CreateEntryParams) (*Entry, error) {
 	if p == nil {
 		return nil, errors.New("nil parameters provided")

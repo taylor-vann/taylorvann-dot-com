@@ -3,13 +3,15 @@ package queries
 import (
 	"encoding/json"
 	"net/http"
+
+	"webapi/store/roles/hooks/cache"
 	"webapi/store/roles/hooks/errors"
 	"webapi/store/roles/hooks/requests"
 	"webapi/store/roles/hooks/responses"
 	"webapi/store/roles/controller"
 )
 
-func Read(w http.ResponseWriter, requestBody *requests.Body) {
+func Read(w http.ResponseWriter, requestBody *requests.Body)  {
 	if requestBody == nil || requestBody.Params == nil {
 		errors.BadRequest(w, &responses.Errors{
 			Roles: &errors.FailedToReadRole,
@@ -31,12 +33,16 @@ func Read(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	roles, errReadRole := controller.Read(&params)
-	if errReadRole != nil {
-		errors.DefaultResponse(w, errReadRole)
+	roles, errRoles := cache.GetReadEntry(&params)
+	if errRoles != nil {
+		errAsStr := errRoles.Error()
+		errors.BadRequest(w, &responses.Errors{
+			Roles: &errors.FailedToReadRole,
+			Body: &errors.BadRequestFail,
+			Default: &errAsStr,
+		})
 		return
 	}
-
 	if roles != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -115,9 +121,14 @@ func Search(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	roles, errSearchRoles := controller.Search(&params)
-	if errSearchRoles != nil {
-		errors.DefaultResponse(w, errSearchRoles)
+	roles, errRoles := controller.Search(&params)
+	if errRoles != nil {
+		errAsStr := errRoles.Error()
+		errors.BadRequest(w, &responses.Errors{
+			Roles: &errors.FailedToReadRole,
+			Body: &errors.BadRequestFail,
+			Default: &errAsStr,
+		})
 		return
 	}
 

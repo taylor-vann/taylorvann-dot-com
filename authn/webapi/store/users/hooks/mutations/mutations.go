@@ -3,6 +3,8 @@ package mutations
 import (
 	"encoding/json"
 	"net/http"
+
+	"webapi/store/users/hooks/cache"
 	"webapi/store/users/hooks/errors"
 	"webapi/store/users/hooks/requests"
 	"webapi/store/users/hooks/responses"
@@ -38,6 +40,8 @@ func Create(w http.ResponseWriter, requestBody *requests.Body) {
 	}
 
 	if users != nil {
+		cache.UpdateReadEntry(params.Environment, &users)
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&responses.Body{
@@ -80,6 +84,8 @@ func Update(w http.ResponseWriter, requestBody *requests.Body) {
 	}
 
 	if users != nil {
+		cache.UpdateReadEntry(params.Environment, &users)
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&responses.Body{
@@ -122,6 +128,8 @@ func UpdateEmail(w http.ResponseWriter, requestBody *requests.Body) {
 	}
 
 	if users != nil {
+		cache.UpdateReadEntry(params.Environment, &users)
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&responses.Body{
@@ -164,6 +172,8 @@ func UpdatePassword(w http.ResponseWriter, requestBody *requests.Body) {
 	}
 
 	if users != nil {
+		cache.UpdateReadEntry(params.Environment, &users)
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&responses.Body{
@@ -206,6 +216,8 @@ func Delete(w http.ResponseWriter, requestBody *requests.Body) {
 	}
 
 	if users != nil {
+		cache.UpdateReadEntry(params.Environment, &users)
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&responses.Body{
@@ -248,6 +260,8 @@ func Undelete(w http.ResponseWriter, requestBody *requests.Body) {
 	}
 
 	if users != nil {
+		cache.UpdateReadEntry(params.Environment, &users)
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&responses.Body{
