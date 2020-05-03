@@ -4,37 +4,34 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"webapi/hooks/sessions/responses"
+	"webapi/store/roles/hooks/responses"
 )
 
 var (
-	BadRequestFail  		 = "unable to decode request body"
-	UnrecognizedQuery 	 = "unrecognized query action requested"
-	UnrecognizedMutation = "unrecognized mutation action requested"
-	FailedToCreateRole 	 = "failed to create role"
-	FailedToDeleteRole	 = "failed to update role"
-	FailedToDeleteRole 	 = "failed to delete role"
-	FailedToReviveRole 	 = "failed to revive role"
-	FailedToIndexRoles 	 = "failed to index roles"
-	FailedToSearchRoles  = "failed to search roles"
+	BadRequestFail  		 		 = "unable to decode request body"
+	UnrecognizedQuery 	 		 = "unrecognized query action requested"
+	UnrecognizedMutation 		 = "unrecognized mutation action requested"
+	UnrecognizedParams			 = "unrecognized params given"
+	FailedToCreateRole 	 		 = "failed to create role"
+	FailedToReadRole	 	 		 = "failed to read role"
+	FailedToIndexRoles 	 		 = "failed to index roles"
+	FailedToSearchRoles  		 = "failed to search roles"
+	FailedToUpdateRole	 	 	 = "failed to Update role"
+	FailedToUpdateAccessRole = "failed to Update Access role"
+	FailedToDeleteRole 	 		 = "failed to delete role"
+	FailedToUndeleteRole 		 = "failed to undelete role"
 )
 
 var defaultFail = "unable to return Roles"
 
-func DefaultErrorResponse(w http.ResponseWriter, err error) {
+func DefaultResponse(w http.ResponseWriter, err error) {
 	errAsStr := err.Error()
-	BadRequest(w, &responses.ErrorsPayload{
+	BadRequest(w, &responses.Errors{
 		Default: &errAsStr,
 	})
 }
 
-func CustomErrorResponse(w http.ResponseWriter, err string) {
-	BadRequest(w, &responses.ErrorsPayload{
-		Default: &err,
-	})
-}
-
-func BadRequest(w http.ResponseWriter, errors *responses.ErrorsPayload) {
+func BadRequest(w http.ResponseWriter, errors *responses.Errors) {
 	w.WriteHeader(http.StatusBadRequest)
 	w.Header().Set("Content-Type", "application/json")
 
@@ -44,7 +41,7 @@ func BadRequest(w http.ResponseWriter, errors *responses.ErrorsPayload) {
 	}
 
 	json.NewEncoder(w).Encode(&responses.Body{
-		Errors: &responses.ErrorsPayload{
+		Errors: &responses.Errors{
 			Default:	&defaultFail,
 		},
 	})

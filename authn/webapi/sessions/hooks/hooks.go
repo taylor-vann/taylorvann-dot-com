@@ -25,7 +25,7 @@ const (
 
 func Query(w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
-		errors.CustomErrorResponse(w, errors.BadBodyFail)
+		errors.CustomErrorResponse(w, errors.BadRequestFail)
 		return
 	}
 
@@ -33,8 +33,8 @@ func Query(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
 		errAsStr := err.Error()
-		errors.BadRequest(w, &responses.ErrorsPayload{
-			Session: &errors.BadBodyFail,
+		errors.BadRequest(w, &responses.Errors{
+			Session: &errors.BadRequestFail,
 			Default: &errAsStr,
 		})
 		return
@@ -44,7 +44,7 @@ func Query(w http.ResponseWriter, r *http.Request) {
 	case ValidateSession:
 		queries.ValidateSession(w, &body)
 	default:
-		errors.BadRequest(w, &responses.ErrorsPayload{
+		errors.BadRequest(w, &responses.Errors{
 			Session: &errors.UnrecognizedQuery,
 		})
 	}
@@ -52,22 +52,22 @@ func Query(w http.ResponseWriter, r *http.Request) {
 
 func Mutation(w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
-		errors.CustomErrorResponse(w, errors.BadBodyFail)
+		errors.CustomErrorResponse(w, errors.BadRequestFail)
 		return
 	}
 
 	var body requests.Body
 	errJsonDecode := json.NewDecoder(r.Body).Decode(&body)
 	if errJsonDecode != nil {
-		errors.CustomErrorResponse(w, errors.BadBodyFail)
+		errors.CustomErrorResponse(w, errors.BadRequestFail)
 		return
 	}
 
 	switch body.Action {
 	case CreateDocumentSession:
-		mutations.CreateDocumentSession(w)
+		mutations.CreateDocumentSession(w, &body)
 	case CreateGuestSession:
-		mutations.CreateGuestSession(w)
+		mutations.CreateGuestSession(w, &body)
 	case CreatePublicSession:
 		mutations.CreatePublicSession(w, &body)
 	case CreateCreateAccountSession:
@@ -79,7 +79,7 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 	case UpdateSession:
 		mutations.UpdateSession(w, &body)
 	case DeleteSession:
-		mutations.RemoveSession(w, &body)
+		mutations.DeleteSession(w, &body)
 	default:
 		errors.CustomErrorResponse(w, errors.UnrecognizedMutation)
 	}

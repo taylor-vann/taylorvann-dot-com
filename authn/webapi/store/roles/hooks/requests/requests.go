@@ -1,28 +1,19 @@
 package requests
 
-type Query struct {
-	UserID int64 `json:"user_id"`
-}
+import (
+	"webapi/store/roles/controller"
+)
 
-type QueryRange struct {
-	StartIndex int64 `json:"start_index"`
-	Length		 int64 `json:"length"`
-}
-
-type SearchRange struct {
-	EmailSubstring string `json:"substring"`
-	StartIndex 		 int64  `json:"start_index"`
-	Length		 		 int64  `json:"length"`
-}
-
-type Params struct {
-	Environment			string 			 `json:"environment"`
-	UserCredentials	*Query 			 `json:"query"`
-	QueryRange			*QueryRange	 `json:"query_range"`
-	Search					*SearchRange `json:"search_range"`
-}
+type Create = controller.CreateParams
+type Read = controller.ReadParams
+type Index = controller.IndexParams
+type Search = controller.SearchParams
+type Update = controller.UpdateParams
+type UpdateAccess = controller.UpdateAccessParams
+type Delete = controller.DeleteParams
+type Undelete = controller.UndeleteParams
 
 type Body struct {
-	Action string  `json:"action"`
-	Params *Params `json:"params"`
+	Action string  		 `json:"action"`
+	Params interface{} `json:"params"`
 }

@@ -3,12 +3,12 @@ package hooks
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
+	"webapi/interfaces/jwtx"
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
 )
@@ -20,7 +20,7 @@ func TestCreateGuestSessionBadRequest(t *testing.T) {
 		nil,
 	)
 	if errResp != nil {
-		t.Error("error making guest session request")
+		t.Error(errResp.Error())
 	}
 
 	httpTest := httptest.NewRecorder()
@@ -46,7 +46,7 @@ func TestCreateGuestSessionBadHeadersRequest(t *testing.T) {
 		marshalBytes,
 	)
 	if errReq != nil {
-		t.Error("error making guest session request")
+		t.Error(errReq.Error())
 	}
 
 	httpTest := httptest.NewRecorder()
@@ -54,14 +54,17 @@ func TestCreateGuestSessionBadHeadersRequest(t *testing.T) {
 	handler.ServeHTTP(httpTest, req)
 
 	status := httpTest.Code
-	if status != http.StatusOK {
-		t.Error("handler returned incorrect status code, should be 200")
+	if status == http.StatusOK {
+		t.Error("handler returned incorrect status code, should not be 200")
 	}
 }
 
 func TestCreateGuestSession(t *testing.T) {
 	requestBody := requests.Body{
 		Action: CreateGuestSession,
+		Params: requests.SessionParams{
+			Environment: "LOCAL",
+		},
 	}
 
 	marshalBytes := new(bytes.Buffer)
@@ -72,7 +75,7 @@ func TestCreateGuestSession(t *testing.T) {
 		marshalBytes,
 	)
 	if errResp != nil {
-		t.Error(errResp)
+		t.Error(errResp.Error())
 	}
 
 	httpTest := httptest.NewRecorder()
@@ -85,20 +88,23 @@ func TestCreateGuestSession(t *testing.T) {
 	var responseBody responses.Body
 	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
 	if errJSON != nil {
-		t.Error(errJSON)
+		t.Error(errJSON.Error())
 	}
 	if responseBody.Session == nil {
 		t.Error("nil session returned")
 	}
 
 	if httpTest.Code != http.StatusOK {
-		t.Error("handler returned incorrect status code")
+		t.Error(*responseBody.Errors.Default)
 	}
 }
 
 func TestCreateDocumentSession(t *testing.T) {
 	requestBody := requests.Body{
 		Action: CreateDocumentSession,
+		Params: requests.SessionParams{
+			Environment: "LOCAL",
+		},
 	}
 
 	marshalBytes := new(bytes.Buffer)
@@ -109,7 +115,7 @@ func TestCreateDocumentSession(t *testing.T) {
 		marshalBytes,
 	)
 	if errResp != nil {
-		t.Error(errResp)
+		t.Error(errResp.Error())
 	}
 
 	httpTest := httptest.NewRecorder()
@@ -122,7 +128,7 @@ func TestCreateDocumentSession(t *testing.T) {
 	var responseBody responses.Body
 	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
 	if errJSON != nil {
-		t.Error(errJSON)
+		t.Error(errJSON.Error())
 	}
 	if responseBody.Session == nil {
 		t.Error("nil session returned")
@@ -146,7 +152,7 @@ func TestCreateResetPasswordSessionBadRequest(t *testing.T) {
 		marshalBytes,
 	)
 	if errResp != nil {
-		t.Error(errResp)
+		t.Error(errResp.Error())
 	}
 
 	httpTest := httptest.NewRecorder()
@@ -159,51 +165,14 @@ func TestCreateResetPasswordSessionBadRequest(t *testing.T) {
 	}
 }
 
-func TestCreateResetPasswordSession(t *testing.T) {
-	requestBody := requests.Body{
-		Action: CreateDocumentSession,
-	}
-
-	marshalBytes := new(bytes.Buffer)
-	json.NewEncoder(marshalBytes).Encode(requestBody)
-	resp, errResp := http.NewRequest(
-		"POST",
-		"/m/sessions/",
-		marshalBytes,
-	)
-	if errResp != nil {
-		t.Error("error making guest session request")
-	}
-
-	httpTest := httptest.NewRecorder()
-	handler := http.HandlerFunc(Mutation)
-	handler.ServeHTTP(httpTest, resp)
-
-	status := httpTest.Code
-	if status != http.StatusOK {
-		t.Error("guest session returned incorrect status code")
-		return
-	}
-
-	time.Sleep(10 * time.Millisecond)
-
-	// decode body to response
-	var responseBody responses.Body
-	errResponseBody := json.NewDecoder(httpTest.Body).Decode(&responseBody)
-	if errResponseBody != nil {
-		t.Error(errResponseBody)
-		return
-	}
-
+func TestCreateCreateAccountSession(t *testing.T) {
 	email := "something@darkside.complete"
 	// public session from guest sesion
 	requestBodyPublic := requests.Body{
-		Action: CreateUpdatePasswordSession,
-		Params: &requests.Params{
-			SessionToken: responseBody.Session.SessionToken,
-			AccountCredentials: &requests.AccountCredentials{
-				Email: email,
-			},
+		Action: CreateCreateAccountSession,
+		Params: requests.AccountParams{
+			Environment: "LOCAL",
+			Email: email,
 		},
 	}
 
@@ -215,7 +184,7 @@ func TestCreateResetPasswordSession(t *testing.T) {
 		marshalBytesPublic,
 	)
 	if errReq != nil {
-		t.Error("error making guest session request")
+		t.Error(errReq.Error())
 	}
 
 	httpTestPublic := httptest.NewRecorder()
@@ -225,57 +194,18 @@ func TestCreateResetPasswordSession(t *testing.T) {
 
 	statusPublic := httpTestPublic.Code
 	if statusPublic != http.StatusOK {
-		fmt.Println(httpTestPublic)
 		t.Error("handler returned incorrect status code")
 	}
 }
 
-
-func TestCreateUpdateEmailSession(t *testing.T) {
-	requestBody := requests.Body{
-		Action: CreateDocumentSession,
-	}
-
-	marshalBytes := new(bytes.Buffer)
-	json.NewEncoder(marshalBytes).Encode(requestBody)
-	resp, errResp := http.NewRequest(
-		"POST",
-		"/m/sessions/",
-		marshalBytes,
-	)
-	if errResp != nil {
-		t.Error("error making guest session request")
-	}
-
-	httpTest := httptest.NewRecorder()
-	handler := http.HandlerFunc(Mutation)
-	handler.ServeHTTP(httpTest, resp)
-
-	status := httpTest.Code
-	if status != http.StatusOK {
-		t.Error("guest session returned incorrect status code")
-		return
-	}
-
-	time.Sleep(10 * time.Millisecond)
-
-	// decode body to response
-	var responseBody responses.Body
-	errResponseBody := json.NewDecoder(httpTest.Body).Decode(&responseBody)
-	if errResponseBody != nil {
-		t.Error(errResponseBody)
-		return
-	}
-
+func TestCreateUpdatePasswordSession(t *testing.T) {
 	email := "something@darkside.complete"
 	// public session from guest sesion
 	requestBodyPublic := requests.Body{
-		Action: CreateUpdateEmailSession,
-		Params: &requests.Params{
-			SessionToken: responseBody.Session.SessionToken,
-			AccountCredentials: &requests.AccountCredentials{
-				Email: email,
-			},
+		Action: CreateUpdatePasswordSession,
+		Params: requests.AccountParams{
+			Environment: "LOCAL",
+			Email: email,
 		},
 	}
 
@@ -287,7 +217,7 @@ func TestCreateUpdateEmailSession(t *testing.T) {
 		marshalBytesPublic,
 	)
 	if errReq != nil {
-		t.Error("error making guest session request")
+		t.Error(errReq.Error())
 	}
 
 	httpTestPublic := httptest.NewRecorder()
@@ -297,43 +227,74 @@ func TestCreateUpdateEmailSession(t *testing.T) {
 
 	statusPublic := httpTestPublic.Code
 	if statusPublic != http.StatusOK {
-		fmt.Println(httpTestPublic)
+		t.Error("handler returned incorrect status code")
+	}
+}
+
+func TestCreateUpdateEmailSession(t *testing.T) {
+	email := "something@darkside.complete"
+	// public session from guest sesion
+	requestBodyPublic := requests.Body{
+		Action: CreateUpdateEmailSession,
+		Params: &requests.AccountParams{
+			Environment: "LOCAL",
+			Email: email,
+		},
+	}
+
+	marshalBytesPublic := new(bytes.Buffer)
+	json.NewEncoder(marshalBytesPublic).Encode(requestBodyPublic)
+	req, errReq := http.NewRequest(
+		"POST",
+		"/m/sessions/",
+		marshalBytesPublic,
+	)
+	if errReq != nil {
+		t.Error(errReq.Error())
+	}
+
+	httpTestPublic := httptest.NewRecorder()
+	handlerPublic := http.HandlerFunc(Mutation)
+	handlerPublic.ServeHTTP(httpTestPublic, req)
+
+	statusPublic := httpTestPublic.Code
+	if statusPublic != http.StatusOK {
 		t.Error("handler returned incorrect status code")
 	}
 }
 
 func TestUpdateSession(t *testing.T) {
-	requestBody := requests.Body{
+	sessionRequestBody := requests.Body{
 		Action: CreateGuestSession,
+		Params: requests.SessionParams{
+			Environment: "LOCAL",
+		},
 	}
 
-	marshalBytes := new(bytes.Buffer)
-	json.NewEncoder(marshalBytes).Encode(requestBody)
-	resp, errResp := http.NewRequest(
+	sessionMarshalBytes := new(bytes.Buffer)
+	json.NewEncoder(sessionMarshalBytes).Encode(sessionRequestBody)
+	respSession, errSessionResp := http.NewRequest(
 		"POST",
 		"/m/sessions/",
-		marshalBytes,
+		sessionMarshalBytes,
 	)
-	if errResp != nil {
-		t.Error("error making guest session request")
+	if errSessionResp != nil {
+		t.Error(errSessionResp)
 	}
 
-	httpTest := httptest.NewRecorder()
-	handler := http.HandlerFunc(Mutation)
-	handler.ServeHTTP(httpTest, resp)
-
-	status := httpTest.Code
-	if status != http.StatusOK {
-		t.Error("handler returned incorrect status code")
-		return
+	httpTestSession := httptest.NewRecorder()
+	handlerSession := http.HandlerFunc(Mutation)
+	handlerSession.ServeHTTP(httpTestSession, respSession)
+	if respSession.Body == nil {
+		t.Error("response body is nil")
 	}
-
-	// decode body to response
-	var responseBody responses.Body
-	errResponseBody := json.NewDecoder(httpTest.Body).Decode(&responseBody)
-	if errResponseBody != nil {
-		t.Error(errResponseBody)
-		return
+	var responseBodySession responses.Body
+	errJSONSession := json.NewDecoder(httpTestSession.Body).Decode(&responseBodySession)
+	if errJSONSession != nil {
+		t.Error(errJSONSession)
+	}
+	if responseBodySession.Session == nil {
+		t.Error("nil session returned")
 	}
 
 	time.Sleep(10 * time.Millisecond)
@@ -341,8 +302,9 @@ func TestUpdateSession(t *testing.T) {
 	// public session from guest sesion
 	requestBodyPublic := requests.Body{
 		Action: UpdateSession,
-		Params: &requests.Params{
-			SessionToken: responseBody.Session.SessionToken,
+		Params: &requests.Update{
+			Environment: "LOCAL",
+			SessionToken: responseBodySession.Session.SessionToken,
 		},
 	}
 
@@ -354,7 +316,7 @@ func TestUpdateSession(t *testing.T) {
 		marshalBytesPublic,
 	)
 	if errReq != nil {
-		t.Error("error making guest session request")
+		t.Error(errReq.Error())
 	}
 
 	httpTestPublic := httptest.NewRecorder()
@@ -371,6 +333,9 @@ func TestUpdateSession(t *testing.T) {
 func TestValidateSession(t *testing.T) {
 	requestBody := requests.Body{
 		Action: CreateGuestSession,
+		Params: requests.SessionParams{
+			Environment: "LOCAL",
+		},
 	}
 
 	marshalBytes := new(bytes.Buffer)
@@ -381,7 +346,7 @@ func TestValidateSession(t *testing.T) {
 		marshalBytes,
 	)
 	if errResp != nil {
-		t.Error("error making guest session request")
+		t.Error(errResp.Error())
 	}
 
 	httpTest := httptest.NewRecorder()
@@ -398,13 +363,14 @@ func TestValidateSession(t *testing.T) {
 	var responseBody responses.Body
 	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
 	if errJSON != nil {
-		t.Error(errJSON)
+		t.Error(errJSON.Error())
 		return
 	}
 	// public session from guest sesion
 	requestBodyValidate := requests.Body{
 		Action: ValidateSession,
-		Params: &requests.Params{
+		Params: &requests.Read{
+			Environment: "LOCAL",
 			SessionToken: responseBody.Session.SessionToken,
 		},
 	}
@@ -420,7 +386,7 @@ func TestValidateSession(t *testing.T) {
 		marshalBytesValidate,
 	)
 	if errReq != nil {
-		t.Error("error making validating request")
+		t.Error(errReq.Error())
 	}
 
 	httpTestValidate := httptest.NewRecorder()
@@ -437,6 +403,9 @@ func TestValidateSession(t *testing.T) {
 func TestDeleteSession(t *testing.T) {
 	requestBody := requests.Body{
 		Action: CreateGuestSession,
+		Params: requests.SessionParams{
+			Environment: "LOCAL",
+		},
 	}
 
 	marshalBytes := new(bytes.Buffer)
@@ -447,7 +416,7 @@ func TestDeleteSession(t *testing.T) {
 		marshalBytes,
 	)
 	if errResp != nil {
-		t.Error("error making guest session request")
+		t.Error(errResp.Error())
 	}
 
 	httpTest := httptest.NewRecorder()
@@ -464,21 +433,30 @@ func TestDeleteSession(t *testing.T) {
 	var responseBody responses.Body
 	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
 	if errJSON != nil {
-		t.Error(errJSON)
+		t.Error(errJSON.Error())
 		return
+	}
+
+	// get signature
+	tokenDetails, errTokenDetails := jwtx.RetrieveTokenDetailsFromString(
+		responseBody.Session.SessionToken,
+	)
+	if errTokenDetails != nil {
+		t.Error(errTokenDetails.Error())
 	}
 	// public session from guest sesion
 	requestBodyRemove := requests.Body{
 		Action: DeleteSession,
-		Params: &requests.Params{
-			SessionToken: responseBody.Session.SessionToken,
+		Params: &requests.Delete{
+			Environment: "LOCAL",
+			Signature: tokenDetails.Signature,
 		},
 	}
 
 	marshalBytesRemove := new(bytes.Buffer)
 	errRemove := json.NewEncoder(marshalBytesRemove).Encode(requestBodyRemove)
 	if errRemove != nil {
-		t.Error(errRemove)
+		t.Error(errRemove.Error())
 	}
 	req, errReq := http.NewRequest(
 		"POST",
@@ -486,7 +464,7 @@ func TestDeleteSession(t *testing.T) {
 		marshalBytesRemove,
 	)
 	if errReq != nil {
-		t.Error("error making guest session request")
+		t.Error(errReq.Error())
 	}
 
 	httpTestRemove := httptest.NewRecorder()

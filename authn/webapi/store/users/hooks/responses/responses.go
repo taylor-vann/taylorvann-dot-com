@@ -6,11 +6,11 @@ type Users = controller.Users
 
 type Errors struct {
 	Body		*string `json:"body"`
-	Roles 	*string `json:"session"`
+	Users 	*string `json:"users"`
 	Default *string `json:"default"`
 }
 
 type Body struct {
-	Users  *Roles 	`json:"users"`
+	Users  *Users 	`json:"users"`
 	Errors *Errors	`json:"errors"`
 }

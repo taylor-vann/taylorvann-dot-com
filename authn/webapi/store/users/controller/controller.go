@@ -55,6 +55,8 @@ type IndexParams struct {
 type SearchParams struct {
 	Environment 	 string `json:"environment"`
 	EmailSubstring string	`json:"email_substring"`
+	StartIndex	 int64  `json:"start_index"`
+	Length  		 int64	`json:"length"`
 }
 
 type UpdateParams struct {

@@ -1,28 +1,34 @@
 package requests
 
-type Query struct {
-	UserID int64 `json:"user_id"`
-}
+import (
+	"webapi/store/users/controller"
+)
 
-type QueryRange struct {
-	StartIndex int64 `json:"start_index"`
-	Length		 int64 `json:"length"`
-}
+type Create = controller.CreateParams
+type Read = controller.ReadParams
+type Index = controller.IndexParams
+type Search = controller.SearchParams
+type Update = controller.UpdateParams
+type UpdateEmail = controller.UpdateEmailParams
+type UpdatePassword = controller.UpdatePasswordParams
+type Delete = controller.DeleteParams
+type Undelete = controller.UndeleteParams
 
-type SearchRange struct {
-	EmailSubstring string `json:"substring"`
-	StartIndex 		 int64  `json:"start_index"`
-	Length		 		 int64  `json:"length"`
-}
-
-type Params struct {
-	Environment			string 			 `json:"environment"`
-	UserCredentials	*Query 			 `json:"query"`
-	QueryRange			*QueryRange	 `json:"query_range"`
-	Search					*SearchRange `json:"search_range"`
-}
+// type Params struct {
+// 	Environment	string			`json:"environment"`
+// 	Payload			interface{}	`json:"payload"`
+// 	// Create					*Create					`json:"create"`
+// 	// Read						*Read						`json:"read"`
+// 	// Index						*Index					`json:"index"`
+// 	// Search  				*Search					`json:"search"`
+// 	// Update  				*Update					`json:"update"`
+// 	// UpdateEmail  	 	*UpdateEmail		`json:"update_email"`
+// 	// UpdatePassword	*UpdatePassword	`json:"update_password"`
+// 	// Delete  				*Delete					`json:"delete"`
+// 	// Undelete  			*Undelete				`json:"undelete"`
+// }
 
 type Body struct {
-	Action string  `json:"action"`
-	Params *Params `json:"params"`
+	Action string			 `json:"action"`
+	Params interface{} `json:"payload"`
 }

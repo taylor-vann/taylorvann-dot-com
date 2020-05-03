@@ -12,7 +12,9 @@ package routes
 import (
 	"net/http"
 	"webapi/routes/ping"
-	"webapi/hooks/sessions"
+	sessionHooks "webapi/sessions/hooks"
+	// "webapi/sessions/hooks/users"
+
 	// "webapi/hooks/users"
 	// "webapi/hooks/roles"
 )
@@ -31,8 +33,8 @@ func CreateRoutes(mux *http.ServeMux) *http.ServeMux {
 	// mux.HandleFunc("/m/roles/", roles.Mutation)
 		
 	//	sessions
-	mux.HandleFunc("/q/sessions/", sessions.Query)
-	mux.HandleFunc("/m/sessions/", sessions.Mutation)
+	mux.HandleFunc("/q/sessions/", sessionHooks.Query)
+	mux.HandleFunc("/m/sessions/", sessionHooks.Mutation)
 
 	return mux
 }
