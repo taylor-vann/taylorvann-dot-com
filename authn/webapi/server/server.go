@@ -5,13 +5,10 @@ import (
 	"webapi/routes"
 )
 
-// CreateServer - Start a websever
 func CreateServer(port int) {
-	// send mux to local routes package to append hooks
 	muxHttps := http.NewServeMux()
 	routes.CreateRoutes(muxHttps)
 
-	// start app
 	http.ListenAndServeTLS(
 		":5000",
 		"/usr/local/certs/authn/https-server.crt",

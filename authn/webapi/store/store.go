@@ -11,26 +11,6 @@ import (
 )
 
 type MilliSeconds = int64
-type CreateUserParams = usersController.CreateParams
-type ReadUserParams = usersController.ReadParams
-type UpdateEmailParams struct {
-	CurrentEmail string
-	UpdatedEmail string
-}
-
-type ValidateUserParams struct {
-	Email    string
-	Password string
-}
-
-type RemoveUserParams = ReadUserParams
-type ReviveUserParams = ReadUserParams
-type UpdatePasswordParams struct {
-	Email           string
-	UpdatedPassword string
-}
-
-type UserRow = usersController.Row
 
 func getNowAsMS() MilliSeconds {
 	return time.Now().UnixNano() / int64(time.Millisecond)
