@@ -8,7 +8,7 @@ import (
 	"errors"
 	"time"
 
-	"webapi/interfaces/storex"
+	"webapi/store/storex"
 	"webapi/store/roles/controller/constants"
 	"webapi/store/roles/controller/statements"
 	"webapi/store/roles/controller/utils"

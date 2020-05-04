@@ -12,8 +12,9 @@ import (
 	"errors"
 	"strconv"
 
-	"webapi/interfaces/pgsqlx"
-	"webapi/interfaces/storex/constants"
+	"github.com/taylor-vann/tvgtb/pgsqlx"
+	
+	"webapi/store/constants"
 )
 
 // getConfigFromEnv -

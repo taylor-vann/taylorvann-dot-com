@@ -5,7 +5,7 @@ package sessionsx
 
 import (
 	"errors"
-	"webapi/interfaces/jwtx"
+	"github.com/taylor-vann/tvgtb/jwtx"
 	"webapi/sessions/sessionsx/constants"
 	"webapi/sessions/whitelist"
 )

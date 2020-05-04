@@ -9,8 +9,9 @@ import (
 	"errors"
 	"time"
 
-	"webapi/interfaces/passwordx"
-	"webapi/interfaces/storex"
+	"github.com/taylor-vann/tvgtb/passwordx"
+	
+	"webapi/store/storex"
 	"webapi/store/users/controller/constants"
 	"webapi/store/users/controller/statements"
 	"webapi/store/users/controller/utils"

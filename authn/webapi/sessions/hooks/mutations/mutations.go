@@ -5,7 +5,8 @@ import (
 	err "errors"
 	"net/http"
 
-	"webapi/interfaces/jwtx"
+	"github.com/taylor-vann/tvgtb/jwtx"
+	
 	"webapi/sessions/hooks/constants"
 	"webapi/sessions/hooks/errors"
 	"webapi/sessions/hooks/requests"

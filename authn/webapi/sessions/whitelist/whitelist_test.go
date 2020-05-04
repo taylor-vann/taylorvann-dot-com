@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"webapi/constants"
-	"webapi/interfaces/jwtx"
+	"github.com/taylor-vann/tvgtb/jwtx"
 )
 
 type JWTClaimTestPlan = []jwtx.Claims
