@@ -1,0 +1,22 @@
+# brian taylor vann
+# taylorvann dot com
+
+# Use this docker-compose to create an authentication development server
+
+version: "3"
+services:
+  webapi:
+    container_name: mail_webapi
+    build:
+      context: ./webapi/
+      dockerfile: dockerfile.dev
+    restart: always
+    env_file:
+      - ./environment-variables.env
+    ports:
+      - "25:25"
+      - "443:6000"
+    volumes:
+      - ./webapi/:/go/src/webapi/
+      - ./certs/:/usr/local/certs/
+    command: ["postfix", "start;", "go", "run", "/go/src/webapi/main.go""]"

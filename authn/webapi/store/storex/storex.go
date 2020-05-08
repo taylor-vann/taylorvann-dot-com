@@ -12,11 +12,11 @@ import (
 	"errors"
 	"strconv"
 
-	"webapi/interfaces/pgsqlx"
-	"webapi/interfaces/storex/constants"
+	"github.com/taylor-vann/tvgtb/pgsqlx"
+	
+	"webapi/store/storex/constants"
 )
 
-// getConfigFromEnv -
 func getConfigFromEnv() (*pgsqlx.PGConfig, error) {
 	if constants.Host == "" || constants.Port == "" || constants.User == "" || constants.Password == "" || constants.Database == "" {
 		return nil, errors.New(
@@ -24,7 +24,6 @@ func getConfigFromEnv() (*pgsqlx.PGConfig, error) {
 		)
 	}
 
-	// get port string as integer
 	portAsInt, err := strconv.Atoi(constants.Port)
 	if err != nil {
 		return nil, errors.New(
@@ -32,7 +31,6 @@ func getConfigFromEnv() (*pgsqlx.PGConfig, error) {
 		)
 	}
 
-	// apply env variables to config
 	config := pgsqlx.PGConfig{
 		Host:         constants.Host,
 		Port:         portAsInt,
@@ -41,14 +39,12 @@ func getConfigFromEnv() (*pgsqlx.PGConfig, error) {
 		DatabaseName: constants.Database,
 	}
 
-	// return address of config
 	return &config, nil
 }
 
 var pgsqlConfig, configErr = getConfigFromEnv()
 var pgsqlxInstance, pgsqlxErr = pgsqlx.Create(pgsqlConfig)
 
-// Exec - expose Exec method without exposing entire db interface
 func Exec(query string, args ...interface{}) (sql.Result, error) {
 	if pgsqlxErr != nil {
 		return nil, errors.New("storex.Exec() - there is not a valid instance of pgsqlx")
@@ -57,7 +53,6 @@ func Exec(query string, args ...interface{}) (sql.Result, error) {
 	return pgsqlxInstance.DB.Exec(query, args...)
 }
 
-// Query - expose a method without exposing entire db interface
 func Query(query string, args ...interface{}) (*sql.Rows, error) {
 	if pgsqlxErr != nil {
 		return nil, errors.New("storex.Query() - there is not a valid instance of pgsqlx")

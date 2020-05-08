@@ -4,9 +4,14 @@ VOLUME [ "/go/src/webapi/", "/usr/local/certs/" ]
 
 RUN apk --update add --no-cache build-base openssl git
 
-RUN go get github.com/lib/pq
-RUN go get github.com/gomodule/redigo/redis
-RUN go get golang.org/x/crypto/argon2
+RUN go get github.com/taylor-vann/tvgtb/jwtx \
+github.com/taylor-vann/tvgtb/passwordx \
+github.com/taylor-vann/tvgtb/pgsqlx \
+github.com/taylor-vann/tvgtb/redisx \
+github.com/taylor-vann/tvgtb/graylistx \
+github.com/lib/pq \
+github.com/gomodule/redigo/redis \
+golang.org/x/crypto/argon2
 
 WORKDIR /go/src/webapi
 

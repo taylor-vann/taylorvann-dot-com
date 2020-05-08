@@ -8,7 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"webapi/interfaces/jwtx"
+	"github.com/taylor-vann/tvgtb/jwtx"
+	
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
 )
