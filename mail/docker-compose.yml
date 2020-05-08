@@ -19,4 +19,4 @@ services:
     volumes:
       - ./webapi/:/go/src/webapi/
       - ./certs/:/usr/local/certs/
-    command: ["postfix", "start;", "go", "run", "/go/src/webapi/main.go""]"
+    command: ["go", "run", "/go/src/webapi/main.go"]

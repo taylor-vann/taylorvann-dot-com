@@ -8,8 +8,6 @@ import (
 
 func main() {
 	certs.Create()
-
 	mailx.Setup()
-
 	server.CreateServer()
 }
