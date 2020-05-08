@@ -13,10 +13,10 @@ type CertAddressList struct {
 
 const (
 	certLocal       = "/usr/local/certs/mail/https-server.crt"
-	certLetsEncrypt = "/etc/letsencrypt/mail.taylorvann/fullchain.pem"
+	certLetsEncrypt = "/etc/letsencrypt/live/mail.taylorvann.com/fullchain.pem"
 
 	keyLocal        = "/usr/local/certs/mail/https-server.key"
-	keyLetsEncrypt  = "/etc/letsencrypt/mail.taylorvann/privkey.pem"
+	keyLetsEncrypt  = "/etc/letsencrypt/live/mail.taylorvann.com/privkey.pem"
 
 	scriptLocal 			= "/usr/local/certs/generate_self_signed_certificate.sh"
 	scriptLetsEncrypt = "/usr/local/certs/generate_letsencrypt_certificate.sh"

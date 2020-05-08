@@ -28,6 +28,29 @@ func createReplyToStatement(email string) string {
 	return fmt.Sprintf(constants.ReplyToStatement, email)
 }
 
+func checkEmailParams(p *EmailParams) (*EmailParams, error) {
+	if p == nil {
+		return nil, errors.New("nil parameters given")
+	}
+	if p.ReplyAddress == "" {
+		return nil, errors.New("sender is empty string")
+	}
+	if p.RecipientAddress == "" {
+		return nil, errors.New("recipient is empty string")
+	}
+	if p.Body == "" {
+		return nil, errors.New("body is empty string")
+	}
+	if p.Subject == "" {
+		return nil, errors.New("subject is empty string")
+	}
+	if p.ReplyName == "" {
+		return nil, errors.New("user is empty string")
+	}
+
+	return p, nil
+}
+
 func SetupSendOnlySettings() (string, error) {
 	cmd := exec.Command(
 		constants.Postconf,
@@ -65,23 +88,9 @@ func Setup() {
 
 // mail -s {subject} -r {name<from_address>} -S replyto={reply_addres} {recipient_address}
 func SendEmail(p *EmailParams) (string, error) {
-	if p == nil {
-		return "", errors.New("nil parameters given")
-	}
-	if p.ReplyAddress == "" {
-		return "", errors.New("sender is empty string")
-	}
-	if p.RecipientAddress == "" {
-		return "", errors.New("recipient is empty string")
-	}
-	if p.Body == "" {
-		return "", errors.New("body is empty string")
-	}
-	if p.Subject == "" {
-		return "", errors.New("subject is empty string")
-	}
-	if p.ReplyName == "" {
-		return "", errors.New("user is empty string")
+	p, errParams := checkEmailParams(p)
+	if errParams != nil {
+		return "", errParams
 	}
 	
 	fromStatement := createFromStatement(p.ReplyName, p.ReplyAddress)
@@ -101,6 +110,6 @@ func SendEmail(p *EmailParams) (string, error) {
 	bodyAsByteBuffer := bytes.NewBuffer([]byte(p.Body))
 	cmd.Stdin = bodyAsByteBuffer
 
-	output, err := cmd.Output()
-	return string(output), err
+	output, errCmd := cmd.Output()
+	return string(output), errCmd
 }
