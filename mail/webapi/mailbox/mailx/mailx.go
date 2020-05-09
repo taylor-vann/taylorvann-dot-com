@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"os/exec"
 
-	"webapi/mailx/constants"
+	"webapi/mailbox/mailx/constants"
 )
 
 type EmailParams struct{

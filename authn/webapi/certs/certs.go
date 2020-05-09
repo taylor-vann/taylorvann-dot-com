@@ -9,7 +9,6 @@ func runScript(scriptName string) {
 	_, err := cmd.Output()
 
 	if err != nil {
-		println(err.Error())
 		return
 	}
 }

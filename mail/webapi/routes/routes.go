@@ -9,12 +9,12 @@ package routes
 import (
 	"net/http"
 	"webapi/routes/ping"
-	"webapi/sendmail"
+	"webapi/mailbox/hooks"
 )
 
 func CreateRoutes(mux *http.ServeMux) *http.ServeMux {
 	mux.HandleFunc("/", ping.Details)
-	mux.HandleFunc("/sendmail", sendmail.NoReply)
+	mux.HandleFunc("/sendonly/", hooks.NoReply)
 
 	return mux
 }
