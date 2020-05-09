@@ -1,17 +1,19 @@
 FROM golang:alpine
 
-VOLUME [ "/go/src/webapi/", "/usr/local/certs/" ]
+VOLUME [ "/go/src/webapi/", "/usr/local/certs/live", "/etc/letsencrypt/live/" ]
 
-RUN apk --update add --no-cache build-base openssl git
+RUN apk --update add --no-cache build-base openssl git certbot
 
-RUN go get github.com/taylor-vann/tvgtb/jwtx \
-github.com/taylor-vann/tvgtb/passwordx \
-github.com/taylor-vann/tvgtb/pgsqlx \
-github.com/taylor-vann/tvgtb/redisx \
-github.com/taylor-vann/tvgtb/graylistx \
-github.com/lib/pq \
-github.com/gomodule/redigo/redis \
-golang.org/x/crypto/argon2
+RUN go get github.com/taylor-vann/tvgtb/certificatesx/ \
+github.com/taylor-vann/tvgtb/graylistx/ \
+github.com/taylor-vann/tvgtb/jwtx/ \
+github.com/taylor-vann/tvgtb/passwordx/ \
+github.com/taylor-vann/tvgtb/pgsqlx/ \
+github.com/taylor-vann/tvgtb/redisx/ \
+github.com/taylor-vann/tvgtb/storex/ \
+github.com/lib/pq/ \
+github.com/gomodule/redigo/redis/ \
+golang.org/x/crypto/argon2/
 
 WORKDIR /go/src/webapi
 

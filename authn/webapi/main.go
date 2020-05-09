@@ -1,13 +1,14 @@
 package main
 
 import (
-	"webapi/certs"
 	"webapi/server"
 	"webapi/store"
+
+	"github.com/taylor-vann/tvgtb/certificatesx"
 )
 
 func main() {
-	certs.Create()
+	certificatesx.Create()
 	store.CreateRequiredTables()
 	server.CreateServer(5000)
 }

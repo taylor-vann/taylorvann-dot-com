@@ -3,6 +3,8 @@ package server
 import (
 	"net/http"
 	"webapi/routes"
+
+	certsConstants "github.com/taylor-vann/tvgtb/certificatesx/constants"
 )
 
 func CreateServer(port int) {
@@ -11,8 +13,8 @@ func CreateServer(port int) {
 
 	http.ListenAndServeTLS(
 		":5000",
-		"/usr/local/certs/authn/https-server.crt",
-		"/usr/local/certs/authn/https-server.key",
+		certsConstants.Filepaths.Cert,
+		certsConstants.Filepaths.Key,
 		muxHttps,
 	)
 }
