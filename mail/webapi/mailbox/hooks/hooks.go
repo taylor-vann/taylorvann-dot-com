@@ -36,7 +36,7 @@ func NoReply(w http.ResponseWriter, r *http.Request) {
 
 	switch body.Action {
 	case CreateSendonlyEmail:
-		sends.NoReply(w, &body)
+		sends.SendOnly(w, &body)
 	default:
 		errors.BadRequest(w, &responses.Errors{
 			Mail: &errors.UnrecognizedAction,

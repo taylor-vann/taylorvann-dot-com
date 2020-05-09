@@ -7,10 +7,7 @@ import (
 	"webapi/mailbox/mailx"
 )
 
-type NoReply struct {
-	Action string
-	Params *mailx.EmailParams
-}
+type EmailParams = mailx.EmailParams
 
 type Body struct {
 	Action string

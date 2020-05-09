@@ -5,7 +5,7 @@ import (
 
 	"webapi/routes"
 	"webapi/server/constants"
-	certsConstants "webapi/certs/constants"
+	certsConstants "github.com/taylor-vann/tvgtb/certificatesx/constants"
 )
 
 func CreateServer() {
@@ -14,8 +14,8 @@ func CreateServer() {
 
 	http.ListenAndServeTLS(
 		constants.Ports.Https,
-		certsConstants.Addresses.Cert,
-		certsConstants.Addresses.Key,
+		certsConstants.Filepaths.Cert,
+		certsConstants.Filepaths.Key,
 		muxHttps,
 	)
 }

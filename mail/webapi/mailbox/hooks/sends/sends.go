@@ -15,7 +15,7 @@ import (
 
 var SuccessfullyExecutedMailxCommand = "successfully executed mailx command"
 
-func NoReply(w http.ResponseWriter, requestBody *requests.Body) {
+func SendOnly(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil || requestBody.Params == nil {
 		errors.BadRequest(w, &responses.Errors{
 			Body: &errors.NilBodyGiven,
@@ -24,8 +24,8 @@ func NoReply(w http.ResponseWriter, requestBody *requests.Body) {
 	}
 
 	bytes, _ := json.Marshal(requestBody.Params)
-	var action requests.NoReply
-	errActionMarshal := json.Unmarshal(bytes, &action)
+	var params requests.EmailParams
+	errActionMarshal := json.Unmarshal(bytes, &params)
 	if errActionMarshal != nil {
 		errAsStr := errActionMarshal.Error()
 		errors.BadRequest(w, &responses.Errors{
@@ -35,15 +35,16 @@ func NoReply(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	_, errSendMail := mailx.SendEmail(action.Params)
+	_, errSendMail := mailx.SendEmail(&params)
 	if errSendMail == nil {
+		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&responses.Body{
 			Mail: &SuccessfullyExecutedMailxCommand,
 		})
 		return
 	}
 
-	errSendMailAsStr := errActionMarshal.Error()
+	errSendMailAsStr := errSendMail.Error()
 	errors.BadRequest(w, &responses.Errors{
 		Mail: &errors.UnrecognizedParams,
 		Default: &errSendMailAsStr,

@@ -1,13 +1,14 @@
 package main
 
 import (
-	"webapi/certs"
-	"webapi/mailx"
+	"webapi/mailbox/mailx"
 	"webapi/server"
+
+	"github.com/taylor-vann/tvgtb/certificatesx"
 )
 
 func main() {
-	certs.Create()
+	certificatesx.Create()
 	mailx.Setup()
 	server.CreateServer()
 }

@@ -1,3 +1,6 @@
+// brian taylor vann
+// taylorvann dot com
+
 package responses
 
 type Errors struct {
@@ -8,6 +11,6 @@ type Errors struct {
 }
 
 type Body struct {
-	Mail 	 *string	`json:"session"`
+	Mail 	 *string	`json:"mail"`
 	Errors *Errors	`json:"errors"`
 }
