@@ -1,42 +1,44 @@
+//	brian taylor vann
+//	taylorvann dot com
+
 package constants
 
-type DomainDetails struct {
-	Name					string
-	SubDomain			string
-	TargetAddress string
-}
+import (
+	"os"
+)
 
-type DomainDetailsMap = map[string]DomainDetails
+type SubDomain = string
+type Address = string
+type DomainDetailsMap = map[SubDomain]Address
 
 const (
 	authn		= "authn"
-	home 		= "taylorvann"
+	clients = "clients"
+	logs 		= "logs"
+	mail		= "mail"
 	statics = "statics"
 )
 
-var RouteMap = createDomainDetailsMap()
+var (
+	Enviornment = os.Getenv("STAGE")
 
-func createDomainDetailsMap() *DomainDetailsMap {
+	AuthnAddress = os.Getenv("AUTHN_URL_ADDRESS")
+	ClientsAddress = os.Getenv("CLIENTS_URL_ADDRESS")
+	LogsAddress = os.Getenv("LOGS_URL_ADDRESS")
+	MailAddress = os.Getenv("MAIL_URL_ADDRESS")
+	StaticAddress = os.Getenv("STATIC_URL_ADDRESS")
+)
+
+var Routes = createDomainDetailsMap()
+
+func createDomainDetailsMap() *DomainDetailsMap {	
 	domains := make(DomainDetailsMap)
-	
-	domains[home] = DomainDetails{
-		Name:					 "home",
-		SubDomain:		 home,
-		TargetAddress: "https://127.0.0.1:3000/",
-	}
 
-	domains[statics] = DomainDetails{
-		Name:					 "statics",
-		SubDomain:		 statics,
-		TargetAddress: "https://127.0.0.1:4000/",
-	}
-
-	domains[authn] = DomainDetails{
-		Name:					 "authentication",
-		SubDomain:		 authn,
-		TargetAddress: "https://127.0.0.1:5000/",
-	}
-
+	domains[authn] = AuthnAddress
+	domains[clients] = ClientsAddress
+	domains[logs] = LogsAddress
+	domains[mail] = MailAddress
+	domains[statics] = StaticAddress
 
 	return &domains
 }
