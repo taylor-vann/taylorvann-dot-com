@@ -7,16 +7,16 @@ version: "3"
 services:
   webapi:
     container_name: gateway_webapi
+    hostname: sb.taylorvann.com
     build:
       context: ./webapi/
-      dockerfile: dockerfile.dev
+      dockerfile: dockerfile
     restart: always
     env_file:
-      - ./environment-variables.dev.env
+      - ./environment_variables.dev.env
     ports:
-      - "3000:80"
-      - "3005:443"
+      - "80:80"
+      - "443:443"
     volumes:
       - ./webapi/:/go/src/webapi/
-      - ./certs/:/usr/local/certs/
     command: "go run /go/src/webapi/main.go"

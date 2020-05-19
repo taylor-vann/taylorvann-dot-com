@@ -1,26 +1,29 @@
+//	brian taylor vann
+//	taylorvann dot com
+
 package server
 
 import (
 	"net/http"
 	
-	"webapi/constants"
 	"webapi/routes"
+
+	constants "webapi/server/constants"
 )
 
-// CreateServer - Start a websever
 func CreateServer() {
 	proxyMux := routes.CreateProxyMux()
 	mux := routes.RedirectToHttpsMux()
 
 	go http.ListenAndServeTLS(
-		constants.Ports.Https,
-		constants.CertAddresses.Cert,
-		constants.CertAddresses.Key,
+		constants.Https,
+		constants.CertFilepath,
+		constants.KeyFilepath,
 		proxyMux,
 	)
 
 	http.ListenAndServe(
-		constants.Ports.Http,
+		constants.Http,
 		mux,
 	)
 }
