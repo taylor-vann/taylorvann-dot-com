@@ -1,8 +1,9 @@
 package subdomains
 
 import (
-	"encoding/json"
 	"net/http"
+
+	"webapi/server/routes/constants"
 )
 
 type ProxyMux map[string]http.Handler

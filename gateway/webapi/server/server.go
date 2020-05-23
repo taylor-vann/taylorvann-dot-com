@@ -7,7 +7,7 @@ import (
 	"net/http"
 	
 	"webapi/certificatesx/constants"
-	"webapi/routes"
+	"webapi/server/routes"
 )
 
 const (
