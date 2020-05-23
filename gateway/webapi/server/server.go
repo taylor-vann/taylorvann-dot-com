@@ -1,5 +1,5 @@
 //	brian taylor vann
-//	taylorvann dot com
+//	briantaylorvann dot com
 
 package server
 
@@ -7,7 +7,7 @@ import (
 	"net/http"
 	
 	"webapi/certificatesx/constants"
-	"webapi/routes"
+	"webapi/server/routes"
 )
 
 const (

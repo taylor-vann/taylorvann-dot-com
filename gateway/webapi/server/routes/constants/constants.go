@@ -1,5 +1,5 @@
 //	brian taylor vann
-//	taylorvann dot com
+//	briantaylorvann dot com
 
 package constants
 
@@ -12,17 +12,17 @@ type Address = string
 type DomainDetailsMap = map[SubDomain]Address
 
 const (
-	Briantaylorvann = "briantaylorvann"
+	BrianTaylorVann = "briantaylorvann"
 	Authn	= "authn"
 	Logs 	= "logs"
 	Mail	= "mail"
-	media = "media"
+	Media = "media"
 )
 
 var (
 	Enviornment = os.Getenv("STAGE")
 
-	CertsHostname = os.Getevn("CERTS_HOSTNAME")
+	CertsHostname = os.Getenv("CERTS_HOSTNAME")
 	AuthnAddress = os.Getenv("AUTHN_URL_ADDRESS")
 	ClientsAddress = os.Getenv("CLIENTS_URL_ADDRESS")
 	LogsAddress = os.Getenv("LOGS_URL_ADDRESS")
@@ -35,12 +35,12 @@ var Routes = createDomainDetailsMap()
 func createDomainDetailsMap() *DomainDetailsMap {	
 	domains := make(DomainDetailsMap)
 
-	domains[briantaylorvann] = ClientsAddress
+	domains[BrianTaylorVann] = ClientsAddress
 
-	domains[authn] = AuthnAddress
-	domains[logs] = LogsAddress
-	domains[mail] = MailAddress
-	domains[media] = MediaAddress
+	domains[Authn] = AuthnAddress
+	domains[Logs] = LogsAddress
+	domains[Mail] = MailAddress
+	domains[Media] = MediaAddress
 
 	return &domains
 }

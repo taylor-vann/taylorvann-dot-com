@@ -1,5 +1,5 @@
 //	brian taylor vann
-//	taylorvann dot com
+//	briantaylorvann dot com
 
 package routes
 
@@ -8,9 +8,9 @@ import (
 	"net/http/httputil"
 	"net/url"
 
-	"webapi/redirect"
-	"webapi/routes/constants"
-	"webapi/routes/subdomains"
+	"webapi/server/routes/redirect"
+	"webapi/server/routes/constants"
+	"webapi/server/routes/subdomains"
 )
 
 func CreateProxyMux() *subdomains.ProxyMux {
