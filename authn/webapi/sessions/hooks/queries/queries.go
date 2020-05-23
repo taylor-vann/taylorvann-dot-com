@@ -10,10 +10,11 @@ import (
 	"webapi/sessions/sessionsx"
 )
 
-func ValidateSession(w http.ResponseWriter, requestBody *requests.Body) {
+// needs a valid authn token
+
+func ValidateGuestSession(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil || requestBody.Params == nil {
 		errors.BadRequest(w, &responses.Errors{
-			Session: &errors.UnableToValidateSession,
 			Body: &errors.BadRequestFail,
 		})
 		return

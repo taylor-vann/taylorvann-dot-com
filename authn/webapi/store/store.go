@@ -4,16 +4,30 @@
 package store
 
 import (
-	"time"
+	"os"
 
 	rolesController "webapi/store/roles/controller"
 	usersController "webapi/store/users/controller"
 )
 
-type MilliSeconds = int64
+var Environment = os.Getenv ("STAGE")
 
-func getNowAsMS() MilliSeconds {
-	return time.Now().UnixNano() / int64(time.Millisecond)
+func CreateLocalTables() (bool, error) {
+	_, errLocal := usersController.CreateTable(&usersController.CreateTableParams{
+		Environment: "LOCAL",
+	})
+	if errLocal != nil {
+		return false, errLocal
+	}
+
+	_, errRolesLocal := rolesController.CreateTable(&rolesController.CreateTableParams{
+		Environment: "LOCAL",
+	})
+	if errRolesLocal != nil {
+		return false, errRolesLocal
+	}
+
+	return true, nil
 }
 
 func CreateRequiredTables() (bool, error) {
@@ -45,5 +59,9 @@ func CreateRequiredTables() (bool, error) {
 		return false, errRolesProduction
 	}
 
+	if Environment == "LOCAL" {
+		return CreateLocalTables()
+	}
+	
 	return true, nil
 }

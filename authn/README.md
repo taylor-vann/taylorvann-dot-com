@@ -1,3 +1,3 @@
 # Authn
 
-our lightweight authentication service designed to scale
+our lightweight authentication service designed to separate and scale

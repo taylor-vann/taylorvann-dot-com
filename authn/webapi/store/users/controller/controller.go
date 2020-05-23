@@ -74,6 +74,7 @@ type UpdateEmailParams struct {
 	UpdatedEmail  string `json:"updated_email"`
 }
 
+type ValidateParams = CreateParams
 type UpdatePasswordParams = CreateParams
 type DeleteParams = ReadParams
 type UndeleteParams = ReadParams
@@ -83,7 +84,12 @@ func getDefaultEnvironment(environment string) string {
 	if environment != "" {
 		return environment
 	}
-	return constants.UsersTest
+
+	if constants.Environment == constants.Development {
+		return constants.Development
+	}
+	
+	return constants.Local
 }
 
 func CreateTable(p *CreateTableParams) (*sql.Result, error) {
@@ -186,6 +192,48 @@ func Read(p *ReadParams) (Users, error) {
 
 	return CreateRows(rows)
 }
+
+func Validate(p *ValidateParams) (Users, error) {
+	if p == nil {
+		return nil, errors.New("nil parameters provided")
+	}
+
+	environment := getDefaultEnvironment(p.Environment)
+	statement := statements.SqlMap[environment].Read
+	rows, errQueryRow := storex.Query(
+		statement,
+		p.Email,
+	)
+	if errQueryRow != nil {
+		return nil, errQueryRow
+	}
+
+	userRows, errUserRows := CreateRows(rows)
+	if errUserRows != nil {
+		return userRows, errors.New("error marshaling user row")
+	}
+	if len(userRows) == 0 {
+		return userRows, errors.New("user not found")
+	}
+
+	hashResults := passwordx.HashResults{
+		Salt: userRows[0].Salt,
+		Hash: userRows[0].Hash,
+		Params: *userRows[0].Params,
+	}
+	type HashResults struct {
+		Salt   string     `json:"salt"`
+		Hash   string     `json:"hash"`
+		Params HashParams `json:"params"`
+	}
+	validPassword, errValidPassword := passwordx.PasswordIsValid(p.Password, &hashResults)
+	if validPassword {
+		return userRows, errValidPassword
+	}
+
+	return Users{}, errValidPassword
+}
+
 
 func Index(p *IndexParams) (Users, error) {
 	if p == nil {

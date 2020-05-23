@@ -2,19 +2,19 @@ package server
 
 import (
 	"net/http"
-	"webapi/routes"
 
-	certsConstants "github.com/taylor-vann/tvgtb/certificatesx/constants"
+	"webapi/server/routes"
 )
 
-func CreateServer(port int) {
-	muxHttps := http.NewServeMux()
-	routes.CreateRoutes(muxHttps)
+const (
+	Http  = ":80"
+)
 
-	http.ListenAndServeTLS(
-		":5000",
-		certsConstants.Filepaths.Cert,
-		certsConstants.Filepaths.Key,
-		muxHttps,
+func CreateServer() {
+	mux := routes.CreateMux()
+
+	http.ListenAndServe(
+		Http,
+		mux,
 	)
 }

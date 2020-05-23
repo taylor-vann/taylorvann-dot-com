@@ -3,12 +3,6 @@
 
 # Use this docker-compose to create an authentication development server
 
-# Reserved Ports:
-# 5000  JSON Web Api
-# 5100  Store Db
-# 5200  Whitelist Cache
-# 5205  Store Cache
-
 version: "3"
 services:
   webapi:
@@ -16,7 +10,7 @@ services:
     hostname: authn.taylorvann.com
     build:
       context: ./webapi/
-      dockerfile: dockerfile.dev
+      dockerfile: dockerfile
     depends_on:
       - authn_store_db
       - authn_store_cache
@@ -25,7 +19,7 @@ services:
     env_file:
       - ./environment_variables.dev.env
     ports:
-      - "5000:5000"
+      - "3000:80"
     volumes:
       - ./webapi/:/go/src/webapi/
     command: "go run /go/src/webapi/main.go"

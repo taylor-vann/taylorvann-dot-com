@@ -8,13 +8,14 @@ import (
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
 	"webapi/sessions/hooks/mutations"
-	"webapi/sessions/hooks/queries"
+	// "webapi/sessions/hooks/queries"
 )
 
 const (
 	CreateDocumentSession     	= "CREATE_DOCUMENT_SESSION"
 	CreateGuestSession        	= "CREATE_GUEST_SESSION"
 	CreatePublicSession       	= "CREATE_PUBLIC_SESSION"
+
 	CreateCreateAccountSession	= "CREATE_CREATE_ACCOUNT_SESSION"
 	CreateUpdatePasswordSession	= "CREATE_UPDATE_PASSWORD_SESSION"
 	CreateUpdateEmailSession  	= "CREATE_UPDATE_EMAIL_SESSION"
@@ -42,7 +43,7 @@ func Query(w http.ResponseWriter, r *http.Request) {
 
 	switch body.Action {
 	case ValidateSession:
-		queries.ValidateSession(w, &body)
+		// queries.ValidateSession(w, &body)
 	default:
 		errors.BadRequest(w, &responses.Errors{
 			Session: &errors.UnrecognizedQuery,
@@ -64,22 +65,22 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch body.Action {
-	case CreateDocumentSession:
-		mutations.CreateDocumentSession(w, &body)
+	// case CreateDocumentSession:
+	// 	mutations.CreateDocumentSession(w, &body)
 	case CreateGuestSession:
 		mutations.CreateGuestSession(w, &body)
-	case CreatePublicSession:
-		mutations.CreatePublicSession(w, &body)
-	case CreateCreateAccountSession:
-		mutations.CreateCreateAccountSession(w, &body)
-	case CreateUpdatePasswordSession:
-		mutations.CreateUpdatePasswordSession(w, &body)
-	case CreateUpdateEmailSession:
-		mutations.CreateUpdateEmailSession(w, &body)
-	case UpdateSession:
-		mutations.UpdateSession(w, &body)
-	case DeleteSession:
-		mutations.DeleteSession(w, &body)
+	// case CreatePublicSession:
+	// 	mutations.CreatePublicSession(w, &body)
+	// case CreateCreateAccountSession:
+	// 	mutations.CreateCreateAccountSession(w, &body)
+	// case CreateUpdatePasswordSession:
+	// 	mutations.CreateUpdatePasswordSession(w, &body)
+	// case CreateUpdateEmailSession:
+	// 	mutations.CreateUpdateEmailSession(w, &body)
+	// case UpdateSession:
+	// 	mutations.UpdateSession(w, &body)
+	// case DeleteSession:
+	// 	mutations.DeleteSession(w, &body)
 	default:
 		errors.CustomErrorResponse(w, errors.UnrecognizedMutation)
 	}

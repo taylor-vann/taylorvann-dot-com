@@ -28,6 +28,9 @@ func Read(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
+	// check for internal session, valid
+	// check for user session, valid
+
 	bytes, _ := json.Marshal(requestBody.Params)
 	var params requests.Read
 	errParamsMarshal := json.Unmarshal(bytes, &params)
@@ -60,7 +63,6 @@ func Read(w http.ResponseWriter, requestBody *requests.Body) {
 		writeUsersResponse(w, &usersStore)
 		return
 	}
-
 
 	errors.BadRequest(w, &responses.Errors{
 		Users: &errors.FailedToReadUser,
