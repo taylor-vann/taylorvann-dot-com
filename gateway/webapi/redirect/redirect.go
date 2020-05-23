@@ -8,8 +8,9 @@ import (
 )
 
 func getRedirectURL(r *http.Request) string {
-	hostname := r.URL.Hostname()
-	return "https://" + hostname + r.RequestURI
+	hostname := r.Host
+	redirectUrl := "https://" + hostname + r.RequestURI
+	return redirectUrl
 }
 
 func PassToHttps(w http.ResponseWriter, r *http.Request) {

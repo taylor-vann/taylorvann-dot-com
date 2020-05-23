@@ -16,7 +16,6 @@ import (
 func CreateProxyMux() *subdomains.ProxyMux {
 	proxyMux := make(subdomains.ProxyMux)
 	for subdomain, address := range *constants.Routes {
-		// string to url
 		url, errUrl := url.Parse(address)
 		if errUrl != nil {
 			continue
@@ -24,11 +23,9 @@ func CreateProxyMux() *subdomains.ProxyMux {
 		proxyMux[subdomain] = httputil.NewSingleHostReverseProxy(url)
 	}
 
-	// add one for home
-	// you can one for home
-
 	return &proxyMux
 }
+
 
 func RedirectToHttpsMux() *http.ServeMux {
 	mux := http.NewServeMux()

@@ -12,8 +12,8 @@ type Address = string
 type DomainDetailsMap = map[SubDomain]Address
 
 const (
+	briantaylorvann = "briantaylorvann"
 	authn		= "authn"
-	clients = "clients"
 	logs 		= "logs"
 	mail		= "mail"
 	statics = "statics"
@@ -34,8 +34,9 @@ var Routes = createDomainDetailsMap()
 func createDomainDetailsMap() *DomainDetailsMap {	
 	domains := make(DomainDetailsMap)
 
+	domains[briantaylorvann] = ClientsAddress
+
 	domains[authn] = AuthnAddress
-	domains[clients] = ClientsAddress
 	domains[logs] = LogsAddress
 	domains[mail] = MailAddress
 	domains[statics] = StaticAddress

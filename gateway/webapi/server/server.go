@@ -6,9 +6,13 @@ package server
 import (
 	"net/http"
 	
+	"webapi/certificatesx/constants"
 	"webapi/routes"
+)
 
-	constants "webapi/server/constants"
+const (
+	Http  = ":80"
+	Https = ":443"
 )
 
 func CreateServer() {
@@ -16,14 +20,14 @@ func CreateServer() {
 	mux := routes.RedirectToHttpsMux()
 
 	go http.ListenAndServeTLS(
-		constants.Https,
+		Https,
 		constants.CertFilepath,
 		constants.KeyFilepath,
 		proxyMux,
 	)
 
 	http.ListenAndServe(
-		constants.Http,
+		Http,
 		mux,
 	)
 }

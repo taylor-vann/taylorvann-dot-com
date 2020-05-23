@@ -8,18 +8,18 @@ import (
 type ProxyMux map[string]http.Handler
 
 func (proxyMux ProxyMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	hostname := r.URL.Hostname()
+	hostname := r.Host
 	subdomain := getSubdomain(hostname)
 	mux := proxyMux[subdomain]
 
 	if mux != nil {
 		// mux.ServeHTTP(w, r)
-		json.NewEncoder(w).Encode("subdomain! " + hostname + "\n\ndebugging a gateway!")
+		json.NewEncoder(w).Encode("subdomain! " + hostname)
 		return
 	}
 
 	// reroute to 404
-	json.NewEncoder(w).Encode("no valid subdomain detected! \n\ndebugging a gateway!")
+	json.NewEncoder(w).Encode("no valid subdomain detected!")
 }
 
 func getSubdomain(hostname string) string {

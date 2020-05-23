@@ -7,7 +7,7 @@ version: "3"
 services:
   webapi:
     container_name: gateway_webapi
-    hostname: taylorvann.com
+    hostname: briantaylorvann.com
     build:
       context: ./webapi/
       dockerfile: dockerfile
@@ -18,5 +18,6 @@ services:
       - "80:80"
       - "443:443"
     volumes:
+      - ./certs/:/usr/local/certs/live/
       - ./webapi/:/go/src/webapi/
     command: "go run /go/src/webapi/main.go"
