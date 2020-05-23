@@ -13,13 +13,13 @@ func (proxyMux ProxyMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	mux := proxyMux[subdomain]
 
 	if mux != nil {
-		// mux.ServeHTTP(w, r)
-		json.NewEncoder(w).Encode("subdomain! " + hostname)
+		mux.ServeHTTP(w, r)
 		return
 	}
 
 	// reroute to 404
-	json.NewEncoder(w).Encode("no valid subdomain detected!")
+	mux = proxyMux[constants.BrianTaylorVann]
+	mux.ServeHTTP(w, r)
 }
 
 func getSubdomain(hostname string) string {
