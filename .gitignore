@@ -2,11 +2,17 @@
 *.DS_STORE
 
 ## Environment Variables
-#    Keep example environment files 
+#    never upload
 *.env
 !*.example.env
 *.init.json
 !*.example.init.json
+
+## Certs and Keys
+#   Do not save keys, ever
+*.crt
+*.key
+*.pem
 
 ## Client
 #    ignore all node modules
@@ -36,21 +42,8 @@ yarn.lock
 
 # Database develepment environment
 
-# In our database development we want to ignore all files
-# created by postgresql.
-
 # This pattern will ignore all files but a simple empty ".keep" file.
 /authn/store_db/postgres_data/*
-
-# Do not save keys, ever
-gateway/certs/gateway/*
-!/gateway/certs/gateway/cert.conf
-
-/statics/certs/statics/*
-!/statics/certs/statics/cert.conf
-
-authn/certs/authn/*
-!/authn/certs/authn/cert.conf
 
 # DeFacto gitkeep
 !.gitkeep

@@ -26,7 +26,6 @@ func CreateProxyMux() *subdomains.ProxyMux {
 	return &proxyMux
 }
 
-
 func RedirectToHttpsMux() *http.ServeMux {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", redirect.PassToHttps)

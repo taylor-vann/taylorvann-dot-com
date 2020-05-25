@@ -3,8 +3,11 @@ package subdomains
 import (
 	"net/http"
 
-	"webapi/server/routes/constants"
+	// "webapi/server/routes/constants"
 )
+
+const XForwardedProto = "X-Forwarded-Proto"
+const https = "https"
 
 type ProxyMux map[string]http.Handler
 
@@ -14,13 +17,14 @@ func (proxyMux ProxyMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	mux := proxyMux[subdomain]
 
 	if mux != nil {
+		// add header here
+		r.Header.Set("X-Forwarded-Proto", "https")
 		mux.ServeHTTP(w, r)
 		return
 	}
 
 	// reroute to 404
-	mux = proxyMux[constants.BrianTaylorVann]
-	mux.ServeHTTP(w, r)
+	http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 }
 
 func getSubdomain(hostname string) string {

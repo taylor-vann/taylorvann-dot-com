@@ -1,20 +1,18 @@
 # brian taylor vann
 # taylorvann dot com
 
-# Use this docker-compose to create an authentication development server
-
 version: "3"
 services:
   webapi:
     container_name: authn_webapi
-    hostname: authn.taylorvann.com
-    build:
-      context: ./webapi/
-      dockerfile: dockerfile
     depends_on:
       - authn_store_db
       - authn_store_cache
       - authn_whitelist_cache
+    hostname: authn.taylorvann.com
+    build:
+      context: ./webapi/
+      dockerfile: dockerfile
     restart: always
     env_file:
       - ./environment_variables.env
@@ -30,7 +28,7 @@ services:
       dockerfile: dockerfile.dev
     restart: always
     env_file:
-      - ./environment_variables.dev.env
+      - ./environment_variables.env
     volumes:
       - ./store_db/postgres_data/:/var/lib/postgresql/data/
     command: "-p 5100"
