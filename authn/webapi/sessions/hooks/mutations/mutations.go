@@ -2,16 +2,16 @@ package mutations
 
 import (
 	"encoding/json"
-	err "errors"
+	// err "errors"
 	// "io"
 	"net/http"
 	"log"
 	
-	"github.com/taylor-vann/tvgtb/jwtx"
+	// "github.com/taylor-vann/tvgtb/jwtx"
 
 	// "webapi/cookiesessionx"
-	
-	"webapi/sessions/hooks/constants"
+	// "webapi/sessions/hooks/cookies"
+	// "webapi/sessions/hooks/constants"
 	"webapi/sessions/hooks/errors"
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
@@ -20,70 +20,52 @@ import (
 
 func dropRequestNotValidBody(
 	w http.ResponseWriter,
-	requestBody*requests.Body,
+	requestBody *requests.Body,
 ) bool {
 	if requestBody != nil && requestBody.Params != nil {
-		return true
+		return false
 	}
 	errors.BadRequest(w, &responses.Errors{
-		Body: &errors.BadRequestFail,
+		RequestBody: &errors.BadRequestFail,
 	})
-	return false
+	return true
 }
 
 func defaultErrorResponse(w http.ResponseWriter, errorResponse error) {
 	errAsStr := errorResponse.Error()
 	errors.BadRequest(w, &responses.Errors{
-		Body: &errors.BadRequestFail,
 		Default: &errAsStr,
 	})
 }
 
-// side effects
-func dropRequestUnableToMarshalBody(
-	w http.ResponseWriter,
-	requestBody *requests.Body,
-	params interface{},
-) bool {
-	bytes, _ := json.Marshal(requestBody.Params)
-	errParamsMarshal := json.Unmarshal(bytes, params)
-	if errParamsMarshal == nil {
-		return true
-	}
-	defaultErrorResponse(w, errParamsMarshal)
-	return false
-}
-
-func updateGenericSession(p *requests.Update) (*sessionsx.Session, error) {
-	if p == nil {
-		return nil, err.New("request body is nil")
-	}
-
-	tokenResults := jwtx.ValidateGenericToken(&jwtx.ValidateGenericTokenParams{
-		Token:    p.SessionToken,
-		Issuer:		constants.TaylorVannDotCom,
-	})
-	if !tokenResults {
-		return nil, err.New("unable to validate generic token")
-	}
-
-	session, errSession := sessionsx.Update(p)
-	if errSession != nil {
-		return nil, errSession
-	}
-
-	return session, nil
-}
+// // side effects
+// func dropRequestUnableToMarshalBody(
+// 	w http.ResponseWriter,
+// 	requestBody *requests.Body,
+// 	params interface{},
+// ) bool {
+// 	err := json.NewDecoder(r.Body).Decode(&p)
+// 	bytes, _ := json.Marshal(requestBody.Params)
+// 	errParamsMarshal := json.Unmarshal(bytes, params)
+// 	if errParamsMarshal == nil {
+// 		return true
+// 	}
+// 	defaultErrorResponse(w, errParamsMarshal)
+// 	return false
+// }
 
 // the only public mutation
 func CreateGuestSession(w http.ResponseWriter, requestBody *requests.Body) {
-	log.Println("made it to create guest session")	
 	if dropRequestNotValidBody(w, requestBody) {
+		log.Println("dropping request, bad body")
 		return
 	}
-
-	var params requests.SessionParams
-	if dropRequestUnableToMarshalBody(w, requestBody, params) {
+	
+	bytes, _ := json.Marshal(requestBody.Params)
+	var params requests.GuestParams
+	errParamsMarshal := json.Unmarshal(bytes, &params)
+	if errParamsMarshal != nil {
+		defaultErrorResponse(w, errParamsMarshal)
 		return
 	}
 
@@ -92,21 +74,45 @@ func CreateGuestSession(w http.ResponseWriter, requestBody *requests.Body) {
 		Claims: *sessionsx.CreateGuestSessionClaims(),
 	})
 
-	if errSession == nil {
-		log.Println("made it to the session")
-		log.Println("session: " + session.SessionToken)
-
-		// w.WriteHeader(http.StatusOK)
-		// cookiesessionx.SetSessionCookie(w, session.SessionToken)
+	if errSession != nil {
+		errorAsStr := errSession.Error()
+		errors.BadRequest(w, &responses.Errors{
+			Session: &errors.CreateGuestSessionErrorMessage,
+			Default: &errorAsStr,
+		})
 		return
 	}
 
-	errorAsStr := errSession.Error()
-	errors.BadRequest(w, &responses.Errors{
-		Session: &errors.CreateGuestSessionErrorMessage,
-		Default: &errorAsStr,
+	log.Println("made it to the session")
+	log.Println("session: " + session.Token)
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(&responses.Body{
+		Session: session,
 	})
 }
+
+// func updateGenericSession(p *requests.Update) (*sessionsx.Session, error) {
+// 	if p == nil {
+// 		return nil, err.New("request body is nil")
+// 	}
+
+// 	tokenResults := jwtx.ValidateGenericToken(&jwtx.ValidateGenericTokenParams{
+// 		Token:    p.Token,
+// 		Issuer:		constants.TaylorVannDotCom,
+// 	})
+// 	if !tokenResults {
+// 		return nil, err.New("unable to validate generic token")
+// 	}
+
+// 	session, errSession := sessionsx.Update(p)
+// 	if errSession != nil {
+// 		return nil, errSession
+// 	}
+
+// 	return session, nil
+// }
+
 
 // func CreateCreateAccountSession(w http.ResponseWriter, requestBody *requests.Body) {
 // 	if dropRequestNotValidBody(w, requestBody) {
@@ -137,7 +143,7 @@ func CreateGuestSession(w http.ResponseWriter, requestBody *requests.Body) {
 
 // 	if errSession == nil {
 // 		marshalledJSON, errMarshal := json.Marshal(&responses.Session{
-// 			SessionToken: session.SessionToken,
+// 			SessionToken: session.Token,
 // 		})
 // 		if errMarshal == nil {
 // 			w.Header().Set("Content-Type", "application/json")
@@ -189,7 +195,7 @@ func CreateGuestSession(w http.ResponseWriter, requestBody *requests.Body) {
 // 	if errSession == nil {
 // 		marshalledJSON, errMarshal := json.Marshal(
 // 			&responses.Session{
-// 				SessionToken: session.SessionToken,
+// 				SessionToken: session.Token,
 // 			},
 // 		)
 // 		if errMarshal == nil {
@@ -241,7 +247,7 @@ func CreateGuestSession(w http.ResponseWriter, requestBody *requests.Body) {
 
 // 	if errSession == nil {
 // 		marshalledJSON, errMarshal := json.Marshal(&responses.Session{
-// 			SessionToken: session.SessionToken,
+// 			SessionToken: session.Token,
 // 		})
 // 		if errMarshal == nil {
 // 			w.Header().Set("Content-Type", "application/json")
@@ -294,7 +300,7 @@ func CreateGuestSession(w http.ResponseWriter, requestBody *requests.Body) {
 // 	if errUserSession == nil {
 // 		marshalledJSON, errMarshal := json.Marshal(
 // 			&responses.Session{
-// 				SessionToken: userSession.SessionToken,
+// 				SessionToken: userSession.Token,
 // 			},
 // 		)
 // 		if errMarshal == nil {
@@ -345,7 +351,7 @@ func CreateGuestSession(w http.ResponseWriter, requestBody *requests.Body) {
 // 	if errSession == nil {
 // 		marshalledJSON, errMarshal := json.Marshal(
 // 			&responses.Session{
-// 				SessionToken: session.SessionToken,
+// 				SessionToken: session.Token,
 // 			},
 // 		)
 // 		if errMarshal != nil {

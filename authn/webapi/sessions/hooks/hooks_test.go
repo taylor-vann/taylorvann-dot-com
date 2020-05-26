@@ -4,14 +4,17 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+	// "net/http/cookiejar"
 	"net/http/httptest"
 	"testing"
 	// "time"
 
-	// "github.com/taylor-vann/tvgtb/jwtx"
-	"webapi/cookiesessionx"	
+	"github.com/taylor-vann/tvgtb/jwtx"
+	// "webapi/cookiesessionx"	
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
+	// "webapi/sessions/hooks/mutations"
+
 )
 
 func TestCreateGuestSessionBadRequest(t *testing.T) {
@@ -63,50 +66,55 @@ func TestCreateGuestSessionBadHeadersRequest(t *testing.T) {
 func TestCreateGuestSession(t *testing.T) {
 	requestBody := requests.Body{
 		Action: CreateGuestSession,
-		Params: requests.SessionParams{
+		Params: requests.GuestParams{
 			Environment: "LOCAL",
 		},
 	}
 
-	marshalBytes := new(bytes.Buffer)
-	json.NewEncoder(marshalBytes).Encode(requestBody)
-	req, errReq := http.NewRequest(
-		"POST",
-		"/m/sessions/",
-		marshalBytes,
-	)
-	if errReq != nil {
-		t.Error(errReq.Error())
-	}
-
-	httpTest := httptest.NewRecorder()
-	handler := http.HandlerFunc(Mutation)
-	handler.ServeHTTP(httpTest, req)
-
-	// look for cookie here
-	cookie := cookiesessionx.CopyCookieFromResponse(
-		httpTest.Result(),
-		"taylorvann.com_session",
-	)
-
-	t.Error(req.Cookies())
-	t.Error(httpTest.Result().Cookies())
-
-	for _, cookie := range httpTest.Result().Cookies() {
-		t.Error(cookie.Name)
-	}
-	if cookie == nil {
-		t.Error("nil cookie returned")
+	marshalBody, errMarshalBody := json.Marshal(requestBody)
+	if errMarshalBody != nil {
+		t.Error(errMarshalBody)
 		return
 	}
 
+	resp, errResp := http.NewRequest(
+		"POST",
+		"/m/sessions/",
+		bytes.NewBuffer(marshalBody),
+	)
+	if resp == nil {
+		t.Error(resp)
+		return
+	}
+	if errResp != nil {
+		t.Error(errResp.Error())
+		return
+	}
+	
+	httpTest := httptest.NewRecorder()
+	handler := http.HandlerFunc(Mutation)
+	handler.ServeHTTP(httpTest, resp)
+
 	if httpTest.Code != http.StatusOK {
-		var responseBody responses.Body
-		errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
-		if errJSON != nil {
-			t.Error(errJSON.Error())
-		}
-		t.Error(*responseBody.Errors.Default)
+		t.Error(httpTest.Code)
+	}
+
+	var responseBody responses.Body
+	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
+	if errJSON != nil {
+		t.Error(errJSON.Error())
+	}
+	if responseBody.Session == nil {
+		t.Error("nil session returned")
+	}
+
+	details, errDetails := jwtx.RetrieveTokenDetailsFromString(responseBody.Session.Token)
+	if errDetails != nil {
+		t.Error(errDetails)
+		return
+	}
+	if details.Payload.Iss != "briantaylorvann.com" {
+		t.Error(details.Payload.Iss)
 	}
 }
 

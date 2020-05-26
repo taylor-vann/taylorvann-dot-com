@@ -14,6 +14,9 @@ import (
 	"webapi/store/roles/hooks/queries"
 )
 
+// we need to fetch validation from user
+// then check if user has INTERNAL_INFRA role
+
 const (
 	Create				= "CREATE_ROLE"
 	Read					= "READ_ROLE"

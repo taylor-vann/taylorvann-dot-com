@@ -1,11 +1,11 @@
 package constants
 
 const (
-	Guest            = "guest"
-	Public           = "public"
-	Document         = "document"
-	Session          = "session"
-	TaylorVannDotCom = "taylorvann.com"
+	Guest            			= "guest"
+	Public           			= "public"
+	Document         			= "document"
+	Session         		  = "session"
+	BrianTaylorVannDotCom = "briantaylorvann.com"
 
 	CreateAccount    = "create_account"
 	UpdatePassword   = "update_password"

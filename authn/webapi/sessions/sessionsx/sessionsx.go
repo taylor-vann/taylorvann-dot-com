@@ -13,7 +13,7 @@ import (
 type MilliSeconds = int64
 
 type Session struct {
-	SessionToken string `json:"session_token"`
+	Token string `json:"token"`
 }
 
 type CreateClaimsParams struct {
@@ -49,7 +49,6 @@ type UpdateParams struct {
 	SessionToken string
 }
 
-type ValidateAndRemoveParams = UpdateParams
 type DeleteParams = whitelist.RemoveEntryParams
 
 func getLifetimeByAudience(audience string) int64 {
@@ -80,7 +79,7 @@ func CreateSessionClaims(p *CreateClaimsParams) *SessionClaims {
 
 func CreateDocumentSessionClaims() *SessionClaims {
 	return CreateSessionClaims(&CreateClaimsParams{
-		Iss: constants.TaylorVannDotCom,
+		Iss: constants.BrianTaylorVannDotCom,
 		Sub: constants.Guest,
 		Aud: constants.Document,
 	})
@@ -88,7 +87,7 @@ func CreateDocumentSessionClaims() *SessionClaims {
 
 func CreateGuestSessionClaims() *SessionClaims {
 	return CreateSessionClaims(&CreateClaimsParams{
-		Iss: constants.TaylorVannDotCom,
+		Iss: constants.BrianTaylorVannDotCom,
 		Sub: constants.Guest,
 		Aud: constants.Public,
 	})
@@ -100,7 +99,7 @@ func CreateUpdatePasswordSessionClaims(p *AccountParams) (*SessionClaims, error)
 	}
 	
 	claims := CreateSessionClaims(&CreateClaimsParams{
-		Iss: constants.TaylorVannDotCom,
+		Iss: constants.BrianTaylorVannDotCom,
 		Sub: p.Email,
 		Aud: constants.UpdatePassword,
 	})
@@ -114,7 +113,7 @@ func CreateUpdateEmailSessionClaims(p *AccountParams) (*SessionClaims, error) {
 	}
 	
 	claims := CreateSessionClaims(&CreateClaimsParams{
-		Iss: constants.TaylorVannDotCom,
+		Iss: constants.BrianTaylorVannDotCom,
 		Sub: p.Email,
 		Aud: constants.UpdateEmail,
 	})
@@ -128,7 +127,7 @@ func CreateDeleteAccountSessionClaims(p *AccountParams) (*SessionClaims, error) 
 	}
 	
 	claims := CreateSessionClaims(&CreateClaimsParams{
-		Iss: constants.TaylorVannDotCom,
+		Iss: constants.BrianTaylorVannDotCom,
 		Sub: p.Email,
 		Aud: constants.DeleteAccount,
 	})
@@ -142,7 +141,7 @@ func CreateAccountCreationSessionClaims(p *AccountParams) (*SessionClaims, error
 	}
 
 	claims := CreateSessionClaims(&CreateClaimsParams{
-		Iss: constants.TaylorVannDotCom,
+		Iss: constants.BrianTaylorVannDotCom,
 		Sub: p.Email,
 		Aud: constants.CreateAccount,
 	})
@@ -156,7 +155,7 @@ func CreateUserSessionClaims(p *UserParams) (*SessionClaims, error) {
 	}
 
 	claims := CreateSessionClaims(&CreateClaimsParams{
-		Iss: constants.TaylorVannDotCom,
+		Iss: constants.BrianTaylorVannDotCom,
 		Sub: string(p.UserID),
 		Aud: constants.Public,
 	})
@@ -195,7 +194,7 @@ func Create(p *CreateParams) (*Session, error) {
 	}
 
 	session := Session{
-		SessionToken: sessionTokenAsStr,
+		Token: sessionTokenAsStr,
 	}
 
 	return &session, nil

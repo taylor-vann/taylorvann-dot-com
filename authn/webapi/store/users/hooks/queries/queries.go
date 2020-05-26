@@ -69,6 +69,47 @@ func Read(w http.ResponseWriter, requestBody *requests.Body) {
 	})
 }
 
+func Validate(w http.ResponseWriter, requestBody *requests.Body) {
+	if requestBody == nil || requestBody.Params == nil {
+		errors.BadRequest(w, &responses.Errors{
+			Users: &errors.FailedToValidateUser,
+			Body: &errors.BadRequestFail,
+		})
+		return
+	}
+
+	// check for internal session, valid
+	// check for user session, valid
+
+	bytes, _ := json.Marshal(requestBody.Params)
+	var params requests.Validate
+	errParamsMarshal := json.Unmarshal(bytes, &params)
+	if errParamsMarshal != nil {
+		errAsStr := errParamsMarshal.Error()
+		errors.BadRequest(w, &responses.Errors{
+			Users: &errors.FailedToValidateUser,
+			Body: &errors.BadRequestFail,
+			Default: &errAsStr,
+		})
+		return
+	}
+
+	usersStore, errUserStore := controller.Validate(&params)
+	if errUserStore != nil {
+		errors.DefaultResponse(w, errUserStore)
+		return
+	}
+	if usersStore != nil {
+		writeUsersResponse(w, &usersStore)
+		return
+	}
+
+	errors.BadRequest(w, &responses.Errors{
+		Users: &errors.FailedToReadUser,
+	})
+}
+
+
 func Index(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil || requestBody.Params == nil {
 		errors.BadRequest(w, &responses.Errors{

@@ -17,6 +17,7 @@ import (
 const (
 	Create				 = "CREATE_USER"
 	Read					 = "READ_USER"
+	Validate			 = "VALIDATE_USER"
 	Search				 = "SEARCH_USERS"
 	Index					 = "INDEX_USERS"
 	Update				 = "UPDATE_USER"
@@ -44,6 +45,8 @@ func Query(w http.ResponseWriter, r *http.Request) {
 	switch body.Action {
 	case Read:
 		queries.Read(w, &body)
+	case Validate:
+		queries.Validate(w, &body)
 	case Search:
 		queries.Search(w, &body)
 	case Index:

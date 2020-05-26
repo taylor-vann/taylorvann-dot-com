@@ -11,7 +11,7 @@ type Delete = sessionsx.DeleteParams
 type UserParams = sessionsx.UserParams
 type AccountParams = sessionsx.AccountParams
 
-type SessionParams struct {
+type GuestParams struct {
 	Environment string
 }
 

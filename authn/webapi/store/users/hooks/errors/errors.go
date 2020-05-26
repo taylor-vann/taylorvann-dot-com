@@ -14,6 +14,7 @@ var (
 	UnrecognizedParams 	 		 	 = "unrecognized params in request"
 	FailedToCreateUser 	 		 	 = "failed to create User"
 	FailedToReadUser	 	 		 	 = "failed to read User"
+	FailedToValidateUser			 = "failed to validate user"
 	FailedToIndexUsers 	 		 	 = "failed to index Users"
 	FailedToSearchUsers  		 	 = "failed to search Users"
 	FailedToUpdateUser	 	 	 	 = "failed to Update User"

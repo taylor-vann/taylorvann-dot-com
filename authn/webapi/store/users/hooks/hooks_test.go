@@ -119,6 +119,45 @@ func TestCreate(t *testing.T) {
 	}
 }
 
+
+func TestValidate(t *testing.T) {
+	requestBody := requests.Body{
+		Action: Validate,
+		Params: user1,
+	}
+
+	marshalBytes := new(bytes.Buffer)
+	json.NewEncoder(marshalBytes).Encode(requestBody)
+	resp, errResp := http.NewRequest(
+		"POST",
+		"/q/users/",
+		marshalBytes,
+	)
+	if errResp != nil {
+		t.Error(errResp.Error())
+	}
+
+	httpTest := httptest.NewRecorder()
+	handler := http.HandlerFunc(Query)
+	handler.ServeHTTP(httpTest, resp)
+
+	if resp.Body == nil {
+		t.Error("response body is nil")
+	}
+	var responseBody responses.Body
+	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
+	if errJSON != nil {
+		t.Error(errJSON.Error())
+	}
+	if responseBody.Users == nil {
+		t.Error("nil users returned")
+	}
+
+	if httpTest.Code != http.StatusOK {
+		t.Error(*responseBody.Errors)
+	}
+}
+
 func TestRead(t *testing.T) {
 	requestBody := requests.Body{
 		Action: Read,
