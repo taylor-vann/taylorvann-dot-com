@@ -46,7 +46,7 @@ func Query(w http.ResponseWriter, r *http.Request) {
 	case Read:
 		queries.Read(w, &body)
 	case Validate:
-		queries.Validate(w, &body)
+		queries.Validate(w, r, &body)
 	case Search:
 		queries.Search(w, &body)
 	case Index:

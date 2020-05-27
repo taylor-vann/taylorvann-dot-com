@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+	"net/http/cookiejar"
 	"net/http/httptest"
 	"testing"
 	"time"
@@ -14,7 +15,12 @@ import (
 	"webapi/store/users/controller"	
 	"webapi/store/users/hooks/requests"
 	"webapi/store/users/hooks/responses"	
+	"webapi/store/validatesessionx"
+	// "webapi/store/validatesessionx/cookies"
+
 )
+
+var httpTestClient = getTestClient()
 
 type Row struct {
 	ID					 int64     `json:"id"`
@@ -71,6 +77,16 @@ var user1UpdatedPassword = requests.UpdatePassword{
 // 	Password: "Pazzwerd",
 // }
 
+func getTestClient() *http.Client {
+	jar, errJar := cookiejar.New(nil)
+	if errJar != nil {
+		return nil
+	}
+	return &http.Client{
+		Jar: jar,
+	}
+}
+
 func TestCreateTable(t *testing.T) {
 	results, err := controller.CreateTable(&createTable)
 	if err != nil {
@@ -119,8 +135,12 @@ func TestCreate(t *testing.T) {
 	}
 }
 
-
 func TestValidate(t *testing.T) {
+	guestSession, errGuestSession := validatesessionx.FetchGuestSession()
+	if errGuestSession != nil {
+		t.Error("couldn't get guest session")
+		return
+	}
 	requestBody := requests.Body{
 		Action: Validate,
 		Params: user1,
@@ -128,24 +148,37 @@ func TestValidate(t *testing.T) {
 
 	marshalBytes := new(bytes.Buffer)
 	json.NewEncoder(marshalBytes).Encode(requestBody)
-	resp, errResp := http.NewRequest(
+	req := httptest.NewRequest(
 		"POST",
 		"/q/users/",
 		marshalBytes,
 	)
-	if errResp != nil {
-		t.Error(errResp.Error())
-	}
 
-	httpTest := httptest.NewRecorder()
+	recorder := httptest.NewRecorder()
 	handler := http.HandlerFunc(Query)
-	handler.ServeHTTP(httpTest, resp)
 
-	if resp.Body == nil {
+	http.SetCookie(
+		recorder,
+		&http.Cookie{
+			Name: "briantaylorvann.com_internal_session",
+			Value: guestSession,
+			MaxAge:		10000,
+			Domain:   "briantaylorvann.com",
+			Path:     "/",
+			Secure:		true,
+			HttpOnly:	true,
+			SameSite:	3,
+		},
+	)
+
+	handler.ServeHTTP(recorder, req)
+	
+
+	if req.Body == nil {
 		t.Error("response body is nil")
 	}
 	var responseBody responses.Body
-	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
+	errJSON := json.NewDecoder(recorder.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON.Error())
 	}
@@ -153,7 +186,7 @@ func TestValidate(t *testing.T) {
 		t.Error("nil users returned")
 	}
 
-	if httpTest.Code != http.StatusOK {
+	if recorder.Code != http.StatusOK {
 		t.Error(*responseBody.Errors)
 	}
 }

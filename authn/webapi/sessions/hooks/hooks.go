@@ -8,12 +8,14 @@ import (
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
 	"webapi/sessions/hooks/mutations"
-	// "webapi/sessions/hooks/queries"
+	"webapi/sessions/hooks/queries"
 )
 
 const (
 	CreateDocumentSession     	= "CREATE_DOCUMENT_SESSION"
 	CreateGuestSession        	= "CREATE_GUEST_SESSION"
+	ValidateGuestSession        = "VALIDATE_GUEST_SESSION"
+
 	CreatePublicSession       	= "CREATE_PUBLIC_SESSION"
 
 	CreateCreateAccountSession	= "CREATE_CREATE_ACCOUNT_SESSION"
@@ -42,8 +44,8 @@ func Query(w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch body.Action {
-	case ValidateSession:
-		// queries.ValidateSession(w, &body)
+	case ValidateGuestSession:	// the only public query
+		queries.ValidateGuestSession(w, &body)
 	default:
 		errors.BadRequest(w, &responses.Errors{
 			Session: &errors.UnrecognizedQuery,
@@ -68,7 +70,7 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 	// case CreateDocumentSession:
 	// 	mutations.CreateDocumentSession(w, &body)
 	case CreateGuestSession:
-		mutations.CreateGuestSession(w, &body)
+		mutations.CreateGuestSession(w, &body)	// the only public mutation
 	// case CreatePublicSession:
 	// 	mutations.CreatePublicSession(w, &body)
 	// case CreateCreateAccountSession:

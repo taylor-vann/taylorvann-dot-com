@@ -4,12 +4,17 @@ import (
 	"encoding/json"
 	"net/http"
 
+	// "webapi/store/validatesessionx/cookies"
+	"webapi/store/validatesessionx"
+
 	"webapi/store/users/controller"
 	"webapi/store/users/hooks/cache"
 	"webapi/store/users/hooks/errors"
 	"webapi/store/users/hooks/requests"
 	"webapi/store/users/hooks/responses"
 )
+
+const SessionCookieHeader = "briantaylorvann.com_internal_session"
 
 func writeUsersResponse(w http.ResponseWriter, users *controller.Users) {
 	w.Header().Set("Content-Type", "application/json")
@@ -27,9 +32,6 @@ func Read(w http.ResponseWriter, requestBody *requests.Body) {
 		})
 		return
 	}
-
-	// check for internal session, valid
-	// check for user session, valid
 
 	bytes, _ := json.Marshal(requestBody.Params)
 	var params requests.Read
@@ -69,7 +71,28 @@ func Read(w http.ResponseWriter, requestBody *requests.Body) {
 	})
 }
 
-func Validate(w http.ResponseWriter, requestBody *requests.Body) {
+func Validate(w http.ResponseWriter, r *http.Request, requestBody *requests.Body) {
+	session, errSession := cookies.GetInternalSessionFromRequest(r)
+	if errSession != nil {
+		errors.BadRequest(w, &responses.Errors{
+			Users: &errors.InvalidGuestSession,
+		})
+		return
+	}
+
+	isValidSession, errIsValidSession := validatesessionx.ValidateGuestSession(session)
+	if isValidSession == false {
+		errors.BadRequest(w, &responses.Errors{
+			Users: &errors.InvalidGuestSession,
+		})
+		return
+	}
+
+	if errIsValidSession != nil {
+		errors.DefaultResponse(w, errIsValidSession)
+		return
+	}
+
 	if requestBody == nil || requestBody.Params == nil {
 		errors.BadRequest(w, &responses.Errors{
 			Users: &errors.FailedToValidateUser,
@@ -78,9 +101,7 @@ func Validate(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	// check for internal session, valid
-	// check for user session, valid
-
+	// check for guest session, you can only validate with a guest session
 	bytes, _ := json.Marshal(requestBody.Params)
 	var params requests.Validate
 	errParamsMarshal := json.Unmarshal(bytes, &params)
@@ -94,7 +115,11 @@ func Validate(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	usersStore, errUserStore := controller.Validate(&params)
+	usersStore, errUserStore := controller.Validate(&requests.Validate{
+		Environment: params.Environment,
+		Email: params.Email,
+		Password: params.Password,
+	})
 	if errUserStore != nil {
 		errors.DefaultResponse(w, errUserStore)
 		return
@@ -103,7 +128,7 @@ func Validate(w http.ResponseWriter, requestBody *requests.Body) {
 		writeUsersResponse(w, &usersStore)
 		return
 	}
-
+	
 	errors.BadRequest(w, &responses.Errors{
 		Users: &errors.FailedToReadUser,
 	})

@@ -41,12 +41,17 @@ type CreateParams struct {
 
 type ReadParams struct {
 	Environment string
-	SessionToken string
+	Token 			string
+}
+
+type ValidateParams struct {
+	Environment string
+	Token 			string
 }
 
 type UpdateParams struct {
-	Environment  string
-	SessionToken string
+	Environment string
+	Token 			string
 }
 
 type DeleteParams = whitelist.RemoveEntryParams
@@ -205,12 +210,12 @@ func Read(p *ReadParams) (bool, error) {
 		return false, errors.New("nil params")
 	}
 
-	if p.SessionToken == "" {
+	if p.Token == "" {
 		return false, errors.New("nil session token provided")
 	}
 
 	tokenDetails, errTokenDetails := jwtx.RetrieveTokenFromString(
-		p.SessionToken,
+		p.Token,
 	)
 	if errTokenDetails != nil {
 		return false, errTokenDetails
@@ -242,7 +247,7 @@ func Read(p *ReadParams) (bool, error) {
 
 func Update(p *UpdateParams) (*Session, error) {
 	tokenDetails, errTokenDetails := jwtx.RetrieveTokenFromString(
-		p.SessionToken,
+		p.Token,
 	)
 	if errTokenDetails != nil {
 		return nil, errTokenDetails
@@ -271,7 +276,7 @@ func Update(p *UpdateParams) (*Session, error) {
 
 	if resultJwt {
 		sessionDetails, errSessionDetails := jwtx.RetrieveTokenDetailsFromString(
-			p.SessionToken,
+			p.Token,
 		)
 		if errSessionDetails != nil {
 			return nil, errSessionDetails

@@ -9,7 +9,6 @@ services:
       - authn_store_db
       - authn_store_cache
       - authn_whitelist_cache
-    hostname: authn.taylorvann.com
     build:
       context: ./webapi/
       dockerfile: dockerfile

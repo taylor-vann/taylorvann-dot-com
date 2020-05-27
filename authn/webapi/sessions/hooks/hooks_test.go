@@ -17,6 +17,19 @@ import (
 
 )
 
+// gotta create a test client with cookies to go!
+var queryAddress = "https://authn.briantaylorvann.com/q/sessions/"
+var mutationAddress = "https://authn.briantaylorvann.com/m/sessions/"
+
+var httpTestClient = createTestClient()
+func createTestClient() *http.Client {
+	jar, _ := cookiejar.New(nil)
+	return &http.Client{
+		Jar: jar,
+	}
+}
+
+
 func TestCreateGuestSessionBadRequest(t *testing.T) {
 	resp, errResp := http.NewRequest(
 		"POST",
@@ -116,6 +129,62 @@ func TestCreateGuestSession(t *testing.T) {
 	if details.Payload.Iss != "briantaylorvann.com" {
 		t.Error(details.Payload.Iss)
 	}
+
+	// set for verification on next text
+	TestGuestSession = responseBody.Session.Token
+}
+
+func TestValidateGuestSession(t *testing.T) {
+	requestBody := requests.Body{
+		Action: ValidateGuestSession,
+		Params: requests.Validate{
+			Environment: "LOCAL",
+			Token: TestGuestSession,
+		},
+	}
+
+	marshalBody, errMarshalBody := json.Marshal(requestBody)
+	if errMarshalBody != nil {
+		t.Error(errMarshalBody)
+		return
+	}
+
+	resp, errResp := http.NewRequest(
+		"POST",
+		"/q/sessions/",
+		bytes.NewBuffer(marshalBody),
+	)
+	if resp == nil {
+		t.Error(resp)
+		return
+	}
+	if errResp != nil {
+		t.Error(errResp.Error())
+		return
+	}
+	
+	httpTest := httptest.NewRecorder()
+	handler := http.HandlerFunc(Query)
+	handler.ServeHTTP(httpTest, resp)
+
+	if httpTest.Code != http.StatusOK {
+		t.Error(httpTest.Code)
+	}
+
+	var responseBody responses.Body
+	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
+	if errJSON != nil {
+		t.Error(errJSON.Error())
+	}
+	if responseBody.Session == nil {
+		t.Error("nil session returned")
+	}
+
+	// if responseBody.Errors.Default != nil {
+	// 	t.Error(*responseBody.Errors.Default)
+	// }
+
+	// validate session
 }
 
 // func TestCreateDocumentSession(t *testing.T) {

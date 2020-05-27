@@ -3,6 +3,8 @@ package queries
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/taylor-vann/tvgtb/jwtx"
 	
 	"webapi/sessions/hooks/errors"
 	"webapi/sessions/hooks/requests"
@@ -10,12 +12,11 @@ import (
 	"webapi/sessions/sessionsx"
 )
 
-// needs a valid authn token
-
+// requires no cookies or authorization
 func ValidateGuestSession(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil || requestBody.Params == nil {
 		errors.BadRequest(w, &responses.Errors{
-			Body: &errors.BadRequestFail,
+			RequestBody: &errors.BadRequestFail,
 		})
 		return
 	}
@@ -26,7 +27,7 @@ func ValidateGuestSession(w http.ResponseWriter, requestBody *requests.Body) {
 	if errParamsMarshal != nil {
 		errAsStr := errParamsMarshal.Error()
 		errors.BadRequest(w, &responses.Errors{
-			Body: &errors.BadRequestFail,
+			RequestBody: &errors.BadRequestFail,
 			Default: &errAsStr,
 		})
 		return
@@ -38,9 +39,26 @@ func ValidateGuestSession(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	if sessionIsValid {
+	if sessionIsValid == false {
+		errors.CustomErrorResponse(w, errors.InvalidSessionCredentials)
+		return
+	}
+
+	tokenDetails, errTokenDetails := jwtx.RetrieveTokenDetailsFromString(
+		params.Token,
+	)
+	if errTokenDetails != nil {
+		errors.DefaultErrorResponse(w, errTokenDetails)
+		return
+	}
+
+	if tokenDetails.Payload.Aud == "public" && tokenDetails.Payload.Sub == "guest" {
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(&responses.Body{
+			Session: &responses.Session{
+				Token: params.Token,
+			},
+		})
 		return
 	}
 

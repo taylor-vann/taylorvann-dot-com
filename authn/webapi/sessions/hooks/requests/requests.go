@@ -6,6 +6,7 @@ import (
 
 type Create = sessionsx.CreateParams
 type Read = sessionsx.ReadParams
+type Validate = sessionsx.ReadParams
 type Update = sessionsx.UpdateParams
 type Delete = sessionsx.DeleteParams
 type UserParams = sessionsx.UserParams
