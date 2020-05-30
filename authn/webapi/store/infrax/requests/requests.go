@@ -1,18 +1,18 @@
 package requests
 
 type GuestSessionParams struct {
-	Environment string
+	Environment string  `json:"environment"`
 }
 
-type InternalSessionParams struct {
-	Environment string
-	Email				string
-	Password		string
+type ValidateSessionParams struct {
+	Environment string `json:"environment"`
+	Token 			string `json:"token"`
 }
 
-type ValidateParams struct {
-	Environment string
-	Token 			string
+type ValidateUserParams struct {
+	Environment string `json:"environment"`
+	Email				string `json:"email"`
+	Password		string `json:"password"`
 }
 
 type Body struct {

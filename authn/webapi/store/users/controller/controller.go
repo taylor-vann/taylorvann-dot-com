@@ -9,6 +9,8 @@ import (
 	"errors"
 	"time"
 
+
+
 	"webapi/store/users/controller/constants"
 	"webapi/store/users/controller/statements"
 	"webapi/store/users/controller/utils"
@@ -30,7 +32,16 @@ type Row struct {
 	UpdatedAt time.Time   `json:"updated_at"` // milli seconds
 }
 
+type SafeRow struct {
+	ID        int64       `json:"id"`
+	Email     string      `json:"email"`
+	IsDeleted bool        `json:"is_deleted"`
+	CreatedAt time.Time   `json:"created_at"` // milli seconds
+	UpdatedAt time.Time   `json:"updated_at"` // milli seconds
+}
+
 type Users = []Row
+type SafeUsers = []SafeRow
 
 type CreateTableParams struct {
 	Environment string `json:"environment"`
@@ -102,7 +113,7 @@ func CreateTable(p *CreateTableParams) (*sql.Result, error) {
 
 func CreateRows(rows *sql.Rows) (Users, error) {
 	if rows == nil {
-		return nil, errors.New("users.CreateRows() - nil params provided")
+		return Users{}, errors.New("users.CreateRows() - nil params provided")
 	}
 
 	var users Users
@@ -137,10 +148,50 @@ func CreateRows(rows *sql.Rows) (Users, error) {
 		users = append(users, userRow)
 	}
 
+
 	return users, nil
 }
 
-func Create(p *CreateParams) (Users, error) {
+func CreateSafeRows(rows *sql.Rows) (SafeUsers, error) {
+	userRows, errUserRows:= CreateRows(rows)
+	if errUserRows != nil {
+		return nil, errors.New("users.CreateRows() - nil params provided")
+	}
+
+	var users SafeUsers
+	for _, row := range userRows {
+		users = append(users, SafeRow{
+			ID: row.ID,
+			Email: row.Email,
+			IsDeleted: row.IsDeleted,
+			CreatedAt: row.CreatedAt,
+			UpdatedAt: row.UpdatedAt,
+		})
+	}
+
+	return users, nil
+}
+
+func AdoptSafeRows(userRows *Users) (SafeUsers, error) {
+	if userRows == nil {
+		return nil, errors.New("users.AdoptSafeRows() - nil params provided")
+	}
+
+	var users SafeUsers
+	for _, row := range *userRows {
+		users = append(users, SafeRow{
+			ID: row.ID,
+			Email: row.Email,
+			IsDeleted: row.IsDeleted,
+			CreatedAt: row.CreatedAt,
+			UpdatedAt: row.UpdatedAt,
+		})
+	}
+
+	return users, nil
+}
+
+func Create(p *CreateParams) (SafeUsers, error) {
 	if p == nil {
 		return nil, errors.New("nil parameters provided")
 	}
@@ -172,10 +223,10 @@ func Create(p *CreateParams) (Users, error) {
 		return nil, errQueryRows
 	}
 
-	return CreateRows(rows)
+	return CreateSafeRows(rows)
 }
 
-func Read(p *ReadParams) (Users, error) {
+func Read(p *ReadParams) (SafeUsers, error) {
 	if p == nil {
 		return nil, errors.New("nil parameters provided")
 	}
@@ -190,10 +241,10 @@ func Read(p *ReadParams) (Users, error) {
 		return nil, errQueryRow
 	}
 
-	return CreateRows(rows)
+	return CreateSafeRows(rows)
 }
 
-func Validate(p *ValidateParams) (Users, error) {
+func Validate(p *ValidateParams) (SafeUsers, error) {
 	if p == nil {
 		return nil, errors.New("nil parameters provided")
 	}
@@ -207,13 +258,13 @@ func Validate(p *ValidateParams) (Users, error) {
 	if errQueryRow != nil {
 		return nil, errQueryRow
 	}
-
 	userRows, errUserRows := CreateRows(rows)
+
 	if errUserRows != nil {
-		return userRows, errors.New("error marshaling user row")
+		return SafeUsers{}, errUserRows
 	}
 	if len(userRows) == 0 {
-		return userRows, errors.New("user not found")
+		return SafeUsers{}, errors.New("user not found")
 	}
 
 	hashResults := passwordx.HashResults{
@@ -221,21 +272,26 @@ func Validate(p *ValidateParams) (Users, error) {
 		Hash: userRows[0].Hash,
 		Params: *userRows[0].Params,
 	}
-	type HashResults struct {
-		Salt   string     `json:"salt"`
-		Hash   string     `json:"hash"`
-		Params HashParams `json:"params"`
-	}
+
 	validPassword, errValidPassword := passwordx.PasswordIsValid(p.Password, &hashResults)
-	if validPassword {
-		return userRows, errValidPassword
+	if errValidPassword != nil {
+		return SafeUsers{}, errValidPassword
+	}
+	if validPassword == false {
+		return SafeUsers{}, errors.New("invalid password")
 	}
 
-	return Users{}, errValidPassword
+	// return valid results
+	userRowsSafe, errUserRowsSafe := AdoptSafeRows(&userRows)
+	if errUserRowsSafe == nil {
+		return userRowsSafe, errValidPassword
+	}
+
+	return SafeUsers{}, errUserRowsSafe
 }
 
 
-func Index(p *IndexParams) (Users, error) {
+func Index(p *IndexParams) (SafeUsers, error) {
 	if p == nil {
 		return nil, errors.New("nil parameters provided")
 	}
@@ -252,10 +308,10 @@ func Index(p *IndexParams) (Users, error) {
 		return nil, errQueryRows
 	}
 
-	return CreateRows(rows)
+	return CreateSafeRows(rows)
 }
 
-func Search(p *SearchParams) (Users, error) {
+func Search(p *SearchParams) (SafeUsers, error) {
 	if p == nil {
 		return nil, errors.New("nil parameters provided")
 	}
@@ -270,22 +326,19 @@ func Search(p *SearchParams) (Users, error) {
 		return nil, errQueryRow
 	}
 
-	return CreateRows(rows)
+	return CreateSafeRows(rows)
 }
 
-func Update(p *UpdateParams) (Users, error) {
+func Update(p *UpdateParams) (SafeUsers, error) {
 	if p == nil {
 		return nil, errors.New("nil parameters provided")
 	}
-
 	if p.Password == "" {
 		return nil, errors.New("password cannot be empty string")
 	}
-
 	if p.CurrentEmail == "" {
 		return nil, errors.New("current email cannot be empty string")
 	}
-
 	if p.UpdatedEmail == "" {
 		return nil, errors.New("updated email cannot be empty string")
 	}
@@ -319,10 +372,10 @@ func Update(p *UpdateParams) (Users, error) {
 		return nil, errQueryRow
 	}
 
-	return CreateRows(rows)
+	return CreateSafeRows(rows)
 }
 
-func UpdateEmail(p *UpdateEmailParams) (Users, error) {
+func UpdateEmail(p *UpdateEmailParams) (SafeUsers, error) {
 	if p == nil {
 		return nil, errors.New("nil parameters provided")
 	}
@@ -347,10 +400,10 @@ func UpdateEmail(p *UpdateEmailParams) (Users, error) {
 		return nil, errQueryRow
 	}
 
-	return CreateRows(rows)
+	return CreateSafeRows(rows)
 }
 
-func UpdatePassword(p *UpdatePasswordParams) (Users, error) {
+func UpdatePassword(p *UpdatePasswordParams) (SafeUsers, error) {
 	if p == nil {
 		return nil, errors.New("nil parameters provided")
 	}
@@ -386,10 +439,10 @@ func UpdatePassword(p *UpdatePasswordParams) (Users, error) {
 		return nil, errQueryRow
 	}
 
-	return CreateRows(rows)
+	return CreateSafeRows(rows)
 }
 
-func Delete(p *DeleteParams) (Users, error) {
+func Delete(p *DeleteParams) (SafeUsers, error) {
 	if p == nil {
 		return nil, errors.New("nil parameters provided")
 	}
@@ -405,10 +458,10 @@ func Delete(p *DeleteParams) (Users, error) {
 		return nil, errQueryRow
 	}
 
-	return CreateRows(rows)
+	return CreateSafeRows(rows)
 }
 
-func Undelete(p *UndeleteParams) (Users, error) {
+func Undelete(p *UndeleteParams) (SafeUsers, error) {
 	if p == nil {
 		return nil, errors.New("nil parameters provided")
 	}
@@ -424,7 +477,7 @@ func Undelete(p *UndeleteParams) (Users, error) {
 		return nil, errQueryRow
 	}
 
-	return CreateRows(rows)
+	return CreateSafeRows(rows)
 }
 
 func DangerouslyDropUnitTestsTable() (sql.Result, error) {

@@ -7,6 +7,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"log"
+
 	"webapi/store/users/hooks/errors"
 	"webapi/store/users/hooks/requests"
 	"webapi/store/users/hooks/responses"
@@ -17,7 +19,7 @@ import (
 const (
 	Create				 = "CREATE_USER"
 	Read					 = "READ_USER"
-	Validate			 = "VALIDATE_USER"
+	ValidateGuest	 = "VALIDATE_GUEST_USER"
 	Search				 = "SEARCH_USERS"
 	Index					 = "INDEX_USERS"
 	Update				 = "UPDATE_USER"
@@ -28,6 +30,7 @@ const (
 )
 
 func Query(w http.ResponseWriter, r *http.Request) {
+	log.Println("querying users")
 	if r.Body == nil {
 		errors.BadRequest(w, &responses.Errors{
 			Body: &errors.BadRequestFail,
@@ -38,15 +41,20 @@ func Query(w http.ResponseWriter, r *http.Request) {
 	var body requests.Body
 	errJsonDecode := json.NewDecoder(r.Body).Decode(&body)
 	if errJsonDecode != nil {
+		log.Println("error decoding body: ", body.Action)
+
 		errors.DefaultResponse(w, errJsonDecode)
 		return
 	}
 
+	log.Println("query action: ", body.Action)
 	switch body.Action {
 	case Read:
 		queries.Read(w, &body)
-	case Validate:
-		queries.Validate(w, r, &body)
+	case ValidateGuest:
+		log.Println("attempting to validate guest")
+		log.Println(body)
+		queries.ValidateGuest(w, r, &body)
 	case Search:
 		queries.Search(w, &body)
 	case Index:
@@ -59,6 +67,8 @@ func Query(w http.ResponseWriter, r *http.Request) {
 }
 
 func Mutation(w http.ResponseWriter, r *http.Request) {
+	log.Println("mutating users")
+
 	if r.Body == nil {
 		errors.BadRequest(w, &responses.Errors{
 			Body: &errors.BadRequestFail,

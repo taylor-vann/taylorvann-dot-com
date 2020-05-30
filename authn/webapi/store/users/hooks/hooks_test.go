@@ -135,14 +135,14 @@ func TestCreate(t *testing.T) {
 	}
 }
 
-func TestValidate(t *testing.T) {
+func TestValidateGuest(t *testing.T) {
 	guestSession, errGuestSession := validatesessionx.FetchGuestSession()
 	if errGuestSession != nil {
 		t.Error("couldn't get guest session")
 		return
 	}
 	requestBody := requests.Body{
-		Action: Validate,
+		Action: ValidateGuest,
 		Params: user1,
 	}
 

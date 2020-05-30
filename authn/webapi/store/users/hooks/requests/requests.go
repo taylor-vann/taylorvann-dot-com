@@ -17,5 +17,5 @@ type Undelete = controller.UndeleteParams
 
 type Body struct {
 	Action string			 `json:"action"`
-	Params interface{} `json:"payload"`
+	Params interface{} `json:"params"`
 }

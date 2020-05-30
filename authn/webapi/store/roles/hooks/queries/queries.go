@@ -66,6 +66,62 @@ func Read(w http.ResponseWriter, requestBody *requests.Body)  {
 	})
 }
 
+func ValidateInfra(w http.ResponseWriter, requestBody *requests.Body)  {
+	// drop if session is not valid
+	
+	// infrax validate guest user
+	
+	if requestBody == nil || requestBody.Params == nil {
+		errors.BadRequest(w, &responses.Errors{
+			Roles: &errors.FailedToReadRole,
+			Body: &errors.BadRequestFail,
+		})
+		return
+	}
+
+	// digest body interface{}
+	bytes, _ := json.Marshal(requestBody.Params)
+	var params requests.Read
+	errParamsMarshal := json.Unmarshal(bytes, &params)
+	if errParamsMarshal != nil {
+		errAsStr := errParamsMarshal.Error()
+		errors.BadRequest(w, &responses.Errors{
+			Roles: &errors.FailedToReadRole,
+			Body: &errors.BadRequestFail,
+			Default: &errAsStr,
+		})
+		return
+	}
+
+	// check cache
+	roles, errReadUserCache := cache.GetReadEntry(&params)
+	if errReadUserCache != nil {
+		errors.DefaultResponse(w, errReadUserCache)
+		return
+	}
+	if roles != nil {
+		writeRolesResponse(w, roles)
+		return
+	}
+
+	// check store
+	rolesStore, errRolesStore := controller.Read(&params)
+	if errRolesStore != nil {
+		errors.DefaultResponse(w, errRolesStore)
+		return
+	}
+	if rolesStore != nil {
+		writeRolesResponse(w, &rolesStore)
+		return
+	}
+
+	// default error
+	errors.BadRequest(w, &responses.Errors{
+		Roles: &errors.FailedToReadRole,
+	})
+}
+
+
 func Index(w http.ResponseWriter, requestBody *requests.Body) {
 	if requestBody == nil || requestBody.Params == nil {
 		errors.BadRequest(w, &responses.Errors{

@@ -20,6 +20,7 @@ import (
 const (
 	Create				= "CREATE_ROLE"
 	Read					= "READ_ROLE"
+	ValidateInfra = "VALIDATE_INFRA_OVERLORD_ROLE"
 	Search				= "SEARCH_ROLES"
 	Index					= "INDEX_ROLES"
 	Update				= "UPDATE_ROLE"
@@ -46,6 +47,8 @@ func Query(w http.ResponseWriter, r *http.Request) {
 	switch body.Action {
 	case Read:
 		queries.Read(w, &body)
+	case ValidateInfra:
+		queries.ValidateInfra(w, &body)
 	case Search:
 		queries.Search(w, &body)
 	case Index:

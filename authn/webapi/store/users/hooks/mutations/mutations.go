@@ -11,7 +11,7 @@ import (
 	"webapi/store/users/hooks/responses"
 )
 
-func writeUsersResponse(w http.ResponseWriter, users *controller.Users) {
+func writeUsersResponse(w http.ResponseWriter, users *controller.SafeUsers) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(&responses.Body{

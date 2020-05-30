@@ -14,6 +14,8 @@ import (
 const (
 	CreateDocumentSession     	= "CREATE_DOCUMENT_SESSION"
 	CreateGuestSession        	= "CREATE_GUEST_SESSION"
+	CreateInternalSession       = "CREATE_INTERNAL_SESSION"
+
 	ValidateGuestSession        = "VALIDATE_GUEST_SESSION"
 
 	CreatePublicSession       	= "CREATE_PUBLIC_SESSION"
@@ -71,6 +73,8 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 	// 	mutations.CreateDocumentSession(w, &body)
 	case CreateGuestSession:
 		mutations.CreateGuestSession(w, &body)	// the only public mutation
+	case CreateInternalSession:
+		mutations.CreateInternalSession(w, &body)	// the only public mutation
 	// case CreatePublicSession:
 	// 	mutations.CreatePublicSession(w, &body)
 	// case CreateCreateAccountSession:

@@ -16,27 +16,33 @@ import (
 
 const (
 	ApplicationJson = "application/json"
-	AuthnSessionQueryAddress = "https://authn.briantaylorvann.com/q/sessions/"
+	AuthnUserStoreQueryAddress = "https://authn.briantaylorvann.com/q/users/"
+	AuthnRolesStoreQueryAddress = "https://authn.briantaylorvann.com/q/roles/"
 	AuthnSessionMutationAddress = "https://authn.briantaylorvann.com/m/sessions/"
 	GuestSessionExpirationInSeconds = 60 * 60 * 24 * 3 
 )
 
 const CookieDomain = "briantaylorvann.com"
-const InternalSessionCookieHeader = "briantaylorvann.com_internal_session"
+const SessionCookieHeader = "briantaylorvann.com_session"
 
 var (
 	Environment = os.Getenv("STAGE")
-	RequestGuestSessionBody = requests.Body{
-		Action: "CREATE_GUEST_SESSION",
-		Params: requests.GuestSessionParams {
+	InfraOverlordEmail = os.Getenv("INFRA_OVERLORD_EMAIL")
+	InfraOverlordPassword = os.Getenv("INFRA_OVERLORD_PASSWORD")
+
+	RequestValidateUserBody = requests.Body{
+		Action: "VALIDATE_USER",
+		Params: requests.ValidateUserParams {
 			Environment: "LOCAL",
+			Email: InfraOverlordEmail,
+			Password: InfraOverlordPassword,
 		},
 	}
 )
 
-func getGuestSessionRequestBodyBuffer() (*bytes.Buffer, error) {
+func getValidateUserRequestBodyBuffer() (*bytes.Buffer, error) {
 	sessionBuffer := new(bytes.Buffer)
-	errJsonBuffer := json.NewEncoder(sessionBuffer).Encode(RequestGuestSessionBody)
+	errJsonBuffer := json.NewEncoder(sessionBuffer).Encode(RequestValidateUserBody)
 	if errJsonBuffer != nil {
 		return nil, errJsonBuffer
 	}
@@ -44,51 +50,22 @@ func getGuestSessionRequestBodyBuffer() (*bytes.Buffer, error) {
 	return sessionBuffer, nil
 }
 
-func GetInternalGuestSessionCookie(sessionToken string) *http.Cookie {
-	return &http.Cookie{
-		Name:			InternalSessionCookieHeader,
-		Value:		sessionToken,
-		MaxAge:		GuestSessionExpirationInSeconds,
-		Domain:   CookieDomain,
-		Path:     "/",
-		Secure:		true,
-		HttpOnly:	true,
-		SameSite:	3,
-	}
-}
+// our needs
 
-func GuestSession() (string, error) {
-	var guestSessionRequestBodyBuffer, errGuestSessionRequestBodyBuffer = getGuestSessionRequestBodyBuffer()
-	if errGuestSessionRequestBodyBuffer != nil {
-		return "", errGuestSessionRequestBodyBuffer
-	}
+// validate guest user (requires guest session)
+// validate guest user internal role (requires guest session)
+// get internal overlord session (requires guest session)
 
-	resp, errResp := http.Post(
-		AuthnSessionMutationAddress,
-		ApplicationJson,
-		guestSessionRequestBodyBuffer,
-	)
-	if errResp != nil {
-		return "", errResp
-	}
-	if resp.StatusCode != http.StatusOK {
-		log.Println(errResp.Error())
-		return "", errors.New(string(resp.StatusCode))
-	}
+// func CreateValidateUserRequest()  {
+// 	log.Println("caalled to fail :)"
+// 	var validateUserRequestBodyBuffer, errValidateRequestBodyBuffer = GetValidateUserRequestBodyBuffer()
+// 	if errValidateRequestBodyBuffer != nil {
+// 		return "", errValidateRequestBodyBuffer
+// 	}
 
-	var responseBody responses.Body
-	errJson := json.NewDecoder(resp.Body).Decode(&responseBody)
-	if errJson != nil {
-		log.Println(string(resp.StatusCode))
-		log.Println(errJson)
-		return "", errJson
-	}
-	if responseBody.Errors != nil {
-			return "", errors.New("errors were returned in fetch")
-	}
-	if responseBody.Session != nil {
-		return responseBody.Session.Token, nil
-	}
-
-	return  "", errors.New("nil session returned")
-}
+// 	resp, errResp := http.NewRequest(
+// 		"POST"
+// 		AuthnSessionMutationAddress,
+// 		validateUserRequestBodyBuffer,
+// 	)
+// }

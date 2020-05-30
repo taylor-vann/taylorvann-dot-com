@@ -12,6 +12,7 @@ import (
 	// "webapi/cookiesessionx"
 	// "webapi/sessions/hooks/cookies"
 	// "webapi/sessions/hooks/constants"
+	"webapi/store/infrax/cookies"
 	"webapi/sessions/hooks/errors"
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
@@ -56,6 +57,51 @@ func defaultErrorResponse(w http.ResponseWriter, errorResponse error) {
 
 // the only public mutation
 func CreateGuestSession(w http.ResponseWriter, requestBody *requests.Body) {
+	if dropRequestNotValidBody(w, requestBody) {
+		log.Println("dropping request, bad body")
+		return
+	}
+	
+	bytes, _ := json.Marshal(requestBody.Params)
+	var params requests.GuestParams
+	errParamsMarshal := json.Unmarshal(bytes, &params)
+	if errParamsMarshal != nil {
+		defaultErrorResponse(w, errParamsMarshal)
+		return
+	}
+
+	session, errSession := sessionsx.Create(&sessionsx.CreateParams{
+		Environment: params.Environment,
+		Claims: *sessionsx.CreateGuestSessionClaims(),
+	})
+
+	if errSession != nil {
+		errorAsStr := errSession.Error()
+		errors.BadRequest(w, &responses.Errors{
+			Session: &errors.CreateGuestSessionErrorMessage,
+			Default: &errorAsStr,
+		})
+		return
+	}
+
+	log.Println("made it to the session")
+	log.Println("session: " + session.Token)
+	http.SetCookie(w, cookies.CreateGuestSessionCookie(session.Token))
+	log.Println("set cookies!")
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(&responses.Body{
+		Session: session,
+	})
+}
+
+// the only public mutation
+func CreateInternalSession(w http.ResponseWriter, requestBody *requests.Body) {
+	// validate session cookie is a guest
+	//   drop if not valid
+
+	// use infrax to validate role
+
 	if dropRequestNotValidBody(w, requestBody) {
 		log.Println("dropping request, bad body")
 		return
