@@ -11,6 +11,8 @@ import (
 	"webapi/store/roles/hooks/responses"
 )
 
+const InfraOverlord = "INFRA_OVERLORD_ADMIN"
+
 func writeRolesResponse(w http.ResponseWriter, roles *controller.Roles) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -67,7 +69,8 @@ func Read(w http.ResponseWriter, requestBody *requests.Body)  {
 }
 
 func ValidateInfra(w http.ResponseWriter, requestBody *requests.Body)  {
-	// drop if session is not valid
+	// drop if guest session is not valid
+	// need role 
 	
 	// infrax validate guest user
 	

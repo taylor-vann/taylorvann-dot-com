@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-const CookieDomain = "www.briantaylorvann.com"
+const CookieDomain = ".briantaylorvann.com"
 const SessionCookieHeader = "briantaylorvann.com_session"
 
 const GuestSessionExpirationInSeconds = 60 * 60 * 24 * 3 
@@ -15,10 +15,9 @@ func CreateGuestSessionCookie(session string) *http.Cookie {
 		Value:		session,
 		MaxAge:		GuestSessionExpirationInSeconds,
 		Domain:   CookieDomain,
-		// Path:     "/",
-		// Secure:		true,
-		// HttpOnly:	true,
-		// SameSite:	3,
+		Secure:		true,
+		HttpOnly:	true,
+		SameSite:	3,
 	}
 }
 

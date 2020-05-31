@@ -96,6 +96,12 @@ func ValidateGuest(w http.ResponseWriter, r *http.Request, requestBody *requests
 
 	// client.RemoteLog("made it to Validate guest!")
 
+	log.Println(*r)
+	log.Println(r.Host)
+	log.Println(*r.URL)
+	log.Println(r.RemoteAddr)
+
+
 	log.Println(r.Cookies())
 	log.Println(r.Header.Get("cookie"))
 	for _, cookie := range r.Cookies() {
