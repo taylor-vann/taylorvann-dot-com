@@ -4,6 +4,11 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"webapi/store/infrax/fetch"
+	fetchRequests "webapi/store/infrax/fetch/requests"
+
+	"log"
+
 	"webapi/store/roles/controller"
 	"webapi/store/roles/hooks/cache"
 	"webapi/store/roles/hooks/errors"
@@ -11,7 +16,7 @@ import (
 	"webapi/store/roles/hooks/responses"
 )
 
-const InfraOverlord = "INFRA_OVERLORD_ADMIN"
+const InfraOverlordAdmin = "INFRA_OVERLORD_ADMIN"
 
 func writeRolesResponse(w http.ResponseWriter, roles *controller.Roles) {
 	w.Header().Set("Content-Type", "application/json")
@@ -68,13 +73,14 @@ func Read(w http.ResponseWriter, requestBody *requests.Body)  {
 	})
 }
 
-func ValidateInfra(w http.ResponseWriter, requestBody *requests.Body)  {
+func ValidateInfra(w http.ResponseWriter, sessionCookie *http.Cookie, requestBody *requests.Body)  {
+	log.Println("ROLES QUERY - MADE IT TO VALIDATE INFRA ROLE")
+	log.Println("ROLES QUERY - cookie")
+	log.Println(sessionCookie)	
 	// drop if guest session is not valid
 	// need role 
-	
-	// infrax validate guest user
-	
 	if requestBody == nil || requestBody.Params == nil {
+		log.Println("Queries ValidateInfra -  bad body")
 		errors.BadRequest(w, &responses.Errors{
 			Roles: &errors.FailedToReadRole,
 			Body: &errors.BadRequestFail,
@@ -84,39 +90,67 @@ func ValidateInfra(w http.ResponseWriter, requestBody *requests.Body)  {
 
 	// digest body interface{}
 	bytes, _ := json.Marshal(requestBody.Params)
-	var params requests.Read
+	var params requests.ValidateInfra
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
-		errAsStr := errParamsMarshal.Error()
-		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToReadRole,
-			Body: &errors.BadRequestFail,
-			Default: &errAsStr,
-		})
+		log.Println("Queries ValidateInfra -  error unmarshaling body")
+		errors.DefaultResponse(w, errParamsMarshal)
+
 		return
 	}
 
+	log.Println("requesting role")
+
+	resp, errResp := fetch.ValidateGuestUser(
+		fetchRequests.ValidateGuestUser(params),
+		sessionCookie,
+	)
+	if errResp != nil {
+		log.Println("Queries ValidateInfra -  error validating user")
+		errors.DefaultResponse(w, errResp)
+		return
+	}
+	if resp == nil {
+		log.Println("Queries ValidateInfra -  nil users returned")
+		errors.BadRequest(w, nil)
+		return
+	}
+	log.Println("Queries ValidateInfra - validated user")
+
+	roleParams := requests.Read{
+		Environment: params.Environment,
+		UserID: resp.ID,
+		Organization: InfraOverlordAdmin,
+	}
 	// check cache
-	roles, errReadUserCache := cache.GetReadEntry(&params)
-	if errReadUserCache != nil {
-		errors.DefaultResponse(w, errReadUserCache)
+	roles, errReadRolesCache := cache.GetReadEntry(&roleParams)
+	if errReadRolesCache != nil {
+		log.Println("error reading cache")
+		errors.DefaultResponse(w, errReadRolesCache)
 		return
 	}
 	if roles != nil {
+		log.Println("we found the role!")
 		writeRolesResponse(w, roles)
 		return
 	}
-
+	
 	// check store
-	rolesStore, errRolesStore := controller.Read(&params)
+	rolesStore, errRolesStore := controller.Read(&roleParams)
 	if errRolesStore != nil {
+		log.Println("we failed to find role")
+		log.Println(errRolesStore)
+
 		errors.DefaultResponse(w, errRolesStore)
 		return
 	}
 	if rolesStore != nil {
+		log.Println("we found the role!")
+		// write to cache
 		writeRolesResponse(w, &rolesStore)
 		return
 	}
+	log.Println("unable to find roles")
 
 	// default error
 	errors.BadRequest(w, &responses.Errors{

@@ -14,10 +14,9 @@ import (
 const (
 	CreateDocumentSession     	= "CREATE_DOCUMENT_SESSION"
 	CreateGuestSession        	= "CREATE_GUEST_SESSION"
-	CreateInternalSession       = "CREATE_INTERNAL_SESSION"
+	CreateInfraOverlordSession  = "CREATE_INFRA_OVERLORD_SESSION"
 
 	ValidateGuestSession        = "VALIDATE_GUEST_SESSION"
-
 	CreatePublicSession       	= "CREATE_PUBLIC_SESSION"
 
 	CreateCreateAccountSession	= "CREATE_CREATE_ACCOUNT_SESSION"
@@ -26,11 +25,22 @@ const (
 	UpdateSession             	= "UPDATE_SESSION"
 	ValidateSession           	= "VALIDATE_SESSION"
 	DeleteSession             	= "DELETE_SESSION"
+
+	SessionCookieHeader					= "briantaylorvann.com_session"
 )
 
 func Query(w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
 		errors.CustomErrorResponse(w, errors.BadRequestFail)
+		return
+	}
+	
+	cookie, errCookie := r.Cookie(SessionCookieHeader)
+	if errCookie != nil {
+		errAsStr := errCookie.Error()
+		errors.BadRequest(w, &responses.Errors{
+			Default: &errAsStr,
+		})
 		return
 	}
 
@@ -39,15 +49,14 @@ func Query(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		errAsStr := err.Error()
 		errors.BadRequest(w, &responses.Errors{
-			Session: &errors.BadRequestFail,
 			Default: &errAsStr,
 		})
 		return
 	}
-
+	
 	switch body.Action {
 	case ValidateGuestSession:	// the only public query
-		queries.ValidateGuestSession(w, &body)
+		queries.ValidateGuestSession(w, cookie, &body)
 	default:
 		errors.BadRequest(w, &responses.Errors{
 			Session: &errors.UnrecognizedQuery,
@@ -68,13 +77,25 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// only allow no session if "create guest session"
+	cookie, errCookie := r.Cookie(SessionCookieHeader)
+	if errCookie != nil && body.Action != CreateGuestSession {
+		
+
+		errAsStr := errCookie.Error()
+		errors.BadRequest(w, &responses.Errors{
+			Default: &errAsStr,
+		})
+		return
+	}
+	
 	switch body.Action {
 	// case CreateDocumentSession:
 	// 	mutations.CreateDocumentSession(w, &body)
 	case CreateGuestSession:
 		mutations.CreateGuestSession(w, &body)	// the only public mutation
-	case CreateInternalSession:
-		mutations.CreateInternalSession(w, &body)	// the only public mutation
+	case CreateInfraOverlordSession:
+		mutations.CreateInfraSession(w, cookie, &body)	// the only guest mutation
 	// case CreatePublicSession:
 	// 	mutations.CreatePublicSession(w, &body)
 	// case CreateCreateAccountSession:

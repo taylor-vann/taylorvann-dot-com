@@ -15,6 +15,10 @@ type UpdatePassword = controller.UpdatePasswordParams
 type Delete = controller.DeleteParams
 type Undelete = controller.UndeleteParams
 
+type ValidateGuestSessionParams struct {
+	Environment string  `json:"environment"`
+}
+
 type Body struct {
 	Action string			 `json:"action"`
 	Params interface{} `json:"params"`

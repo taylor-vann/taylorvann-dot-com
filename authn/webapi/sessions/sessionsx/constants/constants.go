@@ -2,8 +2,8 @@ package constants
 
 const (
 	Guest            			= "guest"
+	Infra									= "infra"
 	Public           			= "public"
-	Document         			= "document"
 	Session         		  = "session"
 	BrianTaylorVannDotCom = "briantaylorvann.com"
 
@@ -16,4 +16,5 @@ const (
 var (
 	OneDayAsMS = int64(1000 * 60 * 60 * 24)
 	ThreeDaysAsMS = 3 * OneDayAsMS
+	ThreeSixtyFiveDaysAsMS = 365 * OneDayAsMS
 )

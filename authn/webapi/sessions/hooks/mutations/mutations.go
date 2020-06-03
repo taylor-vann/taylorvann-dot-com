@@ -2,27 +2,51 @@ package mutations
 
 import (
 	"encoding/json"
-	// err "errors"
-	// "io"
 	"net/http"
-	"log"
-	
-	// "github.com/taylor-vann/tvgtb/jwtx"
 
-	// "webapi/cookiesessionx"
-	// "webapi/sessions/hooks/cookies"
-	// "webapi/sessions/hooks/constants"
-	"webapi/store/infrax/cookies"
+	"webapi/store/infrax/fetch"
+	fetchRequests "webapi/store/infrax/fetch/requests"
+
 	"webapi/sessions/hooks/errors"
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
 	"webapi/sessions/sessionsx"
 )
 
-func dropRequestNotValidBody(
-	w http.ResponseWriter,
-	requestBody *requests.Body,
-) bool {
+const (
+	ContentType = "Content-Type"
+	ApplicationJson = "application/json"
+	SessionCookieHeader = "briantaylorvann.com_session"
+	CookieDomain = ".briantaylorvann.com"
+	ThreeDaysInSeconds = 60 * 60 * 24 * 3
+	ThreeSixtyFiveDaysInSeconds = 60 * 60 * 24 * 365
+)
+
+func createGuestSessionCookie(session string) *http.Cookie {
+	return &http.Cookie{
+		Name:			SessionCookieHeader,
+		Value:		session,
+		MaxAge:		ThreeDaysInSeconds,
+		Domain:   CookieDomain,
+		Secure:		true,
+		HttpOnly:	true,
+		SameSite:	3,
+	}
+}
+
+func createInfraSessionCookie(session string) *http.Cookie {
+	return &http.Cookie{
+		Name:			SessionCookieHeader,
+		Value:		session,
+		MaxAge:		ThreeSixtyFiveDaysInSeconds,
+		Domain:   CookieDomain,
+		Secure:		true,
+		HttpOnly:	true,
+		SameSite:	3,
+	}
+}
+
+func dropRequestNotValidBody(w http.ResponseWriter, requestBody *requests.Body) bool {
 	if requestBody != nil && requestBody.Params != nil {
 		return false
 	}
@@ -39,31 +63,13 @@ func defaultErrorResponse(w http.ResponseWriter, errorResponse error) {
 	})
 }
 
-// // side effects
-// func dropRequestUnableToMarshalBody(
-// 	w http.ResponseWriter,
-// 	requestBody *requests.Body,
-// 	params interface{},
-// ) bool {
-// 	err := json.NewDecoder(r.Body).Decode(&p)
-// 	bytes, _ := json.Marshal(requestBody.Params)
-// 	errParamsMarshal := json.Unmarshal(bytes, params)
-// 	if errParamsMarshal == nil {
-// 		return true
-// 	}
-// 	defaultErrorResponse(w, errParamsMarshal)
-// 	return false
-// }
-
-// the only public mutation
 func CreateGuestSession(w http.ResponseWriter, requestBody *requests.Body) {
 	if dropRequestNotValidBody(w, requestBody) {
-		log.Println("dropping request, bad body")
 		return
 	}
 	
 	bytes, _ := json.Marshal(requestBody.Params)
-	var params requests.GuestParams
+	var params requests.Guest
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
 		defaultErrorResponse(w, errParamsMarshal)
@@ -84,55 +90,45 @@ func CreateGuestSession(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	log.Println("made it to the session")
-	log.Println("session: " + session.Token)
-	http.SetCookie(w, cookies.CreateGuestSessionCookie(session.Token))
-	log.Println("set cookies!")
-
-	w.Header().Set("Content-Type", "application/json")
+	http.SetCookie(w, createGuestSessionCookie(session.Token))
+	w.Header().Set(ContentType, ApplicationJson)
 	json.NewEncoder(w).Encode(&responses.Body{
 		Session: session,
 	})
 }
 
-// the only public mutation
-func CreateInternalSession(w http.ResponseWriter, requestBody *requests.Body) {
-	// validate session cookie is a guest
-	//   drop if not valid
-
-	// use infrax to validate role
-
+func CreateInfraSession(w http.ResponseWriter, cookie *http.Cookie, requestBody *requests.Body) {
 	if dropRequestNotValidBody(w, requestBody) {
-		log.Println("dropping request, bad body")
 		return
 	}
 	
 	bytes, _ := json.Marshal(requestBody.Params)
-	var params requests.GuestParams
+	var params requests.Infra
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
 		defaultErrorResponse(w, errParamsMarshal)
 		return
 	}
 
+	resp, errResp := fetch.ValidateInfraRole(
+		fetchRequests.ValidateGuestUser(params),
+		cookie,
+	)
+	if errResp != nil {
+		defaultErrorResponse(w, errResp)
+	}
+	
 	session, errSession := sessionsx.Create(&sessionsx.CreateParams{
 		Environment: params.Environment,
-		Claims: *sessionsx.CreateGuestSessionClaims(),
+		Claims: *sessionsx.CreateInfraSessionClaims(resp.UserID),
 	})
-
 	if errSession != nil {
-		errorAsStr := errSession.Error()
-		errors.BadRequest(w, &responses.Errors{
-			Session: &errors.CreateGuestSessionErrorMessage,
-			Default: &errorAsStr,
-		})
+		defaultErrorResponse(w, errSession)
 		return
 	}
 
-	log.Println("made it to the session")
-	log.Println("session: " + session.Token)
-
-	w.Header().Set("Content-Type", "application/json")
+	http.SetCookie(w, createInfraSessionCookie(session.Token))
+	w.Header().Set(ContentType, ApplicationJson)
 	json.NewEncoder(w).Encode(&responses.Body{
 		Session: session,
 	})
@@ -166,7 +162,7 @@ func CreateInternalSession(w http.ResponseWriter, requestBody *requests.Body) {
 // 	}
 
 // 	bytes, _ := json.Marshal(requestBody.Params)
-// 	var params requests.AccountParams
+// 	var params requests.Account
 // 	errParamsMarshal := json.Unmarshal(bytes, &params)
 // 	if errParamsMarshal != nil {
 // 		defaultErrorResponse(w, errParamsMarshal)
@@ -192,7 +188,7 @@ func CreateInternalSession(w http.ResponseWriter, requestBody *requests.Body) {
 // 			SessionToken: session.Token,
 // 		})
 // 		if errMarshal == nil {
-// 			w.Header().Set("Content-Type", "application/json")
+// 			w.Header().Set(ContentType, ApplicationJson)
 // 			json.NewEncoder(w).Encode(&marshalledJSON)
 // 			return
 // 		}
@@ -214,7 +210,7 @@ func CreateInternalSession(w http.ResponseWriter, requestBody *requests.Body) {
 // 	}
 
 // 	bytes, _ := json.Marshal(requestBody.Params)
-// 	var params requests.AccountParams
+// 	var params requests.Account
 // 	errParamsMarshal := json.Unmarshal(bytes, &params)
 // 	if errParamsMarshal != nil {
 // 		defaultErrorResponse(w, errParamsMarshal)
@@ -245,7 +241,7 @@ func CreateInternalSession(w http.ResponseWriter, requestBody *requests.Body) {
 // 			},
 // 		)
 // 		if errMarshal == nil {
-// 			w.Header().Set("Content-Type", "application/json")
+// 			w.Header().Set(ContentType, ApplicationJson)
 // 			json.NewEncoder(w).Encode(&marshalledJSON)
 // 			return
 // 		}
@@ -267,7 +263,7 @@ func CreateInternalSession(w http.ResponseWriter, requestBody *requests.Body) {
 // 	}
 
 // 	bytes, _ := json.Marshal(requestBody.Params)
-// 	var params requests.AccountParams
+// 	var params requests.Account
 // 	errParamsMarshal := json.Unmarshal(bytes, &params)
 // 	if errParamsMarshal != nil {
 // 		defaultErrorResponse(w, errParamsMarshal)
@@ -296,7 +292,7 @@ func CreateInternalSession(w http.ResponseWriter, requestBody *requests.Body) {
 // 			SessionToken: session.Token,
 // 		})
 // 		if errMarshal == nil {
-// 			w.Header().Set("Content-Type", "application/json")
+// 			w.Header().Set(ContentType, ApplicationJson)
 // 			json.NewEncoder(w).Encode(&marshalledJSON)
 // 			return
 // 		}
@@ -319,7 +315,7 @@ func CreateInternalSession(w http.ResponseWriter, requestBody *requests.Body) {
 // 	}
 
 // 	bytes, _ := json.Marshal(requestBody.Params)
-// 	var params requests.UserParams
+// 	var params requests.User
 // 	errParamsMarshal := json.Unmarshal(bytes, &params)
 // 	if errParamsMarshal != nil {
 // 		defaultErrorResponse(w, errParamsMarshal)
@@ -350,7 +346,7 @@ func CreateInternalSession(w http.ResponseWriter, requestBody *requests.Body) {
 // 			},
 // 		)
 // 		if errMarshal == nil {
-// 			w.Header().Set("Content-Type", "application/json")
+// 			w.Header().Set(ContentType, ApplicationJson)
 // 			json.NewEncoder(w).Encode(&marshalledJSON)
 // 			return
 // 		}
@@ -409,7 +405,7 @@ func CreateInternalSession(w http.ResponseWriter, requestBody *requests.Body) {
 // 			return
 // 		}
 
-// 		w.Header().Set("Content-Type", "application/json")
+// 		w.Header().Set(ContentType, ApplicationJson)
 // 		json.NewEncoder(w).Encode(&marshalledJSON)
 // 		return
 // 	}
@@ -445,7 +441,7 @@ func CreateInternalSession(w http.ResponseWriter, requestBody *requests.Body) {
 // 	}
 
 // 	if result == true {
-// 		w.Header().Set("Content-Type", "application/json")
+// 		w.Header().Set(ContentType, ApplicationJson)
 // 		w.WriteHeader(http.StatusOK)
 // 		return
 // 	}

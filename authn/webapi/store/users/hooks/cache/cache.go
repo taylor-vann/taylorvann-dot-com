@@ -24,6 +24,9 @@ func GetReadEntry(p *requests.Read) (*controller.SafeUsers, error) {
 	if errReadEntry != nil {
 		return nil, errReadEntry
 	}
+	if entry == nil {
+		return nil, nil
+	}
 
 	bytes, _ := json.Marshal(entry.Payload)
 	var users controller.SafeUsers

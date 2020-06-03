@@ -25,33 +25,33 @@ type CreateClaimsParams struct {
 type SessionClaims = jwtx.Claims
 
 type UserParams struct {
-	Environment string
-	UserID int64
+	Environment string `json:"environment`
+	UserID 			int64	 `json:"user_id"`
 }
 
 type AccountParams struct {
-	Environment string
-	Email string
+	Environment string `json:"environment`
+	Email 			string	`json:"email"`
 }
 
 type CreateParams struct {
-	Environment string
-	Claims 			SessionClaims
+	Environment string 				`json:"environment`
+	Claims 			SessionClaims	`json:"claims"`
 }
 
 type ReadParams struct {
-	Environment string
-	Token 			string
+	Environment string `json:"environment`
+	Token 			string `json:"token"`
 }
 
 type ValidateParams struct {
-	Environment string
-	Token 			string
+	Environment string `json:"environment`
+	Token 			string `json:"token"`
 }
 
 type UpdateParams struct {
-	Environment string
-	Token 			string
+	Environment string `json:"environment`
+	Token 			string `json:"token"`
 }
 
 type DeleteParams = whitelist.RemoveEntryParams
@@ -62,6 +62,8 @@ func getLifetimeByAudience(audience string) int64 {
 		return constants.OneDayAsMS
 	case constants.Public:
 		return constants.ThreeDaysAsMS
+	case constants.Infra:
+		return constants.ThreeSixtyFiveDaysAsMS
 	default:
 		return constants.OneDayAsMS
 	}
@@ -69,7 +71,7 @@ func getLifetimeByAudience(audience string) int64 {
 
 func CreateSessionClaims(p *CreateClaimsParams) *SessionClaims {
 	issuedAt := jwtx.GetNowAsMS()
-	expiresAt := issuedAt + getLifetimeByAudience(constants.Guest)
+	expiresAt := issuedAt + getLifetimeByAudience(p.Sub)
 
 	claims := SessionClaims{
 		Iss: p.Iss,
@@ -82,11 +84,11 @@ func CreateSessionClaims(p *CreateClaimsParams) *SessionClaims {
 	return &claims
 }
 
-func CreateDocumentSessionClaims() *SessionClaims {
+func CreateInfraSessionClaims(userID int64) *SessionClaims {
 	return CreateSessionClaims(&CreateClaimsParams{
 		Iss: constants.BrianTaylorVannDotCom,
-		Sub: constants.Guest,
-		Aud: constants.Document,
+		Sub: constants.Infra,
+		Aud: string(userID),
 	})
 }
 

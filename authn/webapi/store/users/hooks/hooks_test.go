@@ -16,8 +16,6 @@ import (
 	"webapi/store/users/hooks/requests"
 	"webapi/store/users/hooks/responses"	
 	"webapi/store/validatesessionx"
-	// "webapi/store/validatesessionx/cookies"
-
 )
 
 var httpTestClient = getTestClient()

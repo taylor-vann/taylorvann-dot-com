@@ -32,12 +32,7 @@ func Create(w http.ResponseWriter, requestBody *requests.Body) {
 	var params requests.Create
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
-		errAsStr := errParamsMarshal.Error()
-		errors.BadRequest(w, &responses.Errors{
-			Users: &errors.FailedToCreateUser,
-			Body: &errors.BadRequestFail,
-			Default: &errAsStr,
-		})
+		errors.DefaultResponse(w, errParamsMarshal)
 		return
 	}
 
@@ -71,12 +66,7 @@ func Update(w http.ResponseWriter, requestBody *requests.Body) {
 	var params requests.Update
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
-		errAsStr := errParamsMarshal.Error()
-		errors.BadRequest(w, &responses.Errors{
-			Users: &errors.FailedToUpdateUser,
-			Body: &errors.BadRequestFail,
-			Default: &errAsStr,
-		})
+		errors.DefaultResponse(w, errParamsMarshal)
 		return
 	}
 
@@ -110,12 +100,7 @@ func UpdateEmail(w http.ResponseWriter, requestBody *requests.Body) {
 	var params requests.UpdateEmail
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
-		errAsStr := errParamsMarshal.Error()
-		errors.BadRequest(w, &responses.Errors{
-			Users: &errors.FailedToUpdateEmailUser,
-			Body: &errors.BadRequestFail,
-			Default: &errAsStr,
-		})
+		errors.DefaultResponse(w, errParamsMarshal)
 		return
 	}
 
@@ -149,12 +134,7 @@ func UpdatePassword(w http.ResponseWriter, requestBody *requests.Body) {
 	var params requests.UpdatePassword
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
-		errAsStr := errParamsMarshal.Error()
-		errors.BadRequest(w, &responses.Errors{
-			Users: &errors.FailedToUpdatePasswordUser,
-			Body: &errors.BadRequestFail,
-			Default: &errAsStr,
-		})
+		errors.DefaultResponse(w, errParamsMarshal)
 		return
 	}
 
@@ -188,12 +168,7 @@ func Delete(w http.ResponseWriter, requestBody *requests.Body) {
 	var params requests.Delete
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
-		errAsStr := errParamsMarshal.Error()
-		errors.BadRequest(w, &responses.Errors{
-			Users: &errors.FailedToDeleteUser,
-			Body: &errors.BadRequestFail,
-			Default: &errAsStr,
-		})
+		errors.DefaultResponse(w, errParamsMarshal)
 		return
 	}
 
@@ -227,12 +202,7 @@ func Undelete(w http.ResponseWriter, requestBody *requests.Body) {
 	var params requests.Undelete
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
-		errAsStr := errParamsMarshal.Error()
-		errors.BadRequest(w, &responses.Errors{
-			Users: &errors.FailedToUndeleteUser,
-			Body: &errors.BadRequestFail,
-			Default: &errAsStr,
-		})
+		errors.DefaultResponse(w, errParamsMarshal)
 		return
 	}
 

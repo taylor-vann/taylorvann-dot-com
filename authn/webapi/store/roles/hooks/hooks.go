@@ -6,6 +6,8 @@ package hooks
 import (
 	"encoding/json"
 	"net/http"
+	
+	"log"
 
 	"webapi/store/roles/hooks/errors"
 	"webapi/store/roles/hooks/requests"
@@ -27,12 +29,26 @@ const (
 	UpdateAccess	= "UPDATE_ROLE_ACCESS"
 	Delete				= "DELETE_ROLE"
 	Undelete			= "UNDELETE_ROLE"
+
+	SessionCookieHeader = "briantaylorvann.com_session"
 )
 
 func Query(w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
 		errors.BadRequest(w, &responses.Errors{
 			Body: &errors.BadRequestFail,
+		})
+		return
+	}
+
+	// only allow no session if "create guest session"
+	cookie, errCookie := r.Cookie(SessionCookieHeader)
+	if errCookie != nil {
+		log.Println("didn't find our session cookie!")
+
+		errAsStr := errCookie.Error()
+		errors.BadRequest(w, &responses.Errors{
+			Default: &errAsStr,
 		})
 		return
 	}
@@ -44,11 +60,12 @@ func Query(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Println("query action: ", body.Action)
 	switch body.Action {
 	case Read:
 		queries.Read(w, &body)
 	case ValidateInfra:
-		queries.ValidateInfra(w, &body)
+		queries.ValidateInfra(w, cookie, &body)
 	case Search:
 		queries.Search(w, &body)
 	case Index:

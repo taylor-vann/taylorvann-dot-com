@@ -4,31 +4,19 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
-	// "net/http/cookiejar"
 	"net/http/httptest"
 	"testing"
-	// "time"
 
-	"github.com/taylor-vann/tvgtb/jwtx"
-	// "webapi/cookiesessionx"	
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
-	// "webapi/sessions/hooks/mutations"
 
+	"github.com/taylor-vann/tvgtb/jwtx"
 )
 
-// gotta create a test client with cookies to go!
 var queryAddress = "https://authn.briantaylorvann.com/q/sessions/"
 var mutationAddress = "https://authn.briantaylorvann.com/m/sessions/"
 
-var httpTestClient = createTestClient()
-func createTestClient() *http.Client {
-	jar, _ := cookiejar.New(nil)
-	return &http.Client{
-		Jar: jar,
-	}
-}
-
+var GuestSessionTest string
 
 func TestCreateGuestSessionBadRequest(t *testing.T) {
 	resp, errResp := http.NewRequest(
@@ -44,8 +32,7 @@ func TestCreateGuestSessionBadRequest(t *testing.T) {
 	handler := http.HandlerFunc(Mutation)
 	handler.ServeHTTP(httpTest, resp)
 
-	status := httpTest.Code
-	if status != http.StatusBadRequest {
+	if httpTest.Code != http.StatusBadRequest {
 		t.Error("handler returned incorrect status code, should be 400")
 	}
 }
@@ -79,7 +66,7 @@ func TestCreateGuestSessionBadHeadersRequest(t *testing.T) {
 func TestCreateGuestSession(t *testing.T) {
 	requestBody := requests.Body{
 		Action: CreateGuestSession,
-		Params: requests.GuestParams{
+		Params: requests.Guest{
 			Environment: "LOCAL",
 		},
 	}
@@ -131,7 +118,7 @@ func TestCreateGuestSession(t *testing.T) {
 	}
 
 	// set for verification on next text
-	TestGuestSession = responseBody.Session.Token
+	GuestSessionTest = responseBody.Session.Token
 }
 
 func TestValidateGuestSession(t *testing.T) {
@@ -139,7 +126,7 @@ func TestValidateGuestSession(t *testing.T) {
 		Action: ValidateGuestSession,
 		Params: requests.Validate{
 			Environment: "LOCAL",
-			Token: TestGuestSession,
+			Token: GuestSessionTest,
 		},
 	}
 
@@ -154,6 +141,10 @@ func TestValidateGuestSession(t *testing.T) {
 		"/q/sessions/",
 		bytes.NewBuffer(marshalBody),
 	)
+	resp.AddCookie(&http.Cookie{
+		Name: "briantaylorvann.com_session",
+		Value: GuestSessionTest,
+	})
 	if resp == nil {
 		t.Error(resp)
 		return
@@ -258,7 +249,7 @@ func TestValidateGuestSession(t *testing.T) {
 // 	// public session from guest sesion
 // 	requestBodyPublic := requests.Body{
 // 		Action: CreateCreateAccountSession,
-// 		Params: requests.AccountParams{
+// 		Params: requests.Account{
 // 			Environment: "LOCAL",
 // 			Email: email,
 // 		},
@@ -291,7 +282,7 @@ func TestValidateGuestSession(t *testing.T) {
 // 	// public session from guest sesion
 // 	requestBodyPublic := requests.Body{
 // 		Action: CreateUpdatePasswordSession,
-// 		Params: requests.AccountParams{
+// 		Params: requests.Account{
 // 			Environment: "LOCAL",
 // 			Email: email,
 // 		},
@@ -324,7 +315,7 @@ func TestValidateGuestSession(t *testing.T) {
 // 	// public session from guest sesion
 // 	requestBodyPublic := requests.Body{
 // 		Action: CreateUpdateEmailSession,
-// 		Params: &requests.AccountParams{
+// 		Params: &requests.Account{
 // 			Environment: "LOCAL",
 // 			Email: email,
 // 		},

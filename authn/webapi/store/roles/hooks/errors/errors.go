@@ -8,18 +8,21 @@ import (
 )
 
 var (
-	BadRequestFail  		 		 = "unable to decode request body"
-	UnrecognizedQuery 	 		 = "unrecognized query action requested"
-	UnrecognizedMutation 		 = "unrecognized mutation action requested"
-	UnrecognizedParams			 = "unrecognized params given"
-	FailedToCreateRole 	 		 = "failed to create role"
-	FailedToReadRole	 	 		 = "failed to read role"
-	FailedToIndexRoles 	 		 = "failed to index roles"
-	FailedToSearchRoles  		 = "failed to search roles"
-	FailedToUpdateRole	 	 	 = "failed to Update role"
-	FailedToUpdateAccessRole = "failed to Update Access role"
-	FailedToDeleteRole 	 		 = "failed to delete role"
-	FailedToUndeleteRole 		 = "failed to undelete role"
+	BadRequestFail  		 		 	= "unable to decode request body"
+	UnrecognizedQuery 	 		 	= "unrecognized query action requested"
+	UnrecognizedMutation 		 	= "unrecognized mutation action requested"
+	UnrecognizedParams			 	= "unrecognized params given"
+	InvalidGuestSession 		 	= "invalid guest session"
+	InvalidGuestUser 		 			= "invalid guest user"
+	FailedToValidateGuestUser	= "failed to validate guest user"
+	FailedToCreateRole 	 		 	= "failed to create role"
+	FailedToReadRole	 	 		 	= "failed to read role"
+	FailedToIndexRoles 	 		 	= "failed to index roles"
+	FailedToSearchRoles  		 	= "failed to search roles"
+	FailedToUpdateRole	 	 	 	= "failed to Update role"
+	FailedToUpdateAccessRole 	= "failed to Update Access role"
+	FailedToDeleteRole 	 		 	= "failed to delete role"
+	FailedToUndeleteRole 		 	= "failed to undelete role"
 )
 
 var defaultFail = "unable to return Roles"
