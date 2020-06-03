@@ -176,18 +176,15 @@ func Init() (*http.Client, error) {
 func Setup() (*http.Cookie, error) {
 	guestSession, errGuestSession := GuestSession()
 	if errGuestSession != nil {
-		
 		return nil, errGuestSession
 	}
 	if guestSession == "" {
-		
 		return nil, errors.New("nil guest session returned")
 	}
 
 	infraSession, errInfraSession := InfraSession()
 	if errInfraSession != nil {
 		return nil, errInfraSession
-
 	}
 	if infraSession == "" {
 		return nil, errors.New("nil infra session returned")
@@ -198,6 +195,6 @@ func Setup() (*http.Cookie, error) {
 			return cookie, nil
 		}
 	}
-	
+
 	return nil, errors.New("did not find session cookie")
 }

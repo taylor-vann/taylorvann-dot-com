@@ -74,6 +74,9 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// needs infra cookie
+	// validate session
+
 	var body requests.Body
 	errJsonDecode := json.NewDecoder(r.Body).Decode(&body)
 	if errJsonDecode != nil {
