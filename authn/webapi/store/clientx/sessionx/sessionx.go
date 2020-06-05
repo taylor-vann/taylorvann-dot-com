@@ -9,15 +9,15 @@ import (
 	"net/url"
 	"os"
 
-	"webapi/store/infrax/fetch/requests"
-	"webapi/store/infrax/fetch/responses"
+	"webapi/store/clientx/fetch/requests"
+	"webapi/store/clientx/fetch/responses"
 
 	"golang.org/x/net/publicsuffix"
 )
 
 // public
 var (
-	Environemnt = os.Getenv("STAGE")
+	Environment = os.Getenv("STAGE")
 )
 
 // private
@@ -35,15 +35,15 @@ var (
 
 	guestSessionRequestBody = requests.Body{
 		Action: "CREATE_GUEST_SESSION",
-		Params: requests.GuestSessionParams {
-			Environment: Environemnt,
+		Params: requests.GuestSession {
+			Environment: Environment,
 		},
 	}
 
 	infraSessionRequestBody = requests.Body{
 		Action: "CREATE_INFRA_OVERLORD_SESSION",
 		Params: requests.InfraSession {
-			Environment: Environemnt,
+			Environment: Environment,
 			Email: infraOverlordEmail,
 			Password: infraOverlordPassword,
 		},
@@ -92,7 +92,7 @@ func post(url string, payload *bytes.Buffer) (*http.Response, error) {
 	return resp, errResp
 }
 
-func guestSession() (string, error) {
+func GuestSession() (string, error) {
 	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
 		guestSessionRequestBody,
 	)
@@ -182,7 +182,7 @@ func createClient() (*http.Client, error) {
 }
 
 func setupSession() (*http.Cookie, error) {
-	guestSession, errGuestSession := guestSession()
+	guestSession, errGuestSession := GuestSession()
 	if errGuestSession != nil {
 		return nil, errGuestSession
 	}

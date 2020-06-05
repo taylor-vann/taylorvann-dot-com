@@ -7,12 +7,13 @@ import (
 
 	"os"
 
-	sessionClient "webapi/store/infrax/client"
-	"webapi/store/infrax/fetch/requests"
+	"webapi/store/clientx/sessionx"
+	"webapi/store/clientx/fetch/requests"
 
 )
 
 var Environment = os.Getenv("STAGE")
+
 var infraOverlordEmail = os.Getenv("INFRA_OVERLORD_EMAIL")
 var infraOverlordPassword = os.Getenv("INFRA_OVERLORD_PASSWORD")
 
@@ -22,7 +23,7 @@ var GuestSessionTest string
 var InfraSessionTest string
 
 func TestGuestSession(t *testing.T) {
-	resp, errResp := sessionClient.GuestSession()
+	resp, errResp := sessionx.GuestSession()
 	if errResp != nil {
 		t.Error(errResp)
 	}
@@ -35,7 +36,7 @@ func TestGuestSession(t *testing.T) {
 
 func TestValidateGuestSession(t *testing.T) {
 	resp, errResp := ValidateGuestSession(
-		requests.ValidateGuestSessionParams{
+		requests.ValidateGuestSession{
 			Environment: Environment,
 		},
 		&http.Cookie{

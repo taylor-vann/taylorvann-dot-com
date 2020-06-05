@@ -1,11 +1,11 @@
 package requests
 
-type GuestSessionParams struct {
+type GuestSession struct {
 	Environment string  `json:"environment"`
 }
 
-type ValidateGuestSessionParams = GuestSessionParams
-type ValidateSessionParams struct {
+type ValidateGuestSession = GuestSession
+type ValidateSession struct {
 	Environment string  `json:"environment"`
 	Token				string	`json:"token"`
 }

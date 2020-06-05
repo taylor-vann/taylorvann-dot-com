@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"os"
 
-	"webapi/store/infrax/fetch/requests"
-	"webapi/store/infrax/fetch/responses"
+	"webapi/store/clientx/fetch/requests"
+	"webapi/store/clientx/fetch/responses"
 )
 
 const (
@@ -19,6 +19,7 @@ const (
 
 var (
 	Environemnt = os.Getenv("STAGE")
+
 	client = http.Client{}
 )
 
@@ -33,54 +34,10 @@ func getRequestBodyBuffer(item interface{}) (*bytes.Buffer, error) {
 }
 
 
-func ValidateGuestSession(p requests.ValidateGuestSessionParams, sessionCookie *http.Cookie) (string, error) {
+func ValidateGuestSession(p requests.ValidateGuestSession, sessionCookie *http.Cookie) (string, error) {
 	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
 		requests.Body{
 			Action: "VALIDATE_GUEST_SESSION",
-			Params: p,
-		},
-	)
-	if errRequestBodyBuffer != nil {
-		return "", errRequestBodyBuffer
-	}
-
-	req, errReq := http.NewRequest(
-		"POST",
-		SessionsQueryAddress,
-		requestBodyBuffer,
-	)
-	if errReq != nil {
-		return "", errReq
-	}
-	req.AddCookie(sessionCookie)
-
-	resp, errResp := client.Do(req)
-	if errResp != nil {
-		return "", errResp
-	}
-	if resp.StatusCode != http.StatusOK {
-		return "", errors.New(string(resp.StatusCode))
-	}
-
-	var responseBody responses.SessionBody
-	errJson := json.NewDecoder(resp.Body).Decode(&responseBody)
-	if errJson != nil {
-		return "", errJson
-	}
-	if responseBody.Errors != nil {
-			return "", errors.New("errors were returned in fetch")
-	}
-	if responseBody.Session != nil {
-		return responseBody.Session.Token, nil
-	}
-
-	return  "", errors.New("nil session returned")
-}
-
-func ValidateSession(p requests.ValidateSessionParams, sessionCookie *http.Cookie) (string, error) {
-	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
-		requests.Body{
-			Action: "VALIDATE_SESSION",
 			Params: p,
 		},
 	)

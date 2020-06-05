@@ -29,7 +29,7 @@ func TestInit(t *testing.T) {
 }
 
 func TestGuestSession(t *testing.T) {
-	session, errSession := guestSession()
+	session, errSession := GuestSession()
 	if errSession != nil {
 		t.Error(errSession)
 	}
