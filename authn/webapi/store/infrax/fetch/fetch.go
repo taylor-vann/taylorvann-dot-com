@@ -77,6 +77,50 @@ func ValidateGuestSession(p requests.ValidateGuestSessionParams, sessionCookie *
 	return  "", errors.New("nil session returned")
 }
 
+func ValidateSession(p requests.ValidateSessionParams, sessionCookie *http.Cookie) (string, error) {
+	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
+		requests.Body{
+			Action: "VALIDATE_SESSION",
+			Params: p,
+		},
+	)
+	if errRequestBodyBuffer != nil {
+		return "", errRequestBodyBuffer
+	}
+
+	req, errReq := http.NewRequest(
+		"POST",
+		SessionsQueryAddress,
+		requestBodyBuffer,
+	)
+	if errReq != nil {
+		return "", errReq
+	}
+	req.AddCookie(sessionCookie)
+
+	resp, errResp := client.Do(req)
+	if errResp != nil {
+		return "", errResp
+	}
+	if resp.StatusCode != http.StatusOK {
+		return "", errors.New(string(resp.StatusCode))
+	}
+
+	var responseBody responses.SessionBody
+	errJson := json.NewDecoder(resp.Body).Decode(&responseBody)
+	if errJson != nil {
+		return "", errJson
+	}
+	if responseBody.Errors != nil {
+			return "", errors.New("errors were returned in fetch")
+	}
+	if responseBody.Session != nil {
+		return responseBody.Session.Token, nil
+	}
+
+	return  "", errors.New("nil session returned")
+}
+
 func ValidateGuestUser(p requests.ValidateGuestUser, sessionCookie *http.Cookie) (*responses.User, error) {
 	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
 		requests.Body{

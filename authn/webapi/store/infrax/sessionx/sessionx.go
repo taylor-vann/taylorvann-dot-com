@@ -1,4 +1,4 @@
-package client
+package sessionx
 
 import (
 	"bytes"
@@ -15,17 +15,21 @@ import (
 	"golang.org/x/net/publicsuffix"
 )
 
+// public
+var (
+	Environemnt = os.Getenv("STAGE")
+)
+
+// private
 const (
-	ApplicationJson = "application/json"
-	ContentType = "Content-Type"
-	Domain = "https://briantaylorvann.com"
-	SessionCookieHeader = "briantaylorvann.com_session"
-	SessionsMutationAddress = "https://authn.briantaylorvann.com/m/sessions/"
+	applicationJson = "application/json"
+	contentType = "Content-Type"
+	domain = "https://briantaylorvann.com"
+	sessionCookieHeader = "briantaylorvann.com_session"
+	sessionsMutationAddress = "https://authn.briantaylorvann.com/m/sessions/"
 )
 
 var (
-	Environemnt = os.Getenv("STAGE")
-
 	infraOverlordEmail = os.Getenv("INFRA_OVERLORD_EMAIL")
 	infraOverlordPassword = os.Getenv("INFRA_OVERLORD_PASSWORD")
 
@@ -46,10 +50,14 @@ var (
 	}
 )
 
-var ParsedDomain, errParsedDomain = url.Parse(Domain)
-var Client, errClient = Init()
-var Session, errSession = Setup()
+// cheap singletons
+var parsedDomain, errParsedDomain = url.Parse(domain)
+var client, errClient = createClient()
 
+// public session
+var Session, errSession = setupSession()
+
+// private Methods
 func getRequestBodyBuffer(item interface{}) (*bytes.Buffer, error) {
 	sessionBuffer := new(bytes.Buffer)
 	errJsonBuffer := json.NewEncoder(sessionBuffer).Encode(item)
@@ -60,7 +68,7 @@ func getRequestBodyBuffer(item interface{}) (*bytes.Buffer, error) {
 	return sessionBuffer, nil
 }
 
-func Post(url string, payload *bytes.Buffer) (*http.Response, error) {
+func post(url string, payload *bytes.Buffer) (*http.Response, error) {
 	if errClient != nil {
 		return nil, errClient
 	}
@@ -72,19 +80,19 @@ func Post(url string, payload *bytes.Buffer) (*http.Response, error) {
 	if errRequest != nil {
 		return nil, errRequest
 	}
-	request.Header.Add("Content-Type", ApplicationJson)
+	request.Header.Add("Content-Type", applicationJson)
 
-	resp, errResp := Client.Do(request)
+	resp, errResp := client.Do(request)
 	if errResp != nil {
 		return nil, errResp
 	}
 	
-	Client.Jar.SetCookies(ParsedDomain, resp.Cookies())
+	client.Jar.SetCookies(parsedDomain, resp.Cookies())
 
 	return resp, errResp
 }
 
-func GuestSession() (string, error) {
+func guestSession() (string, error) {
 	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
 		guestSessionRequestBody,
 	)
@@ -92,8 +100,8 @@ func GuestSession() (string, error) {
 		return "", errRequestBodyBuffer
 	}
 
-	resp, errResp := Post(
-		SessionsMutationAddress,
+	resp, errResp := post(
+		sessionsMutationAddress,
 		requestBodyBuffer,
 	)
 	if errResp != nil {
@@ -118,7 +126,7 @@ func GuestSession() (string, error) {
 	return  "", errors.New("nil session returned")
 }
 
-func InfraSession() (string, error) {
+func infraSession() (string, error) {
 	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
 		infraSessionRequestBody,
 	)
@@ -126,8 +134,8 @@ func InfraSession() (string, error) {
 		return "", errRequestBodyBuffer
 	}
 
-	resp, errResp := Post(
-		SessionsMutationAddress,
+	resp, errResp := post(
+		sessionsMutationAddress,
 		requestBodyBuffer,
 	)
 	if errResp != nil {
@@ -153,7 +161,7 @@ func InfraSession() (string, error) {
 	return  "", errors.New("nil session returned")
 }
 
-func Init() (*http.Client, error) {
+func createClient() (*http.Client, error) {
 	cookiejar, errCookiejar := cookiejar.New(
 		&cookiejar.Options{
 			PublicSuffixList: publicsuffix.List,
@@ -173,8 +181,8 @@ func Init() (*http.Client, error) {
 	return client, nil
 }
 
-func Setup() (*http.Cookie, error) {
-	guestSession, errGuestSession := GuestSession()
+func setupSession() (*http.Cookie, error) {
+	guestSession, errGuestSession := guestSession()
 	if errGuestSession != nil {
 		return nil, errGuestSession
 	}
@@ -182,7 +190,7 @@ func Setup() (*http.Cookie, error) {
 		return nil, errors.New("nil guest session returned")
 	}
 
-	infraSession, errInfraSession := InfraSession()
+	infraSession, errInfraSession := infraSession()
 	if errInfraSession != nil {
 		return nil, errInfraSession
 	}
@@ -190,8 +198,8 @@ func Setup() (*http.Cookie, error) {
 		return nil, errors.New("nil infra session returned")
 	}
 	
-	for _, cookie := range Client.Jar.Cookies(ParsedDomain) {
-		if cookie.Name == SessionCookieHeader {
+	for _, cookie := range client.Jar.Cookies(parsedDomain) {
+		if cookie.Name == sessionCookieHeader {
 			return cookie, nil
 		}
 	}

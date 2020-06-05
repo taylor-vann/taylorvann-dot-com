@@ -12,6 +12,7 @@ var (
 	UnrecognizedQuery 	 		 	 		= "unrecognized query action requested"
 	UnrecognizedMutation 		 	 		= "unrecognized mutation action requested"
 	UnrecognizedParams 	 		 	 		= "unrecognized params in request"
+	InvalidSession				 				= "invalid session"
 	InvalidGuestSession				 		= "invalid guest session"
 	FailedToValidateGuestSession	= "failed to validate guest session"
 	FailedToCreateUser 	 		 	 		= "failed to create User"

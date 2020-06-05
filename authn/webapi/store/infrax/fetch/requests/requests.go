@@ -5,7 +5,10 @@ type GuestSessionParams struct {
 }
 
 type ValidateGuestSessionParams = GuestSessionParams
-
+type ValidateSessionParams struct {
+	Environment string  `json:"environment"`
+	Token				string	`json:"token"`
+}
 type ValidateGuestUser struct {
 	Environment string `json:"environment"`
 	Email				string `json:"email"`

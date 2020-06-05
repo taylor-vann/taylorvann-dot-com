@@ -6,12 +6,18 @@ package hooks
 import (
 	"encoding/json"
 	"net/http"
+
+	"log"
 	
+	"webapi/store/infrax/fetch"
+
 	"webapi/store/users/hooks/errors"
 	"webapi/store/users/hooks/requests"
 	"webapi/store/users/hooks/responses"
 	"webapi/store/users/hooks/mutations"
 	"webapi/store/users/hooks/queries"
+
+	"github.com/taylor-vann/tvgtb/jwtx"
 )
 
 const (
@@ -28,6 +34,39 @@ const (
 
 	SessionCookieHeader = "briantaylorvann.com_session"
 )
+
+func checkInfraSession(r *http.Request) (bool, error) {
+	log.Println("validating infra session!")
+
+	cookie, errCookie := r.Cookie(SessionCookieHeader)
+	if errCookie != nil {
+		return false, errCookie
+	}
+
+	details, errDetails := jwtx.RetrieveTokenDetailsFromString(cookie.Value)
+	if errDetails != nil {
+		return false, errDetails
+	}
+	// log.Println(details.Payload)
+	if details == nil {
+		return false, nil
+	}
+	if details.Payload.Sub == "infra" && details.Payload.Aud == "public" {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+func validateInfraSession(r *http.Request) (bool, error) {
+	sessionIsValid, errSessionIsValid := checkInfraSession(r)
+	if !sessionIsValid || errSessionIsValid != nil {
+		return sessionIsValid, errSessionIsValid
+	}
+
+	// remote check
+
+}
 
 func Query(w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
@@ -74,8 +113,17 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// needs infra cookie
-	// validate session
+	sessionIsValid, errSessionIsValid := checkInfraSession(r)
+	if errSessionIsValid != nil {
+		errors.DefaultResponse(w, errSessionIsValid)
+		return
+	}
+	if !sessionIsValid {
+		errors.BadRequest(w, &responses.Errors{
+			Body: &errors.UnrecognizedQuery,
+		})
+		return
+	}
 
 	var body requests.Body
 	errJsonDecode := json.NewDecoder(r.Body).Decode(&body)

@@ -1,4 +1,4 @@
-package client
+package sessionx
 
 import (
 	"testing"
@@ -7,16 +7,16 @@ import (
 )
 
 func TestInit(t *testing.T) {
-	if Client == nil {
+	if client == nil {
 		t.Error("cookie jar is nil")
 		return
 	}
-	if Client.Jar == nil {
+	if client.Jar == nil {
 		t.Error("cookie jar is nil")
 	}
 
-	for _, cookie := range Client.Jar.Cookies(ParsedDomain) {
-		if cookie.Name == SessionCookieHeader {
+	for _, cookie := range client.Jar.Cookies(parsedDomain) {
+		if cookie.Name == sessionCookieHeader {
 			details, errDetails := jwtx.RetrieveTokenDetailsFromString(cookie.Value)
 			if errDetails != nil {
 				t.Error(errDetails)
@@ -24,13 +24,12 @@ func TestInit(t *testing.T) {
 			if details.Payload.Sub != "infra" {
 				t.Error("token subject should be infra")
 			}
-			t.Error(details)
 		}
 	}
 }
 
 func TestGuestSession(t *testing.T) {
-	session, errSession := GuestSession()
+	session, errSession := guestSession()
 	if errSession != nil {
 		t.Error(errSession)
 	}
@@ -40,7 +39,7 @@ func TestGuestSession(t *testing.T) {
 }
 
 func TestInfraSession(t *testing.T) {
-	session, errSession := InfraSession()
+	session, errSession := infraSession()
 	if errSession != nil {
 		t.Error("session is nil")
 		t.Error(errSession)
