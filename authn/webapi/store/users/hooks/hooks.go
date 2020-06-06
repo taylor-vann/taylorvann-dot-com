@@ -7,10 +7,10 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"log"
-	
-	"webapi/store/infrax/fetch"
+	// "log"
 
+	// "webapi/store/clientx"
+	
 	"webapi/store/users/hooks/errors"
 	"webapi/store/users/hooks/requests"
 	"webapi/store/users/hooks/responses"
@@ -36,7 +36,6 @@ const (
 )
 
 func checkInfraSession(r *http.Request) (bool, error) {
-	log.Println("validating infra session!")
 
 	cookie, errCookie := r.Cookie(SessionCookieHeader)
 	if errCookie != nil {
@@ -64,8 +63,8 @@ func validateInfraSession(r *http.Request) (bool, error) {
 		return sessionIsValid, errSessionIsValid
 	}
 
-	// remote check
-
+	// remote check, TODO
+	return sessionIsValid, errSessionIsValid
 }
 
 func Query(w http.ResponseWriter, r *http.Request) {

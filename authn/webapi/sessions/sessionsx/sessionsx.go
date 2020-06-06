@@ -5,9 +5,12 @@ package sessionsx
 
 import (
 	"errors"
-	"github.com/taylor-vann/tvgtb/jwtx"
+	"strconv"
+	
 	"webapi/sessions/sessionsx/constants"
 	"webapi/sessions/whitelist"
+
+	"github.com/taylor-vann/tvgtb/jwtx"
 )
 
 type MilliSeconds = int64
@@ -17,9 +20,9 @@ type Session struct {
 }
 
 type CreateClaimsParams struct {
-	Iss string
-	Sub string
-	Aud string
+	Iss string	`json:"iss"`
+	Sub string	`json:"sub"`
+	Aud string	`json:"aud"`
 }
 
 type SessionClaims = jwtx.Claims
@@ -44,15 +47,8 @@ type ReadParams struct {
 	Token 			string `json:"token"`
 }
 
-type ValidateParams struct {
-	Environment string `json:"environment`
-	Token 			string `json:"token"`
-}
-
-type UpdateParams struct {
-	Environment string `json:"environment`
-	Token 			string `json:"token"`
-}
+type ValidateParams = ReadParams
+type UpdateParams = ReadParams
 
 type DeleteParams = whitelist.RemoveEntryParams
 
@@ -85,10 +81,11 @@ func CreateSessionClaims(p *CreateClaimsParams) *SessionClaims {
 }
 
 func CreateInfraSessionClaims(userID int64) *SessionClaims {
+	userIDAsStr := strconv.FormatInt(userID, 10)
 	return CreateSessionClaims(&CreateClaimsParams{
 		Iss: constants.BrianTaylorVannDotCom,
 		Sub: constants.Infra,
-		Aud: string(userID),
+		Aud: userIDAsStr,
 	})
 }
 

@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"webapi/store/infrax/fetch"
-	fetchRequests "webapi/store/infrax/fetch/requests"
+	"webapi/store/clientx/fetch"
+	fetchRequests "webapi/store/clientx/fetch/requests"
 
 	"log"
 

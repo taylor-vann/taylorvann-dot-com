@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"webapi/store/infrax/fetch"
-	fetchRequests "webapi/store/infrax/fetch/requests"
+	"webapi/store/clientx/fetch"
+	fetchRequests "webapi/store/clientx/fetch/requests"
 
 	"webapi/store/users/controller"
 	"webapi/store/users/hooks/cache"
@@ -86,7 +86,7 @@ func ValidateGuest(w http.ResponseWriter, sessionCookie *http.Cookie, requestBod
 
 	// validate guest session
 	resp, errResp := fetch.ValidateGuestSession(
-		fetchRequests.GuestSessionParams{
+		fetchRequests.GuestSession{
 			Environment: params.Environment,
 		},
 		sessionCookie,

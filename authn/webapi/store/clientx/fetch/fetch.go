@@ -33,7 +33,6 @@ func getRequestBodyBuffer(item interface{}) (*bytes.Buffer, error) {
 	return sessionBuffer, nil
 }
 
-
 func ValidateGuestSession(p requests.ValidateGuestSession, sessionCookie *http.Cookie) (string, error) {
 	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
 		requests.Body{

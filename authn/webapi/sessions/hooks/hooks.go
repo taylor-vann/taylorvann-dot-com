@@ -15,48 +15,39 @@ const (
 	CreateDocumentSession     	= "CREATE_DOCUMENT_SESSION"
 	CreateGuestSession        	= "CREATE_GUEST_SESSION"
 	CreateInfraOverlordSession  = "CREATE_INFRA_OVERLORD_SESSION"
-
-	ValidateGuestSession        = "VALIDATE_GUEST_SESSION"
 	CreatePublicSession       	= "CREATE_PUBLIC_SESSION"
-
 	CreateCreateAccountSession	= "CREATE_CREATE_ACCOUNT_SESSION"
 	CreateUpdatePasswordSession	= "CREATE_UPDATE_PASSWORD_SESSION"
 	CreateUpdateEmailSession  	= "CREATE_UPDATE_EMAIL_SESSION"
 	UpdateSession             	= "UPDATE_SESSION"
-	ValidateSession           	= "VALIDATE_SESSION"
 	DeleteSession             	= "DELETE_SESSION"
+
+	ValidateGuestSession        = "VALIDATE_GUEST_SESSION"
+	ValidateSession        			= "VALIDATE_SESSION"
 
 	SessionCookieHeader					= "briantaylorvann.com_session"
 )
 
 func Query(w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
-		errors.CustomErrorResponse(w, errors.BadRequestFail)
+		errors.CustomResponse(w, errors.BadRequestFail)
 		return
 	}
 	
-	cookie, errCookie := r.Cookie(SessionCookieHeader)
-	if errCookie != nil {
-		errAsStr := errCookie.Error()
-		errors.BadRequest(w, &responses.Errors{
-			Default: &errAsStr,
-		})
+	var body requests.Body
+	errDecode := json.NewDecoder(r.Body).Decode(&body)
+	if errDecode != nil {
+		errors.DefaultResponse(w, errDecode)
 		return
 	}
 
-	var body requests.Body
-	err := json.NewDecoder(r.Body).Decode(&body)
-	if err != nil {
-		errAsStr := err.Error()
-		errors.BadRequest(w, &responses.Errors{
-			Default: &errAsStr,
-		})
-		return
-	}
-	
+	cookie, _ := r.Cookie(SessionCookieHeader)
+
 	switch body.Action {
-	case ValidateGuestSession:	// the only public query
+	case ValidateGuestSession:	// the only public guest query
 		queries.ValidateGuestSession(w, cookie, &body)
+	case ValidateSession:
+		queries.ValidateSession(w, cookie, &body)
 	default:
 		errors.BadRequest(w, &responses.Errors{
 			Session: &errors.UnrecognizedQuery,
@@ -66,29 +57,19 @@ func Query(w http.ResponseWriter, r *http.Request) {
 
 func Mutation(w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
-		errors.CustomErrorResponse(w, errors.BadRequestFail)
+		errors.CustomResponse(w, errors.BadRequestFail)
 		return
 	}
 
 	var body requests.Body
 	errJsonDecode := json.NewDecoder(r.Body).Decode(&body)
 	if errJsonDecode != nil {
-		errors.CustomErrorResponse(w, errors.BadRequestFail)
-		return
-	}
-
-	// only allow no session if "create guest session"
-	cookie, errCookie := r.Cookie(SessionCookieHeader)
-	if errCookie != nil && body.Action != CreateGuestSession {
-		
-
-		errAsStr := errCookie.Error()
-		errors.BadRequest(w, &responses.Errors{
-			Default: &errAsStr,
-		})
+		errors.CustomResponse(w, errors.BadRequestFail)
 		return
 	}
 	
+	cookie, _ := r.Cookie(SessionCookieHeader)
+
 	switch body.Action {
 	// case CreateDocumentSession:
 	// 	mutations.CreateDocumentSession(w, &body)
@@ -109,6 +90,6 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 	// case DeleteSession:
 	// 	mutations.DeleteSession(w, &body)
 	default:
-		errors.CustomErrorResponse(w, errors.UnrecognizedMutation)
+		errors.CustomResponse(w, errors.UnrecognizedMutation)
 	}
 }

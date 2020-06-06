@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"webapi/store/infrax/fetch"
-	fetchRequests "webapi/store/infrax/fetch/requests"
+	"webapi/store/clientx/fetch"
+	fetchRequests "webapi/store/clientx/fetch/requests"
 
 	"webapi/sessions/hooks/errors"
 	"webapi/sessions/hooks/requests"
@@ -56,13 +56,6 @@ func dropRequestNotValidBody(w http.ResponseWriter, requestBody *requests.Body) 
 	return true
 }
 
-func defaultErrorResponse(w http.ResponseWriter, errorResponse error) {
-	errAsStr := errorResponse.Error()
-	errors.BadRequest(w, &responses.Errors{
-		Default: &errAsStr,
-	})
-}
-
 func CreateGuestSession(w http.ResponseWriter, requestBody *requests.Body) {
 	if dropRequestNotValidBody(w, requestBody) {
 		return
@@ -72,7 +65,7 @@ func CreateGuestSession(w http.ResponseWriter, requestBody *requests.Body) {
 	var params requests.Guest
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
-		defaultErrorResponse(w, errParamsMarshal)
+		errors.DefaultResponse(w, errParamsMarshal)
 		return
 	}
 
@@ -101,12 +94,16 @@ func CreateInfraSession(w http.ResponseWriter, cookie *http.Cookie, requestBody 
 	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
+	if sessionCookie == nil {
+		errors.CustomResponse(w, errors.InvalidInfraCredentials)
+		return
+	}
 	
 	bytes, _ := json.Marshal(requestBody.Params)
 	var params requests.Infra
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
-		defaultErrorResponse(w, errParamsMarshal)
+		errors.DefaultResponse(w, errParamsMarshal)
 		return
 	}
 
@@ -115,7 +112,7 @@ func CreateInfraSession(w http.ResponseWriter, cookie *http.Cookie, requestBody 
 		cookie,
 	)
 	if errResp != nil {
-		defaultErrorResponse(w, errResp)
+		errors.DefaultResponse(w, errResp)
 	}
 	
 	session, errSession := sessionsx.Create(&sessionsx.CreateParams{
@@ -123,7 +120,7 @@ func CreateInfraSession(w http.ResponseWriter, cookie *http.Cookie, requestBody 
 		Claims: *sessionsx.CreateInfraSessionClaims(resp.UserID),
 	})
 	if errSession != nil {
-		defaultErrorResponse(w, errSession)
+		errors.DefaultResponse(w, errSession)
 		return
 	}
 
@@ -165,7 +162,7 @@ func CreateInfraSession(w http.ResponseWriter, cookie *http.Cookie, requestBody 
 // 	var params requests.Account
 // 	errParamsMarshal := json.Unmarshal(bytes, &params)
 // 	if errParamsMarshal != nil {
-// 		defaultErrorResponse(w, errParamsMarshal)
+// 		errors.DefaultResponse(w, errParamsMarshal)
 // 		return
 // 	}
 
@@ -213,7 +210,7 @@ func CreateInfraSession(w http.ResponseWriter, cookie *http.Cookie, requestBody 
 // 	var params requests.Account
 // 	errParamsMarshal := json.Unmarshal(bytes, &params)
 // 	if errParamsMarshal != nil {
-// 		defaultErrorResponse(w, errParamsMarshal)
+// 		errors.DefaultResponse(w, errParamsMarshal)
 // 		return
 // 	}
 
@@ -266,7 +263,7 @@ func CreateInfraSession(w http.ResponseWriter, cookie *http.Cookie, requestBody 
 // 	var params requests.Account
 // 	errParamsMarshal := json.Unmarshal(bytes, &params)
 // 	if errParamsMarshal != nil {
-// 		defaultErrorResponse(w, errParamsMarshal)
+// 		errors.DefaultResponse(w, errParamsMarshal)
 // 		return
 // 	}
 
@@ -318,7 +315,7 @@ func CreateInfraSession(w http.ResponseWriter, cookie *http.Cookie, requestBody 
 // 	var params requests.User
 // 	errParamsMarshal := json.Unmarshal(bytes, &params)
 // 	if errParamsMarshal != nil {
-// 		defaultErrorResponse(w, errParamsMarshal)
+// 		errors.DefaultResponse(w, errParamsMarshal)
 // 		return
 // 	}
 
@@ -376,7 +373,7 @@ func CreateInfraSession(w http.ResponseWriter, cookie *http.Cookie, requestBody 
 // 	var params requests.Update
 // 	errParamsMarshal := json.Unmarshal(bytes, &params)
 // 	if errParamsMarshal != nil {
-// 		defaultErrorResponse(w, errParamsMarshal)
+// 		errors.DefaultResponse(w, errParamsMarshal)
 // 		return
 // 	}
 
@@ -426,7 +423,7 @@ func CreateInfraSession(w http.ResponseWriter, cookie *http.Cookie, requestBody 
 // 	var params requests.Delete
 // 	errParamsMarshal := json.Unmarshal(bytes, &params)
 // 	if errParamsMarshal != nil {
-// 		defaultErrorResponse(w, errParamsMarshal)
+// 		errors.DefaultResponse(w, errParamsMarshal)
 // 		return
 // 	}
 

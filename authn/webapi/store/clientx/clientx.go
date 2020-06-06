@@ -6,33 +6,46 @@ import (
 	"errors"
 	"net/http"
 
+	"webapi/store/clientx/fetch"
 	"webapi/store/clientx/fetch/requests"
+	"webapi/store/clientx/fetch/responses"
 	"webapi/store/clientx/sessionx"
 )
 
 var httpClient = http.Client{}
 
-func ValidateSession(p requests.ValidateSession) (*http.Response, error) {
-	params := requests.ValidateSession{
-		Environment: p.Environment,
-		Token: p.Token,
-	}
-
+func ValidateSession(p requests.ValidateSession) (string, error) {
 	body := requests.Body{
 		Action: "VALIDATE_SESSION",
-		Params: params,
+		Params: p,
 	}
 
 	sessionBuffer := new(bytes.Buffer)
 	errJsonBuffer := json.NewEncoder(sessionBuffer).Encode(body)
 	if errJsonBuffer != nil {
-		return nil, errJsonBuffer
+		return "", errJsonBuffer
 	}
 
-	return Do(
-		"https://authn.briantaylorvann.com/q/sessions",
+	resp, errResp := Do(
+		fetch.SessionsQueryAddress,
 		sessionBuffer,
 	)
+	if errResp != nil {
+		return "", errResp
+	}
+
+	var respBody responses.SessionBody
+	errDecode := json.NewDecoder(resp.Body).Decode(&respBody)
+	if errDecode != nil {
+		return "", errDecode
+	}
+
+	session := respBody.Session	
+	if session != nil && session.Token != "" {
+		return session.Token, nil
+	}
+	
+	return "", errors.New("could not verify session")
 }
 
 func Do(address string, payload *bytes.Buffer) (*http.Response, error) {
