@@ -17,7 +17,6 @@ var (
 	InvalidSessionCredentials 		 = "invalid session credentials provided"
 	InvalidInfraCredentials 		 	 = "invalid infra session credentials provided"
 	InvalidGuestCredentials 		 	 = "invalid guest session credentials provided"
-
 	NilInfraCredentials 		 	 		 = "nil infra session credentials provided"
 	InvalidSessionProvided    		 = "invalid session provided"
 	CreateGuestSessionErrorMessage = "error creating guest session"

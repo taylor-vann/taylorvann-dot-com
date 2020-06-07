@@ -4,16 +4,17 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"webapi/store/clientx"
 	"webapi/store/clientx/fetch"
 	fetchRequests "webapi/store/clientx/fetch/requests"
-
-	"log"
 
 	"webapi/store/roles/controller"
 	"webapi/store/roles/hooks/cache"
 	"webapi/store/roles/hooks/errors"
 	"webapi/store/roles/hooks/requests"
 	"webapi/store/roles/hooks/responses"
+
+	"github.com/taylor-vann/tvgtb/jwtx"
 )
 
 const InfraOverlordAdmin = "INFRA_OVERLORD_ADMIN"
@@ -26,8 +27,6 @@ func writeRolesResponse(w http.ResponseWriter, roles *controller.Roles) {
 	})
 }
 
-// validate guest session
-
 func dropRequestNotValidBody(w http.ResponseWriter, requestBody *requests.Body) bool {
 	if requestBody != nil && requestBody.Params != nil {
 		return false
@@ -38,6 +37,60 @@ func dropRequestNotValidBody(w http.ResponseWriter, requestBody *requests.Body) 
 	return true
 }
 
+
+func checkInfraSession(sessionToken string) (bool, error) {
+	isValid := jwtx.ValidateGenericToken(&jwtx.ValidateGenericTokenParams{
+		Token: sessionToken,
+		Issuer: "briantaylorvann.com",
+	})
+	if !isValid {
+		return false, nil
+	}
+
+	details, errDetails := jwtx.RetrieveTokenDetailsFromString(sessionToken)
+	if errDetails != nil {
+		return false, errDetails
+	}
+
+	if details.Payload.Sub == "infra" {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+func validateSessionRemotely(environment string, sessionToken string) (bool, error) {
+	sessionStr, errSessionStr := clientx.ValidateSession(
+		fetchRequests.ValidateSession{
+			Environment: environment,
+			Token: sessionToken,
+		},
+	)
+	if errSessionStr != nil {
+		return false, errSessionStr
+	}
+	if sessionStr != "" {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+func validateInfraSession(environment string, sessionToken string) (bool, error) {
+	infraSessionExists, errInfraSessionExists := validateSessionRemotely(
+		environment,
+		sessionToken,
+	)
+	if errInfraSessionExists != nil {
+		return false, errInfraSessionExists
+	}
+	if !infraSessionExists {
+		return false, nil
+	}
+
+	return checkInfraSession(sessionToken)
+}
+
 func Read(
 	w http.ResponseWriter, 
 	sessionCookie *http.Cookie,
@@ -46,17 +99,29 @@ func Read(
 	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
+	if sessionCookie == nil {
+		errors.CustomResponse(w, errors.NilInfraCredentials)
+		return
+	}
 
-	bytes, _ := json.Marshal(requestBody.Params)
 	var params requests.Read
+	bytes, _ := json.Marshal(requestBody.Params)
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
-		errAsStr := errParamsMarshal.Error()
-		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToReadRole,
-			RequestBody: &errors.BadRequestFail,
-			Default: &errAsStr,
-		})
+		errors.DefaultResponse(w, errParamsMarshal)
+		return
+	}
+
+	sessionIsValid, errSessionIsValid := validateInfraSession(
+		params.Environment,
+		sessionCookie.Value,
+	)
+	if errSessionIsValid != nil{
+		errors.DefaultResponse(w, errSessionIsValid)
+		return
+	}
+	if !sessionIsValid {
+		errors.CustomResponse(w, errors.InvalidInfraSession)
 		return
 	}
 
@@ -76,6 +141,7 @@ func Read(
 		return
 	}
 	if rolesStore != nil {
+		cache.UpdateReadEntry(params.Environment, &rolesStore)
 		writeRolesResponse(w, &rolesStore)
 		return
 	}
@@ -86,58 +152,49 @@ func Read(
 }
 
 func ValidateInfra(w http.ResponseWriter, sessionCookie *http.Cookie, requestBody *requests.Body)  {
-	log.Println("ROLES QUERY - MADE IT TO VALIDATE INFRA ROLE")
-	log.Println("ROLES QUERY - cookie")
-	log.Println(sessionCookie)	
-	// drop if guest session is not valid
-	// need role 
 	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
-
-	// digest body interface{}
-	bytes, _ := json.Marshal(requestBody.Params)
-	var params requests.ValidateInfra
-	errParamsMarshal := json.Unmarshal(bytes, &params)
-	if errParamsMarshal != nil {
-		log.Println("Queries ValidateInfra -  error unmarshaling body")
-		errors.DefaultResponse(w, errParamsMarshal)
-
+	if sessionCookie == nil {
+		errors.CustomResponse(w, errors.NilInfraCredentials)
 		return
 	}
-
-	log.Println("requesting role")
+	
+	var params requests.ValidateInfra
+	bytes, _ := json.Marshal(requestBody.Params)
+	errParamsMarshal := json.Unmarshal(bytes, &params)
+	if errParamsMarshal != nil {
+		
+		errors.DefaultResponse(w, errParamsMarshal)
+		return
+	}
 
 	resp, errResp := fetch.ValidateGuestUser(
 		fetchRequests.ValidateGuestUser(params),
 		sessionCookie,
 	)
 	if errResp != nil {
-		log.Println("Queries ValidateInfra -  error validating user")
 		errors.DefaultResponse(w, errResp)
 		return
 	}
 	if resp == nil {
-		log.Println("Queries ValidateInfra -  nil users returned")
 		errors.BadRequest(w, nil)
 		return
 	}
-	log.Println("Queries ValidateInfra - validated user")
-
+	
 	roleParams := requests.Read{
 		Environment: params.Environment,
 		UserID: resp.ID,
 		Organization: InfraOverlordAdmin,
 	}
+
 	// check cache
 	roles, errReadRolesCache := cache.GetReadEntry(&roleParams)
 	if errReadRolesCache != nil {
-		log.Println("error reading cache")
 		errors.DefaultResponse(w, errReadRolesCache)
 		return
 	}
 	if roles != nil {
-		log.Println("we found the role!")
 		writeRolesResponse(w, roles)
 		return
 	}
@@ -145,26 +202,20 @@ func ValidateInfra(w http.ResponseWriter, sessionCookie *http.Cookie, requestBod
 	// check store
 	rolesStore, errRolesStore := controller.Read(&roleParams)
 	if errRolesStore != nil {
-		log.Println("we failed to find role")
-		log.Println(errRolesStore)
-
 		errors.DefaultResponse(w, errRolesStore)
 		return
 	}
 	if rolesStore != nil {
-		log.Println("we found the role!")
-		// write to cache
+		cache.UpdateReadEntry(params.Environment, &rolesStore)
 		writeRolesResponse(w, &rolesStore)
 		return
 	}
-	log.Println("unable to find roles")
-
+	
 	// default error
 	errors.BadRequest(w, &responses.Errors{
 		Roles: &errors.FailedToReadRole,
 	})
 }
-
 
 func Index(
 	w http.ResponseWriter, 
@@ -174,17 +225,33 @@ func Index(
 	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
+	if sessionCookie == nil {
+		errors.CustomResponse(w, errors.NilInfraCredentials)
+		return
+	}
+	if sessionCookie == nil {
+		errors.CustomResponse(w, errors.NilInfraCredentials)
+		return
+	}
 
-	bytes, _ := json.Marshal(requestBody.Params)
 	var params requests.Index
+	bytes, _ := json.Marshal(requestBody.Params)
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
-		errAsStr := errParamsMarshal.Error()
-		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToIndexRoles,
-			RequestBody: &errors.BadRequestFail,
-			Default: &errAsStr,
-		})
+		errors.DefaultResponse(w, errParamsMarshal)
+		return
+	}
+
+	sessionIsValid, errSessionIsValid := validateInfraSession(
+		params.Environment,
+		sessionCookie.Value,
+	)
+	if errSessionIsValid != nil{
+		errors.DefaultResponse(w, errSessionIsValid)
+		return
+	}
+	if !sessionIsValid {
+		errors.CustomResponse(w, errors.InvalidInfraSession)
 		return
 	}
 
@@ -193,7 +260,6 @@ func Index(
 		errors.DefaultResponse(w, errIndexRoles)
 		return
 	}
-
 	if roles != nil {
 		writeRolesResponse(w, &roles)
 		return
@@ -212,31 +278,37 @@ func Search(
 	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
-
-	bytes, _ := json.Marshal(requestBody.Params)
+	if sessionCookie == nil {
+		errors.CustomResponse(w, errors.NilInfraCredentials)
+		return
+	}
+	
 	var params requests.Search
+	bytes, _ := json.Marshal(requestBody.Params)
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
-		errAsStr := errParamsMarshal.Error()
-		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToIndexRoles,
-			RequestBody: &errors.BadRequestFail,
-			Default: &errAsStr,
-		})
+		errors.DefaultResponse(w, errParamsMarshal)
+		return
+	}
+
+	sessionIsValid, errSessionIsValid := validateInfraSession(
+		params.Environment,
+		sessionCookie.Value,
+	)
+	if errSessionIsValid != nil{
+		errors.DefaultResponse(w, errSessionIsValid)
+		return
+	}
+	if !sessionIsValid {
+		errors.CustomResponse(w, errors.InvalidInfraSession)
 		return
 	}
 
 	roles, errRoles := controller.Search(&params)
 	if errRoles != nil {
-		errAsStr := errRoles.Error()
-		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToReadRole,
-			RequestBody: &errors.BadRequestFail,
-			Default: &errAsStr,
-		})
+		errors.DefaultResponse(w, errRoles)
 		return
 	}
-
 	if roles != nil {
 		writeRolesResponse(w, &roles)
 		return

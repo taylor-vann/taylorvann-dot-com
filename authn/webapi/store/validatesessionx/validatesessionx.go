@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"os"
 
-	"log"
-
 	"webapi/store/validatesessionx/requests"
 	"webapi/store/validatesessionx/responses"
 
@@ -72,16 +70,12 @@ func FetchGuestSession() (string, error) {
 		return "", errResp
 	}
 	if resp.StatusCode != http.StatusOK {
-		log.Println(errResp.Error())
 		return "", errors.New(string(resp.StatusCode))
 	}
 
 	var responseBody responses.Body
 	errJson := json.NewDecoder(resp.Body).Decode(&responseBody)
 	if errJson != nil {
-		log.Println(string(resp.StatusCode))
-		log.Println(errJson)
-
 		return "", errJson
 	}
 	if responseBody.Errors != nil {
@@ -104,11 +98,9 @@ func ValidateGuestSession(sessionToken string) (bool, error) {
 		ApplicationJson,
 		validateGuestBuffer,
 	)
-
 	if errResp != nil {
 		return false, errResp
 	}
-
 	if resp.StatusCode != http.StatusOK {
 		return false, errors.New(string(resp.StatusCode))
 	}
@@ -118,7 +110,6 @@ func ValidateGuestSession(sessionToken string) (bool, error) {
 	if errJson != nil {
 		return false, errJson
 	}
-	
 	if responseBody.Errors != nil {
 			return false, errors.New("errors were returned in fetch")
 	}
@@ -129,13 +120,3 @@ func ValidateGuestSession(sessionToken string) (bool, error) {
 
 	return false,  errors.New("nil session returned")
 }
-
-// send https requests to https://authn.briantaylorvann.com/q/sessions/
-// fetch with a boolean return value
-
-// validate user with guest session
-
-// validate internal user role with guest session
-// uses validate user
-
-// validate session with internal session

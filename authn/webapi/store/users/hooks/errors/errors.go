@@ -15,6 +15,7 @@ var (
 	InvalidSession				 				= "invalid session"
 	InvalidGuestSession				 		= "invalid guest session"
 	InvalidInfraSession				 		= "invalid infra session"
+	NilInfraCredentials 		 	 		 = "nil infra session credentials provided"
 	FailedToValidateGuestSession	= "failed to validate guest session"
 	FailedToCreateUser 	 		 	 		= "failed to create User"
 	FailedToReadUser	 	 		 	 		= "failed to read User"
@@ -34,6 +35,12 @@ func DefaultResponse(w http.ResponseWriter, err error) {
 	errAsStr := err.Error()
 	BadRequest(w, &responses.Errors{
 		Default: &errAsStr,
+	})
+}
+
+func CustomResponse(w http.ResponseWriter, err string) {
+	BadRequest(w, &responses.Errors{
+		Default: &err,
 	})
 }
 

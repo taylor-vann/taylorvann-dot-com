@@ -14,6 +14,9 @@ var (
 	UnrecognizedParams			 	= "unrecognized params given"
 	InvalidGuestSession 		 	= "invalid guest session"
 	InvalidGuestUser 		 			= "invalid guest user"
+	NilInfraCredentials 		 	= "nil infra session credentials provided"
+	InvalidInfraSession 		 	= "invalid infra session provided"
+
 	FailedToValidateGuestUser	= "failed to validate guest user"
 	FailedToCreateRole 	 		 	= "failed to create role"
 	FailedToReadRole	 	 		 	= "failed to read role"
@@ -31,6 +34,12 @@ func DefaultResponse(w http.ResponseWriter, err error) {
 	errAsStr := err.Error()
 	BadRequest(w, &responses.Errors{
 		Default: &errAsStr,
+	})
+}
+
+func CustomResponse(w http.ResponseWriter, err string) {
+	BadRequest(w, &responses.Errors{
+		Default: &err,
 	})
 }
 

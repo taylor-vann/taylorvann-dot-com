@@ -6,8 +6,6 @@ package hooks
 import (
 	"encoding/json"
 	"net/http"
-	
-	"log"
 
 	"webapi/store/roles/hooks/errors"
 	"webapi/store/roles/hooks/requests"
@@ -15,9 +13,6 @@ import (
 	"webapi/store/roles/hooks/mutations"
 	"webapi/store/roles/hooks/queries"
 )
-
-// we need to fetch validation from user
-// then check if user has INTERNAL_INFRA role
 
 const (
 	Create				= "CREATE_ROLE"
@@ -41,7 +36,6 @@ func Query(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// only allow no session if "create guest session"
 	cookie, errCookie := r.Cookie(SessionCookieHeader)
 	if errCookie != nil {
 		errors.DefaultResponse(w, errCookie)
@@ -55,8 +49,6 @@ func Query(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// validate infra session
-	log.Println("query action: ", body.Action)
 	switch body.Action {
 	case Read:
 		queries.Read(w, cookie, &body)
@@ -81,7 +73,6 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// // only allow no session if "create guest session"
 	cookie, errCookie := r.Cookie(SessionCookieHeader)
 	if errCookie != nil {
 		errors.DefaultResponse(w, errCookie)

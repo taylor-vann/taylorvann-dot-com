@@ -4,11 +4,16 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"webapi/store/clientx"
+	fetchRequests "webapi/store/clientx/fetch/requests"
+
 	"webapi/store/roles/controller"
 	"webapi/store/roles/hooks/cache"
 	"webapi/store/roles/hooks/errors"
 	"webapi/store/roles/hooks/requests"
 	"webapi/store/roles/hooks/responses"
+
+	"github.com/taylor-vann/tvgtb/jwtx"
 )
 
 func writeRolesResponse(w http.ResponseWriter, roles *controller.Roles) {
@@ -29,6 +34,60 @@ func dropRequestNotValidBody(w http.ResponseWriter, requestBody *requests.Body) 
 	return true
 }
 
+
+func checkInfraSession(sessionToken string) (bool, error) {
+	isValid := jwtx.ValidateGenericToken(&jwtx.ValidateGenericTokenParams{
+		Token: sessionToken,
+		Issuer: "briantaylorvann.com",
+	})
+	if !isValid {
+		return false, nil
+	}
+
+	details, errDetails := jwtx.RetrieveTokenDetailsFromString(sessionToken)
+	if errDetails != nil {
+		return false, errDetails
+	}
+
+	if details.Payload.Sub == "infra" {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+func validateSessionRemotely(environment string, sessionToken string) (bool, error) {
+	sessionStr, errSessionStr := clientx.ValidateSession(
+		fetchRequests.ValidateSession{
+			Environment: environment,
+			Token: sessionToken,
+		},
+	)
+	if errSessionStr != nil {
+		return false, errSessionStr
+	}
+	if sessionStr != "" {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+func validateInfraSession(environment string, sessionToken string) (bool, error) {
+	infraSessionExists, errInfraSessionExists := validateSessionRemotely(
+		environment,
+		sessionToken,
+	)
+	if errInfraSessionExists != nil {
+		return false, errInfraSessionExists
+	}
+	if !infraSessionExists {
+		return false, nil
+	}
+
+	return checkInfraSession(sessionToken)
+}
+
 func Create(
 	w http.ResponseWriter,
 	sessionCookie *http.Cookie,
@@ -37,17 +96,29 @@ func Create(
 	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
+	if sessionCookie == nil {
+		errors.CustomResponse(w, errors.NilInfraCredentials)
+		return
+	}
 
-	bytes, _ := json.Marshal(requestBody.Params)
 	var params requests.Create
+	bytes, _ := json.Marshal(requestBody.Params)
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
-		errAsStr := errParamsMarshal.Error()
-		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToCreateRole,
-			RequestBody: &errors.BadRequestFail,
-			Default: &errAsStr,
-		})
+		errors.DefaultResponse(w, errParamsMarshal)
+		return
+	}
+
+	sessionIsValid, errSessionIsValid := validateInfraSession(
+		params.Environment,
+		sessionCookie.Value,
+	)
+	if errSessionIsValid != nil{
+		errors.DefaultResponse(w, errSessionIsValid)
+		return
+	}
+	if !sessionIsValid {
+		errors.CustomResponse(w, errors.InvalidInfraSession)
 		return
 	}
 
@@ -76,17 +147,29 @@ func Update(
 	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
+	if sessionCookie == nil {
+		errors.CustomResponse(w, errors.NilInfraCredentials)
+		return
+	}
 
-	bytes, _ := json.Marshal(requestBody.Params)
 	var params requests.Update
+	bytes, _ := json.Marshal(requestBody.Params)
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
-		errAsStr := errParamsMarshal.Error()
-		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToUpdateRole,
-			RequestBody: &errors.BadRequestFail,
-			Default: &errAsStr,
-		})
+		errors.DefaultResponse(w, errParamsMarshal)
+		return
+	}
+
+	sessionIsValid, errSessionIsValid := validateInfraSession(
+		params.Environment,
+		sessionCookie.Value,
+	)
+	if errSessionIsValid != nil{
+		errors.DefaultResponse(w, errSessionIsValid)
+		return
+	}
+	if !sessionIsValid {
+		errors.CustomResponse(w, errors.InvalidInfraSession)
 		return
 	}
 
@@ -115,17 +198,29 @@ func UpdateAccess(
 	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
+	if sessionCookie == nil {
+		errors.CustomResponse(w, errors.NilInfraCredentials)
+		return
+	}
 
-	bytes, _ := json.Marshal(requestBody.Params)
 	var params requests.UpdateAccess
+	bytes, _ := json.Marshal(requestBody.Params)
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
-		errAsStr := errParamsMarshal.Error()
-		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToUpdateAccessRole,
-			RequestBody: &errors.BadRequestFail,
-			Default: &errAsStr,
-		})
+		errors.DefaultResponse(w, errParamsMarshal)
+		return
+	}
+
+	sessionIsValid, errSessionIsValid := validateInfraSession(
+		params.Environment,
+		sessionCookie.Value,
+	)
+	if errSessionIsValid != nil{
+		errors.DefaultResponse(w, errSessionIsValid)
+		return
+	}
+	if !sessionIsValid {
+		errors.CustomResponse(w, errors.InvalidInfraSession)
 		return
 	}
 
@@ -154,17 +249,29 @@ func Delete(
 	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
+	if sessionCookie == nil {
+		errors.CustomResponse(w, errors.NilInfraCredentials)
+		return
+	}
 
-	bytes, _ := json.Marshal(requestBody.Params)
 	var params requests.Delete
+	bytes, _ := json.Marshal(requestBody.Params)
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
-		errAsStr := errParamsMarshal.Error()
-		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToDeleteRole,
-			RequestBody: &errors.BadRequestFail,
-			Default: &errAsStr,
-		})
+		errors.DefaultResponse(w, errParamsMarshal)
+		return
+	}
+
+	sessionIsValid, errSessionIsValid := validateInfraSession(
+		params.Environment,
+		sessionCookie.Value,
+	)
+	if errSessionIsValid != nil{
+		errors.DefaultResponse(w, errSessionIsValid)
+		return
+	}
+	if !sessionIsValid {
+		errors.CustomResponse(w, errors.InvalidInfraSession)
 		return
 	}
 
@@ -193,17 +300,29 @@ func Undelete(
 	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
+	if sessionCookie == nil {
+		errors.CustomResponse(w, errors.NilInfraCredentials)
+		return
+	}
 
-	bytes, _ := json.Marshal(requestBody.Params)
 	var params requests.Read
+	bytes, _ := json.Marshal(requestBody.Params)
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
-		errAsStr := errParamsMarshal.Error()
-		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToUndeleteRole,
-			RequestBody: &errors.BadRequestFail,
-			Default: &errAsStr,
-		})
+		errors.DefaultResponse(w, errParamsMarshal)
+		return
+	}
+
+	sessionIsValid, errSessionIsValid := validateInfraSession(
+		params.Environment,
+		sessionCookie.Value,
+	)
+	if errSessionIsValid != nil{
+		errors.DefaultResponse(w, errSessionIsValid)
+		return
+	}
+	if !sessionIsValid {
+		errors.CustomResponse(w, errors.InvalidInfraSession)
 		return
 	}
 
