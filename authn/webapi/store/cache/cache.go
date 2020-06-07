@@ -107,7 +107,6 @@ func ReadEntry(p *ReadEntryParams) (*Entry, error) {
 	if errEntryAsByte != nil {
 		return nil, errEntryAsByte
 	}
-
 	if entryAsByte == nil {
 		return nil, nil
 	}

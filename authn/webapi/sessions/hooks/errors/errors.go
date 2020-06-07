@@ -15,6 +15,9 @@ var (
 	UnableToValidateSession 			 = "unable to create validate session"
 	UnableToCreatePublicSession 	 = "unable to create public session"
 	InvalidSessionCredentials 		 = "invalid session credentials provided"
+	InvalidInfraCredentials 		 	 = "invalid infra session credentials provided"
+	InvalidGuestCredentials 		 	 = "invalid guest session credentials provided"
+	NilInfraCredentials 		 	 		 = "nil infra session credentials provided"
 	InvalidSessionProvided    		 = "invalid session provided"
 	CreateGuestSessionErrorMessage = "error creating guest session"
 	InvalidRequestProvided         = "invalid request provided"
@@ -24,14 +27,14 @@ var (
 
 var defaultFail = "unable to return session"
 
-func DefaultErrorResponse(w http.ResponseWriter, err error) {
+func DefaultResponse(w http.ResponseWriter, err error) {
 	errAsStr := err.Error()
 	BadRequest(w, &responses.Errors{
 		Default: &errAsStr,
 	})
 }
 
-func CustomErrorResponse(w http.ResponseWriter, err string) {
+func CustomResponse(w http.ResponseWriter, err string) {
 	BadRequest(w, &responses.Errors{
 		Default: &err,
 	})

@@ -17,19 +17,28 @@ import (
 const (
 	Create				= "CREATE_ROLE"
 	Read					= "READ_ROLE"
+	ValidateInfra = "VALIDATE_INFRA_OVERLORD_ROLE"
 	Search				= "SEARCH_ROLES"
 	Index					= "INDEX_ROLES"
 	Update				= "UPDATE_ROLE"
 	UpdateAccess	= "UPDATE_ROLE_ACCESS"
 	Delete				= "DELETE_ROLE"
 	Undelete			= "UNDELETE_ROLE"
+
+	SessionCookieHeader = "briantaylorvann.com_session"
 )
 
 func Query(w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
 		errors.BadRequest(w, &responses.Errors{
-			Body: &errors.BadRequestFail,
+			RequestBody: &errors.BadRequestFail,
 		})
+		return
+	}
+
+	cookie, errCookie := r.Cookie(SessionCookieHeader)
+	if errCookie != nil {
+		errors.DefaultResponse(w, errCookie)
 		return
 	}
 
@@ -42,14 +51,16 @@ func Query(w http.ResponseWriter, r *http.Request) {
 
 	switch body.Action {
 	case Read:
-		queries.Read(w, &body)
+		queries.Read(w, cookie, &body)
+	case ValidateInfra:
+		queries.ValidateInfra(w, cookie, &body)
 	case Search:
-		queries.Search(w, &body)
+		queries.Search(w, cookie, &body)
 	case Index:
-		queries.Index(w, &body)
+		queries.Index(w, cookie, &body)
 	default:
 		errors.BadRequest(w, &responses.Errors{
-			Body: &errors.UnrecognizedQuery,
+			RequestBody: &errors.UnrecognizedQuery,
 		})
 	}
 }
@@ -57,8 +68,14 @@ func Query(w http.ResponseWriter, r *http.Request) {
 func Mutation(w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
 		errors.BadRequest(w, &responses.Errors{
-			Body: &errors.BadRequestFail,
+			RequestBody: &errors.BadRequestFail,
 		})
+		return
+	}
+
+	cookie, errCookie := r.Cookie(SessionCookieHeader)
+	if errCookie != nil {
+		errors.DefaultResponse(w, errCookie)
 		return
 	}
 
@@ -71,18 +88,18 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 
 	switch body.Action {
 	case Create:
-		mutations.Create(w, &body)
+		mutations.Create(w, cookie, &body)
 	case Update:
-		mutations.Update(w, &body)
+		mutations.Update(w, cookie, &body)
 	case UpdateAccess:
-		mutations.UpdateAccess(w, &body)
+		mutations.UpdateAccess(w, cookie, &body)
 	case Delete:
-		mutations.Delete(w, &body)
+		mutations.Delete(w, cookie, &body)
 	case Undelete:
-		mutations.Undelete(w, &body)
+		mutations.Undelete(w, cookie, &body)
 	default:
 		errors.BadRequest(w, &responses.Errors{
-			Body: &errors.UnrecognizedMutation,
+			RequestBody: &errors.UnrecognizedMutation,
 		})	
 	}
 }

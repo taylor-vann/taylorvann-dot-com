@@ -127,9 +127,6 @@ func TestRead(t *testing.T) {
 	if result.Email != testUser.Email {
 		t.Error("Failed to read user row.")
 	}
-	if result.CreatedAt != result.UpdatedAt {
-		t.Error("CreatedAt does not equal UpdatedAt.")
-	}
 }
 
 func TestSearch(t *testing.T) {
@@ -304,6 +301,47 @@ func TestUndelete(t *testing.T) {
 	}
 	if result.IsDeleted == true {
 		t.Error("IsDeleted should be false")
+	}
+}
+
+func TestValidateBadPassword(t *testing.T) {
+	rows, err := Validate(&ValidateParams{
+		Environment: "LOCAL",
+		Email: testUserUpdatedPassword.Email,
+		Password: "kawabunga!",
+	})
+	if err == nil {
+		t.Error("should be an error, invalid password returned valid response")
+	}
+	if len(rows) != 0 {
+		t.Error("results were returned from bad password.")
+		return
+	}
+	if len(rows) == 1 {
+		t.Error("incorrect amount of rows were returned from bad password.")
+		return
+	}
+}
+
+func TestValidate(t *testing.T) {
+	rows, err := Validate(&testUserUpdatedPassword)
+	if err != nil {
+		t.Error(err.Error())
+		return
+	}
+	if len(rows) == 0 {
+		t.Error("No results were returned from Validate.")
+		return
+	}
+	if  len(rows) != 1 {
+		t.Error("Incorrect amount of rows were returned from Validate.")
+		return
+	}
+
+	result := rows[0]
+
+	if result.Email != testUserUpdatedPassword.Email {
+		t.Error("Failed to read user row.")
 	}
 }
 

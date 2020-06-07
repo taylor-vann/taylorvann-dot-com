@@ -15,7 +15,7 @@ func getReadKey(email string) string {
 	return User + "_" + Read + "_" + email
 }
 
-func GetReadEntry(p *requests.Read) (*controller.Users, error) {
+func GetReadEntry(p *requests.Read) (*controller.SafeUsers, error) {
 	key := getReadKey(p.Email)
 	entry, errReadEntry := cache.ReadEntry(&cache.ReadEntryParams{
 		Environment: p.Environment,
@@ -24,15 +24,18 @@ func GetReadEntry(p *requests.Read) (*controller.Users, error) {
 	if errReadEntry != nil {
 		return nil, errReadEntry
 	}
+	if entry == nil {
+		return nil, nil
+	}
 
 	bytes, _ := json.Marshal(entry.Payload)
-	var users controller.Users
+	var users controller.SafeUsers
 	errUsersUnmarshal := json.Unmarshal(bytes, &users)
 	
 	return &users, errUsersUnmarshal
 }
 
-func UpdateReadEntry(env string, users *controller.Users) (error) {
+func UpdateReadEntry(env string, users *controller.SafeUsers) (error) {
 	userID := (*users)[0].Email
 
 	key := getReadKey(userID)

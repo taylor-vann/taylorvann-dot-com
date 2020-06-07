@@ -2,12 +2,12 @@ package responses
 
 import "webapi/store/users/controller"
 
-type Users = controller.Users
+type Users = controller.SafeUsers
 
 type Errors struct {
-	Body		*string `json:"body"`
-	Users 	*string `json:"users"`
-	Default *string `json:"default"`
+	RequestBody	*string `json:"request_body"`
+	Users 			*string `json:"users"`
+	Default 		*string `json:"default"`
 }
 
 type Body struct {

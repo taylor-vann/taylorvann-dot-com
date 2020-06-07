@@ -8,19 +8,25 @@ import (
 )
 
 var (
-	BadRequestFail  		 		 	 = "unable to decode request body"
-	UnrecognizedQuery 	 		 	 = "unrecognized query action requested"
-	UnrecognizedMutation 		 	 = "unrecognized mutation action requested"
-	UnrecognizedParams 	 		 	 = "unrecognized params in request"
-	FailedToCreateUser 	 		 	 = "failed to create User"
-	FailedToReadUser	 	 		 	 = "failed to read User"
-	FailedToIndexUsers 	 		 	 = "failed to index Users"
-	FailedToSearchUsers  		 	 = "failed to search Users"
-	FailedToUpdateUser	 	 	 	 = "failed to Update User"
-	FailedToUpdateEmailUser 	 = "failed to Update Email User"
-	FailedToUpdatePasswordUser = "failed to Update Password User"
-	FailedToDeleteUser 	 		 	 = "failed to delete User"
-	FailedToUndeleteUser 		 	 = "failed to undelete User"
+	BadRequestFail  		 		 	 		= "unable to decode request body"
+	UnrecognizedQuery 	 		 	 		= "unrecognized query action requested"
+	UnrecognizedMutation 		 	 		= "unrecognized mutation action requested"
+	UnrecognizedParams 	 		 	 		= "unrecognized params in request"
+	InvalidSession				 				= "invalid session"
+	InvalidGuestSession				 		= "invalid guest session"
+	InvalidInfraSession				 		= "invalid infra session"
+	NilInfraCredentials 		 	 		 = "nil infra session credentials provided"
+	FailedToValidateGuestSession	= "failed to validate guest session"
+	FailedToCreateUser 	 		 	 		= "failed to create User"
+	FailedToReadUser	 	 		 	 		= "failed to read User"
+	FailedToValidateUser			 		= "failed to validate user"
+	FailedToIndexUsers 	 		 	 		= "failed to index Users"
+	FailedToSearchUsers  		 	 		= "failed to search Users"
+	FailedToUpdateUser	 	 	 	 		= "failed to Update User"
+	FailedToUpdateEmailUser 	 		= "failed to Update Email User"
+	FailedToUpdatePasswordUser 		= "failed to Update Password User"
+	FailedToDeleteUser 	 		 	 		= "failed to delete User"
+	FailedToUndeleteUser 		 	 		= "failed to undelete User"
 )
 
 var defaultFail = "unable to return Roles"
@@ -29,6 +35,12 @@ func DefaultResponse(w http.ResponseWriter, err error) {
 	errAsStr := err.Error()
 	BadRequest(w, &responses.Errors{
 		Default: &errAsStr,
+	})
+}
+
+func CustomResponse(w http.ResponseWriter, err string) {
+	BadRequest(w, &responses.Errors{
+		Default: &err,
 	})
 }
 

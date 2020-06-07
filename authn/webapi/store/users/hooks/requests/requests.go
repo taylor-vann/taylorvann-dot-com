@@ -6,6 +6,7 @@ import (
 
 type Create = controller.CreateParams
 type Read = controller.ReadParams
+type Validate = controller.ValidateParams
 type Index = controller.IndexParams
 type Search = controller.SearchParams
 type Update = controller.UpdateParams
@@ -14,21 +15,11 @@ type UpdatePassword = controller.UpdatePasswordParams
 type Delete = controller.DeleteParams
 type Undelete = controller.UndeleteParams
 
-// type Params struct {
-// 	Environment	string			`json:"environment"`
-// 	Payload			interface{}	`json:"payload"`
-// 	// Create					*Create					`json:"create"`
-// 	// Read						*Read						`json:"read"`
-// 	// Index						*Index					`json:"index"`
-// 	// Search  				*Search					`json:"search"`
-// 	// Update  				*Update					`json:"update"`
-// 	// UpdateEmail  	 	*UpdateEmail		`json:"update_email"`
-// 	// UpdatePassword	*UpdatePassword	`json:"update_password"`
-// 	// Delete  				*Delete					`json:"delete"`
-// 	// Undelete  			*Undelete				`json:"undelete"`
-// }
+type ValidateGuestSessionParams struct {
+	Environment string  `json:"environment"`
+}
 
 type Body struct {
 	Action string			 `json:"action"`
-	Params interface{} `json:"payload"`
+	Params interface{} `json:"params"`
 }

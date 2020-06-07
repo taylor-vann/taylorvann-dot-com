@@ -2,6 +2,7 @@ package cache
 
 import (
 	"encoding/json"
+	"errors"
 
 	"webapi/store/cache"
 	"webapi/store/roles/controller"
@@ -16,17 +17,23 @@ func getReadKey(userID int64, organization string) string {
 }
 
 func GetReadEntry(p *requests.Read) (*controller.Roles, error) {
+	if p == nil {
+		return nil, errors.New("nil params given")
+	}
 	key := getReadKey(p.UserID, p.Organization)
 	entry, errReadEntry := cache.ReadEntry(&cache.ReadEntryParams{
 		Environment: p.Environment,
 		Key: key,
 	})
-	if errReadEntry != nil {
+	if errReadEntry != nil || entry == nil {
 		return nil, errReadEntry
 	}
+	if entry == nil {
+		return nil, nil
+	}
 
-	bytes, _ := json.Marshal(entry.Payload)
 	var roles controller.Roles
+	bytes, _ := json.Marshal(entry.Payload)
 	errRolesUnmarshal := json.Unmarshal(bytes, &roles)
 
 	return &roles, errRolesUnmarshal
@@ -34,7 +41,7 @@ func GetReadEntry(p *requests.Read) (*controller.Roles, error) {
 
 func UpdateReadEntry(env string, roles *controller.Roles) (error) {
 	role := (*roles)[0]
-
+	
 	key := getReadKey(role.UserID, role.Organization)
 	_, errCreateEntry := cache.CreateEntry(&cache.CreateEntryParams{
 		Environment: env,

@@ -1,31 +1,25 @@
 # brian taylor vann
 # taylorvann dot com
 
-# Use this docker-compose to create an authentication development server
-
-# Reserved Ports:
-# 5000  JSON Web Api
-# 5100  Store Db
-# 5200  Whitelist Cache
-# 5205  Store Cache
-
 version: "3"
 services:
   webapi:
     container_name: authn_webapi
-    hostname: authn.taylorvann.com
-    build:
-      context: ./webapi/
-      dockerfile: dockerfile.dev
     depends_on:
       - authn_store_db
       - authn_store_cache
       - authn_whitelist_cache
+    build:
+      context: ./webapi/
+      dockerfile: dockerfile
     restart: always
     env_file:
-      - ./environment_variables.dev.env
+      - ./environment_variables.env
     ports:
-      - "5000:5000"
+      - "3000:80"
+    extra_hosts:
+      - "authn.briantaylorvann.com:10.88.0.1"
+      - "logs.briantaylorvann.com:10.88.0.1"
     volumes:
       - ./webapi/:/go/src/webapi/
     command: "go run /go/src/webapi/main.go"
@@ -36,7 +30,7 @@ services:
       dockerfile: dockerfile.dev
     restart: always
     env_file:
-      - ./environment_variables.dev.env
+      - ./environment_variables.env
     volumes:
       - ./store_db/postgres_data/:/var/lib/postgresql/data/
     command: "-p 5100"

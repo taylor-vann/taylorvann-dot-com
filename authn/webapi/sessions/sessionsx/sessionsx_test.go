@@ -38,7 +38,7 @@ func TestRetrieveGuestSession(t *testing.T) {
 
 	// get the session token
 	tokenDetails, errTokenDetails := jwtx.RetrieveTokenDetailsFromString(
-		session.SessionToken,
+		session.Token,
 	)
 	if tokenDetails == nil {
 		t.Error("token is nil")
@@ -51,7 +51,7 @@ func TestRetrieveGuestSession(t *testing.T) {
 	updatedSession, errUpdatedSession := Update(
 		&UpdateParams{
 			Environment:  unitTests,
-			SessionToken: session.SessionToken,
+			SessionToken: session.Token,
 		},
 	)
 	if errUpdatedSession != nil {
@@ -63,7 +63,7 @@ func TestRetrieveGuestSession(t *testing.T) {
 	}
 
 	updatedTokenDetails, errUpdatedTokenDetails := jwtx.RetrieveTokenDetailsFromString(
-		updatedSession.SessionToken,
+		updatedSession.Token,
 	)
 	if updatedTokenDetails == nil {
 		t.Error("token is nil")
@@ -97,7 +97,7 @@ func TestUpdateSession(t *testing.T) {
 
 	// get the session token
 	tokenDetails, errTokenDetails := jwtx.RetrieveTokenDetailsFromString(
-		session.SessionToken,
+		session.Token,
 	)
 	if tokenDetails == nil {
 		t.Error("token is nil")
@@ -110,7 +110,7 @@ func TestUpdateSession(t *testing.T) {
 	ReadSession, errReadSession := Update(
 		&UpdateParams{
 			Environment: unitTests,
-			SessionToken: session.SessionToken,
+			SessionToken: session.Token,
 		},
 	)
 	if errReadSession != nil {
@@ -118,60 +118,6 @@ func TestUpdateSession(t *testing.T) {
 	}
 	if ReadSession == nil {
 		t.Error("nil value returned instead of session")
-		return
-	}
-}
-
-func TestValidateAndRemoveSession(t *testing.T) {
-	session, errSession := Create(&CreateParams{
-		Environment: unitTests,
-		Claims: *CreateGuestSessionClaims(),
-	})
-	if session == nil {
-		t.Error("Nil value returned")
-	}
-	if errSession != nil {
-		t.Error("Error creating public JWT")
-	}
-
-	// get the session token
-	tokenDetails, errTokenDetails := jwtx.RetrieveTokenDetailsFromString(
-		session.SessionToken,
-	)
-	if tokenDetails == nil {
-		t.Error("token is nil")
-	}
-	if errTokenDetails != nil {
-		t.Error(errTokenDetails.Error())
-	}
-
-	// update the token
-	removedSession, errRemovedSession := ValidateAndRemove(
-		&UpdateParams{
-			Environment: unitTests,
-			SessionToken: session.SessionToken,
-		},
-	)
-	if errRemovedSession != nil {
-		t.Error(errRemovedSession.Error())
-	}
-	if removedSession == nil {
-		t.Error("could not find session")
-		return
-	}
-
-	// update the token
-	reReadSession, errReReadSession := Read(
-		&ReadParams{
-			Environment: unitTests,
-			SessionToken: session.SessionToken,
-		},
-	)
-	if errReReadSession != nil {
-		t.Error(errReReadSession.Error())
-	}
-	if reReadSession != false {
-		t.Error("should not have found session")
 		return
 	}
 }
@@ -222,7 +168,7 @@ func TestRetrieveUserSession(t *testing.T) {
 
 	// get the session token
 	tokenDetails, errTokenDetails := jwtx.RetrieveTokenDetailsFromString(
-		session.SessionToken,
+		session.Token,
 	)
 	if tokenDetails == nil {
 		t.Error("token is nil")
@@ -235,7 +181,7 @@ func TestRetrieveUserSession(t *testing.T) {
 	updatedSession, errUpdatedSession := Update(
 		&UpdateParams{
 			Environment: unitTests,
-			SessionToken: session.SessionToken,
+			SessionToken: session.Token,
 		},
 	)
 	if errUpdatedSession != nil {
@@ -251,7 +197,7 @@ func TestRetrieveUserSession(t *testing.T) {
 	}
 
 	updatedTokenDetails, errUpdatedTokenDetails := jwtx.RetrieveTokenDetailsFromString(
-		updatedSession.SessionToken,
+		updatedSession.Token,
 	)
 	if updatedTokenDetails == nil {
 		t.Error("toke is nil")
@@ -287,7 +233,7 @@ func TestRemoveSession(t *testing.T) {
 
 	// get the session token
 	tokenDetails, errTokenDetails := jwtx.RetrieveTokenDetailsFromString(
-		session.SessionToken,
+		session.Token,
 	)
 	if tokenDetails == nil {
 		t.Error("token is nil")
@@ -296,7 +242,7 @@ func TestRemoveSession(t *testing.T) {
 		t.Error(errTokenDetails.Error())
 	}
 
-	entryRemoved, errEntryRemoved := Remove(&RemoveParams{
+	entryRemoved, errEntryRemoved := Delete(&DeleteParams{
 		Environment: unitTests,
 		Signature: tokenDetails.Signature,
 	})
@@ -311,7 +257,7 @@ func TestRemoveSession(t *testing.T) {
 
 func TestRemoveSessionRespondsFalse(t *testing.T) {
 	badSignature := "animal_crackers_with_nutella"
-	entryRemoved, errEntryRemoved := Remove(&RemoveParams{
+	entryRemoved, errEntryRemoved := Delete(&DeleteParams{
 		Environment: unitTests,
 		Signature: badSignature,
 	})

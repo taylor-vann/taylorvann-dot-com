@@ -5,51 +5,51 @@ package sessionsx
 
 import (
 	"errors"
-	"github.com/taylor-vann/tvgtb/jwtx"
+	"strconv"
+	
 	"webapi/sessions/sessionsx/constants"
 	"webapi/sessions/whitelist"
+
+	"github.com/taylor-vann/tvgtb/jwtx"
 )
 
 type MilliSeconds = int64
 
 type Session struct {
-	SessionToken string `json:"session_token"`
+	Token string `json:"token"`
 }
 
 type CreateClaimsParams struct {
-	Iss string
-	Sub string
-	Aud string
+	Iss string	`json:"iss"`
+	Sub string	`json:"sub"`
+	Aud string	`json:"aud"`
 }
 
 type SessionClaims = jwtx.Claims
 
 type UserParams struct {
-	Environment string
-	UserID int64
+	Environment string `json:"environment`
+	UserID 			int64	 `json:"user_id"`
 }
 
 type AccountParams struct {
-	Environment string
-	Email string
+	Environment string `json:"environment`
+	Email 			string	`json:"email"`
 }
 
 type CreateParams struct {
-	Environment string
-	Claims 			SessionClaims
+	Environment string 				`json:"environment`
+	Claims 			SessionClaims	`json:"claims"`
 }
 
 type ReadParams struct {
-	Environment string
-	SessionToken string
+	Environment string `json:"environment`
+	Token 			string `json:"token"`
 }
 
-type UpdateParams struct {
-	Environment  string
-	SessionToken string
-}
+type ValidateParams = ReadParams
+type UpdateParams = ReadParams
 
-type ValidateAndRemoveParams = UpdateParams
 type DeleteParams = whitelist.RemoveEntryParams
 
 func getLifetimeByAudience(audience string) int64 {
@@ -58,6 +58,8 @@ func getLifetimeByAudience(audience string) int64 {
 		return constants.OneDayAsMS
 	case constants.Public:
 		return constants.ThreeDaysAsMS
+	case constants.Infra:
+		return constants.ThreeSixtyFiveDaysAsMS
 	default:
 		return constants.OneDayAsMS
 	}
@@ -65,7 +67,7 @@ func getLifetimeByAudience(audience string) int64 {
 
 func CreateSessionClaims(p *CreateClaimsParams) *SessionClaims {
 	issuedAt := jwtx.GetNowAsMS()
-	expiresAt := issuedAt + getLifetimeByAudience(constants.Guest)
+	expiresAt := issuedAt + getLifetimeByAudience(p.Sub)
 
 	claims := SessionClaims{
 		Iss: p.Iss,
@@ -78,17 +80,18 @@ func CreateSessionClaims(p *CreateClaimsParams) *SessionClaims {
 	return &claims
 }
 
-func CreateDocumentSessionClaims() *SessionClaims {
+func CreateInfraSessionClaims(userID int64) *SessionClaims {
+	userIDAsStr := strconv.FormatInt(userID, 10)
 	return CreateSessionClaims(&CreateClaimsParams{
-		Iss: constants.TaylorVannDotCom,
-		Sub: constants.Guest,
-		Aud: constants.Document,
+		Iss: constants.BrianTaylorVannDotCom,
+		Sub: constants.Infra,
+		Aud: userIDAsStr,
 	})
 }
 
 func CreateGuestSessionClaims() *SessionClaims {
 	return CreateSessionClaims(&CreateClaimsParams{
-		Iss: constants.TaylorVannDotCom,
+		Iss: constants.BrianTaylorVannDotCom,
 		Sub: constants.Guest,
 		Aud: constants.Public,
 	})
@@ -100,7 +103,7 @@ func CreateUpdatePasswordSessionClaims(p *AccountParams) (*SessionClaims, error)
 	}
 	
 	claims := CreateSessionClaims(&CreateClaimsParams{
-		Iss: constants.TaylorVannDotCom,
+		Iss: constants.BrianTaylorVannDotCom,
 		Sub: p.Email,
 		Aud: constants.UpdatePassword,
 	})
@@ -114,7 +117,7 @@ func CreateUpdateEmailSessionClaims(p *AccountParams) (*SessionClaims, error) {
 	}
 	
 	claims := CreateSessionClaims(&CreateClaimsParams{
-		Iss: constants.TaylorVannDotCom,
+		Iss: constants.BrianTaylorVannDotCom,
 		Sub: p.Email,
 		Aud: constants.UpdateEmail,
 	})
@@ -128,7 +131,7 @@ func CreateDeleteAccountSessionClaims(p *AccountParams) (*SessionClaims, error) 
 	}
 	
 	claims := CreateSessionClaims(&CreateClaimsParams{
-		Iss: constants.TaylorVannDotCom,
+		Iss: constants.BrianTaylorVannDotCom,
 		Sub: p.Email,
 		Aud: constants.DeleteAccount,
 	})
@@ -142,7 +145,7 @@ func CreateAccountCreationSessionClaims(p *AccountParams) (*SessionClaims, error
 	}
 
 	claims := CreateSessionClaims(&CreateClaimsParams{
-		Iss: constants.TaylorVannDotCom,
+		Iss: constants.BrianTaylorVannDotCom,
 		Sub: p.Email,
 		Aud: constants.CreateAccount,
 	})
@@ -156,7 +159,7 @@ func CreateUserSessionClaims(p *UserParams) (*SessionClaims, error) {
 	}
 
 	claims := CreateSessionClaims(&CreateClaimsParams{
-		Iss: constants.TaylorVannDotCom,
+		Iss: constants.BrianTaylorVannDotCom,
 		Sub: string(p.UserID),
 		Aud: constants.Public,
 	})
@@ -195,7 +198,7 @@ func Create(p *CreateParams) (*Session, error) {
 	}
 
 	session := Session{
-		SessionToken: sessionTokenAsStr,
+		Token: sessionTokenAsStr,
 	}
 
 	return &session, nil
@@ -206,12 +209,12 @@ func Read(p *ReadParams) (bool, error) {
 		return false, errors.New("nil params")
 	}
 
-	if p.SessionToken == "" {
+	if p.Token == "" {
 		return false, errors.New("nil session token provided")
 	}
 
 	tokenDetails, errTokenDetails := jwtx.RetrieveTokenFromString(
-		p.SessionToken,
+		p.Token,
 	)
 	if errTokenDetails != nil {
 		return false, errTokenDetails
@@ -243,7 +246,7 @@ func Read(p *ReadParams) (bool, error) {
 
 func Update(p *UpdateParams) (*Session, error) {
 	tokenDetails, errTokenDetails := jwtx.RetrieveTokenFromString(
-		p.SessionToken,
+		p.Token,
 	)
 	if errTokenDetails != nil {
 		return nil, errTokenDetails
@@ -272,7 +275,7 @@ func Update(p *UpdateParams) (*Session, error) {
 
 	if resultJwt {
 		sessionDetails, errSessionDetails := jwtx.RetrieveTokenDetailsFromString(
-			p.SessionToken,
+			p.Token,
 		)
 		if errSessionDetails != nil {
 			return nil, errSessionDetails

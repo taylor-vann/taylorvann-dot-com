@@ -1,11 +1,9 @@
 {
   "users": {
-    "email": {
-      "password": "helloworld",
+    "you.are@awesome.com": {
+      "password": "something_or_other",
       "roles": [
-        "person",
-        "internal",
-        "admin"
+        "SOMETHING_AWESOME_ADMIN"
       ]
     }
   }

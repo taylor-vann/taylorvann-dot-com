@@ -76,7 +76,12 @@ func getDefaultEnvironment(environment string) string {
 	if environment != "" {
 		return environment
 	}
-	return constants.RolesTest
+
+	if constants.Environment == constants.Development {
+		return constants.Development
+	}
+	
+	return constants.Local
 }
 
 func CreateTable(p *CreateTableParams) (*sql.Result, error) {

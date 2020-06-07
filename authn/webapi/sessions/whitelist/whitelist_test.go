@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"webapi/constants"
 	"github.com/taylor-vann/tvgtb/jwtx"
 )
 
@@ -31,7 +30,7 @@ func generateRandomJWTClaims(sub string, num int) *JWTClaimTestPlan {
 		laterAsMS := getLaterAsMS()
 
 		jwtClaims[index] = jwtx.Claims{
-			Iss: constants.TaylorVannDotCom,
+			Iss: "briantaylorvann",
 			Sub: sub,
 			Aud: strconv.Itoa(index),
 			Iat: nowAsMS,
