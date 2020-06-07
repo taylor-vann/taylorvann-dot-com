@@ -7,6 +7,7 @@ services:
     container_name: authn_webapi
     depends_on:
       - authn_store_db
+      - authn_infra_cache
       - authn_store_cache
       - authn_whitelist_cache
     build:
@@ -34,6 +35,14 @@ services:
     volumes:
       - ./store_db/postgres_data/:/var/lib/postgresql/data/
     command: "-p 5100"
+  infra_cache:
+    container_name: authn_infra_cache
+    build:
+      context: ./infra_cache/
+      dockerfile: dockerfile.dev
+    restart: always
+    volumes:
+      - ./infra_cache/redis_data/:/data
   store_cache:
     container_name: authn_store_cache
     build:
