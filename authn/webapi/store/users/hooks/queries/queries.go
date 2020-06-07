@@ -14,8 +14,6 @@ import (
 	"webapi/store/users/hooks/responses"
 )
 
-const SessionCookieHeader = "briantaylorvann.com_session"
-
 func writeUsersResponse(w http.ResponseWriter, users *controller.SafeUsers) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -24,12 +22,22 @@ func writeUsersResponse(w http.ResponseWriter, users *controller.SafeUsers) {
 	})
 }
 
-func Read(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil || requestBody.Params == nil {
-		errors.BadRequest(w, &responses.Errors{
-			Users: &errors.FailedToReadUser,
-			Body: &errors.BadRequestFail,
-		})
+func dropRequestNotValidBody(w http.ResponseWriter, requestBody *requests.Body) bool {
+	if requestBody != nil && requestBody.Params != nil {
+		return false
+	}
+	errors.BadRequest(w, &responses.Errors{
+		RequestBody: &errors.BadRequestFail,
+	})
+	return true
+}
+
+func Read(
+	w http.ResponseWriter,
+	sessionCookie *http.Cookie,
+	requestBody *requests.Body,
+) {
+	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
 
@@ -66,12 +74,12 @@ func Read(w http.ResponseWriter, requestBody *requests.Body) {
 	})
 }
 
-func ValidateGuest(w http.ResponseWriter, sessionCookie *http.Cookie, requestBody *requests.Body) {
-	if requestBody == nil || requestBody.Params == nil {
-		errors.BadRequest(w, &responses.Errors{
-			Users: &errors.FailedToValidateUser,
-			Body: &errors.BadRequestFail,
-		})
+func ValidateGuest(
+	w http.ResponseWriter,
+	sessionCookie *http.Cookie,
+	requestBody *requests.Body,
+) {
+	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
 
@@ -125,12 +133,12 @@ func ValidateGuest(w http.ResponseWriter, sessionCookie *http.Cookie, requestBod
 }
 
 
-func Index(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil || requestBody.Params == nil {
-		errors.BadRequest(w, &responses.Errors{
-			Users: &errors.FailedToIndexUsers,
-			Body: &errors.BadRequestFail,
-		})
+func Index(
+	w http.ResponseWriter,
+	sessionCookie *http.Cookie,
+	requestBody *requests.Body,
+) {
+	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
 
@@ -157,12 +165,12 @@ func Index(w http.ResponseWriter, requestBody *requests.Body) {
 	})
 }
 
-func Search(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil || requestBody.Params == nil {
-		errors.BadRequest(w, &responses.Errors{
-			Users: &errors.FailedToSearchUsers,
-			Body: &errors.BadRequestFail,
-		})
+func Search(
+	w http.ResponseWriter,
+	sessionCookie *http.Cookie,
+	requestBody *requests.Body,
+) {
+	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
 

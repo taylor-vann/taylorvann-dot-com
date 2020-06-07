@@ -10,6 +10,7 @@ import (
 	// "log"
 
 	// "webapi/store/clientx"
+	// clientxRequests "webapi/store/clientx/fetch/requests"
 	
 	"webapi/store/users/hooks/errors"
 	"webapi/store/users/hooks/requests"
@@ -17,7 +18,7 @@ import (
 	"webapi/store/users/hooks/mutations"
 	"webapi/store/users/hooks/queries"
 
-	"github.com/taylor-vann/tvgtb/jwtx"
+	// "github.com/taylor-vann/tvgtb/jwtx"
 )
 
 const (
@@ -35,42 +36,23 @@ const (
 	SessionCookieHeader = "briantaylorvann.com_session"
 )
 
-func checkInfraSession(r *http.Request) (bool, error) {
+// validate session locally
+// validate session remotely
 
-	cookie, errCookie := r.Cookie(SessionCookieHeader)
-	if errCookie != nil {
-		return false, errCookie
+func dropRequestNotValidBody(w http.ResponseWriter, requestBody *requests.Body) bool {
+	if requestBody != nil && requestBody.Params != nil {
+		return false
 	}
-
-	details, errDetails := jwtx.RetrieveTokenDetailsFromString(cookie.Value)
-	if errDetails != nil {
-		return false, errDetails
-	}
-	// log.Println(details.Payload)
-	if details == nil {
-		return false, nil
-	}
-	if details.Payload.Sub == "infra" && details.Payload.Aud == "public" {
-		return true, nil
-	}
-
-	return false, nil
-}
-
-func validateInfraSession(r *http.Request) (bool, error) {
-	sessionIsValid, errSessionIsValid := checkInfraSession(r)
-	if !sessionIsValid || errSessionIsValid != nil {
-		return sessionIsValid, errSessionIsValid
-	}
-
-	// remote check, TODO
-	return sessionIsValid, errSessionIsValid
+	errors.BadRequest(w, &responses.Errors{
+		RequestBody: &errors.BadRequestFail,
+	})
+	return true
 }
 
 func Query(w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
 		errors.BadRequest(w, &responses.Errors{
-			Body: &errors.BadRequestFail,
+			RequestBody: &errors.BadRequestFail,
 		})
 		return
 	}
@@ -90,16 +72,16 @@ func Query(w http.ResponseWriter, r *http.Request) {
 
 	switch body.Action {
 	case Read:
-		queries.Read(w, &body)
+		queries.Read(w, cookie, &body)
 	case ValidateGuest:
 		queries.ValidateGuest(w, cookie, &body) // requires guest sessoion
 	case Search:
-		queries.Search(w, &body)
+		queries.Search(w, cookie, &body)
 	case Index:
-		queries.Index(w, &body)
+		queries.Index(w, cookie, &body)
 	default:
 		errors.BadRequest(w, &responses.Errors{
-			Body: &errors.UnrecognizedQuery,
+			RequestBody: &errors.UnrecognizedQuery,
 		})
 	}
 }
@@ -107,20 +89,14 @@ func Query(w http.ResponseWriter, r *http.Request) {
 func Mutation(w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
 		errors.BadRequest(w, &responses.Errors{
-			Body: &errors.BadRequestFail,
+			RequestBody: &errors.BadRequestFail,
 		})
 		return
 	}
 
-	sessionIsValid, errSessionIsValid := checkInfraSession(r)
-	if errSessionIsValid != nil {
-		errors.DefaultResponse(w, errSessionIsValid)
-		return
-	}
-	if !sessionIsValid {
-		errors.BadRequest(w, &responses.Errors{
-			Body: &errors.UnrecognizedQuery,
-		})
+	cookie, errCookie := r.Cookie(SessionCookieHeader)
+	if errCookie != nil {
+		errors.DefaultResponse(w, errCookie)
 		return
 	}
 
@@ -130,23 +106,23 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 		errors.DefaultResponse(w, errJsonDecode)
 		return
 	}
-
+	
 	switch body.Action {
 	case Create:
-		mutations.Create(w, &body)
+		mutations.Create(w, cookie, &body)
 	case Update:
-		mutations.Update(w, &body)
+		mutations.Update(w, cookie, &body)
 	case UpdateEmail:
-		mutations.UpdateEmail(w, &body)
+		mutations.UpdateEmail(w, cookie, &body)
 	case UpdatePassword:
-		mutations.UpdatePassword(w, &body)
+		mutations.UpdatePassword(w, cookie, &body)
 	case Delete:
-		mutations.Delete(w, &body)
+		mutations.Delete(w, cookie, &body)
 	case Undelete:
-		mutations.Undelete(w, &body)
+		mutations.Undelete(w, cookie, &body)
 	default:
 		errors.BadRequest(w, &responses.Errors{
-			Body: &errors.UnrecognizedMutation,
+			RequestBody: &errors.UnrecognizedMutation,
 		})	
 	}
 }

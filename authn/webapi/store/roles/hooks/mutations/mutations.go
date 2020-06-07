@@ -19,12 +19,22 @@ func writeRolesResponse(w http.ResponseWriter, roles *controller.Roles) {
 	})
 }
 
-func Create(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil || requestBody.Params == nil {
-		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToCreateRole,
-			Body: &errors.BadRequestFail,
-		})
+func dropRequestNotValidBody(w http.ResponseWriter, requestBody *requests.Body) bool {
+	if requestBody != nil && requestBody.Params != nil {
+		return false
+	}
+	errors.BadRequest(w, &responses.Errors{
+		RequestBody: &errors.BadRequestFail,
+	})
+	return true
+}
+
+func Create(
+	w http.ResponseWriter,
+	sessionCookie *http.Cookie,
+	requestBody *requests.Body,
+) {
+	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
 
@@ -35,7 +45,7 @@ func Create(w http.ResponseWriter, requestBody *requests.Body) {
 		errAsStr := errParamsMarshal.Error()
 		errors.BadRequest(w, &responses.Errors{
 			Roles: &errors.FailedToCreateRole,
-			Body: &errors.BadRequestFail,
+			RequestBody: &errors.BadRequestFail,
 			Default: &errAsStr,
 		})
 		return
@@ -58,12 +68,12 @@ func Create(w http.ResponseWriter, requestBody *requests.Body) {
 	})
 }
 
-func Update(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil || requestBody.Params == nil {
-		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToUpdateRole,
-			Body: &errors.BadRequestFail,
-		})
+func Update(
+	w http.ResponseWriter,
+	sessionCookie *http.Cookie,
+	requestBody *requests.Body,
+) {
+	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
 
@@ -74,7 +84,7 @@ func Update(w http.ResponseWriter, requestBody *requests.Body) {
 		errAsStr := errParamsMarshal.Error()
 		errors.BadRequest(w, &responses.Errors{
 			Roles: &errors.FailedToUpdateRole,
-			Body: &errors.BadRequestFail,
+			RequestBody: &errors.BadRequestFail,
 			Default: &errAsStr,
 		})
 		return
@@ -97,12 +107,12 @@ func Update(w http.ResponseWriter, requestBody *requests.Body) {
 	})
 }
 
-func UpdateAccess(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil || requestBody.Params == nil {
-		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToUpdateAccessRole,
-			Body: &errors.BadRequestFail,
-		})
+func UpdateAccess(
+	w http.ResponseWriter,
+	sessionCookie *http.Cookie,
+	requestBody *requests.Body,
+) {
+	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
 
@@ -113,7 +123,7 @@ func UpdateAccess(w http.ResponseWriter, requestBody *requests.Body) {
 		errAsStr := errParamsMarshal.Error()
 		errors.BadRequest(w, &responses.Errors{
 			Roles: &errors.FailedToUpdateAccessRole,
-			Body: &errors.BadRequestFail,
+			RequestBody: &errors.BadRequestFail,
 			Default: &errAsStr,
 		})
 		return
@@ -136,12 +146,12 @@ func UpdateAccess(w http.ResponseWriter, requestBody *requests.Body) {
 	})
 }
 
-func Delete(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil || requestBody.Params == nil {
-		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToDeleteRole,
-			Body: &errors.BadRequestFail,
-		})
+func Delete(
+	w http.ResponseWriter,
+	sessionCookie *http.Cookie,
+	requestBody *requests.Body,
+) {
+	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
 
@@ -152,7 +162,7 @@ func Delete(w http.ResponseWriter, requestBody *requests.Body) {
 		errAsStr := errParamsMarshal.Error()
 		errors.BadRequest(w, &responses.Errors{
 			Roles: &errors.FailedToDeleteRole,
-			Body: &errors.BadRequestFail,
+			RequestBody: &errors.BadRequestFail,
 			Default: &errAsStr,
 		})
 		return
@@ -175,12 +185,12 @@ func Delete(w http.ResponseWriter, requestBody *requests.Body) {
 	})
 }
 
-func Undelete(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil || requestBody.Params == nil {
-		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToUndeleteRole,
-			Body: &errors.BadRequestFail,
-		})
+func Undelete(
+	w http.ResponseWriter,
+	sessionCookie *http.Cookie,
+	requestBody *requests.Body,
+) {
+	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
 
@@ -191,7 +201,7 @@ func Undelete(w http.ResponseWriter, requestBody *requests.Body) {
 		errAsStr := errParamsMarshal.Error()
 		errors.BadRequest(w, &responses.Errors{
 			Roles: &errors.FailedToUndeleteRole,
-			Body: &errors.BadRequestFail,
+			RequestBody: &errors.BadRequestFail,
 			Default: &errAsStr,
 		})
 		return

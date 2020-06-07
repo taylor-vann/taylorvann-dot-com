@@ -7,9 +7,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
-	"net/http/httptest"
+	// "net/http/resp"
 	"testing"
 	"time"
+
+	"webapi/store/clientx"
 
 	"webapi/store/roles/controller"	
 	"webapi/store/roles/hooks/requests"
@@ -66,24 +68,25 @@ func TestCreate(t *testing.T) {
 
 	marshalBytes := new(bytes.Buffer)
 	json.NewEncoder(marshalBytes).Encode(requestBody)
-	resp, errResp := http.NewRequest(
-		"POST",
-		"/q/roles/",
+	resp, errResp := clientx.Do(
+		"https://authn.briantaylorvann.com/m/roles/",
 		marshalBytes,
 	)
 	if errResp != nil {
 		t.Error(errResp.Error())
 	}
-
-	httpTest := httptest.NewRecorder()
-	handler := http.HandlerFunc(Mutation)
-	handler.ServeHTTP(httpTest, resp)
+	if resp == nil {
+		t.Error("resp is nil")
+		return
+	}
 
 	if resp.Body == nil {
 		t.Error("response body is nil")
+		return
 	}
+	
 	var responseBody responses.Body
-	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
+	errJSON := json.NewDecoder(resp.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON.Error())
 	}
@@ -91,7 +94,7 @@ func TestCreate(t *testing.T) {
 		t.Error("nil roles returned")
 	}
 
-	if httpTest.Code != http.StatusOK {
+	if resp.StatusCode != http.StatusOK {
 		t.Error(*responseBody.Errors.Default)
 	}
 }
@@ -108,24 +111,24 @@ func TestRead(t *testing.T) {
 
 	marshalBytes := new(bytes.Buffer)
 	json.NewEncoder(marshalBytes).Encode(requestBody)
-	resp, errResp := http.NewRequest(
-		"POST",
-		"/q/roles/",
+	resp, errResp := clientx.Do(
+		"https://authn.briantaylorvann.com/q/roles/",
 		marshalBytes,
 	)
 	if errResp != nil {
 		t.Error(errResp.Error())
 	}
-
-	httpTest := httptest.NewRecorder()
-	handler := http.HandlerFunc(Query)
-	handler.ServeHTTP(httpTest, resp)
+	if resp == nil {
+		t.Error("resp is nil")
+		return
+	}
 
 	if resp.Body == nil {
 		t.Error("response body is nil")
+		return
 	}
 	var responseBody responses.Body
-	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
+	errJSON := json.NewDecoder(resp.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON.Error())
 	}
@@ -139,7 +142,7 @@ func TestRead(t *testing.T) {
 		return
 	}
 
-	if httpTest.Code != http.StatusOK {
+	if resp.StatusCode != http.StatusOK {
 		t.Error(*responseBody.Errors.Default)
 	}
 }
@@ -157,24 +160,24 @@ func TestIndex(t *testing.T) {
 
 	marshalBytes := new(bytes.Buffer)
 	json.NewEncoder(marshalBytes).Encode(requestBody)
-	resp, errResp := http.NewRequest(
-		"POST",
-		"/q/roles/",
+	resp, errResp := clientx.Do(
+		"https://authn.briantaylorvann.com/q/roles/",
 		marshalBytes,
 	)
 	if errResp != nil {
 		t.Error(errResp.Error())
 	}
-
-	httpTest := httptest.NewRecorder()
-	handler := http.HandlerFunc(Query)
-	handler.ServeHTTP(httpTest, resp)
+	if resp == nil {
+		t.Error("resp is nil")
+		return
+	}
 
 	if resp.Body == nil {
 		t.Error("response body is nil")
+		return
 	}
 	var responseBody responses.Body
-	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
+	errJSON := json.NewDecoder(resp.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON.Error())
 	}
@@ -188,7 +191,7 @@ func TestIndex(t *testing.T) {
 		return
 	}
 
-	if httpTest.Code != http.StatusOK {
+	if resp.StatusCode != http.StatusOK {
 		t.Error(*responseBody.Errors.Default)
 	}
 }
@@ -206,24 +209,24 @@ func TestSearch(t *testing.T) {
 
 	marshalBytes := new(bytes.Buffer)
 	json.NewEncoder(marshalBytes).Encode(requestBody)
-	resp, errResp := http.NewRequest(
-		"POST",
-		"/q/roles/",
+	resp, errResp := clientx.Do(
+		"https://authn.briantaylorvann.com/q/roles/",
 		marshalBytes,
 	)
 	if errResp != nil {
 		t.Error(errResp.Error())
 	}
-
-	httpTest := httptest.NewRecorder()
-	handler := http.HandlerFunc(Query)
-	handler.ServeHTTP(httpTest, resp)
+	if resp == nil {
+		t.Error("resp is nil")
+		return
+	}
 
 	if resp.Body == nil {
 		t.Error("response body is nil")
+		return
 	}
 	var responseBody responses.Body
-	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
+	errJSON := json.NewDecoder(resp.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON.Error())
 	}
@@ -237,7 +240,7 @@ func TestSearch(t *testing.T) {
 		return
 	}
 
-	if httpTest.Code != http.StatusOK {
+	if resp.StatusCode != http.StatusOK {
 		t.Error(*responseBody.Errors.Default)
 	}
 }
@@ -250,24 +253,24 @@ func TestUpdate(t *testing.T) {
 
 	marshalBytes := new(bytes.Buffer)
 	json.NewEncoder(marshalBytes).Encode(requestBody)
-	resp, errResp := http.NewRequest(
-		"POST",
-		"/m/roles/",
+	resp, errResp := clientx.Do(
+		"https://authn.briantaylorvann.com/m/roles/",
 		marshalBytes,
 	)
 	if errResp != nil {
 		t.Error(errResp.Error())
 	}
-
-	httpTest := httptest.NewRecorder()
-	handler := http.HandlerFunc(Mutation)
-	handler.ServeHTTP(httpTest, resp)
+	if resp == nil {
+		t.Error("resp is nil")
+		return
+	}
 
 	if resp.Body == nil {
 		t.Error("response body is nil")
+		return
 	}
 	var responseBody responses.Body
-	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
+	errJSON := json.NewDecoder(resp.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON.Error())
 	}
@@ -281,7 +284,7 @@ func TestUpdate(t *testing.T) {
 		return
 	}
 
-	if httpTest.Code != http.StatusOK {
+	if resp.StatusCode != http.StatusOK {
 		t.Error(*responseBody.Errors.Default)
 	}
 }
@@ -300,24 +303,24 @@ func TestUpdateAccess(t *testing.T) {
 
 	marshalBytes := new(bytes.Buffer)
 	json.NewEncoder(marshalBytes).Encode(requestBody)
-	resp, errResp := http.NewRequest(
-		"POST",
-		"/m/roles/",
+	resp, errResp := clientx.Do(
+		"https://authn.briantaylorvann.com/m/roles/",
 		marshalBytes,
 	)
 	if errResp != nil {
 		t.Error(errResp.Error())
 	}
-
-	httpTest := httptest.NewRecorder()
-	handler := http.HandlerFunc(Mutation)
-	handler.ServeHTTP(httpTest, resp)
+	if resp == nil {
+		t.Error("resp is nil")
+		return
+	}
 
 	if resp.Body == nil {
 		t.Error("response body is nil")
+		return
 	}
 	var responseBody responses.Body
-	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
+	errJSON := json.NewDecoder(resp.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON.Error())
 	}
@@ -331,7 +334,7 @@ func TestUpdateAccess(t *testing.T) {
 		return
 	}
 
-	if httpTest.Code != http.StatusOK {
+	if resp.StatusCode != http.StatusOK {
 		t.Error(*responseBody.Errors.Default)
 	}
 }
@@ -348,24 +351,24 @@ func TestDelete(t *testing.T) {
 
 	marshalBytes := new(bytes.Buffer)
 	json.NewEncoder(marshalBytes).Encode(requestBody)
-	resp, errResp := http.NewRequest(
-		"POST",
-		"/m/roles/",
+	resp, errResp := clientx.Do(
+		"https://authn.briantaylorvann.com/m/roles/",
 		marshalBytes,
 	)
 	if errResp != nil {
 		t.Error(errResp.Error())
 	}
-
-	httpTest := httptest.NewRecorder()
-	handler := http.HandlerFunc(Mutation)
-	handler.ServeHTTP(httpTest, resp)
+	if resp == nil {
+		t.Error("resp is nil")
+		return
+	}
 
 	if resp.Body == nil {
 		t.Error("response body is nil")
+		return
 	}
 	var responseBody responses.Body
-	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
+	errJSON := json.NewDecoder(resp.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON.Error())
 	}
@@ -379,7 +382,7 @@ func TestDelete(t *testing.T) {
 		return
 	}
 
-	if httpTest.Code != http.StatusOK {
+	if resp.StatusCode != http.StatusOK {
 		t.Error(*responseBody.Errors.Default)
 	}
 }
@@ -397,24 +400,24 @@ func TestUndelete(t *testing.T) {
 
 	marshalBytes := new(bytes.Buffer)
 	json.NewEncoder(marshalBytes).Encode(requestBody)
-	resp, errResp := http.NewRequest(
-		"POST",
-		"/m/roles/",
+	resp, errResp := clientx.Do(
+		"https://authn.briantaylorvann.com/m/roles/",
 		marshalBytes,
 	)
 	if errResp != nil {
 		t.Error(errResp.Error())
 	}
-
-	httpTest := httptest.NewRecorder()
-	handler := http.HandlerFunc(Mutation)
-	handler.ServeHTTP(httpTest, resp)
+	if resp == nil {
+		t.Error("resp is nil")
+		return
+	}
 
 	if resp.Body == nil {
 		t.Error("response body is nil")
+		return
 	}
 	var responseBody responses.Body
-	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
+	errJSON := json.NewDecoder(resp.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON.Error())
 	}
@@ -428,7 +431,7 @@ func TestUndelete(t *testing.T) {
 		return
 	}
 
-	if httpTest.Code != http.StatusOK {
+	if resp.StatusCode != http.StatusOK {
 		t.Error(*responseBody.Errors.Default)
 	}
 }

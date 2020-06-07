@@ -26,12 +26,24 @@ func writeRolesResponse(w http.ResponseWriter, roles *controller.Roles) {
 	})
 }
 
-func Read(w http.ResponseWriter, requestBody *requests.Body)  {
-	if requestBody == nil || requestBody.Params == nil {
-		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToReadRole,
-			Body: &errors.BadRequestFail,
-		})
+// validate guest session
+
+func dropRequestNotValidBody(w http.ResponseWriter, requestBody *requests.Body) bool {
+	if requestBody != nil && requestBody.Params != nil {
+		return false
+	}
+	errors.BadRequest(w, &responses.Errors{
+		RequestBody: &errors.BadRequestFail,
+	})
+	return true
+}
+
+func Read(
+	w http.ResponseWriter, 
+	sessionCookie *http.Cookie,
+	requestBody *requests.Body,
+)  {
+	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
 
@@ -42,7 +54,7 @@ func Read(w http.ResponseWriter, requestBody *requests.Body)  {
 		errAsStr := errParamsMarshal.Error()
 		errors.BadRequest(w, &responses.Errors{
 			Roles: &errors.FailedToReadRole,
-			Body: &errors.BadRequestFail,
+			RequestBody: &errors.BadRequestFail,
 			Default: &errAsStr,
 		})
 		return
@@ -79,12 +91,7 @@ func ValidateInfra(w http.ResponseWriter, sessionCookie *http.Cookie, requestBod
 	log.Println(sessionCookie)	
 	// drop if guest session is not valid
 	// need role 
-	if requestBody == nil || requestBody.Params == nil {
-		log.Println("Queries ValidateInfra -  bad body")
-		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToReadRole,
-			Body: &errors.BadRequestFail,
-		})
+	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
 
@@ -159,12 +166,12 @@ func ValidateInfra(w http.ResponseWriter, sessionCookie *http.Cookie, requestBod
 }
 
 
-func Index(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil || requestBody.Params == nil {
-		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToIndexRoles,
-			Body: &errors.BadRequestFail,
-		})
+func Index(
+	w http.ResponseWriter, 
+	sessionCookie *http.Cookie,
+	requestBody *requests.Body,
+) {
+	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
 
@@ -175,7 +182,7 @@ func Index(w http.ResponseWriter, requestBody *requests.Body) {
 		errAsStr := errParamsMarshal.Error()
 		errors.BadRequest(w, &responses.Errors{
 			Roles: &errors.FailedToIndexRoles,
-			Body: &errors.BadRequestFail,
+			RequestBody: &errors.BadRequestFail,
 			Default: &errAsStr,
 		})
 		return
@@ -197,12 +204,12 @@ func Index(w http.ResponseWriter, requestBody *requests.Body) {
 	})
 }
 
-func Search(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil || requestBody.Params == nil {
-		errors.BadRequest(w, &responses.Errors{
-			Roles: &errors.FailedToSearchRoles,
-			Body: &errors.BadRequestFail,
-		})
+func Search(
+	w http.ResponseWriter, 
+	sessionCookie *http.Cookie,
+	requestBody *requests.Body,
+) {
+	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
 
@@ -213,7 +220,7 @@ func Search(w http.ResponseWriter, requestBody *requests.Body) {
 		errAsStr := errParamsMarshal.Error()
 		errors.BadRequest(w, &responses.Errors{
 			Roles: &errors.FailedToIndexRoles,
-			Body: &errors.BadRequestFail,
+			RequestBody: &errors.BadRequestFail,
 			Default: &errAsStr,
 		})
 		return
@@ -224,7 +231,7 @@ func Search(w http.ResponseWriter, requestBody *requests.Body) {
 		errAsStr := errRoles.Error()
 		errors.BadRequest(w, &responses.Errors{
 			Roles: &errors.FailedToReadRole,
-			Body: &errors.BadRequestFail,
+			RequestBody: &errors.BadRequestFail,
 			Default: &errAsStr,
 		})
 		return

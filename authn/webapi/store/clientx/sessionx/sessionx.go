@@ -126,7 +126,7 @@ func GuestSession() (string, error) {
 	return  "", errors.New("nil session returned")
 }
 
-func infraSession() (string, error) {
+func InfraSession() (string, error) {
 	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
 		infraSessionRequestBody,
 	)
@@ -190,7 +190,7 @@ func setupSession() (*http.Cookie, error) {
 		return nil, errors.New("nil guest session returned")
 	}
 
-	infraSession, errInfraSession := infraSession()
+	infraSession, errInfraSession := InfraSession()
 	if errInfraSession != nil {
 		return nil, errInfraSession
 	}

@@ -11,6 +11,8 @@ import (
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
 	"webapi/sessions/sessionsx"
+
+	"github.com/taylor-vann/tvgtb/jwtx"
 )
 
 const (
@@ -56,13 +58,56 @@ func dropRequestNotValidBody(w http.ResponseWriter, requestBody *requests.Body) 
 	return true
 }
 
+func checkInfraSession(sessionToken string) (bool, error) {
+	isValid := jwtx.ValidateGenericToken(&jwtx.ValidateGenericTokenParams{
+		Token: sessionToken,
+		Issuer: "briantaylorvann.com",
+	})
+	if !isValid {
+		return false, nil
+	}
+
+	details, errDetails := jwtx.RetrieveTokenDetailsFromString(sessionToken)
+	if errDetails != nil {
+		return false, errDetails
+	}
+
+	if details.Payload.Sub == "infra" {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+func validateSessionInWhitelist(environment string, sessionToken string) (bool, error) {
+	return sessionsx.Read(&sessionsx.ValidateParams{
+		Environment: environment,
+		Token: sessionToken,
+	})
+}
+
+func validateInfraSessionCache(environment string, sessionToken string) (bool, error) {
+	infraSessionExists, errInfraSessionExists := validateSessionInWhitelist(
+		environment,
+		sessionToken,
+	)
+	if errInfraSessionExists != nil {
+		return false, errInfraSessionExists
+	}
+	if !infraSessionExists {
+		return false, nil
+	}
+
+	return checkInfraSession(sessionToken)
+}
+
 func CreateGuestSession(w http.ResponseWriter, requestBody *requests.Body) {
 	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
 	
-	bytes, _ := json.Marshal(requestBody.Params)
 	var params requests.Guest
+	bytes, _ := json.Marshal(requestBody.Params)
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
 		errors.DefaultResponse(w, errParamsMarshal)
@@ -74,23 +119,23 @@ func CreateGuestSession(w http.ResponseWriter, requestBody *requests.Body) {
 		Claims: *sessionsx.CreateGuestSessionClaims(),
 	})
 
-	if errSession != nil {
-		errorAsStr := errSession.Error()
-		errors.BadRequest(w, &responses.Errors{
-			Session: &errors.CreateGuestSessionErrorMessage,
-			Default: &errorAsStr,
+	if errSession == nil {
+		http.SetCookie(w, createGuestSessionCookie(session.Token))
+		w.Header().Set(ContentType, ApplicationJson)
+		json.NewEncoder(w).Encode(&responses.Body{
+			Session: session,
 		})
 		return
 	}
 
-	http.SetCookie(w, createGuestSessionCookie(session.Token))
-	w.Header().Set(ContentType, ApplicationJson)
-	json.NewEncoder(w).Encode(&responses.Body{
-		Session: session,
-	})
+	errors.DefaultResponse(w, errSession)
 }
 
-func CreateInfraSession(w http.ResponseWriter, cookie *http.Cookie, requestBody *requests.Body) {
+func CreateInfraSession(
+	w http.ResponseWriter,
+	sessionCookie *http.Cookie,
+	requestBody *requests.Body,
+) {
 	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
@@ -99,8 +144,8 @@ func CreateInfraSession(w http.ResponseWriter, cookie *http.Cookie, requestBody 
 		return
 	}
 	
-	bytes, _ := json.Marshal(requestBody.Params)
 	var params requests.Infra
+	bytes, _ := json.Marshal(requestBody.Params)
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
 		errors.DefaultResponse(w, errParamsMarshal)
@@ -109,7 +154,7 @@ func CreateInfraSession(w http.ResponseWriter, cookie *http.Cookie, requestBody 
 
 	resp, errResp := fetch.ValidateInfraRole(
 		fetchRequests.ValidateGuestUser(params),
-		cookie,
+		sessionCookie,
 	)
 	if errResp != nil {
 		errors.DefaultResponse(w, errResp)
@@ -119,16 +164,16 @@ func CreateInfraSession(w http.ResponseWriter, cookie *http.Cookie, requestBody 
 		Environment: params.Environment,
 		Claims: *sessionsx.CreateInfraSessionClaims(resp.UserID),
 	})
-	if errSession != nil {
-		errors.DefaultResponse(w, errSession)
-		return
+
+	if errSession == nil {
+		http.SetCookie(w, createInfraSessionCookie(session.Token))
+		w.Header().Set(ContentType, ApplicationJson)
+		json.NewEncoder(w).Encode(&responses.Body{
+			Session: session,
+		})
 	}
 
-	http.SetCookie(w, createInfraSessionCookie(session.Token))
-	w.Header().Set(ContentType, ApplicationJson)
-	json.NewEncoder(w).Encode(&responses.Body{
-		Session: session,
-	})
+	errors.DefaultResponse(w, errSession)
 }
 
 // func updateGenericSession(p *requests.Update) (*sessionsx.Session, error) {

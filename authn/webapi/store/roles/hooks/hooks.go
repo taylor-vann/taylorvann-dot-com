@@ -36,7 +36,7 @@ const (
 func Query(w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
 		errors.BadRequest(w, &responses.Errors{
-			Body: &errors.BadRequestFail,
+			RequestBody: &errors.BadRequestFail,
 		})
 		return
 	}
@@ -44,12 +44,7 @@ func Query(w http.ResponseWriter, r *http.Request) {
 	// only allow no session if "create guest session"
 	cookie, errCookie := r.Cookie(SessionCookieHeader)
 	if errCookie != nil {
-		log.Println("didn't find our session cookie!")
-
-		errAsStr := errCookie.Error()
-		errors.BadRequest(w, &responses.Errors{
-			Default: &errAsStr,
-		})
+		errors.DefaultResponse(w, errCookie)
 		return
 	}
 
@@ -60,19 +55,20 @@ func Query(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// validate infra session
 	log.Println("query action: ", body.Action)
 	switch body.Action {
 	case Read:
-		queries.Read(w, &body)
+		queries.Read(w, cookie, &body)
 	case ValidateInfra:
 		queries.ValidateInfra(w, cookie, &body)
 	case Search:
-		queries.Search(w, &body)
+		queries.Search(w, cookie, &body)
 	case Index:
-		queries.Index(w, &body)
+		queries.Index(w, cookie, &body)
 	default:
 		errors.BadRequest(w, &responses.Errors{
-			Body: &errors.UnrecognizedQuery,
+			RequestBody: &errors.UnrecognizedQuery,
 		})
 	}
 }
@@ -80,8 +76,15 @@ func Query(w http.ResponseWriter, r *http.Request) {
 func Mutation(w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
 		errors.BadRequest(w, &responses.Errors{
-			Body: &errors.BadRequestFail,
+			RequestBody: &errors.BadRequestFail,
 		})
+		return
+	}
+
+	// // only allow no session if "create guest session"
+	cookie, errCookie := r.Cookie(SessionCookieHeader)
+	if errCookie != nil {
+		errors.DefaultResponse(w, errCookie)
 		return
 	}
 
@@ -94,18 +97,18 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 
 	switch body.Action {
 	case Create:
-		mutations.Create(w, &body)
+		mutations.Create(w, cookie, &body)
 	case Update:
-		mutations.Update(w, &body)
+		mutations.Update(w, cookie, &body)
 	case UpdateAccess:
-		mutations.UpdateAccess(w, &body)
+		mutations.UpdateAccess(w, cookie, &body)
 	case Delete:
-		mutations.Delete(w, &body)
+		mutations.Delete(w, cookie, &body)
 	case Undelete:
-		mutations.Undelete(w, &body)
+		mutations.Undelete(w, cookie, &body)
 	default:
 		errors.BadRequest(w, &responses.Errors{
-			Body: &errors.UnrecognizedMutation,
+			RequestBody: &errors.UnrecognizedMutation,
 		})	
 	}
 }

@@ -9,7 +9,15 @@ import (
 	"webapi/store/users/hooks/errors"
 	"webapi/store/users/hooks/requests"
 	"webapi/store/users/hooks/responses"
+
+	"webapi/store/clientx"
+	clientxRequests "webapi/store/clientx/fetch/requests"
+
+
+	"github.com/taylor-vann/tvgtb/jwtx"
 )
+
+const SessionCookieHeader = "briantaylorvann.com_session"
 
 func writeUsersResponse(w http.ResponseWriter, users *controller.SafeUsers) {
 	w.Header().Set("Content-Type", "application/json")
@@ -19,12 +27,59 @@ func writeUsersResponse(w http.ResponseWriter, users *controller.SafeUsers) {
 	})
 }
 
-func Create(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil || requestBody.Params == nil {
-		errors.BadRequest(w, &responses.Errors{
-			Users: &errors.FailedToCreateUser,
-			Body: &errors.BadRequestFail,
-		})
+func checkInfraSession(sessionCookie *http.Cookie) (bool, error) {
+	details, errDetails := jwtx.RetrieveTokenDetailsFromString(sessionCookie.Value)
+	if errDetails != nil {
+		return false, errDetails
+	}
+	if details == nil {
+		return false, nil
+	}
+	if details.Payload.Sub == "infra" && details.Payload.Aud == "public" {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+// just pass the environment
+func validateInfraSession(sessionCookie *http.Cookie, environment string) (bool, error) {
+	sessionIsValid, errSessionIsValid := checkInfraSession(sessionCookie)
+	if !sessionIsValid || errSessionIsValid != nil {
+		return sessionIsValid, errSessionIsValid
+	}
+
+	// remote check, TODO
+	session, errSession := clientx.ValidateSession(clientxRequests.ValidateSession{
+		Environment: environment,
+		Token: sessionCookie.Value,
+	})
+	if errSession != nil {
+		return false, errSession
+	}
+	if session != "" {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+func dropRequestNotValidBody(w http.ResponseWriter, requestBody *requests.Body) bool {
+	if requestBody != nil && requestBody.Params != nil {
+		return false
+	}
+	errors.BadRequest(w, &responses.Errors{
+		RequestBody: &errors.BadRequestFail,
+	})
+	return true
+}
+
+func Create(
+	w http.ResponseWriter,
+	sessionCookie *http.Cookie,
+	requestBody *requests.Body,
+) {
+	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
 
@@ -53,12 +108,12 @@ func Create(w http.ResponseWriter, requestBody *requests.Body) {
 	})
 }
 
-func Update(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil || requestBody.Params == nil {
-		errors.BadRequest(w, &responses.Errors{
-			Users: &errors.FailedToUpdateUser,
-			Body: &errors.BadRequestFail,
-		})
+func Update(
+	w http.ResponseWriter,
+	sessionCookie *http.Cookie,
+	requestBody *requests.Body,
+) {
+	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
 
@@ -87,12 +142,12 @@ func Update(w http.ResponseWriter, requestBody *requests.Body) {
 	})
 }
 
-func UpdateEmail(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil || requestBody.Params == nil {
-		errors.BadRequest(w, &responses.Errors{
-			Users: &errors.FailedToUpdateEmailUser,
-			Body: &errors.BadRequestFail,
-		})
+func UpdateEmail(
+	w http.ResponseWriter,
+	sessionCookie *http.Cookie,
+	requestBody *requests.Body,
+) {
+	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
 
@@ -121,12 +176,12 @@ func UpdateEmail(w http.ResponseWriter, requestBody *requests.Body) {
 	})
 }
 
-func UpdatePassword(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil || requestBody.Params == nil {
-		errors.BadRequest(w, &responses.Errors{
-			Users: &errors.FailedToUpdatePasswordUser,
-			Body: &errors.BadRequestFail,
-		})
+func UpdatePassword(
+	w http.ResponseWriter,
+	sessionCookie *http.Cookie,
+	requestBody *requests.Body,
+) {
+	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
 
@@ -155,12 +210,12 @@ func UpdatePassword(w http.ResponseWriter, requestBody *requests.Body) {
 	})
 }
 
-func Delete(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil || requestBody.Params == nil {
-		errors.BadRequest(w, &responses.Errors{
-			Users: &errors.FailedToDeleteUser,
-			Body: &errors.BadRequestFail,
-		})
+func Delete(
+	w http.ResponseWriter,
+	sessionCookie *http.Cookie,
+	requestBody *requests.Body,
+) {
+	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
 
@@ -189,12 +244,12 @@ func Delete(w http.ResponseWriter, requestBody *requests.Body) {
 	})
 }
 
-func Undelete(w http.ResponseWriter, requestBody *requests.Body) {
-	if requestBody == nil || requestBody.Params == nil {
-		errors.BadRequest(w, &responses.Errors{
-			Users: &errors.FailedToUndeleteUser,
-			Body: &errors.BadRequestFail,
-		})
+func Undelete(
+	w http.ResponseWriter,
+	sessionCookie *http.Cookie,
+	requestBody *requests.Body,
+) {
+	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
 

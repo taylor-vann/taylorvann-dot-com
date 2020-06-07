@@ -34,14 +34,14 @@ func Query(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
+	cookie, _ := r.Cookie(SessionCookieHeader)
+
 	var body requests.Body
 	errDecode := json.NewDecoder(r.Body).Decode(&body)
 	if errDecode != nil {
 		errors.DefaultResponse(w, errDecode)
 		return
 	}
-
-	cookie, _ := r.Cookie(SessionCookieHeader)
 
 	switch body.Action {
 	case ValidateGuestSession:	// the only public guest query
@@ -61,6 +61,8 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	cookie, _ := r.Cookie(SessionCookieHeader)
+
 	var body requests.Body
 	errJsonDecode := json.NewDecoder(r.Body).Decode(&body)
 	if errJsonDecode != nil {
@@ -68,8 +70,6 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
-	cookie, _ := r.Cookie(SessionCookieHeader)
-
 	switch body.Action {
 	// case CreateDocumentSession:
 	// 	mutations.CreateDocumentSession(w, &body)

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"log"
 
 	"webapi/sessions/hooks/errors"
 	"webapi/sessions/hooks/requests"
@@ -13,6 +12,8 @@ import (
 
 	"github.com/taylor-vann/tvgtb/jwtx"
 )
+
+const SessionCookieHeader = "briantaylorvann_session"
 
 func dropRequestNotValidBody(w http.ResponseWriter, requestBody *requests.Body) bool {
 	if requestBody != nil && requestBody.Params != nil {
@@ -24,14 +25,41 @@ func dropRequestNotValidBody(w http.ResponseWriter, requestBody *requests.Body) 
 	return true
 }
 
-func checkInfraSession(sessionCookie *http.Cookie) (bool, error) {
-	details, errDetails := jwtx.RetrieveTokenDetailsFromString(sessionCookie.Value)
+func checkGuestSession(sessionToken string) (bool, error) {
+	isValid := jwtx.ValidateGenericToken(&jwtx.ValidateGenericTokenParams{
+		Token: sessionToken,
+		Issuer: "briantaylorvann.com",
+	})
+	if !isValid {
+		return false, nil
+	}
+
+	details, errDetails := jwtx.RetrieveTokenDetailsFromString(sessionToken)
 	if errDetails != nil {
 		return false, errDetails
 	}
-	if details == nil {
+
+	if details.Payload.Sub == "guest" {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+func checkInfraSession(sessionToken string) (bool, error) {
+	isValid := jwtx.ValidateGenericToken(&jwtx.ValidateGenericTokenParams{
+		Token: sessionToken,
+		Issuer: "briantaylorvann.com",
+	})
+	if !isValid {
 		return false, nil
 	}
+
+	details, errDetails := jwtx.RetrieveTokenDetailsFromString(sessionToken)
+	if errDetails != nil {
+		return false, errDetails
+	}
+
 	if details.Payload.Sub == "infra" {
 		return true, nil
 	}
@@ -39,59 +67,75 @@ func checkInfraSession(sessionCookie *http.Cookie) (bool, error) {
 	return false, nil
 }
 
-func validateInfraSessionRemotely(w http.ResponseWriter, p *requests.Validate, sessionCookie *http.Cookie) (bool, error) {
-	infraSessionExists, errInfraSessionExists := sessionsx.Read(&sessionsx.ValidateParams{
-		Environment: p.Environment,
-		Token: sessionCookie.Value,
+func validateSessionInWhitelist(environment string, sessionToken string) (bool, error) {
+	return sessionsx.Read(&sessionsx.ValidateParams{
+		Environment: environment,
+		Token: sessionToken,
 	})
-	if errInfraSessionExists != nil {
-		log.Println("err checking infra session")
-		return false, errInfraSessionExists
+}
+
+func validateGuestSessionCache(environment string, sessionToken string) (bool, error) {
+	guestSessionExists, errGuestSessionExists := validateSessionInWhitelist(
+		environment,
+		sessionToken,
+	)
+	if errGuestSessionExists != nil {
+		return false, errGuestSessionExists
 	}
-	if !infraSessionExists {
-		log.Println("infra session is not valid")
+	if !guestSessionExists {
 		return false, nil
 	}
 
-	return checkInfraSession(sessionCookie)
+	return checkGuestSession(sessionToken)
+}
+
+func validateInfraSessionCache(environment string, sessionToken string) (bool, error) {
+	infraSessionExists, errInfraSessionExists := validateSessionInWhitelist(
+		environment,
+		sessionToken,
+	)
+	if errInfraSessionExists != nil {
+		return false, errInfraSessionExists
+	}
+	if !infraSessionExists {
+		return false, nil
+	}
+
+	return checkInfraSession(sessionToken)
 }
 
 // requires no cookies or authorization
-func ValidateGuestSession(w http.ResponseWriter, sessionCookie *http.Cookie, requestBody *requests.Body) {
+func ValidateGuestSession(
+	w http.ResponseWriter,
+	sessionCookie *http.Cookie,
+	requestBody *requests.Body,
+) {
 	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
 	if sessionCookie == nil {
-		errors.CustomResponse(w, errors.InvalidInfraCredentials)
+		errors.CustomResponse(w, errors.NilInfraCredentials)
 		return
 	}
 
-	tokenDetails, errTokenDetails := jwtx.RetrieveTokenDetailsFromString(
+	var params requests.ValidateGuest
+	bytes, _ := json.Marshal(requestBody.Params)
+	errParamsUnmarshal := json.Unmarshal(bytes, &params)
+	if errParamsUnmarshal != nil {		
+		errors.DefaultResponse(w, errParamsUnmarshal)
+		return
+	}
+
+	sessionIsValid, errSessionIsValid := validateGuestSessionCache(
+		params.Environment,
 		sessionCookie.Value,
 	)
-	if errTokenDetails != nil {
-		errors.DefaultResponse(w, errTokenDetails)
+	if errSessionIsValid != nil {
+		errors.DefaultResponse(w, errSessionIsValid)
 		return
 	}
-	if tokenDetails.Payload.Aud != "public" || tokenDetails.Payload.Sub != "guest" {
-		errors.CustomResponse(w, errors.InvalidSessionCredentials)
-		return
-	}
-
-	bytes, _ := json.Marshal(requestBody.Params)
-	var params requests.ValidateGuest
-	errParamsMarshal := json.Unmarshal(bytes, &params)
-	if errParamsMarshal != nil {		
-		errors.DefaultResponse(w, errParamsMarshal)
-		return
-	}
-
-	sessionIsValid, errReadSession := sessionsx.Read(&requests.Read{
-		Environment: params.Environment,
-		Token: sessionCookie.Value,
-	})
-	if errReadSession != nil {
-		errors.DefaultResponse(w, errReadSession)
+	if !sessionIsValid {
+		errors.CustomResponse(w, errors.InvalidGuestCredentials)
 		return
 	}
 	
@@ -108,31 +152,34 @@ func ValidateGuestSession(w http.ResponseWriter, sessionCookie *http.Cookie, req
 	errors.CustomResponse(w, errors.InvalidSessionCredentials)
 }
 
-func ValidateSession(w http.ResponseWriter, sessionCookie *http.Cookie, requestBody *requests.Body) {
+func ValidateSession(
+	w http.ResponseWriter,
+	sessionCookie *http.Cookie,
+	requestBody *requests.Body,
+) {
+	// check session
 	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
 	if sessionCookie == nil {
-		errors.CustomResponse(w, errors.InvalidInfraCredentials)
+		errors.CustomResponse(w, errors.NilInfraCredentials)
 		return
 	}
-
-	bytes, _ := json.Marshal(requestBody.Params)
+	
+	// unmarshal params
 	var params requests.Validate
-	errParamsMarshal := json.Unmarshal(bytes, &params)
-	if errParamsMarshal != nil {	
-		log.Println("err params marshal")
-		errors.DefaultResponse(w, errParamsMarshal)
+	bytes, _ := json.Marshal(requestBody.Params)
+	errParamsUnmarshal := json.Unmarshal(bytes, &params)
+	if errParamsUnmarshal != nil {	
+		errors.DefaultResponse(w, errParamsUnmarshal)
 		return
 	}
 
-	infraSessionIsValid, errInfraSessionIsValid := validateInfraSessionRemotely(
-		w,
-		&params,
-		sessionCookie,
+	infraSessionIsValid, errInfraSessionIsValid := validateInfraSessionCache(
+		params.Environment,
+		sessionCookie.Value,
 	)
 	if errInfraSessionIsValid != nil {
-		log.Println("err with infra session")
 		errors.DefaultResponse(w, errInfraSessionIsValid)
 		return
 	}
@@ -141,16 +188,13 @@ func ValidateSession(w http.ResponseWriter, sessionCookie *http.Cookie, requestB
 		return
 	}
 
-	// actual session
 	sessionIsValid, errReadSession := sessionsx.Read(&params)
 	if errReadSession != nil {
-		log.Println("err reading session")
 		errors.DefaultResponse(w, errReadSession)
 		return
 	}
 	
 	if sessionIsValid {
-		log.Println("sessionIs valid!")
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: &responses.Session{
@@ -159,8 +203,6 @@ func ValidateSession(w http.ResponseWriter, sessionCookie *http.Cookie, requestB
 		})
 		return
 	}
-
-	log.Println("couldn't validate session")
 
 	errors.CustomResponse(w, errors.InvalidSessionCredentials)
 }

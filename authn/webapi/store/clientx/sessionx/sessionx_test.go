@@ -39,7 +39,7 @@ func TestGuestSession(t *testing.T) {
 }
 
 func TestInfraSession(t *testing.T) {
-	session, errSession := infraSession()
+	session, errSession := InfraSession()
 	if errSession != nil {
 		t.Error("session is nil")
 		t.Error(errSession)
