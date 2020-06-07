@@ -4,18 +4,12 @@
 package main
 
 import (
-	"log"
-
 	"webapi/certificatesx"
 	"webapi/server"
 )
 
 func main() {
-	output, errCerts := certificatesx.Create()
-	if errCerts != nil {
-		log.Println(output)
-	}
+	output, _ := certificatesx.Create()
 
 	server.CreateServer()
-	log.Println("created server")
 }
