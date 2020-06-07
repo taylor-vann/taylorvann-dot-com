@@ -1,0 +1,14 @@
+test clientx.go
+
+use clientx session to retest:
+  users
+  roles
+  sessions
+
+these apis should only be accessed by infra sessions
+
+start adding toolbox repository to toolbox directory
+keep all the code together
+
+// revise toolbox
+clientx is now functional, go back and make clientx more separate
