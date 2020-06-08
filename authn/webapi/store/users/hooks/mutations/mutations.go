@@ -13,7 +13,7 @@ import (
 	"webapi/store/clientx"
 	fetchRequests "webapi/store/clientx/fetch/requests"
 
-	"github.com/taylor-vann/tvgtb/jwtx"
+	"github.com/taylor-vann/toolbox-go/jwtx"
 )
 
 const SessionCookieHeader = "briantaylorvann.com_session"

@@ -5,13 +5,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/taylor-vann/tvgtb/jwtx"
+	"github.com/taylor-vann/toolbox-go/jwtx"
 )
 
 type JWTClaimTestPlan = []jwtx.Claims
 
 const TestEnvironment = "UNIT_TESTS"
-var randomJWTClaims = generateRandomJWTClaims("public", 5)
+var randomJWTClaims = generateRandomJWTClaims("client", 5)
 
 func getNowAsMS() MilliSeconds {
 	return time.Now().UnixNano() / int64(time.Millisecond)

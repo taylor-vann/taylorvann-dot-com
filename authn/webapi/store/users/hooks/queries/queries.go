@@ -14,7 +14,7 @@ import (
 	"webapi/store/users/hooks/requests"
 	"webapi/store/users/hooks/responses"
 
-	"github.com/taylor-vann/tvgtb/jwtx"
+	"github.com/taylor-vann/toolbox-go/jwtx"
 )
 
 func writeUsersResponse(w http.ResponseWriter, users *controller.SafeUsers) {

@@ -7,14 +7,21 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"os"
+
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
 
-	"github.com/taylor-vann/tvgtb/jwtx"
+	"github.com/taylor-vann/toolbox-go/jwtx"
 )
 
 var queryAddress = "https://authn.briantaylorvann.com/q/sessions/"
 var mutationAddress = "https://authn.briantaylorvann.com/m/sessions/"
+
+var (
+	InfraEmail 		= os.Getenv("INFRA_OVERLORD_EMAIL")
+	InfraPassword = os.Getenv("INFRA_OVERLORD_PASSWORD")
+)
 
 var GuestSessionTest string
 
@@ -170,13 +177,60 @@ func TestValidateGuestSession(t *testing.T) {
 	if responseBody.Session == nil {
 		t.Error("nil session returned")
 	}
-
-	// if responseBody.Errors.Default != nil {
-	// 	t.Error(*responseBody.Errors.Default)
-	// }
-
-	// validate session
 }
+
+// func TestCreateClientSession(t *testing.T) {
+// 	requestBody := requests.Body{
+// 		Action: CreateClientSession,
+// 		Params: requests.ClientUser{
+// 			Environment: "LOCAL",
+// 			Email: InfraEmail,
+// 			Password: InfraPassword,
+// 		},
+// 	}
+
+// 	marshalBody, errMarshalBody := json.Marshal(requestBody)
+// 	if errMarshalBody != nil {
+// 		t.Error(errMarshalBody)
+// 		return
+// 	}
+
+// 	req, errReq := http.NewRequest(
+// 		"POST",
+// 		"/m/sessions/",
+// 		bytes.NewBuffer(marshalBody),
+// 	)
+// 	req.AddCookie(&http.Cookie{
+// 		Name: "briantaylorvann.com_session",
+// 		Value: GuestSessionTest,
+// 	})
+
+// 	if req == nil {
+// 		t.Error(req)
+// 		return
+// 	}
+// 	if errReq != nil {
+// 		t.Error(errReq.Error())
+// 		return
+// 	}
+	
+// 	httpTest := httptest.NewRecorder()
+// 	handler := http.HandlerFunc(Query)
+// 	handler.ServeHTTP(httpTest, req)
+
+// 	if httpTest.Code != http.StatusOK {
+// 		t.Error(httpTest.Code)
+// 	}
+
+// 	var responseBody responses.Body
+// 	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
+// 	if errJSON != nil {
+// 		t.Error(errJSON.Error())
+// 	}
+// 	if responseBody.Session == nil {
+// 		t.Error("nil session returned")
+// 	}
+// }
 
 // func TestCreateDocumentSession(t *testing.T) {
 // 	requestBody := requests.Body{

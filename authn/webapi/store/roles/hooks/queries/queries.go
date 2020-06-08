@@ -14,7 +14,7 @@ import (
 	"webapi/store/roles/hooks/requests"
 	"webapi/store/roles/hooks/responses"
 
-	"github.com/taylor-vann/tvgtb/jwtx"
+	"github.com/taylor-vann/toolbox-go/jwtx"
 )
 
 const InfraOverlordAdmin = "INFRA_OVERLORD_ADMIN"

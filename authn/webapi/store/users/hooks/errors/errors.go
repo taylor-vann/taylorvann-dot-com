@@ -15,7 +15,7 @@ var (
 	InvalidSession				 				= "invalid session"
 	InvalidGuestSession				 		= "invalid guest session"
 	InvalidInfraSession				 		= "invalid infra session"
-	NilInfraCredentials 		 	 		 = "nil infra session credentials provided"
+	NilInfraCredentials 		 	 		= "nil infra session credentials provided"
 	FailedToValidateGuestSession	= "failed to validate guest session"
 	FailedToCreateUser 	 		 	 		= "failed to create User"
 	FailedToReadUser	 	 		 	 		= "failed to read User"

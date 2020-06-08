@@ -17,12 +17,13 @@ type Guest struct {
 	Environment string
 }
 
-type Infra struct {
+type InfraUser struct {
 	Environment string `json:"environment"`
 	Email				string `json:"email"`
 	Password		string `json:"password"`
 }
 
+type ClientUser = InfraUser
 
 type Body struct {
 	Action string 		 `json:"action"`

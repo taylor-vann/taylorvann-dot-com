@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/taylor-vann/tvgtb/graylistx"
+	"github.com/taylor-vann/toolbox-go/graylistx"
 )
 
 const (

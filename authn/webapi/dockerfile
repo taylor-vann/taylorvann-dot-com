@@ -4,14 +4,14 @@ VOLUME [ "/go/src/webapi/", "/usr/local/certs/live" ]
 
 RUN apk --update add --no-cache build-base openssl git certbot
 
-RUN go get github.com/taylor-vann/tvgtb/certificatesx/ \
-github.com/taylor-vann/tvgtb/clientx/ \
-github.com/taylor-vann/tvgtb/graylistx/ \
-github.com/taylor-vann/tvgtb/jwtx/ \
-github.com/taylor-vann/tvgtb/passwordx/ \
-github.com/taylor-vann/tvgtb/pgsqlx/ \
-github.com/taylor-vann/tvgtb/redisx/ \
-github.com/taylor-vann/tvgtb/storex/ \
+RUN go get github.com/taylor-vann/toolbox-go/certificatesx/ \
+github.com/taylor-vann/toolbox-go/clientx/ \
+github.com/taylor-vann/toolbox-go/graylistx/ \
+github.com/taylor-vann/toolbox-go/jwtx/ \
+github.com/taylor-vann/toolbox-go/passwordx/ \
+github.com/taylor-vann/toolbox-go/pgsqlx/ \
+github.com/taylor-vann/toolbox-go/redisx/ \
+github.com/taylor-vann/toolbox-go/storex/ \
 github.com/lib/pq/ \
 github.com/gomodule/redigo/redis/ \
 golang.org/x/crypto/argon2/
