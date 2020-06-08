@@ -2,7 +2,7 @@ package sessionsx
 
 import (
 	"testing"
-	"github.com/taylor-vann/toolbox-go/jwtx"
+	"toolbox/jwtx"
 	"webapi/store"
 )
 

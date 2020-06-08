@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/taylor-vann/toolbox-go/graylistx"
+	"toolbox/graylistx"
 	
 	"webapi/sessions/whitelist/constants"
 )

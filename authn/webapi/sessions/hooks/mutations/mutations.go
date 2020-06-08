@@ -12,7 +12,7 @@ import (
 	"webapi/sessions/hooks/responses"
 	"webapi/sessions/sessionsx"
 
-	"github.com/taylor-vann/toolbox-go/jwtx"
+	"toolbox/jwtx"
 )
 
 const (

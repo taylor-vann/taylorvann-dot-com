@@ -6,10 +6,9 @@ services:
   webapi:
     container_name: authn_webapi
     depends_on:
-      - authn_store_db
-      - authn_infra_cache
-      - authn_store_cache
-      - authn_whitelist_cache
+      - authn_db_store
+      - authn_cache_store
+      - authn_cache_whitelist
     build:
       context: ./webapi/
       dockerfile: dockerfile
@@ -23,11 +22,12 @@ services:
       - "logs.briantaylorvann.com:10.88.0.1"
     volumes:
       - ./webapi/:/go/src/webapi/
+      - ./toolbox/:/go/src/toolbox/
     command: "go run /go/src/webapi/main.go"
   store_db:
-    container_name: authn_store_db
+    container_name: authn_db_store
     build:
-      context: ./store_db/
+      context: ./db_store/
       dockerfile: dockerfile.dev
     restart: always
     env_file:
@@ -35,27 +35,19 @@ services:
     volumes:
       - ./store_db/postgres_data/:/var/lib/postgresql/data/
     command: "-p 5100"
-  infra_cache:
-    container_name: authn_infra_cache
+  cache_store:
+    container_name: authn_cache_store
     build:
-      context: ./infra_cache/
+      context: ./cache_store/
       dockerfile: dockerfile.dev
     restart: always
     volumes:
-      - ./infra_cache/redis_data/:/data
-  store_cache:
-    container_name: authn_store_cache
+      - ./cache_store/redis_data/:/data
+  cache_whitelist:
+    container_name: authn_cache_whitelist
     build:
-      context: ./store_cache/
+      context: ./cache_whitelist/
       dockerfile: dockerfile.dev
     restart: always
     volumes:
-      - ./store_cache/redis_data/:/data
-  whitelist_cache:
-    container_name: authn_whitelist_cache
-    build:
-      context: ./whitelist_cache/
-      dockerfile: dockerfile.dev
-    restart: always
-    volumes:
-      - ./whitelist_cache/redis_data/:/data
+      - ./cache_whitelist/redis_data/:/data

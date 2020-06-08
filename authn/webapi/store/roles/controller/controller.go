@@ -12,7 +12,7 @@ import (
 	"webapi/store/roles/controller/statements"
 	"webapi/store/roles/controller/utils"
 
-	"github.com/taylor-vann/toolbox-go/storex"
+	"toolbox/storex"
 )
 
 type Row struct {

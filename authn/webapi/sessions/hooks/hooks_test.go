@@ -12,7 +12,7 @@ import (
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
 
-	"github.com/taylor-vann/toolbox-go/jwtx"
+	"toolbox/jwtx"
 )
 
 var queryAddress = "https://authn.briantaylorvann.com/q/sessions/"
