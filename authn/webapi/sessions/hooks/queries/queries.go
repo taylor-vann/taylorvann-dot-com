@@ -10,7 +10,7 @@ import (
 	"webapi/sessions/hooks/responses"
 	"webapi/sessions/sessionsx"
 
-	"github.com/taylor-vann/tvgtb/jwtx"
+	"toolbox/jwtx"
 )
 
 const SessionCookieHeader = "briantaylorvann_session"
@@ -39,7 +39,7 @@ func checkGuestSession(sessionToken string) (bool, error) {
 		return false, errDetails
 	}
 
-	if details.Payload.Sub == "guest" {
+	if details.Payload.Sub == "guest" && details.Payload.Aud == "client" {
 		return true, nil
 	}
 

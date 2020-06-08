@@ -10,7 +10,7 @@ import (
 	"webapi/sessions/sessionsx/constants"
 	"webapi/sessions/whitelist"
 
-	"github.com/taylor-vann/tvgtb/jwtx"
+	"toolbox/jwtx"
 )
 
 type MilliSeconds = int64
@@ -33,7 +33,7 @@ type UserParams struct {
 }
 
 type AccountParams struct {
-	Environment string `json:"environment`
+	Environment string 	`json:"environment`
 	Email 			string	`json:"email"`
 }
 
@@ -56,7 +56,7 @@ func getLifetimeByAudience(audience string) int64 {
 	switch audience {
 	case constants.Guest:
 		return constants.OneDayAsMS
-	case constants.Public:
+	case constants.Client:
 		return constants.ThreeDaysAsMS
 	case constants.Infra:
 		return constants.ThreeSixtyFiveDaysAsMS
@@ -89,11 +89,20 @@ func CreateInfraSessionClaims(userID int64) *SessionClaims {
 	})
 }
 
+func CreateClientSessionClaims(userID int64) *SessionClaims {
+	userIDAsStr := strconv.FormatInt(userID, 10)
+	return CreateSessionClaims(&CreateClaimsParams{
+		Iss: constants.BrianTaylorVannDotCom,
+		Sub: constants.Client,
+		Aud: userIDAsStr,
+	})
+}
+
 func CreateGuestSessionClaims() *SessionClaims {
 	return CreateSessionClaims(&CreateClaimsParams{
 		Iss: constants.BrianTaylorVannDotCom,
 		Sub: constants.Guest,
-		Aud: constants.Public,
+		Aud: constants.Client,
 	})
 }
 
@@ -161,7 +170,7 @@ func CreateUserSessionClaims(p *UserParams) (*SessionClaims, error) {
 	claims := CreateSessionClaims(&CreateClaimsParams{
 		Iss: constants.BrianTaylorVannDotCom,
 		Sub: string(p.UserID),
-		Aud: constants.Public,
+		Aud: constants.Client,
 	})
 
 	return claims, nil

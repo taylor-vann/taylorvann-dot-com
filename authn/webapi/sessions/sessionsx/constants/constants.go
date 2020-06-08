@@ -3,7 +3,7 @@ package constants
 const (
 	Guest            			= "guest"
 	Infra									= "infra"
-	Public           			= "public"
+	Client           			= "client"
 	Session         		  = "session"
 	BrianTaylorVannDotCom = "briantaylorvann.com"
 
