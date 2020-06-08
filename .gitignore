@@ -16,15 +16,19 @@
 
 ## Client
 #    ignore all node modules
-**/node_modules/
+node_modules/*
 
-## Whitelist
-#    ignore all backups
-/authn/whitelist_cache/redis_data/*
+## Redis
+#    ignore all redis data
+redis_data/*
 
-## Store
-#    ignore all backups
-/authn/store_cache/redis_data/*
+## Postgres
+#     This pattern will ignore all files but a simple empty ".keep" file.
+postgres_data/*
+
+
+
+### SUSPECT
 
 ## Webapi build
 #   ignore binary
@@ -34,16 +38,14 @@
 /gateway/webapi/main
 
 # ignore the build
-web_client/prod/
+/web_client/prod/
+
 
 # ignore yarn
 yarn-error.log
 yarn.lock
 
-# Database develepment environment
 
-# This pattern will ignore all files but a simple empty ".keep" file.
-/authn/store_db/postgres_data/*
 
 # DeFacto gitkeep
 !.gitkeep
