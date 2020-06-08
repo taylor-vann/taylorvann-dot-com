@@ -2,7 +2,7 @@ package sessionsx
 
 import (
 	"testing"
-	"github.com/taylor-vann/tvgtb/jwtx"
+	"toolbox/jwtx"
 	"webapi/store"
 )
 

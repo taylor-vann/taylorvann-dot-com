@@ -12,7 +12,7 @@ import (
 	"webapi/sessions/hooks/responses"
 	"webapi/sessions/sessionsx"
 
-	"github.com/taylor-vann/tvgtb/jwtx"
+	"toolbox/jwtx"
 )
 
 const (
@@ -47,6 +47,20 @@ func createInfraSessionCookie(session string) *http.Cookie {
 		SameSite:	3,
 	}
 }
+
+func createClientSessionCookie(session string) *http.Cookie {
+	return &http.Cookie{
+		Name:			SessionCookieHeader,
+		Value:		session,
+		MaxAge:		ThreeDaysInSeconds,
+		Domain:   CookieDomain,
+		Secure:		true,
+		HttpOnly:	true,
+		SameSite:	3,
+	}
+}
+
+
 
 func dropRequestNotValidBody(w http.ResponseWriter, requestBody *requests.Body) bool {
 	if requestBody != nil && requestBody.Params != nil {
@@ -144,7 +158,7 @@ func CreateInfraSession(
 		return
 	}
 	
-	var params requests.Infra
+	var params requests.InfraUser
 	bytes, _ := json.Marshal(requestBody.Params)
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
@@ -167,6 +181,52 @@ func CreateInfraSession(
 
 	if errSession == nil {
 		http.SetCookie(w, createInfraSessionCookie(session.Token))
+		w.Header().Set(ContentType, ApplicationJson)
+		json.NewEncoder(w).Encode(&responses.Body{
+			Session: session,
+		})
+	}
+
+	errors.DefaultResponse(w, errSession)
+}
+
+func CreateClientSession(
+	w http.ResponseWriter,
+	sessionCookie *http.Cookie,
+	requestBody *requests.Body,
+) {
+	if dropRequestNotValidBody(w, requestBody) {
+		return
+	}
+	if sessionCookie == nil {
+		errors.CustomResponse(w, errors.InvalidInfraCredentials)
+		return
+	}
+		
+	var params requests.ClientUser
+	bytes, _ := json.Marshal(requestBody.Params)
+	errParamsMarshal := json.Unmarshal(bytes, &params)
+	if errParamsMarshal != nil {
+		errors.DefaultResponse(w, errParamsMarshal)
+		return
+	}
+
+	resp, errResp := fetch.ValidateGuestUser(
+		fetchRequests.ValidateGuestUser(params),
+		sessionCookie,
+	)
+	if errResp != nil {
+
+		errors.DefaultResponse(w, errResp)
+	}
+	
+	session, errSession := sessionsx.Create(&sessionsx.CreateParams{
+		Environment: params.Environment,
+		Claims: *sessionsx.CreateClientSessionClaims(resp.ID),
+	})
+
+	if errSession == nil {
+		http.SetCookie(w, createClientSessionCookie(session.Token))
 		w.Header().Set(ContentType, ApplicationJson)
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: session,

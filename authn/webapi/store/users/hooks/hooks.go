@@ -9,16 +9,11 @@ import (
 
 	// "log"
 
-	// "webapi/store/clientx"
-	// clientxRequests "webapi/store/clientx/fetch/requests"
-	
 	"webapi/store/users/hooks/errors"
 	"webapi/store/users/hooks/requests"
 	"webapi/store/users/hooks/responses"
 	"webapi/store/users/hooks/mutations"
 	"webapi/store/users/hooks/queries"
-
-	// "github.com/taylor-vann/tvgtb/jwtx"
 )
 
 const (
@@ -35,9 +30,6 @@ const (
 
 	SessionCookieHeader = "briantaylorvann.com_session"
 )
-
-// validate session locally
-// validate session remotely
 
 func dropRequestNotValidBody(w http.ResponseWriter, requestBody *requests.Body) bool {
 	if requestBody != nil && requestBody.Params != nil {

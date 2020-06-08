@@ -12,20 +12,18 @@ import (
 )
 
 const (
-	CreateDocumentSession     	= "CREATE_DOCUMENT_SESSION"
-	CreateGuestSession        	= "CREATE_GUEST_SESSION"
-	CreateInfraOverlordSession  = "CREATE_INFRA_OVERLORD_SESSION"
-	CreatePublicSession       	= "CREATE_PUBLIC_SESSION"
-	CreateCreateAccountSession	= "CREATE_CREATE_ACCOUNT_SESSION"
-	CreateUpdatePasswordSession	= "CREATE_UPDATE_PASSWORD_SESSION"
-	CreateUpdateEmailSession  	= "CREATE_UPDATE_EMAIL_SESSION"
-	UpdateSession             	= "UPDATE_SESSION"
-	DeleteSession             	= "DELETE_SESSION"
+	SessionCookieHeader					= "briantaylorvann.com_session"
 
 	ValidateGuestSession        = "VALIDATE_GUEST_SESSION"
 	ValidateSession        			= "VALIDATE_SESSION"
 
-	SessionCookieHeader					= "briantaylorvann.com_session"
+	CreateClientSession     		= "CREATE_DOCUMENT_SESSION"
+	CreateGuestSession        	= "CREATE_GUEST_SESSION"
+	CreateInfraOverlordSession  = "CREATE_INFRA_OVERLORD_SESSION"
+	// CreateCreateAccountSession		= "CREATE_CREATE_ACCOUNT_SESSION"
+	// CreateUpdatePasswordSession	= "CREATE_UPDATE_PASSWORD_SESSION"
+	// CreateUpdateEmailSession  		= "CREATE_UPDATE_EMAIL_SESSION"
+	DeleteSession             	= "DELETE_SESSION"
 )
 
 func Query(w http.ResponseWriter, r *http.Request) {
@@ -71,12 +69,12 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 	}
 	
 	switch body.Action {
-	// case CreateDocumentSession:
-	// 	mutations.CreateDocumentSession(w, &body)
 	case CreateGuestSession:
 		mutations.CreateGuestSession(w, &body)	// the only public mutation
 	case CreateInfraOverlordSession:
 		mutations.CreateInfraSession(w, cookie, &body)	// the only guest mutation
+	case CreateClientSession:
+		mutations.CreateClientSession(w, cookie, &body)
 	// case CreatePublicSession:
 	// 	mutations.CreatePublicSession(w, &body)
 	// case CreateCreateAccountSession:

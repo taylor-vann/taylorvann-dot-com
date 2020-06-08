@@ -2,7 +2,7 @@ package constants
 
 const (
 	Guest            = "guest"
-	Public           = "public"
+	Client           = "client"
 	Document         = "document"
 	Session          = "session"
 	TaylorVannDotCom = "taylorvann.com"
