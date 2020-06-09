@@ -10,7 +10,7 @@ import (
 	"webapi/sessions/hooks/responses"
 	"webapi/sessions/sessionsx"
 
-	"github.com/weblog/toolbox/golang/jwtx"
+	"github.com/taylor-vann/weblog/toolbox/golang/jwtx"
 )
 
 const SessionCookieHeader = "briantaylorvann_session"

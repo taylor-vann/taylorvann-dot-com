@@ -11,9 +11,9 @@ import (
 	"os/exec"
 	"io/ioutil"
 
-	"github.com/weblog/toolbox/golang/certificatesx/constants"
-	"github.com/weblog/toolbox/golang/certificatesx/requests"
-	"github.com/weblog/toolbox/golang/certificatesx/responses"
+	"github.com/taylor-vann/weblog/toolbox/golang/certificatesx/constants"
+	"github.com/taylor-vann/weblog/toolbox/golang/certificatesx/requests"
+	"github.com/taylor-vann/weblog/toolbox/golang/certificatesx/responses"
 )
 
 // write file to disk

@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/weblog/toolbox/golang/clientx/fetch/requests"
-	"github.com/weblog/toolbox/golang/clientx/fetch/responses"
+	"github.com/taylor-vann/weblog/toolbox/golang/clientx/fetch/requests"
+	"github.com/taylor-vann/weblog/toolbox/golang/clientx/fetch/responses"
 )
 
 const (
