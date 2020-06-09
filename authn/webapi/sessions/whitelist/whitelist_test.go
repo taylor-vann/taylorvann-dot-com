@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"toolbox/jwtx"
+	"github.com/weblog/toolbox/golang/jwtx"
 )
 
 type JWTClaimTestPlan = []jwtx.Claims

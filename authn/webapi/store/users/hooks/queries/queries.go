@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"toolbox/clientx"
-	"toolbox/clientx/fetch"
-	fetchRequests "toolbox/clientx/fetch/requests"
+	"github.com/weblog/toolbox/golang/clientx"
+	"github.com/weblog/toolbox/golang/clientx/fetch"
+	fetchRequests "github.com/weblog/toolbox/golang/clientx/fetch/requests"
 
 	"webapi/store/users/controller"
 	"webapi/store/users/hooks/cache"
@@ -14,7 +14,7 @@ import (
 	"webapi/store/users/hooks/requests"
 	"webapi/store/users/hooks/responses"
 
-	"toolbox/jwtx"
+	"github.com/weblog/toolbox/golang/jwtx"
 )
 
 func writeUsersResponse(w http.ResponseWriter, users *controller.SafeUsers) {

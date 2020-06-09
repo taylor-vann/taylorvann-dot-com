@@ -4,15 +4,15 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"toolbox/clientx/fetch"
-	fetchRequests "toolbox/clientx/fetch/requests"
+	"github.com/weblog/toolbox/golang/clientx/fetch"
+	fetchRequests "github.com/weblog/toolbox/golang/clientx/fetch/requests"
 
 	"webapi/sessions/hooks/errors"
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
 	"webapi/sessions/sessionsx"
 
-	"toolbox/jwtx"
+	"github.com/weblog/toolbox/golang/jwtx"
 )
 
 const (

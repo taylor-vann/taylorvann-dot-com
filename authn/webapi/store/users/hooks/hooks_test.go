@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	"toolbox/clientx"
-	"toolbox/clientx/sessionx"
+	"github.com/weblog/toolbox/golang/clientx"
+	"github.com/weblog/toolbox/golang/clientx/sessionx"
 
 	"webapi/store/users/controller"	
 	"webapi/store/users/hooks/requests"

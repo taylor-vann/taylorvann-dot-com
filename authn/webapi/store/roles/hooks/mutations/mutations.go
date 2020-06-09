@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"toolbox/clientx"
-	fetchRequests "toolbox/clientx/fetch/requests"
+	"github.com/weblog/toolbox/golang/clientx"
+	fetchRequests "github.com/weblog/toolbox/golang/clientx/fetch/requests"
 
 	"webapi/store/roles/controller"
 	"webapi/store/roles/hooks/cache"
@@ -13,7 +13,7 @@ import (
 	"webapi/store/roles/hooks/requests"
 	"webapi/store/roles/hooks/responses"
 
-	"toolbox/jwtx"
+	"github.com/weblog/toolbox/golang/jwtx"
 )
 
 func writeRolesResponse(w http.ResponseWriter, roles *controller.Roles) {
