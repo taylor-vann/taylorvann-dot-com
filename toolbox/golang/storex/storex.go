@@ -12,8 +12,8 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/weblog/toolbox/golang/pgsqlx"
-	"github.com/weblog/toolbox/golang/storex/constants"
+	"github.com/taylor-vann/weblog/toolbox/golang/pgsqlx"
+	"github.com/taylor-vann/weblog/toolbox/golang/storex/constants"
 )
 
 var pgsqlConfig, configErr = getConfigFromEnv()

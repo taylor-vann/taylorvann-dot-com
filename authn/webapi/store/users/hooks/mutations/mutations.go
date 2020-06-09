@@ -10,10 +10,10 @@ import (
 	"webapi/store/users/hooks/requests"
 	"webapi/store/users/hooks/responses"
 
-	"github.com/weblog/toolbox/golang/clientx"
-	fetchRequests "github.com/weblog/toolbox/golang/clientx/fetch/requests"
+	"github.com/taylor-vann/weblog/toolbox/golang/clientx"
+	fetchRequests "github.com/taylor-vann/weblog/toolbox/golang/clientx/fetch/requests"
 
-	"github.com/weblog/toolbox/golang/jwtx"
+	"github.com/taylor-vann/weblog/toolbox/golang/jwtx"
 )
 
 const SessionCookieHeader = "briantaylorvann.com_session"

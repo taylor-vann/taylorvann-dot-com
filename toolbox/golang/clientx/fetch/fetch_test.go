@@ -7,8 +7,8 @@ import (
 
 	"os"
 
-	"github.com/weblog/toolbox/golang/clientx/sessionx"
-	"github.com/weblog/toolbox/golang/clientx/fetch/requests"
+	"github.com/taylor-vann/weblog/toolbox/golang/clientx/sessionx"
+	"github.com/taylor-vann/weblog/toolbox/golang/clientx/fetch/requests"
 
 )
 

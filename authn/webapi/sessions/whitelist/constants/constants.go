@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/weblog/toolbox/golang/graylistx"
+	"github.com/taylor-vann/weblog/toolbox/golang/graylistx"
 )
 
 const (

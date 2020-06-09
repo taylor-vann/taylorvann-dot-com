@@ -8,7 +8,9 @@ RUN go get \
 golang.org/x/crypto/argon2/ \
 github.com/lib/pq/ \
 golang.org/x/net/publicsuffix/ \
-github.com/gomodule/redigo/redis/
+github.com/gomodule/redigo/redis/ \
+github.com/taylor-vann/weblog/toolbox/golang/clientx/ \
+github.com/taylor-vann/weblog/toolbox/golang/jwtx/
 
 WORKDIR /go/src/webapi
 

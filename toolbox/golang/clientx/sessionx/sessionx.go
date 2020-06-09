@@ -9,8 +9,8 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/weblog/toolbox/golang/clientx/fetch/requests"
-	"github.com/weblog/toolbox/golang/clientx/fetch/responses"
+	"github.com/taylor-vann/weblog/toolbox/golang/clientx/fetch/requests"
+	"github.com/taylor-vann/weblog/toolbox/golang/clientx/fetch/responses"
 
 	"golang.org/x/net/publicsuffix"
 )

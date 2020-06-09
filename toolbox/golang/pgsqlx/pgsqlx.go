@@ -9,7 +9,7 @@ import (
 	"fmt"
 
 	_ "github.com/lib/pq"
-	"github.com/weblog/toolbox/golang/pgsqlx/constants"
+	"github.com/taylor-vann/weblog/toolbox/golang/pgsqlx/constants"
 )
 
 type PGConfig struct {
