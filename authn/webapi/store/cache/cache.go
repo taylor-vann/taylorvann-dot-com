@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 
-	"toolbox/graylistx"
+	"github.com/weblog/toolbox/golang/graylistx"
 	
 	"webapi/sessions/whitelist/constants"
 )

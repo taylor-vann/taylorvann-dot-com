@@ -3,7 +3,7 @@ package sessionx
 import (
 	"testing"
 
-	"toolbox/jwtx"
+	"github.com/weblog/toolbox/golang/jwtx"
 )
 
 func TestInit(t *testing.T) {

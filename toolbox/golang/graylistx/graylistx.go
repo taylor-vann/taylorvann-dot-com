@@ -7,8 +7,8 @@ import (
 	"errors"
 	"github.com/gomodule/redigo/redis"
 
-	"toolbox/redisx"
-	"toolbox/graylistx/constants"
+	"github.com/weblog/toolbox/golang/redisx"
+	"github.com/weblog/toolbox/golang/graylistx/constants"
 )
 
 type MilliSeconds = int64

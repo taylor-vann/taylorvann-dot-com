@@ -3,8 +3,8 @@ package clientx
 import (
 	"testing"
 
-	"toolbox/clientx/fetch/requests"
-	"toolbox/clientx/sessionx"
+	"github.com/weblog/toolbox/golang/clientx/fetch/requests"
+	"github.com/weblog/toolbox/golang/clientx/sessionx"
 )
 
 func TestDo(t *testing.T) {

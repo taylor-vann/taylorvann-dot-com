@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"webapi/store/clientx"
+	"github.com/weblog/toolbox/golang/clientx"
 
 	"webapi/store/roles/controller"	
 	"webapi/store/roles/hooks/requests"

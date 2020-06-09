@@ -1,0 +1,27 @@
+# brian taylor vann
+# taylorvann dot com
+
+# Use this docker-compose to create an authentication development server
+
+version: "3"
+services:
+  webapi:
+    container_name: gateway_webapi
+    hostname: briantaylorvann.com
+    build:
+      context: ./webapi/
+      dockerfile: dockerfile
+    restart: always
+    env_file:
+      - ./environment_variables.env
+    ports:
+      - "80:80"
+      - "443:443"
+    extra_hosts:
+      - "briantaylrorvann.com:10.88.0.1" # IP should match docker / podman
+      - "clients.briantaylorvann.com:10.88.0.1" # IP should match docker / podman
+      - "logs.briantaylorvann.com:10.88.0.1"  # IP should match docker / podman
+    volumes:
+      - ./certs/:/usr/local/certs/live/
+      - ./webapi/:/go/src/webapi/
+    command: "go run /go/src/webapi/main.go"

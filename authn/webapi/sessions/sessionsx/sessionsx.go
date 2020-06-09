@@ -10,7 +10,7 @@ import (
 	"webapi/sessions/sessionsx/constants"
 	"webapi/sessions/whitelist"
 
-	"toolbox/jwtx"
+	"github.com/weblog/toolbox/golang/jwtx"
 )
 
 type MilliSeconds = int64

@@ -6,10 +6,10 @@ import (
 	"errors"
 	"net/http"
 
-	"toolbox/clientx/fetch"
-	"toolbox/clientx/fetch/requests"
-	"toolbox/clientx/fetch/responses"
-	"toolbox/clientx/sessionx"
+	"github.com/weblog/toolbox/golang/clientx/fetch"
+	"github.com/weblog/toolbox/golang/clientx/fetch/requests"
+	"github.com/weblog/toolbox/golang/clientx/fetch/responses"
+	"github.com/weblog/toolbox/golang/clientx/sessionx"
 )
 
 var httpClient = http.Client{}
