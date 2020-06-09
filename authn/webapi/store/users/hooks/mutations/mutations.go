@@ -10,8 +10,8 @@ import (
 	"webapi/store/users/hooks/requests"
 	"webapi/store/users/hooks/responses"
 
-	"webapi/store/clientx"
-	fetchRequests "webapi/store/clientx/fetch/requests"
+	"toolbox/clientx"
+	fetchRequests "toolbox/clientx/fetch/requests"
 
 	"toolbox/jwtx"
 )

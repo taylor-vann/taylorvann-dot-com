@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"webapi/store/clientx"
-	"webapi/store/clientx/fetch"
-	fetchRequests "webapi/store/clientx/fetch/requests"
+	"toolbox/clientx"
+	"toolbox/clientx/fetch"
+	fetchRequests "toolbox/clientx/fetch/requests"
 
 	"webapi/store/users/controller"
 	"webapi/store/users/hooks/cache"

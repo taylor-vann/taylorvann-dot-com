@@ -16,6 +16,10 @@ Emails and Passwords
 
 Permissions for Users 
 
+## Toolbox
+
+Code sharing for external services also running Golang
+
 # Dependencies
 
 Aside from the Golang standard library:

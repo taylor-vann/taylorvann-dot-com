@@ -18,13 +18,13 @@ services:
     ports:
       - "3000:80"
     extra_hosts:
-      - "authn.briantaylorvann.com:10.88.0.1"
-      - "logs.briantaylorvann.com:10.88.0.1"
+      - "authn.briantaylorvann.com:10.88.0.1" # IP should match docker / podman
+      - "logs.briantaylorvann.com:10.88.0.1"  # IP should match docker / podman
     volumes:
       - ./webapi/:/go/src/webapi/
       - ./toolbox/:/go/src/toolbox/
     command: "go run /go/src/webapi/main.go"
-  store_db:
+  db_store:
     container_name: authn_db_store
     build:
       context: ./db_store/
@@ -33,7 +33,7 @@ services:
     env_file:
       - ./environment_variables.env
     volumes:
-      - ./store_db/postgres_data/:/var/lib/postgresql/data/
+      - ./db_store/postgres_data/:/var/lib/postgresql/data/
     command: "-p 5100"
   cache_store:
     container_name: authn_cache_store
