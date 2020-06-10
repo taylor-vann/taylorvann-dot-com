@@ -12,7 +12,15 @@ import (
 	"github.com/taylor-vann/weblog/toolbox/golang/clientx/sessionx"
 )
 
+var InfraSessionCookie *http.Cookie
+var errInfraSessionCookie error
+
 var httpClient = http.Client{}
+
+func Setup() (*http.Cookie, error) {
+	InfraSessionCookie, errINfraSessionCookie = sessionx.Setup()
+	return InfraSessionCookie, errINfraSessionCookie
+}
 
 func ValidateSession(p requests.ValidateSession) (string, error) {
 	body := requests.Body{
@@ -49,19 +57,15 @@ func ValidateSession(p requests.ValidateSession) (string, error) {
 }
 
 func Do(address string, payload *bytes.Buffer) (*http.Response, error) {
-	if sessionx.Session == nil {
+	if InfraSessionCookie == nil || errInfraSessionCookie != nil {
 		return nil, errors.New("no internal session provided")
 	}
 
-	req, errReq := http.NewRequest(
-		"POST",
-		address,
-		payload,
-	)
+	req, errReq := http.NewRequest("POST", address, payload)
 	if errReq != nil {
 		return nil, errReq
 	}
-	req.AddCookie(sessionx.Session)
+	req.AddCookie(InfraSessionCookie)
 
 	return httpClient.Do(req)
 }

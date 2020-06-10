@@ -392,7 +392,11 @@ func CreateClientSession(
 // }
 
 
-func DeleteSession(w http.ResponseWriter, requestBody *requests.Body) {
+func DeleteSession(
+	w http.ResponseWriter,
+	sessionCookie *http.Cookie,
+	requestBody *requests.Body,
+) {
 	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
@@ -423,5 +427,5 @@ func DeleteSession(w http.ResponseWriter, requestBody *requests.Body) {
 		return
 	}
 
-	errors.CustomErrorResponse(w, errors.InvalidSessionProvided)
+	errors.CustomResponse(w, errors.InvalidSessionProvided)
 }

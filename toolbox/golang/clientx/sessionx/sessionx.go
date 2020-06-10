@@ -54,9 +54,6 @@ var (
 var parsedDomain, errParsedDomain = url.Parse(domain)
 var client, errClient = createClient()
 
-// public session
-var Session, errSession = setupSession()
-
 // private Methods
 func getRequestBodyBuffer(item interface{}) (*bytes.Buffer, error) {
 	sessionBuffer := new(bytes.Buffer)
@@ -181,7 +178,7 @@ func createClient() (*http.Client, error) {
 	return client, nil
 }
 
-func setupSession() (*http.Cookie, error) {
+func Setup() (*http.Cookie, error) {
 	guestSession, errGuestSession := GuestSession()
 	if errGuestSession != nil {
 		return nil, errGuestSession

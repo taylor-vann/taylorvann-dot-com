@@ -536,7 +536,7 @@ func TestValidateGuestSession(t *testing.T) {
 func TestDeleteSession(t *testing.T) {
 	requestBody := requests.Body{
 		Action: CreateGuestSession,
-		Params: requests.SessionParams{
+		Params: requests.Guest{
 			Environment: "LOCAL",
 		},
 	}
@@ -572,7 +572,7 @@ func TestDeleteSession(t *testing.T) {
 
 	// get signature
 	tokenDetails, errTokenDetails := jwtx.RetrieveTokenDetailsFromString(
-		responseBody.Session.SessionToken,
+		responseBody.Session.Token,
 	)
 	if errTokenDetails != nil {
 		t.Error(errTokenDetails.Error())
@@ -596,6 +596,10 @@ func TestDeleteSession(t *testing.T) {
 		"/m/sessions/",
 		marshalBytesRemove,
 	)
+	req.AddCookie(&http.Cookie{
+		Name: "briantaylorvann.com_session",
+		Value: GuestSessionTest,
+	})
 	if errReq != nil {
 		t.Error(errReq.Error())
 	}
