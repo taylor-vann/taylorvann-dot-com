@@ -172,6 +172,7 @@ func CreateInfraSession(
 	)
 	if errResp != nil {
 		errors.DefaultResponse(w, errResp)
+		return
 	}
 	
 	session, errSession := sessionsx.Create(&sessionsx.CreateParams{
@@ -185,6 +186,7 @@ func CreateInfraSession(
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: session,
 		})
+		return
 	}
 
 	errors.DefaultResponse(w, errSession)
@@ -216,8 +218,8 @@ func CreateClientSession(
 		sessionCookie,
 	)
 	if errResp != nil {
-
 		errors.DefaultResponse(w, errResp)
+		return
 	}
 	
 	session, errSession := sessionsx.Create(&sessionsx.CreateParams{
@@ -231,32 +233,11 @@ func CreateClientSession(
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: session,
 		})
+		return
 	}
 
 	errors.DefaultResponse(w, errSession)
 }
-
-// func updateGenericSession(p *requests.Update) (*sessionsx.Session, error) {
-// 	if p == nil {
-// 		return nil, err.New("request body is nil")
-// 	}
-
-// 	tokenResults := jwtx.ValidateGenericToken(&jwtx.ValidateGenericTokenParams{
-// 		Token:    p.Token,
-// 		Issuer:		constants.TaylorVannDotCom,
-// 	})
-// 	if !tokenResults {
-// 		return nil, err.New("unable to validate generic token")
-// 	}
-
-// 	session, errSession := sessionsx.Update(p)
-// 	if errSession != nil {
-// 		return nil, errSession
-// 	}
-
-// 	return session, nil
-// }
-
 
 // func CreateCreateAccountSession(w http.ResponseWriter, requestBody *requests.Body) {
 // 	if dropRequestNotValidBody(w, requestBody) {
@@ -411,142 +392,40 @@ func CreateClientSession(
 // }
 
 
-// func CreatePublicSession(w http.ResponseWriter, requestBody *requests.Body) {
-// 	if dropRequestNotValidBody(w, requestBody) {
-// 		return
-// 	}
+func DeleteSession(
+	w http.ResponseWriter,
+	sessionCookie *http.Cookie,
+	requestBody *requests.Body,
+) {
+	if dropRequestNotValidBody(w, requestBody) {
+		return
+	}
+	if sessionCookie == nil {
+		errors.CustomResponse(w, errors.InvalidInfraCredentials)
+		return
+	}
 
-// 	bytes, _ := json.Marshal(requestBody.Params)
-// 	var params requests.User
-// 	errParamsMarshal := json.Unmarshal(bytes, &params)
-// 	if errParamsMarshal != nil {
-// 		errors.DefaultResponse(w, errParamsMarshal)
-// 		return
-// 	}
+	// make sure cookie is infra
 
-// 	userSessionToken, errUserSessionToken := sessionsx.CreateUserSessionClaims(
-// 		&params,
-// 	)
-// 	if errUserSessionToken != nil {
-// 		errorAsStr := errUserSessionToken.Error()
-// 		errors.BadRequest(w, &responses.Errors{
-// 			Session: &errors.InvalidSessionCredentials,
-// 			Default: &errorAsStr,
-// 		})
-// 		return
-// 	}
+	var params requests.Delete
+	bytes, _ := json.Marshal(requestBody.Params)
+	errParamsMarshal := json.Unmarshal(bytes, &params)
+	if errParamsMarshal != nil {
+		errors.DefaultResponse(w, errParamsMarshal)
+		return
+	}
 
-// 	userSession, errUserSession := sessionsx.Create(&sessionsx.CreateParams{
-// 		Environment: params.Environment,
-// 		Claims:	*userSessionToken,
-// 	})
+	result, errResult := sessionsx.Delete(&params)
+	if errResult != nil {
+		errors.DefaultResponse(w, errResult)
+		return
+	}
 
-// 	if errUserSession == nil {
-// 		marshalledJSON, errMarshal := json.Marshal(
-// 			&responses.Session{
-// 				SessionToken: userSession.Token,
-// 			},
-// 		)
-// 		if errMarshal == nil {
-// 			w.Header().Set(ContentType, ApplicationJson)
-// 			json.NewEncoder(w).Encode(&marshalledJSON)
-// 			return
-// 		}
+	if result == true {
+		w.Header().Set(ContentType, ApplicationJson)
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 
-// 		errors.CustomErrorResponse(w, errors.UnableToMarshalSession)
-// 		return
-// 	}
-
-// 	errorAsStr := errUserSession.Error()
-// 	errors.BadRequest(w, &responses.Errors{
-// 		Session: &errors.UnableToCreatePublicSession,
-// 		Default: &errorAsStr,
-// 	})
-// }
-
-
-// func UpdateSession(w http.ResponseWriter, requestBody *requests.Body) {
-// 	if requestBody == nil || requestBody.Params == nil {
-// 		errors.BadRequest(w, &responses.Errors{
-// 			Session: &errors.UnableToUpdateSession,
-// 			Body: &errors.BadRequestFail,
-// 		})
-// 		return
-// 	}
-
-// 	bytes, _ := json.Marshal(requestBody.Params)
-// 	var params requests.Update
-// 	errParamsMarshal := json.Unmarshal(bytes, &params)
-// 	if errParamsMarshal != nil {
-// 		errors.DefaultResponse(w, errParamsMarshal)
-// 		return
-// 	}
-
-// 	session, errSession := updateGenericSession(&params)
-// 	if errSession != nil {
-// 		errAsStr := errSession.Error()
-// 		errors.BadRequest(w, &responses.Errors{
-// 			Session: &errors.InvalidSessionProvided,
-// 			Default: &errAsStr,
-// 		})
-// 		return
-// 	}
-
-// 	if errSession == nil {
-// 		marshalledJSON, errMarshal := json.Marshal(
-// 			&responses.Session{
-// 				SessionToken: session.Token,
-// 			},
-// 		)
-// 		if errMarshal != nil {
-// 			errAsStr := errMarshal.Error()
-// 			errors.BadRequest(w, &responses.Errors{
-// 				Session: &errors.UnableToMarshalSession,
-// 				Default: &errAsStr,
-// 			})
-// 			return
-// 		}
-
-// 		w.Header().Set(ContentType, ApplicationJson)
-// 		json.NewEncoder(w).Encode(&marshalledJSON)
-// 		return
-// 	}
-
-// 	errAsStr := errSession.Error()
-// 	errors.BadRequest(w, &responses.Errors{
-// 		Session: &errors.UnableToUpdateSession,
-// 		Default: &errAsStr,
-// 	})
-// }
-
-// func DeleteSession(w http.ResponseWriter, requestBody *requests.Body) {
-// 	if dropRequestNotValidBody(w, requestBody) {
-// 		return
-// 	}
-
-// 	bytes, _ := json.Marshal(requestBody.Params)
-// 	var params requests.Delete
-// 	errParamsMarshal := json.Unmarshal(bytes, &params)
-// 	if errParamsMarshal != nil {
-// 		errors.DefaultResponse(w, errParamsMarshal)
-// 		return
-// 	}
-
-// 	result, errResponseBody := sessionsx.Delete(&params)
-// 	if errResponseBody != nil {
-// 		errAsStr := errResponseBody.Error()
-// 		errors.BadRequest(w, &responses.Errors{
-// 			Session: &errors.InvalidSessionProvided,
-// 			Default: &errAsStr,
-// 		})
-// 		return
-// 	}
-
-// 	if result == true {
-// 		w.Header().Set(ContentType, ApplicationJson)
-// 		w.WriteHeader(http.StatusOK)
-// 		return
-// 	}
-
-// 	errors.CustomErrorResponse(w, errors.InvalidSessionProvided)
-// }
+	errors.CustomResponse(w, errors.InvalidSessionProvided)
+}

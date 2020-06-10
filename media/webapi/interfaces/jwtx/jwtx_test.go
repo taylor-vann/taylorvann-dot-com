@@ -21,7 +21,7 @@ var HeaderParamsDoubleCheck = Header{
 	Typ: "JWT",
 }
 
-var randomJWTClaims = generateRandomJWTClaims("public", 5)
+var randomJWTClaims = generateRandomJWTClaims("client", 5)
 
 func getLaterAsMS() MilliSeconds {
 	return (time.Now().UnixNano() + DayAsMS) / int64(time.Millisecond)

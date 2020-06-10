@@ -22,7 +22,6 @@ services:
       - "logs.briantaylorvann.com:10.88.0.1"  # IP should match docker / podman
     volumes:
       - ./webapi/:/go/src/webapi/
-      - ./toolbox/:/go/src/toolbox/
     command: "go run /go/src/webapi/main.go"
   db_store:
     container_name: authn_db_store

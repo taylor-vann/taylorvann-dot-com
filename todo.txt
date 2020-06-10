@@ -1,14 +1,15 @@
-test clientx.go
 
-use clientx session to retest:
-  users
-  roles
-  sessions
+// clientx, smart reset
+- smart reset incase session is invalidated or lost
 
-these apis should only be accessed by infra sessions
+sessions, roles, users
+- validate infra session
+- validate infra_admin role
+    (a reason for extra cache storage in whitelist)
 
-start adding toolbox repository to toolbox directory
-keep all the code together
+clients uses infra sessions
+mail uses infra sessions
+media uses infra sessions
 
-// revise toolbox
-clientx is now functional, go back and make clientx more separate
+public api queries just need a token
+public api mutations need valid infra / client token

@@ -533,80 +533,83 @@ func TestValidateGuestSession(t *testing.T) {
 // 	}
 // }
 
-// func TestDeleteSession(t *testing.T) {
-// 	requestBody := requests.Body{
-// 		Action: CreateGuestSession,
-// 		Params: requests.SessionParams{
-// 			Environment: "LOCAL",
-// 		},
-// 	}
+func TestDeleteSession(t *testing.T) {
+	requestBody := requests.Body{
+		Action: CreateGuestSession,
+		Params: requests.Guest{
+			Environment: "LOCAL",
+		},
+	}
 
-// 	marshalBytes := new(bytes.Buffer)
-// 	json.NewEncoder(marshalBytes).Encode(requestBody)
-// 	resp, errResp := http.NewRequest(
-// 		"POST",
-// 		"/m/sessions/",
-// 		marshalBytes,
-// 	)
-// 	if errResp != nil {
-// 		t.Error(errResp.Error())
-// 	}
+	marshalBytes := new(bytes.Buffer)
+	json.NewEncoder(marshalBytes).Encode(requestBody)
+	resp, errResp := http.NewRequest(
+		"POST",
+		"/m/sessions/",
+		marshalBytes,
+	)
+	if errResp != nil {
+		t.Error(errResp.Error())
+	}
 
-// 	httpTest := httptest.NewRecorder()
-// 	handler := http.HandlerFunc(Mutation)
-// 	handler.ServeHTTP(httpTest, resp)
+	httpTest := httptest.NewRecorder()
+	handler := http.HandlerFunc(Mutation)
+	handler.ServeHTTP(httpTest, resp)
 
-// 	status := httpTest.Code
-// 	if status != http.StatusOK {
-// 		t.Error("guest handler returned incorrect status code")
-// 		return
-// 	}
+	status := httpTest.Code
+	if status != http.StatusOK {
+		t.Error("guest handler returned incorrect status code")
+		return
+	}
 
-// 	// this is the new stuffs
-// 	var responseBody responses.Body
-// 	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
-// 	if errJSON != nil {
-// 		t.Error(errJSON.Error())
-// 		return
-// 	}
+	// this is the new stuffs
+	var responseBody responses.Body
+	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
+	if errJSON != nil {
+		t.Error(errJSON.Error())
+		return
+	}
 
-// 	// get signature
-// 	tokenDetails, errTokenDetails := jwtx.RetrieveTokenDetailsFromString(
-// 		responseBody.Session.SessionToken,
-// 	)
-// 	if errTokenDetails != nil {
-// 		t.Error(errTokenDetails.Error())
-// 	}
-// 	// public session from guest sesion
-// 	requestBodyRemove := requests.Body{
-// 		Action: DeleteSession,
-// 		Params: &requests.Delete{
-// 			Environment: "LOCAL",
-// 			Signature: tokenDetails.Signature,
-// 		},
-// 	}
+	// get signature
+	tokenDetails, errTokenDetails := jwtx.RetrieveTokenDetailsFromString(
+		responseBody.Session.Token,
+	)
+	if errTokenDetails != nil {
+		t.Error(errTokenDetails.Error())
+	}
+	// public session from guest sesion
+	requestBodyRemove := requests.Body{
+		Action: DeleteSession,
+		Params: &requests.Delete{
+			Environment: "LOCAL",
+			Signature: tokenDetails.Signature,
+		},
+	}
 
-// 	marshalBytesRemove := new(bytes.Buffer)
-// 	errRemove := json.NewEncoder(marshalBytesRemove).Encode(requestBodyRemove)
-// 	if errRemove != nil {
-// 		t.Error(errRemove.Error())
-// 	}
-// 	req, errReq := http.NewRequest(
-// 		"POST",
-// 		"/m/sessions/",
-// 		marshalBytesRemove,
-// 	)
-// 	if errReq != nil {
-// 		t.Error(errReq.Error())
-// 	}
+	marshalBytesRemove := new(bytes.Buffer)
+	errRemove := json.NewEncoder(marshalBytesRemove).Encode(requestBodyRemove)
+	if errRemove != nil {
+		t.Error(errRemove.Error())
+	}
+	req, errReq := http.NewRequest(
+		"POST",
+		"/m/sessions/",
+		marshalBytesRemove,
+	)
+	req.AddCookie(&http.Cookie{
+		Name: "briantaylorvann.com_session",
+		Value: GuestSessionTest,
+	})
+	if errReq != nil {
+		t.Error(errReq.Error())
+	}
 
-// 	httpTestRemove := httptest.NewRecorder()
-// 	handlerRemove := http.HandlerFunc(Mutation)
+	httpTestRemove := httptest.NewRecorder()
+	handlerRemove := http.HandlerFunc(Mutation)
+	handlerRemove.ServeHTTP(httpTestRemove, req)
 
-// 	handlerRemove.ServeHTTP(httpTestRemove, req)
-
-// 	statusRemove := httpTestRemove.Code
-// 	if statusRemove != http.StatusOK {
-// 		t.Error("remove handler returned incorrect status code")
-// 	}
-// }
+	statusRemove := httpTestRemove.Code
+	if statusRemove != http.StatusOK {
+		t.Error("remove handler returned incorrect status code")
+	}
+}

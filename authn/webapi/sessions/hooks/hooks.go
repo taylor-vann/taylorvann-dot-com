@@ -83,10 +83,8 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 	// 	mutations.CreateUpdatePasswordSession(w, &body)
 	// case CreateUpdateEmailSession:
 	// 	mutations.CreateUpdateEmailSession(w, &body)
-	// case UpdateSession:
-	// 	mutations.UpdateSession(w, &body)
-	// case DeleteSession:
-	// 	mutations.DeleteSession(w, &body)
+	case DeleteSession:
+		mutations.DeleteSession(w, cookie, &body)
 	default:
 		errors.CustomResponse(w, errors.UnrecognizedMutation)
 	}
