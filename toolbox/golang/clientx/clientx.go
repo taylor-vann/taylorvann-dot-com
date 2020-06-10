@@ -18,8 +18,8 @@ var errInfraSessionCookie error
 var httpClient = http.Client{}
 
 func Setup() (*http.Cookie, error) {
-	InfraSessionCookie, errINfraSessionCookie = sessionx.Setup()
-	return InfraSessionCookie, errINfraSessionCookie
+	InfraSessionCookie, errInfraSessionCookie = sessionx.Setup()
+	return InfraSessionCookie, errInfraSessionCookie
 }
 
 func ValidateSession(p requests.ValidateSession) (string, error) {
