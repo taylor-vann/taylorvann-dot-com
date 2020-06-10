@@ -4,7 +4,7 @@ VOLUME [ "/go/src/webapi", "/usr/local/certs/live/", "/etc/letsencrypt/live/" ]
 
 RUN apk --update add --no-cache build-base openssl git heirloom-mailx postfix certbot
 
-RUN go get github.com/taylor-vann/tvgtb/certificatesx
+RUN go get github.com/taylor-vann/weblog/authn/toolbox/certificatesx
 
 WORKDIR /go/src/webapi
 
