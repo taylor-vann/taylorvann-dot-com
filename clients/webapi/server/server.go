@@ -6,7 +6,7 @@ package server
 import (
 	"net/http"
 	
-	"webapi/server/routes"
+	"webapi/routes"
 )
 
 const Http  = ":80"

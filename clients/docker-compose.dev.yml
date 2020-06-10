@@ -7,7 +7,7 @@ services:
     container_name: clients_webapi
     hostname: clients.briantaylorvann.com
     build:
-      context: ./webapi/
+      context: ./
       dockerfile: dockerfile
     restart: always
     env_file:
@@ -19,4 +19,5 @@ services:
       - "logs.briantaylorvann.com:10.88.0.1"
     volumes:
       - ./webapi/:/go/src/webapi/
+      - ./webclients/:/var/briantaylorvann/
     command: "go run /go/src/webapi/main.go"

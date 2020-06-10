@@ -16,10 +16,16 @@ import (
 func Create() *http.ServeMux {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/ping", ping.Details)
+	// mux.HandleFunc("/ping", ping.Details)
 	mux.HandleFunc("/", home.ServeFiles)
-	// mux.HandleFunc("/login", login.Template)
-	// mux.HandleFunc("/logout", logout.Template)
+	// mux.HandleFunc("/login", home.ServeFiles)
+	// mux.HandleFunc("/logout", home.ServeFiles)
+	// mux.HandleFunc("/internal", usersHooks.Template)
+
+	// mux.HandleFunc("/m/", home.ServeFiles)
+
+	// mux.HandleFunc("/login", home.ServeFiles)
+	// mux.HandleFunc("/logout", home.ServeFiles)
 	// mux.HandleFunc("/internal", usersHooks.Template)
 
 	return mux

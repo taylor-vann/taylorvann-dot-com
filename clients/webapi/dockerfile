@@ -1,9 +1,0 @@
-FROM golang:alpine
-
-VOLUME [ "/go/src/webapi/", "/usr/local/certs/live" ]
-
-RUN apk --update add --no-cache build-base git 
-
-WORKDIR /go/src/webapi
-
-EXPOSE 80
