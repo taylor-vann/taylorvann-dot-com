@@ -11,7 +11,6 @@ type ValidateGuest = sessionsx.CreateParams
 type Update = sessionsx.UpdateParams
 type Delete = sessionsx.DeleteParams
 type User = sessionsx.UserParams
-type Account = sessionsx.AccountParams
 
 type Guest struct {
 	Environment string

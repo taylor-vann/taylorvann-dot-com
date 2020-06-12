@@ -60,9 +60,10 @@ func createClientSessionCookie(session string) *http.Cookie {
 	}
 }
 
-
-
-func dropRequestNotValidBody(w http.ResponseWriter, requestBody *requests.Body) bool {
+func dropRequestNotValidBody(
+	w http.ResponseWriter,
+	requestBody *requests.Body,
+) bool {
 	if requestBody != nil && requestBody.Params != nil {
 		return false
 	}
@@ -115,7 +116,10 @@ func validateInfraSessionCache(environment string, sessionToken string) (bool, e
 	return checkInfraSession(sessionToken)
 }
 
-func CreateGuestSession(w http.ResponseWriter, requestBody *requests.Body) {
+func CreateGuestSession(
+	w http.ResponseWriter,
+	requestBody *requests.Body,
+) {
 	if dropRequestNotValidBody(w, requestBody) {
 		return
 	}
@@ -239,158 +243,142 @@ func CreateClientSession(
 	errors.DefaultResponse(w, errSession)
 }
 
-// func CreateCreateAccountSession(w http.ResponseWriter, requestBody *requests.Body) {
-// 	if dropRequestNotValidBody(w, requestBody) {
-// 		return
-// 	}
+func CreateCreateAccountSession(
+	w http.ResponseWriter,
+	sessionCookie *http.Cookie,
+	requestBody *requests.Body,
+) {
+	if dropRequestNotValidBody(w, requestBody) {
+		return
+	}
+	if sessionCookie == nil {
+		errors.CustomResponse(w, errors.InvalidInfraCredentials)
+		return
+	}
 
-// 	bytes, _ := json.Marshal(requestBody.Params)
-// 	var params requests.Account
-// 	errParamsMarshal := json.Unmarshal(bytes, &params)
-// 	if errParamsMarshal != nil {
-// 		errors.DefaultResponse(w, errParamsMarshal)
-// 		return
-// 	}
+	// validate cookie
 
-// 	sessionParams, errSessionParams := sessionsx.CreateAccountCreationSessionClaims(
-// 		&params,
-// 	)
+	var params requests.User
+	bytes, _ := json.Marshal(requestBody.Params)
+	errParamsMarshal := json.Unmarshal(bytes, &params)
+	if errParamsMarshal != nil {
+		errors.DefaultResponse(w, errParamsMarshal)
+		return
+	}
 
-// 	if errSessionParams != nil {
-// 		errors.CustomErrorResponse(w, errors.InvalidSessionCredentials)
-// 		return
-// 	}
+	sessionParams, errSessionParams := sessionsx.Create(
+		&params,
+	)
+	if errSessionParams != nil {
+		errors.DefaultResponse(w, errSessionParams)
+		return
+	}
 
-// 	session, errSession := sessionsx.Create(&sessionsx.CreateParams{
-// 		Environment: params.Environment,
-// 		Claims: *sessionParams,
-// 	})
+	session, errSession := sessionsx.Create(&sessionsx.CreateParams{
+		Environment: params.Environment,
+		Claims: *sessionParams,
+	})
 
-// 	if errSession == nil {
-// 		marshalledJSON, errMarshal := json.Marshal(&responses.Session{
-// 			SessionToken: session.Token,
-// 		})
-// 		if errMarshal == nil {
-// 			w.Header().Set(ContentType, ApplicationJson)
-// 			json.NewEncoder(w).Encode(&marshalledJSON)
-// 			return
-// 		}
+	if errSession == nil {
+		w.Header().Set(ContentType, ApplicationJson)
+		json.NewEncoder(w).Encode(&responses.Body{
+			Session: session,
+		})
+		return
+	}
 
-// 		errors.CustomErrorResponse(w, errors.UnableToMarshalSession)
-// 		return
-// 	}
+	errors.DefaultResponse(w, errSession)
+}
 
-// 	errorAsStr := errSession.Error()
-// 	errors.BadRequest(w, &responses.Errors{
-// 		Session: &errors.CreateGuestSessionErrorMessage,
-// 		Default: &errorAsStr,
-// 	})
-// }
+func CreateUpdateEmailSession(
+	w http.ResponseWriter,
+	sessionCookie *http.Cookie,
+	requestBody *requests.Body,
+) {
+	if dropRequestNotValidBody(w, requestBody) {
+		return
+	}
+	if sessionCookie == nil {
+		errors.CustomResponse(w, errors.InvalidInfraCredentials)
+		return
+	}
 
-// func CreateUpdateEmailSession(w http.ResponseWriter, requestBody *requests.Body) {
-// 	if dropRequestNotValidBody(w, requestBody) {
-// 		return
-// 	}
+	var params requests.User
+	bytes, _ := json.Marshal(requestBody.Params)
+	errParamsMarshal := json.Unmarshal(bytes, &params)
+	if errParamsMarshal != nil {
+		errors.DefaultResponse(w, errParamsMarshal)
+		return
+	}
 
-// 	bytes, _ := json.Marshal(requestBody.Params)
-// 	var params requests.Account
-// 	errParamsMarshal := json.Unmarshal(bytes, &params)
-// 	if errParamsMarshal != nil {
-// 		errors.DefaultResponse(w, errParamsMarshal)
-// 		return
-// 	}
+	userSessionToken, errUserSessionToken := sessionsx.Create(
+		&params,
+	)
+	if errUserSessionToken != nil {
+		errors.DefaultResponse(w, errUserSessionToken)
+		return
+	}
 
-// 	userSessionToken, errUserSessionToken := sessionsx.CreateUpdatePasswordSessionClaims(
-// 		&params,
-// 	)
-// 	if errUserSessionToken != nil {
-// 		errorAsStr := errUserSessionToken.Error()
-// 		errors.BadRequest(w, &responses.Errors{
-// 			Session: &errors.InvalidSessionCredentials,
-// 			Default: &errorAsStr,
-// 		})
-// 		return
-// 	}
+	session, errSession := sessionsx.Create(&sessionsx.CreateParams{
+		Environment: params.Environment,
+		Claims: *userSessionToken,
+	})
 
-// 	session, errSession := sessionsx.Create(&sessionsx.CreateParams{
-// 		Environment: params.Environment,
-// 		Claims: *userSessionToken,
-// 	})
+	if errSession == nil {
+		w.Header().Set(ContentType, ApplicationJson)
+		json.NewEncoder(w).Encode(&responses.Body{
+			Session: session,
+		})
+		return
+	}
 
-// 	if errSession == nil {
-// 		marshalledJSON, errMarshal := json.Marshal(
-// 			&responses.Session{
-// 				SessionToken: session.Token,
-// 			},
-// 		)
-// 		if errMarshal == nil {
-// 			w.Header().Set(ContentType, ApplicationJson)
-// 			json.NewEncoder(w).Encode(&marshalledJSON)
-// 			return
-// 		}
-		
-// 		errors.CustomErrorResponse(w, errors.UnableToMarshalSession)
-// 		return
-// 	}
+	errors.DefaultResponse(w, errSession)
+}
 
-// 	errorAsStr := errSession.Error()
-// 	errors.BadRequest(w, &responses.Errors{
-// 		Session: &errors.CreateGuestSessionErrorMessage,
-// 		Default: &errorAsStr,
-// 	})
-// }
+func CreateUpdatePasswordSession(
+	w http.ResponseWriter,
+	sessionCookie *http.Cookie,
+	requestBody *requests.Body,
+) {
+	if dropRequestNotValidBody(w, requestBody) {
+		return
+	}
+	if sessionCookie == nil {
+		errors.CustomResponse(w, errors.InvalidInfraCredentials)
+		return
+	}
 
-// func CreateUpdatePasswordSession(w http.ResponseWriter, requestBody *requests.Body) {
-// 	if dropRequestNotValidBody(w, requestBody) {
-// 		return
-// 	}
+	var params requests.User
+	bytes, _ := json.Marshal(requestBody.Params)
+	errParamsMarshal := json.Unmarshal(bytes, &params)
+	if errParamsMarshal != nil {
+		errors.DefaultResponse(w, errParamsMarshal)
+		return
+	}
 
-// 	bytes, _ := json.Marshal(requestBody.Params)
-// 	var params requests.Account
-// 	errParamsMarshal := json.Unmarshal(bytes, &params)
-// 	if errParamsMarshal != nil {
-// 		errors.DefaultResponse(w, errParamsMarshal)
-// 		return
-// 	}
+	userSessionToken, errUserSessionToken := sessionsx.Create(
+		&params,
+	)
+	if errUserSessionToken != nil {
+		errors.DefaultResponse(w, errUserSessionToken)
+		return
+	}
 
-// 	userSessionToken, errUserSessionToken := sessionsx.CreateUpdatePasswordSessionClaims(
-// 		&params,
-// 	)
-// 	if errUserSessionToken != nil {
-// 		errorAsStr := errUserSessionToken.Error()
-// 		errors.BadRequest(w, &responses.Errors{
-// 			Session: &errors.InvalidSessionCredentials,
-// 			Default: &errorAsStr,
-// 		})
-// 		return
-// 	}
+	session, errSession := sessionsx.Create(&sessionsx.CreateParams{
+		Environment: params.Environment,
+		Claims: *userSessionToken,
+	})
 
-// 	session, errSession := sessionsx.Create(&sessionsx.CreateParams{
-// 		Environment: params.Environment,
-// 		Claims: *userSessionToken,
-// 	})
+	if errSession == nil {
+		w.Header().Set(ContentType, ApplicationJson)
+		json.NewEncoder(w).Encode(&responses.Body{
+			Session: session,
+		})
+		return
+	}
 
-// 	if errSession == nil {
-// 		marshalledJSON, errMarshal := json.Marshal(&responses.Session{
-// 			SessionToken: session.Token,
-// 		})
-// 		if errMarshal == nil {
-// 			w.Header().Set(ContentType, ApplicationJson)
-// 			json.NewEncoder(w).Encode(&marshalledJSON)
-// 			return
-// 		}
-
-// 		errors.CustomErrorResponse(w, errors.UnableToMarshalSession)
-// 		return
-// 	}
-
-// 	errorAsStr := errSession.Error()
-// 	errors.BadRequest(w, &responses.Errors{
-// 		Session: &errors.CreateGuestSessionErrorMessage,
-// 		Default: &errorAsStr,
-// 	})
-// }
-
+	errors.DefaultResponse(w, errSession)
+}
 
 func DeleteSession(
 	w http.ResponseWriter,

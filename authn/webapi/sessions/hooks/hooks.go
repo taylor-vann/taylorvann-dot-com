@@ -75,14 +75,12 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 		mutations.CreateInfraSession(w, cookie, &body)	// the only guest mutation
 	case CreateClientSession:
 		mutations.CreateClientSession(w, cookie, &body)
-	// case CreatePublicSession:
-	// 	mutations.CreatePublicSession(w, &body)
-	// case CreateCreateAccountSession:
-	// 	mutations.CreateCreateAccountSession(w, &body)
-	// case CreateUpdatePasswordSession:
-	// 	mutations.CreateUpdatePasswordSession(w, &body)
-	// case CreateUpdateEmailSession:
-	// 	mutations.CreateUpdateEmailSession(w, &body)
+	case CreateCreateAccountSession:
+		mutations.CreateCreateAccountSession(w, cookie, &body)
+	case CreateUpdatePasswordSession:
+		mutations.CreateUpdatePasswordSession(w, cookie, &body)
+	case CreateUpdateEmailSession:
+		mutations.CreateUpdateEmailSession(w, cookie, &body)
 	case DeleteSession:
 		mutations.DeleteSession(w, cookie, &body)
 	default:
