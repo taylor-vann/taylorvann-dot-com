@@ -12,7 +12,9 @@ import (
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
 
+	"github.com/taylor-vann/weblog/toolbox/golang/clientx"
 	"github.com/taylor-vann/weblog/toolbox/golang/jwtx"
+
 )
 
 var queryAddress = "https://authn.briantaylorvann.com/q/sessions/"
@@ -24,6 +26,7 @@ var (
 )
 
 var GuestSessionTest string
+
 
 func TestCreateGuestSessionBadRequest(t *testing.T) {
 	resp, errResp := http.NewRequest(

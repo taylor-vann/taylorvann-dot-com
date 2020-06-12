@@ -1,5 +1,5 @@
 // brian taylor vann
-// taylorvann dot com
+// briantaylorvann dot com
 
 package store
 

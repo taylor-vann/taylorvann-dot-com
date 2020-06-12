@@ -94,7 +94,6 @@ func TestCreate(t *testing.T) {
 	if resp == nil {
 		t.Error("response body is nil")
 		return
-		return
 	}
 
 	var responseBody responses.Body
@@ -135,7 +134,6 @@ func TestValidateGuest(t *testing.T) {
 		t.Error(errReq)
 		return
 	}
-
 	req.AddCookie(&http.Cookie{
 		Name: "briantaylorvann.com_session",
 		Value: guestSession,
@@ -160,6 +158,7 @@ func TestValidateGuest(t *testing.T) {
 	errJSON := json.NewDecoder(resp.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON)
+		return
 	}
 	if responseBody.Users == nil {
 		t.Error("nil users returned")
@@ -187,6 +186,7 @@ func TestRead(t *testing.T) {
 	)
 	if errResp != nil {
 		t.Error(errResp)
+		return
 	}
 	if resp.Body == nil {
 		t.Error("response body is nil")
@@ -197,6 +197,7 @@ func TestRead(t *testing.T) {
 	errJSON := json.NewDecoder(resp.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON)
+		return
 	}
 	if responseBody.Users == nil {
 		t.Error("nil users returned")
@@ -205,7 +206,6 @@ func TestRead(t *testing.T) {
 
 	if len(*responseBody.Users) == 0 {
 		t.Error("zero users returned")
-		return
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -231,6 +231,7 @@ func TestIndex(t *testing.T) {
 	)
 	if errResp != nil {
 		t.Error(errResp)
+		return
 	}
 	if resp.Body == nil {
 		t.Error("response body is nil")
@@ -241,6 +242,7 @@ func TestIndex(t *testing.T) {
 	errJSON := json.NewDecoder(resp.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON)
+		return
 	}
 	if responseBody.Users == nil {
 		t.Error("nil users returned")
@@ -249,7 +251,6 @@ func TestIndex(t *testing.T) {
 
 	if len(*responseBody.Users) == 0 {
 		t.Error("zero users returned")
-		return
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -271,6 +272,7 @@ func TestSearch(t *testing.T) {
 	)
 	if errResp != nil {
 		t.Error(errResp)
+		return
 	}
 
 	if resp.Body == nil {
@@ -312,6 +314,7 @@ func TestUpdate(t *testing.T) {
 	)
 	if errResp != nil {
 		t.Error(errResp)
+		return
 	}
 
 	if resp.Body == nil {
@@ -322,6 +325,7 @@ func TestUpdate(t *testing.T) {
 	errJSON := json.NewDecoder(resp.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON)
+		return
 	}
 	if responseBody.Users == nil {
 		t.Error("nil users returned")
@@ -352,6 +356,7 @@ func TestUpdateEmail(t *testing.T) {
 	)
 	if errResp != nil {
 		t.Error(errResp)
+		return
 	}
 
 	if resp.Body == nil {
@@ -362,6 +367,7 @@ func TestUpdateEmail(t *testing.T) {
 	errJSON := json.NewDecoder(resp.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON)
+		return
 	}
 	if responseBody.Users == nil {
 		t.Error("nil users returned")
@@ -392,12 +398,13 @@ func TestUpdatePassword(t *testing.T) {
 	)
 	if errResp != nil {
 		t.Error(errResp)
+		return
 	}
-
 	if resp.Body == nil {
 		t.Error("response body is nil")
 		return
 	}
+
 	var responseBody responses.Body
 	errJSON := json.NewDecoder(resp.Body).Decode(&responseBody)
 	if errJSON != nil {
@@ -435,6 +442,7 @@ func TestDelete(t *testing.T) {
 	)
 	if errResp != nil {
 		t.Error(errResp)
+		return
 	}
 
 	if resp.Body == nil {
@@ -478,6 +486,7 @@ func TestUndelete(t *testing.T) {
 	)
 	if errResp != nil {
 		t.Error(errResp)
+		return
 	}
 
 	if resp.Body == nil {
@@ -496,7 +505,6 @@ func TestUndelete(t *testing.T) {
 
 	if len(*responseBody.Users) == 0 {
 		t.Error("zero users returned")
-		return
 	}
 
 	if resp.StatusCode != http.StatusOK {
