@@ -16,13 +16,13 @@ const (
 
 	ValidateGuestSession        = "VALIDATE_GUEST_SESSION"
 	ValidateSession        			= "VALIDATE_SESSION"
-
-	CreateClientSession     		= "CREATE_DOCUMENT_SESSION"
+	
 	CreateGuestSession        	= "CREATE_GUEST_SESSION"
 	CreateInfraOverlordSession  = "CREATE_INFRA_OVERLORD_SESSION"
-	// CreateCreateAccountSession		= "CREATE_CREATE_ACCOUNT_SESSION"
-	// CreateUpdatePasswordSession	= "CREATE_UPDATE_PASSWORD_SESSION"
-	// CreateUpdateEmailSession  		= "CREATE_UPDATE_EMAIL_SESSION"
+	CreateClientSession     		= "CREATE_DOCUMENT_SESSION"
+	CreateCreateAccountSession	= "CREATE_CREATE_ACCOUNT_SESSION"
+	CreateUpdatePasswordSession	= "CREATE_UPDATE_PASSWORD_SESSION"
+	CreateUpdateEmailSession  	= "CREATE_UPDATE_EMAIL_SESSION"
 	DeleteSession             	= "DELETE_SESSION"
 )
 
@@ -32,8 +32,6 @@ func Query(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
-	cookie, _ := r.Cookie(SessionCookieHeader)
-
 	var body requests.Body
 	errDecode := json.NewDecoder(r.Body).Decode(&body)
 	if errDecode != nil {
@@ -41,9 +39,11 @@ func Query(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	cookie, _ := r.Cookie(SessionCookieHeader)
+
 	switch body.Action {
 	case ValidateGuestSession:	// the only public guest query
-		queries.ValidateGuestSession(w, cookie, &body)
+		queries.ValidateGuestSession(w, &body)
 	case ValidateSession:
 		queries.ValidateSession(w, cookie, &body)
 	default:
@@ -59,14 +59,14 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cookie, _ := r.Cookie(SessionCookieHeader)
-
 	var body requests.Body
 	errJsonDecode := json.NewDecoder(r.Body).Decode(&body)
 	if errJsonDecode != nil {
 		errors.CustomResponse(w, errors.BadRequestFail)
 		return
 	}
+
+	cookie, _ := r.Cookie(SessionCookieHeader)
 	
 	switch body.Action {
 	case CreateGuestSession:

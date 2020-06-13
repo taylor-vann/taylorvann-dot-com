@@ -270,6 +270,7 @@ func ValidateGenericToken(p *ValidateGenericTokenParams) bool {
 	if errTokenDetails == nil &&
 		tokenDetails.Payload.Iss == p.Issuer &&
 		nowAsMS < tokenDetails.Payload.Exp &&
+		tokenDetails.Payload.Iat < tokenDetails.Payload.Exp &&
 		tokenDetails.Payload.Iat < nowAsMS {
 		return true
 	}
@@ -284,16 +285,15 @@ func ValidateSessionTokenByParams(p *ValidateTokenParams) bool {
 	if p.Token == "" {
 		return false
 	}
-
+	
 	nowAsMS := GetNowAsMS()
 	tokenDetails, errTokenDetails := RetrieveTokenDetailsFromString(p.Token)
-	if errTokenDetails == nil &&
+	if errTokenDetails == nil {
+		tokenDetails.Payload.Sub == p.Subject &&
 		tokenDetails.Payload.Iss == p.Issuer &&
-		tokenDetails.Payload.Iat < tokenDetails.Payload.Exp &&
 		tokenDetails.Payload.Iat < nowAsMS &&
-		nowAsMS < tokenDetails.Payload.Exp  &&
-		tokenDetails.Payload.Aud == p.Audience &&
-		tokenDetails.Payload.Sub == p.Subject {
+		tokenDetails.Payload.Iat < tokenDetails.Payload.Exp &&
+		nowAsMS < tokenDetails.Payload.Exp {
 		return true
 	}
 

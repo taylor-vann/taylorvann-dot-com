@@ -39,8 +39,8 @@ type UserParams struct {
 }
 
 type CreateParams struct {
-	Environment string 				`json:"environment`
-	Claims 			SessionClaims	`json:"claims"`
+	Environment string 					`json:"environment`
+	Claims 			*SessionClaims	`json:"claims"`
 }
 
 type ReadParams struct {
@@ -50,7 +50,6 @@ type ReadParams struct {
 
 type ValidateParams = ReadParams
 type UpdateParams = ReadParams
-
 type DeleteParams = whitelist.RemoveEntryParams
 
 func CreateSessionClaims(p *CreateClaimsParams) *SessionClaims {
@@ -107,16 +106,6 @@ func CreateCreateAccountSessionClaims(userID int64) (*SessionClaims) {
 	})
 }
 
-func CreateUpdatePasswordSessionClaims(userID int64) (*SessionClaims) {
-	userIDAsStr := strconv.FormatInt(userID, 10)
-	return CreateSessionClaims(&CreateClaimsParams{
-		Aud: userIDAsStr,
-		Iss: constants.BrianTaylorVannDotCom,
-		Lifetime: constants.OneDayAsMS,
-		Sub: constants.UpdatePassword,
-	})
-}
-
 func CreateUpdateEmailSessionClaims(userID int64) (*SessionClaims) {	
 	userIDAsStr := strconv.FormatInt(userID, 10)
 	return CreateSessionClaims(&CreateClaimsParams{
@@ -124,6 +113,16 @@ func CreateUpdateEmailSessionClaims(userID int64) (*SessionClaims) {
 		Iss: constants.BrianTaylorVannDotCom,
 		Lifetime: constants.OneDayAsMS,
 		Sub: constants.UpdateEmail,
+	})
+}
+
+func CreateUpdatePasswordSessionClaims(userID int64) (*SessionClaims) {
+	userIDAsStr := strconv.FormatInt(userID, 10)
+	return CreateSessionClaims(&CreateClaimsParams{
+		Aud: userIDAsStr,
+		Iss: constants.BrianTaylorVannDotCom,
+		Lifetime: constants.OneDayAsMS,
+		Sub: constants.UpdatePassword,
 	})
 }
 
@@ -139,17 +138,20 @@ func CreateDeleteAccountSessionClaims(userID int64) (*SessionClaims) {
 
 func Create(p *CreateParams) (*Session, error) {
 	if p == nil {
-		return nil, errors.New("nil CreateParams provided")
+		return nil, errors.New("nil params provided")
+	}
+	if p.Claims == nil {
+		return nil, errors.New("nil claims provided")
 	}
 
-	token, errToken := jwtx.CreateJWT(&p.Claims)
+	token, errToken := jwtx.CreateJWT(p.Claims)
 	if errToken != nil {
 		return nil, errToken
 	}
 
 	lifetime := p.Claims.Exp - p.Claims.Iat
 	if lifetime < 0 {
-		lifetime *= -1
+		return nil, errors.New("negative expiration provided")
 	}
 	_, errEntry := whitelist.CreateEntry(
 		&whitelist.CreateEntryParams{
