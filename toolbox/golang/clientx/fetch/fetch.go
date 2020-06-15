@@ -33,7 +33,7 @@ func getRequestBodyBuffer(item interface{}) (*bytes.Buffer, error) {
 	return sessionBuffer, nil
 }
 
-func ValidateGuestSession(p requests.ValidateSession, sessionCookie *http.Cookie) (*responses.User, error) {
+func ValidateGuestSession(p requests.ValidateSession, sessionCookie *http.Cookie) (*string, error) {
 	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
 		requests.Body{
 			Action: "VALIDATE_GUEST_SESSION",
@@ -71,12 +71,7 @@ func ValidateGuestSession(p requests.ValidateSession, sessionCookie *http.Cookie
 		return nil, errors.New("errors were returned in fetch")
 	}
 
-	users := *responseBody.Users
-	if users != nil && len(users) > 0 {
-		return &users[0], nil
-	}
-
-	return  nil, errors.New("nil session returned")
+	return  &responseBody.Session.Token, nil
 }
 
 func ValidateGuestUser(p requests.ValidateGuestUser, sessionCookie *http.Cookie) (*responses.User, error) {
