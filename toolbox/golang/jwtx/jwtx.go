@@ -50,7 +50,6 @@ type TokenPayload struct {
 type ValidateTokenParams struct {
 	Token     string	`json:"token"`
 	Issuer		string	`json:"issuer"`
-	Audience  string	`json:"audience"`
 	Subject   string	`json:"subject"`
 }
 

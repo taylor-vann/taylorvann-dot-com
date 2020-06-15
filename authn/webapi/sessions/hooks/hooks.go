@@ -69,10 +69,10 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 	cookie, _ := r.Cookie(SessionCookieHeader)
 	
 	switch body.Action {
-	case CreateGuestSession:
-		mutations.CreateGuestSession(w, &body)	// the only public mutation
-	case CreateInfraOverlordSession:
-		mutations.CreateInfraSession(w, cookie, &body)	// the only guest mutation
+	case CreateGuestSession:  // the only public mutation
+		mutations.CreateGuestSession(w, &body)
+	case CreateInfraOverlordSession:  // the only guest mutation
+		mutations.CreateInfraSession(w, cookie, &body)
 	case CreateClientSession:
 		mutations.CreateClientSession(w, cookie, &body)
 	case CreateCreateAccountSession:
