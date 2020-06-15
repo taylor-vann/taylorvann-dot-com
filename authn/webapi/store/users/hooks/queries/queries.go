@@ -179,7 +179,7 @@ func ValidateGuest(
 		errors.DefaultResponse(w, errResp)
 		return
 	}
-	if resp == "" {
+	if resp == nil {
 		errors.BadRequest(w, &responses.Errors{
 			Default: &errors.FailedToValidateGuestSession,
 		})
