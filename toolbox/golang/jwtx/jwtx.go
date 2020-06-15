@@ -289,8 +289,8 @@ func ValidateSessionTokenByParams(p *ValidateTokenParams) bool {
 	nowAsMS := GetNowAsMS()
 	tokenDetails, errTokenDetails := RetrieveTokenDetailsFromString(p.Token)
 	if errTokenDetails == nil &&
-		tokenDetails.Payload.Sub == p.Subject &&
 		tokenDetails.Payload.Iss == p.Issuer &&
+		tokenDetails.Payload.Sub == p.Subject &&
 		tokenDetails.Payload.Iat < nowAsMS &&
 		tokenDetails.Payload.Iat < tokenDetails.Payload.Exp &&
 		nowAsMS < tokenDetails.Payload.Exp {
