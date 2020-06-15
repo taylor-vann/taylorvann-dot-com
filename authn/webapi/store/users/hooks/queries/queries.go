@@ -169,18 +169,16 @@ func ValidateGuest(
 		return
 	}
 
-	// resp, errResp := fetch.ValidateGuestSession(
-	// 	fetchRequests.GuestSession{
-	// 		Environment: params.Environment,
-	// 	},
-	// 	sessionCookie,
-	// )
-
-	// if errResp != nil {
-	// 	errors.DefaultResponse(w, errResp)
-	// 	return
-	// }
-
+	resp, errResp := fetch.ValidateGuestSession(
+		fetchRequests.GuestSession{
+			Environment: params.Environment,
+		},
+		sessionCookie,
+	)
+	if errResp != nil {
+		errors.DefaultResponse(w, errResp)
+		return
+	}
 	if resp == "" {
 		errors.BadRequest(w, &responses.Errors{
 			Default: &errors.FailedToValidateGuestSession,
