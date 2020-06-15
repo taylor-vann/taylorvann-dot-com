@@ -33,7 +33,7 @@ func getRequestBodyBuffer(item interface{}) (*bytes.Buffer, error) {
 	return sessionBuffer, nil
 }
 
-func ValidateGuestUser(p requests.ValidateSession, sessionCookie *http.Cookie) (*responses.User, error) {
+func ValidateGuestSession(p requests.ValidateSession, sessionCookie *http.Cookie) (*responses.User, error) {
 	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
 		requests.Body{
 			Action: "VALIDATE_GUEST_SESSION",
