@@ -71,7 +71,6 @@ func ValidateGuestSession(
 	)
 	if errSessionIsValid != nil {
 		log.Println("session was invalid")
-
 		log.Println(errSessionIsValid)
 		errors.DefaultResponse(w, errSessionIsValid)
 		return
