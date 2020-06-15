@@ -38,6 +38,7 @@ func TestValidateGuestSession(t *testing.T) {
 	resp, errResp := ValidateGuestSession(
 		requests.ValidateGuestSession{
 			Environment: Environment,
+			
 		},
 		&http.Cookie{
 			Name: "briantaylorvann.com_session",
