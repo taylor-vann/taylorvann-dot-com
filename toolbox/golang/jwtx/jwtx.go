@@ -50,6 +50,7 @@ type TokenPayload struct {
 type ValidateTokenParams struct {
 	Token     string	`json:"token"`
 	Issuer		string	`json:"issuer"`
+	Audience  string	`json:"audience"`
 	Subject   string	`json:"subject"`
 }
 
@@ -287,7 +288,7 @@ func ValidateSessionTokenByParams(p *ValidateTokenParams) bool {
 	
 	nowAsMS := GetNowAsMS()
 	tokenDetails, errTokenDetails := RetrieveTokenDetailsFromString(p.Token)
-	if errTokenDetails == nil {
+	if errTokenDetails == nil
 		tokenDetails.Payload.Sub == p.Subject &&
 		tokenDetails.Payload.Iss == p.Issuer &&
 		tokenDetails.Payload.Iat < nowAsMS &&

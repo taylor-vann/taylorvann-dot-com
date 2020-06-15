@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"log"
+
 	"webapi/sessions/hooks/errors"
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
@@ -31,15 +33,18 @@ func Query(w http.ResponseWriter, r *http.Request) {
 		errors.CustomResponse(w, errors.BadRequestFail)
 		return
 	}
-	
+	log.Println("made it to session query")
+
 	var body requests.Body
 	errDecode := json.NewDecoder(r.Body).Decode(&body)
 	if errDecode != nil {
+		log.Println(errDecode)
 		errors.DefaultResponse(w, errDecode)
 		return
 	}
 
 	cookie, _ := r.Cookie(SessionCookieHeader)
+	log.Println(cookie)
 
 	switch body.Action {
 	case ValidateGuestSession:	// the only public guest query
@@ -58,16 +63,19 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 		errors.CustomResponse(w, errors.BadRequestFail)
 		return
 	}
+	log.Println("made it to session mutations")
 
 	var body requests.Body
 	errJsonDecode := json.NewDecoder(r.Body).Decode(&body)
 	if errJsonDecode != nil {
+		log.Println(errJsonDecode)
 		errors.CustomResponse(w, errors.BadRequestFail)
 		return
 	}
 
 	cookie, _ := r.Cookie(SessionCookieHeader)
-	
+	log.Println(cookie)
+
 	switch body.Action {
 	case CreateGuestSession:  // the only public mutation
 		mutations.CreateGuestSession(w, &body)
