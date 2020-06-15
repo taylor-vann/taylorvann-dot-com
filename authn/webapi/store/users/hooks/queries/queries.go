@@ -170,8 +170,9 @@ func ValidateGuest(
 	}
 
 	resp, errResp := fetch.ValidateGuestSession(
-		fetchRequests.GuestSession{
+		fetchRequests.ValidateSession{
 			Environment: params.Environment,
+			Token: sessionCookie.Value,
 		},
 		sessionCookie,
 	)

@@ -1,24 +1,20 @@
 # Authn
 
-authentication service designed to separate and scale
+Validate Users and Sessions designed to separate and scale
+
+## Abstract
+
+Authn is the microservice that will issue sessions to users and microservices.
 
 ## Sessions
 
-Control access to internal and public apis
+Control access to internal and public apis.
 
 ## Store
 
-### Users
-
 Emails and Passwords
 
-### Roles
-
 Permissions for Users 
-
-## Toolbox
-
-Code sharing for external services also running Golang
 
 # Dependencies
 

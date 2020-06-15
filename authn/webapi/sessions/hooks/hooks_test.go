@@ -11,7 +11,7 @@ import (
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
 
-	// "github.com/taylor-vann/weblog/toolbox/golang/clientx"
+	"github.com/taylor-vann/weblog/toolbox/golang/clientx/sessionx"
 	"github.com/taylor-vann/weblog/toolbox/golang/jwtx"
 
 )
@@ -25,52 +25,7 @@ var (
 )
 
 var GuestSessionTest string
-
-
-func TestCreateGuestSessionBadRequest(t *testing.T) {
-	resp, errResp := http.NewRequest(
-		"POST",
-		"/m/sessions/",
-		nil,
-	)
-	if errResp != nil {
-		t.Error(errResp.Error())
-	}
-
-	httpTest := httptest.NewRecorder()
-	handler := http.HandlerFunc(Mutation)
-	handler.ServeHTTP(httpTest, resp)
-
-	if httpTest.Code != http.StatusBadRequest {
-		t.Error("handler returned incorrect status code, should be 400")
-	}
-}
-
-func TestCreateGuestSessionBadHeadersRequest(t *testing.T) {
-	requestBody := requests.Body{
-		Action: CreateGuestSession,
-	}
-
-	marshalBytes := new(bytes.Buffer)
-	json.NewEncoder(marshalBytes).Encode(requestBody)
-	req, errReq := http.NewRequest(
-		"POST",
-		"/m/sessions/",
-		marshalBytes,
-	)
-	if errReq != nil {
-		t.Error(errReq.Error())
-	}
-
-	httpTest := httptest.NewRecorder()
-	handler := http.HandlerFunc(Mutation)
-	handler.ServeHTTP(httpTest, req)
-
-	status := httpTest.Code
-	if status == http.StatusOK {
-		t.Error("handler returned incorrect status code, should not be 200")
-	}
-}
+var ClientSessionTest *http.Cookie
 
 func TestCreateGuestSession(t *testing.T) {
 	requestBody := requests.Body{
@@ -128,6 +83,64 @@ func TestCreateGuestSession(t *testing.T) {
 
 	// set for verification on next text
 	GuestSessionTest = responseBody.Session.Token
+}
+
+// clientx session
+func TestCreateClientSession(t *testing.T) {
+	cookie, errInfraSession := sessionx.Setup()
+	if errInfraSession != nil {
+		t.Error(errInfraSession)
+	}
+	if cookie == nil {
+		t.Error("infra session is nil!")
+	}
+
+	ClientSessionTest = cookie
+}
+
+func TestCreateGuestSessionBadRequest(t *testing.T) {
+	resp, errResp := http.NewRequest(
+		"POST",
+		"/m/sessions/",
+		nil,
+	)
+	if errResp != nil {
+		t.Error(errResp.Error())
+	}
+
+	httpTest := httptest.NewRecorder()
+	handler := http.HandlerFunc(Mutation)
+	handler.ServeHTTP(httpTest, resp)
+
+	if httpTest.Code != http.StatusBadRequest {
+		t.Error("handler returned incorrect status code, should be 400")
+	}
+}
+
+func TestCreateGuestSessionBadHeadersRequest(t *testing.T) {
+	requestBody := requests.Body{
+		Action: CreateGuestSession,
+	}
+
+	marshalBytes := new(bytes.Buffer)
+	json.NewEncoder(marshalBytes).Encode(requestBody)
+	req, errReq := http.NewRequest(
+		"POST",
+		"/m/sessions/",
+		marshalBytes,
+	)
+	if errReq != nil {
+		t.Error(errReq.Error())
+	}
+
+	httpTest := httptest.NewRecorder()
+	handler := http.HandlerFunc(Mutation)
+	handler.ServeHTTP(httpTest, req)
+
+	status := httpTest.Code
+	if status == http.StatusOK {
+		t.Error("handler returned incorrect status code, should not be 200")
+	}
 }
 
 func TestValidateGuestSession(t *testing.T) {
@@ -554,6 +567,7 @@ func TestDeleteSession(t *testing.T) {
 		t.Error(errResp.Error())
 	}
 
+
 	httpTest := httptest.NewRecorder()
 	handler := http.HandlerFunc(Mutation)
 	handler.ServeHTTP(httpTest, resp)
@@ -579,6 +593,7 @@ func TestDeleteSession(t *testing.T) {
 	if errTokenDetails != nil {
 		t.Error(errTokenDetails.Error())
 	}
+
 	// public session from guest sesion
 	requestBodyRemove := requests.Body{
 		Action: DeleteSession,
@@ -598,10 +613,7 @@ func TestDeleteSession(t *testing.T) {
 		"/m/sessions/",
 		marshalBytesRemove,
 	)
-	req.AddCookie(&http.Cookie{
-		Name: "briantaylorvann.com_session",
-		Value: GuestSessionTest,
-	})
+	req.AddCookie(ClientSessionTest)
 	if errReq != nil {
 		t.Error(errReq.Error())
 	}
