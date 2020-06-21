@@ -6,7 +6,7 @@ package routes
 import (
 	"net/http"
 
-	"webapi/server/routes/ping"
+	"webapi/server/ping"
 	sessionHooks "webapi/sessions/hooks"
 	usersHooks "webapi/store/users/hooks"
 	rolesHooks "webapi/store/roles/hooks"

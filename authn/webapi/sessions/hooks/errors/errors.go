@@ -21,6 +21,7 @@ var (
 	InvalidSessionProvided    		 = "invalid session provided"
 	CreateGuestSessionErrorMessage = "error creating guest session"
 	InvalidRequestProvided         = "invalid request provided"
+	InvalidDefaultUserProvided     = "invalid default user provided"
 	UnableToMarshalSession         = "unable to marshal session"
 	UnableToUpdateSession					 = "unable to update session"
 )

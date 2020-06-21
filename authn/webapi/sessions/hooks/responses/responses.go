@@ -7,7 +7,6 @@ import (
 type Session = sessionsx.Session
 
 type Errors struct {
-	Headers			*string `json:"headers"`
 	RequestBody	*string `json:"request_body"`
 	Session			*string `json:"session"`
 	Default			*string `json:"default"`

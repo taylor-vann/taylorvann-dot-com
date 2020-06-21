@@ -10,10 +10,19 @@ type Validate = sessionsx.ReadParams
 type ValidateGuest = sessionsx.ReadParams
 type Update = sessionsx.UpdateParams
 type Delete = sessionsx.DeleteParams
-type User = sessionsx.UserParams
 
 type Guest struct {
 	Environment string
+}
+
+type User struct {
+	Environment string `json:"environment"`
+	UserID      int64  `json:"user_id"`
+}
+
+type Ancillary struct {
+	Environment string `json:"environment"`
+	Email      string  `json:"email"`
 }
 
 type InfraUser struct {
@@ -21,8 +30,6 @@ type InfraUser struct {
 	Email				string `json:"email"`
 	Password		string `json:"password"`
 }
-
-type ClientUser = InfraUser
 
 type Body struct {
 	Action string 		 `json:"action"`
