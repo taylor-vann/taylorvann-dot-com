@@ -10,7 +10,7 @@ import (
 	"webapi/sessions/hooks/errors"
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
-	"webapi/sessions/hooks/verifysession"
+	"webapi/sessions/hooks/verify"
 	"webapi/sessions/sessionsx"
 )
 
@@ -45,7 +45,7 @@ func dropRequestInfraSessionNotValid(
 		errors.CustomResponse(w, errors.NilInfraCredentials)
 		return true
 	}
-	isValid, errValidate := verifysession.ValidateInfraSession(
+	isValid, errValidate := verify.ValidateInfraSession(
 		environment,
 		sessionCookie.Value,
 	)
@@ -141,6 +141,11 @@ func CreateInfraSession(
 		errors.DefaultResponse(w, errParamsMarshal)
 		return
 	}
+	// golang defaults strings to a "", exciting! (dangerous)
+	if params.Email == "" {
+		errors.CustomResponse(w, errors.InvalidDefaultUserProvided)
+		return
+	}
 
 	resp, errResp := fetch.ValidateInfraRole(
 		fetchRequests.ValidateGuestUser(params),
@@ -183,8 +188,12 @@ func CreateClientSession(
 		errors.DefaultResponse(w, errParamsMarshal)
 		return
 	}
+	// golang defaults ints to a 0 value, exciting! (dangerous)
+	if params.UserID == 0 {
+		errors.CustomResponse(w, errors.InvalidDefaultUserProvided)
+		return
+	}
 
-	// check session
 	if dropRequestInfraSessionNotValid(w, params.Environment, sessionCookie) {
 		return
 	}
@@ -215,7 +224,7 @@ func CreateCreateAccountSession(
 		return
 	}
 
-	var params requests.User
+	var params requests.Ancillary
 	bytes, _ := json.Marshal(requestBody.Params)
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
@@ -223,12 +232,11 @@ func CreateCreateAccountSession(
 		return
 	}
 
-	// check session
 	if dropRequestInfraSessionNotValid(w, params.Environment, sessionCookie) {
 		return
 	}
 
-	claims := sessionsx.CreateCreateAccountSessionClaims(params.UserID)
+	claims := sessionsx.CreateCreateAccountSessionClaims(params.Email)
 	session, errSession := sessionsx.Create(&sessionsx.CreateParams{
 		Environment: params.Environment,
 		Claims: claims,
@@ -253,7 +261,7 @@ func CreateUpdateEmailSession(
 		return
 	}
 
-	var params requests.User
+	var params requests.Ancillary
 	bytes, _ := json.Marshal(requestBody.Params)
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
@@ -261,12 +269,11 @@ func CreateUpdateEmailSession(
 		return
 	}
 
-	// check session
 	if dropRequestInfraSessionNotValid(w, params.Environment, sessionCookie) {
 		return
 	}
 
-	claims := sessionsx.CreateUpdateEmailSessionClaims(params.UserID)
+	claims := sessionsx.CreateUpdateEmailSessionClaims(params.Email)
 	session, errSession := sessionsx.Create(&sessionsx.CreateParams{
 		Environment: params.Environment,
 		Claims: claims,
@@ -291,7 +298,7 @@ func CreateUpdatePasswordSession(
 		return
 	}
 
-	var params requests.User
+	var params requests.Ancillary
 	bytes, _ := json.Marshal(requestBody.Params)
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
@@ -299,12 +306,11 @@ func CreateUpdatePasswordSession(
 		return
 	}
 
-	// check session
 	if dropRequestInfraSessionNotValid(w, params.Environment, sessionCookie) {
 		return
 	}
 
-	claims := sessionsx.CreateUpdatePasswordSessionClaims(params.UserID)
+	claims := sessionsx.CreateUpdatePasswordSessionClaims(params.Email)
 	session, errSession := sessionsx.Create(&sessionsx.CreateParams{
 		Environment: params.Environment,
 		Claims: claims,
@@ -320,7 +326,6 @@ func CreateUpdatePasswordSession(
 	errors.DefaultResponse(w, errSession)
 }
 
-
 func CreateDeleteAccountSession(
 	w http.ResponseWriter,
 	sessionCookie *http.Cookie,
@@ -330,7 +335,7 @@ func CreateDeleteAccountSession(
 		return
 	}
 
-	var params requests.User
+	var params requests.Ancillary
 	bytes, _ := json.Marshal(requestBody.Params)
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
@@ -338,12 +343,11 @@ func CreateDeleteAccountSession(
 		return
 	}
 
-	// check session
 	if dropRequestInfraSessionNotValid(w, params.Environment, sessionCookie) {
 		return
 	}
 
-	claims := sessionsx.CreateDeleteAccountSessionClaims(params.UserID)
+	claims := sessionsx.CreateDeleteAccountSessionClaims(params.Email)
 	session, errSession := sessionsx.Create(&sessionsx.CreateParams{
 		Environment: params.Environment,
 		Claims: claims,
@@ -376,7 +380,6 @@ func DeleteSession(
 		return
 	}
 
-	// check session
 	if dropRequestInfraSessionNotValid(w, params.Environment, sessionCookie) {
 		return
 	}

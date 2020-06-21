@@ -1,11 +1,6 @@
 // brian taylor vann
 // briantaylorvann dot com
 
-// sessionx
-//
-// create, read, delete sessions
-// read will automatically return expired sessions as invalid
-
 package sessionsx
 
 import (
@@ -32,11 +27,6 @@ type CreateClaimsParams struct {
 }
 
 type SessionClaims = jwtx.Claims
-
-type UserParams struct {
-	Environment string `json:"environment`
-	UserID 			int64	 `json:"user_id"`
-}
 
 type CreateParams struct {
 	Environment string 					`json:"environment`
@@ -96,40 +86,36 @@ func CreateClientSessionClaims(userID int64) *SessionClaims {
 	})
 }
 
-func CreateCreateAccountSessionClaims(userID int64) (*SessionClaims) {
-	userIDAsStr := strconv.FormatInt(userID, 10)
+func CreateCreateAccountSessionClaims(email string) (*SessionClaims) {
 	return CreateSessionClaims(&CreateClaimsParams{
-		Aud: userIDAsStr,
+		Aud: email,
 		Iss: constants.BrianTaylorVannDotCom,
 		Lifetime: constants.OneDayAsMS,
 		Sub: constants.CreateAccount,
 	})
 }
 
-func CreateUpdateEmailSessionClaims(userID int64) (*SessionClaims) {	
-	userIDAsStr := strconv.FormatInt(userID, 10)
+func CreateUpdateEmailSessionClaims(email string) (*SessionClaims) {	
 	return CreateSessionClaims(&CreateClaimsParams{
-		Aud: userIDAsStr,
+		Aud: email,
 		Iss: constants.BrianTaylorVannDotCom,
-		Lifetime: constants.OneDayAsMS,
+		Lifetime: constants.ThreeHoursAsMS,
 		Sub: constants.UpdateEmail,
 	})
 }
 
-func CreateUpdatePasswordSessionClaims(userID int64) (*SessionClaims) {
-	userIDAsStr := strconv.FormatInt(userID, 10)
+func CreateUpdatePasswordSessionClaims(email string) (*SessionClaims) {
 	return CreateSessionClaims(&CreateClaimsParams{
-		Aud: userIDAsStr,
+		Aud: email,
 		Iss: constants.BrianTaylorVannDotCom,
-		Lifetime: constants.OneDayAsMS,
+		Lifetime: constants.ThreeHoursAsMS,
 		Sub: constants.UpdatePassword,
 	})
 }
 
-func CreateDeleteAccountSessionClaims(userID int64) (*SessionClaims) {	
-	userIDAsStr := strconv.FormatInt(userID, 10)
+func CreateDeleteAccountSessionClaims(email string) (*SessionClaims) {	
 	return CreateSessionClaims(&CreateClaimsParams{
-		Aud: userIDAsStr,
+		Aud: email,
 		Iss: constants.BrianTaylorVannDotCom,
 		Lifetime: constants.OneDayAsMS,
 		Sub: constants.DeleteAccount,

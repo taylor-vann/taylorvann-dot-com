@@ -14,7 +14,9 @@ const (
 )
 
 var (
-	OneDayAsMS = int64(1000 * 60 * 60 * 24)
+	OneHourAsMS = int64(1000 * 60 * 60)
+	ThreeHoursAsMS =  3 * OneHourAsMS
+	OneDayAsMS = 24 * OneHourAsMS
 	ThreeDaysAsMS = 3 * OneDayAsMS
 	SevenDaysAsMS = 7 * OneDayAsMS
 	ThreeSixtyFiveDaysAsMS = 365 * OneDayAsMS
