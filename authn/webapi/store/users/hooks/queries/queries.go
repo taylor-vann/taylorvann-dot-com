@@ -4,17 +4,12 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/taylor-vann/weblog/toolbox/golang/clientx"
-	"github.com/taylor-vann/weblog/toolbox/golang/clientx/fetch"
-	fetchRequests "github.com/taylor-vann/weblog/toolbox/golang/clientx/fetch/requests"
-
 	"webapi/store/users/controller"
 	"webapi/store/users/hooks/cache"
 	"webapi/store/users/hooks/errors"
 	"webapi/store/users/hooks/requests"
 	"webapi/store/users/hooks/responses"
-
-	"github.com/taylor-vann/weblog/toolbox/golang/jwtx"
+	"webapi/store/users/hooks/verifyx"
 )
 
 func writeUsersResponse(w http.ResponseWriter, users *controller.SafeUsers) {
@@ -25,67 +20,59 @@ func writeUsersResponse(w http.ResponseWriter, users *controller.SafeUsers) {
 	})
 }
 
-func dropRequestNotValidBody(w http.ResponseWriter, requestBody *requests.Body) bool {
+func isRequestBodyValid(
+	w http.ResponseWriter,
+	requestBody *requests.Body,
+) bool {
 	if requestBody != nil && requestBody.Params != nil {
-		return false
+		return true
 	}
 	errors.BadRequest(w, &responses.Errors{
 		RequestBody: &errors.BadRequestFail,
 	})
-	return true
+	return false
 }
 
-func checkInfraSession(sessionToken string) (bool, error) {
-	isValid := jwtx.ValidateGenericToken(&jwtx.ValidateGenericTokenParams{
-		Token: sessionToken,
-		Issuer: "briantaylorvann.com",
-	})
-	if !isValid {
-		return false, nil
-	}
-
-	details, errDetails := jwtx.RetrieveTokenDetailsFromString(sessionToken)
-	if errDetails != nil {
-		return false, errDetails
-	}
-
-	if details.Payload.Sub == "infra" {
-		return true, nil
-	}
-
-	return false, nil
-}
-
-func validateSessionRemotely(environment string, sessionToken string) (bool, error) {
-	sessionStr, errSessionStr := clientx.ValidateSession(
-		fetchRequests.ValidateSession{
-			Environment: environment,
-			Token: sessionToken,
-		},
-	)
-	if errSessionStr != nil {
-		return false, errSessionStr
-	}
-	if sessionStr != "" {
-		return true, nil
-	}
-
-	return false, nil
-}
-
-func validateInfraSession(environment string, sessionToken string) (bool, error) {
-	infraSessionExists, errInfraSessionExists := validateSessionRemotely(
+func isGuestSessionValid(
+	w http.ResponseWriter,
+	environment string,
+	sessionToken string,
+) bool {
+	isValid, errValidate := verifyx.ValidateGuestSession(
 		environment,
 		sessionToken,
 	)
-	if errInfraSessionExists != nil {
-		return false, errInfraSessionExists
+	if isValid {
+		return true
 	}
-	if !infraSessionExists {
-		return false, nil
+	if errValidate != nil {
+		errors.DefaultResponse(w, errValidate)
+		return false
 	}
 
-	return checkInfraSession(sessionToken)
+	errors.CustomResponse(w, errors.InvalidInfraSession)
+	return false
+}
+
+func isInfraSessionValid(
+	w http.ResponseWriter,
+	environment string,
+	sessionToken string,
+) bool {
+	isValid, errValidate := verifyx.ValidateInfraSession(
+		environment,
+		sessionToken,
+	)
+	if isValid {
+		return true
+	}
+	if errValidate != nil {
+		errors.DefaultResponse(w, errValidate)
+		return false
+	}
+	
+	errors.CustomResponse(w, errors.InvalidInfraSession)
+	return false
 }
 
 func Read(
@@ -93,7 +80,7 @@ func Read(
 	sessionCookie *http.Cookie,
 	requestBody *requests.Body,
 ) {
-	if dropRequestNotValidBody(w, requestBody) {
+	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
 	if sessionCookie == nil {
@@ -109,16 +96,7 @@ func Read(
 		return
 	}
 
-	sessionIsValid, errSessionIsValid := validateInfraSession(
-		params.Environment,
-		sessionCookie.Value,
-	)
-	if errSessionIsValid != nil{
-		errors.DefaultResponse(w, errSessionIsValid)
-		return
-	}
-	if !sessionIsValid {
-		errors.CustomResponse(w, errors.InvalidInfraSession)
+	if !isInfraSessionValid(w, params.Environment, sessionCookie.Value) {
 		return
 	}
 
@@ -153,7 +131,7 @@ func ValidateGuest(
 	sessionCookie *http.Cookie,
 	requestBody *requests.Body,
 ) {
-	if dropRequestNotValidBody(w, requestBody) {
+	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
 	if sessionCookie == nil {
@@ -169,21 +147,7 @@ func ValidateGuest(
 		return
 	}
 
-	resp, errResp := fetch.ValidateGuestSession(
-		fetchRequests.ValidateSession{
-			Environment: params.Environment,
-			Token: sessionCookie.Value,
-		},
-		sessionCookie,
-	)
-	if errResp != nil {
-		errors.DefaultResponse(w, errResp)
-		return
-	}
-	if resp == nil {
-		errors.BadRequest(w, &responses.Errors{
-			Default: &errors.FailedToValidateGuestSession,
-		})
+	if !isGuestSessionValid(w, params.Environment, sessionCookie.Value) {
 		return
 	}
 
@@ -212,7 +176,7 @@ func Index(
 	sessionCookie *http.Cookie,
 	requestBody *requests.Body,
 ) {
-	if dropRequestNotValidBody(w, requestBody) {
+	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
 	if sessionCookie == nil {
@@ -228,16 +192,7 @@ func Index(
 		return
 	}
 
-	sessionIsValid, errSessionIsValid := validateInfraSession(
-		params.Environment,
-		sessionCookie.Value,
-	)
-	if errSessionIsValid != nil{
-		errors.DefaultResponse(w, errSessionIsValid)
-		return
-	}
-	if !sessionIsValid {
-		errors.CustomResponse(w, errors.InvalidInfraSession)
+	if !isInfraSessionValid(w, params.Environment, sessionCookie.Value) {
 		return
 	}
 
@@ -261,7 +216,7 @@ func Search(
 	sessionCookie *http.Cookie,
 	requestBody *requests.Body,
 ) {
-	if dropRequestNotValidBody(w, requestBody) {
+	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
 	if sessionCookie == nil {
@@ -277,16 +232,7 @@ func Search(
 		return
 	}
 
-	sessionIsValid, errSessionIsValid := validateInfraSession(
-		params.Environment,
-		sessionCookie.Value,
-	)
-	if errSessionIsValid != nil{
-		errors.DefaultResponse(w, errSessionIsValid)
-		return
-	}
-	if !sessionIsValid {
-		errors.CustomResponse(w, errors.InvalidInfraSession)
+	if !isInfraSessionValid(w, params.Environment, sessionCookie.Value) {
 		return
 	}
 

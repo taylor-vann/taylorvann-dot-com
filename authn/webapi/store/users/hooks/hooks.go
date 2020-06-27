@@ -7,8 +7,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	// "log"
-
 	"webapi/store/users/hooks/errors"
 	"webapi/store/users/hooks/requests"
 	"webapi/store/users/hooks/responses"
@@ -49,6 +47,7 @@ func Query(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	
 	cookie, errCookie := r.Cookie(SessionCookieHeader)
 	if errCookie != nil {
 		errors.DefaultResponse(w, errCookie)
@@ -66,6 +65,7 @@ func Query(w http.ResponseWriter, r *http.Request) {
 	case Read:
 		queries.Read(w, cookie, &body)
 	case ValidateGuest:
+		
 		queries.ValidateGuest(w, cookie, &body) // requires guest sessoion
 	case Search:
 		queries.Search(w, cookie, &body)
@@ -87,6 +87,7 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cookie, errCookie := r.Cookie(SessionCookieHeader)
+	// verify infra cookie here
 	if errCookie != nil {
 		errors.DefaultResponse(w, errCookie)
 		return

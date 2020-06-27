@@ -168,10 +168,6 @@ func TestValidateGuestSession(t *testing.T) {
 		"/q/sessions/",
 		bytes.NewBuffer(marshalBody),
 	)
-	resp.AddCookie(&http.Cookie{
-		Name: "briantaylorvann.com_session",
-		Value: GuestSessionTest,
-	})
 	if resp == nil {
 		t.Error(resp)
 		return
@@ -180,6 +176,10 @@ func TestValidateGuestSession(t *testing.T) {
 		t.Error(errResp.Error())
 		return
 	}
+	resp.AddCookie(&http.Cookie{
+		Name: "briantaylorvann.com_session",
+		Value: GuestSessionTest,
+	})
 	
 	httpTest := httptest.NewRecorder()
 	handler := http.HandlerFunc(Query)

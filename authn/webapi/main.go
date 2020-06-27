@@ -8,6 +8,6 @@ import (
 func main() {	
 	store.CreateRequiredTables()
 	store.InitFromJSON()
-
+	
 	server.CreateServer()
 }

@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -66,6 +67,23 @@ var user1UpdatedPassword = requests.UpdatePassword{
 	Password: "PAZZw3rd",
 }
 
+var (
+	ClientSessionTest *http.Cookie
+)
+
+func TestCreateClientxSession(t *testing.T) {
+	cookie, errInfraSession := clientx.Setup()
+	if errInfraSession != nil {
+		t.Error(errInfraSession)
+	}
+	if cookie == nil {
+		t.Error("infra session is nil!")
+	}
+
+	// set for verification on next text
+	ClientSessionTest = cookie
+}
+
 func TestCreateTable(t *testing.T) {
 	results, err := controller.CreateTable(&createTable)
 	if err != nil {
@@ -84,8 +102,9 @@ func TestCreate(t *testing.T) {
 
 	marshalBytes := new(bytes.Buffer)
 	json.NewEncoder(marshalBytes).Encode(requestBody)
-	resp, errResp := clientx.Do(
-		"https://authn.briantaylorvann.com/m/users/",
+	resp, errResp := http.NewRequest(
+		"POST",
+		"/m/users/",
 		marshalBytes,
 	)
 	if errResp != nil {
@@ -95,9 +114,14 @@ func TestCreate(t *testing.T) {
 		t.Error("response body is nil")
 		return
 	}
+	resp.AddCookie(ClientSessionTest)
+	
+	httpTest := httptest.NewRecorder()
+	handler := http.HandlerFunc(Mutation)
+	handler.ServeHTTP(httpTest, resp)
 
 	var responseBody responses.Body
-	errJSON := json.NewDecoder(resp.Body).Decode(&responseBody)
+	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON)
 		return
@@ -105,14 +129,12 @@ func TestCreate(t *testing.T) {
 	if responseBody.Users == nil {
 		t.Error("nil users returned")
 	}
-	if resp.StatusCode != http.StatusOK {
+	if httpTest.Code != http.StatusOK {
 		t.Error(*responseBody.Errors.Default)
 	}
 }
 
 func TestValidateGuest(t *testing.T) {
-	respClient := http.Client{}
-
 	guestSession, errGuestSession := sessionx.GuestSession()
 	if errGuestSession != nil {
 		t.Error("couldn't get guest session")
@@ -125,37 +147,29 @@ func TestValidateGuest(t *testing.T) {
 
 	marshalBytes := new(bytes.Buffer)
 	json.NewEncoder(marshalBytes).Encode(requestBody)
-	req, errReq := http.NewRequest(
+	resp, errResp := http.NewRequest(
 		"POST",
-		"https://authn.briantaylorvann.com/q/users/",
+		"/q/users/",
 		marshalBytes,
 	)
-	if errReq != nil {
-		t.Error(errReq)
-		return
-	}
-	req.AddCookie(&http.Cookie{
-		Name: "briantaylorvann.com_session",
-		Value: guestSession,
-		MaxAge:		10000,
-		Domain:   ".briantaylorvann.com",
-		Secure:		true,
-		HttpOnly:	true,
-		SameSite:	3,
-	})
-
-	resp, errResp := respClient.Do(req)
 	if errResp != nil {
 		t.Error(errResp)
-		return
 	}
-	if req.Body == nil {
+	if resp == nil {
 		t.Error("response body is nil")
 		return
 	}
+	resp.AddCookie(&http.Cookie{
+		Name: "briantaylorvann.com_session",
+		Value: guestSession,
+	})
+	
+	httpTest := httptest.NewRecorder()
+	handler := http.HandlerFunc(Query)
+	handler.ServeHTTP(httpTest, resp)
 
 	var responseBody responses.Body
-	errJSON := json.NewDecoder(resp.Body).Decode(&responseBody)
+	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON)
 		return
@@ -164,7 +178,7 @@ func TestValidateGuest(t *testing.T) {
 		t.Error("nil users returned")
 	}
 
-	if resp.StatusCode != http.StatusOK {
+	if httpTest.Code != http.StatusOK {
 		t.Error(*responseBody.Errors)
 	}
 }
@@ -180,21 +194,26 @@ func TestRead(t *testing.T) {
 
 	marshalBytes := new(bytes.Buffer)
 	json.NewEncoder(marshalBytes).Encode(requestBody)
-	resp, errResp := clientx.Do(
-		"https://authn.briantaylorvann.com/q/users/",
+	resp, errResp := http.NewRequest(
+		"POST",
+		"/q/users/",
 		marshalBytes,
 	)
 	if errResp != nil {
 		t.Error(errResp)
-		return
 	}
-	if resp.Body == nil {
+	if resp == nil {
 		t.Error("response body is nil")
 		return
 	}
+	resp.AddCookie(ClientSessionTest)
+	
+	httpTest := httptest.NewRecorder()
+	handler := http.HandlerFunc(Query)
+	handler.ServeHTTP(httpTest, resp)
 
 	var responseBody responses.Body
-	errJSON := json.NewDecoder(resp.Body).Decode(&responseBody)
+	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON)
 		return
@@ -208,7 +227,7 @@ func TestRead(t *testing.T) {
 		t.Error("zero users returned")
 	}
 
-	if resp.StatusCode != http.StatusOK {
+	if httpTest.Code != http.StatusOK {
 		t.Error(*responseBody.Errors.Default)
 	}
 }
@@ -225,21 +244,26 @@ func TestIndex(t *testing.T) {
 
 	marshalBytes := new(bytes.Buffer)
 	json.NewEncoder(marshalBytes).Encode(requestBody)
-	resp, errResp := clientx.Do(
-		"https://authn.briantaylorvann.com/q/users/",
+	resp, errResp := http.NewRequest(
+		"POST",
+		"/q/users/",
 		marshalBytes,
 	)
 	if errResp != nil {
 		t.Error(errResp)
-		return
 	}
-	if resp.Body == nil {
+	if resp == nil {
 		t.Error("response body is nil")
 		return
 	}
+	resp.AddCookie(ClientSessionTest)
+	
+	httpTest := httptest.NewRecorder()
+	handler := http.HandlerFunc(Query)
+	handler.ServeHTTP(httpTest, resp)
 
 	var responseBody responses.Body
-	errJSON := json.NewDecoder(resp.Body).Decode(&responseBody)
+	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON)
 		return
@@ -253,7 +277,7 @@ func TestIndex(t *testing.T) {
 		t.Error("zero users returned")
 	}
 
-	if resp.StatusCode != http.StatusOK {
+	if httpTest.Code != http.StatusOK {
 		t.Error(*responseBody.Errors.Default)
 	}
 }
@@ -266,14 +290,23 @@ func TestSearch(t *testing.T) {
 
 	marshalBytes := new(bytes.Buffer)
 	json.NewEncoder(marshalBytes).Encode(requestBody)
-	resp, errResp := clientx.Do(
-		"https://authn.briantaylorvann.com/q/users/",
+	resp, errResp := http.NewRequest(
+		"POST",
+		"/q/users/",
 		marshalBytes,
 	)
 	if errResp != nil {
 		t.Error(errResp)
+	}
+	if resp == nil {
+		t.Error("response body is nil")
 		return
 	}
+	resp.AddCookie(ClientSessionTest)
+	
+	httpTest := httptest.NewRecorder()
+	handler := http.HandlerFunc(Query)
+	handler.ServeHTTP(httpTest, resp)
 
 	if resp.Body == nil {
 		t.Error("response body is nil")
@@ -281,7 +314,7 @@ func TestSearch(t *testing.T) {
 	}
 
 	var responseBody responses.Body
-	errJSON := json.NewDecoder(resp.Body).Decode(&responseBody)
+	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON)
 	}
@@ -295,7 +328,7 @@ func TestSearch(t *testing.T) {
 		return
 	}
 
-	if resp.StatusCode != http.StatusOK {
+	if httpTest.Code != http.StatusOK {
 		t.Error(*responseBody.Errors.Default)
 	}
 }
@@ -308,21 +341,30 @@ func TestUpdate(t *testing.T) {
 
 	marshalBytes := new(bytes.Buffer)
 	json.NewEncoder(marshalBytes).Encode(requestBody)
-	resp, errResp := clientx.Do(
-		"https://authn.briantaylorvann.com/m/users/",
+	resp, errResp := http.NewRequest(
+		"POST",
+		"/m/users/",
 		marshalBytes,
 	)
 	if errResp != nil {
 		t.Error(errResp)
+	}
+	if resp == nil {
+		t.Error("response body is nil")
 		return
 	}
+	resp.AddCookie(ClientSessionTest)
+	
+	httpTest := httptest.NewRecorder()
+	handler := http.HandlerFunc(Mutation)
+	handler.ServeHTTP(httpTest, resp)
 
 	if resp.Body == nil {
 		t.Error("response body is nil")
 		return
 	}
 	var responseBody responses.Body
-	errJSON := json.NewDecoder(resp.Body).Decode(&responseBody)
+	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON)
 		return
@@ -337,7 +379,7 @@ func TestUpdate(t *testing.T) {
 		return
 	}
 
-	if resp.StatusCode != http.StatusOK {
+	if httpTest.Code != http.StatusOK {
 		t.Error(*responseBody.Errors.Default)
 	}
 }
@@ -350,21 +392,30 @@ func TestUpdateEmail(t *testing.T) {
 
 	marshalBytes := new(bytes.Buffer)
 	json.NewEncoder(marshalBytes).Encode(requestBody)
-	resp, errResp := clientx.Do(
-		"https://authn.briantaylorvann.com/m/users/",
+	resp, errResp := http.NewRequest(
+		"POST",
+		"/m/users/",
 		marshalBytes,
 	)
 	if errResp != nil {
 		t.Error(errResp)
+	}
+	if resp == nil {
+		t.Error("response body is nil")
 		return
 	}
+	resp.AddCookie(ClientSessionTest)
+	
+	httpTest := httptest.NewRecorder()
+	handler := http.HandlerFunc(Mutation)
+	handler.ServeHTTP(httpTest, resp)
 
 	if resp.Body == nil {
 		t.Error("response body is nil")
 		return
 	}
 	var responseBody responses.Body
-	errJSON := json.NewDecoder(resp.Body).Decode(&responseBody)
+	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON)
 		return
@@ -379,7 +430,7 @@ func TestUpdateEmail(t *testing.T) {
 		return
 	}
 
-	if resp.StatusCode != http.StatusOK {
+	if httpTest.Code != http.StatusOK {
 		t.Error(*responseBody.Errors.Default)
 	}
 }
@@ -392,21 +443,26 @@ func TestUpdatePassword(t *testing.T) {
 
 	marshalBytes := new(bytes.Buffer)
 	json.NewEncoder(marshalBytes).Encode(requestBody)
-	resp, errResp := clientx.Do(
-		"https://authn.briantaylorvann.com/m/users/",
+	resp, errResp := http.NewRequest(
+		"POST",
+		"/m/users/",
 		marshalBytes,
 	)
 	if errResp != nil {
 		t.Error(errResp)
-		return
 	}
-	if resp.Body == nil {
+	if resp == nil {
 		t.Error("response body is nil")
 		return
 	}
+	resp.AddCookie(ClientSessionTest)
+	
+	httpTest := httptest.NewRecorder()
+	handler := http.HandlerFunc(Mutation)
+	handler.ServeHTTP(httpTest, resp)
 
 	var responseBody responses.Body
-	errJSON := json.NewDecoder(resp.Body).Decode(&responseBody)
+	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON)
 	}
@@ -420,7 +476,7 @@ func TestUpdatePassword(t *testing.T) {
 		return
 	}
 
-	if resp.StatusCode != http.StatusOK {
+	if httpTest.Code != http.StatusOK {
 		t.Error(*responseBody.Errors.Default)
 	}
 }
@@ -436,21 +492,30 @@ func TestDelete(t *testing.T) {
 
 	marshalBytes := new(bytes.Buffer)
 	json.NewEncoder(marshalBytes).Encode(requestBody)
-	resp, errResp := clientx.Do(
-		"https://authn.briantaylorvann.com/m/users/",
+	resp, errResp := http.NewRequest(
+		"POST",
+		"/m/users/",
 		marshalBytes,
 	)
 	if errResp != nil {
 		t.Error(errResp)
+	}
+	if resp == nil {
+		t.Error("response body is nil")
 		return
 	}
+	resp.AddCookie(ClientSessionTest)
+	
+	httpTest := httptest.NewRecorder()
+	handler := http.HandlerFunc(Mutation)
+	handler.ServeHTTP(httpTest, resp)
 
 	if resp.Body == nil {
 		t.Error("response body is nil")
 		return
 	}
 	var responseBody responses.Body
-	errJSON := json.NewDecoder(resp.Body).Decode(&responseBody)
+	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON)
 	}
@@ -464,7 +529,7 @@ func TestDelete(t *testing.T) {
 		return
 	}
 
-	if resp.StatusCode != http.StatusOK {
+	if httpTest.Code != http.StatusOK {
 		t.Error(*responseBody.Errors.Default)
 	}
 }
@@ -480,21 +545,30 @@ func TestUndelete(t *testing.T) {
 
 	marshalBytes := new(bytes.Buffer)
 	json.NewEncoder(marshalBytes).Encode(requestBody)
-	resp, errResp := clientx.Do(
-		"https://authn.briantaylorvann.com/m/users/",
+	resp, errResp := http.NewRequest(
+		"POST",
+		"/m/users/",
 		marshalBytes,
 	)
 	if errResp != nil {
 		t.Error(errResp)
+	}
+	if resp == nil {
+		t.Error("response body is nil")
 		return
 	}
+	resp.AddCookie(ClientSessionTest)
+	
+	httpTest := httptest.NewRecorder()
+	handler := http.HandlerFunc(Mutation)
+	handler.ServeHTTP(httpTest, resp)
 
 	if resp.Body == nil {
 		t.Error("response body is nil")
 		return
 	}
 	var responseBody responses.Body
-	errJSON := json.NewDecoder(resp.Body).Decode(&responseBody)
+	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON)
 	}
@@ -507,7 +581,7 @@ func TestUndelete(t *testing.T) {
 		t.Error("zero users returned")
 	}
 
-	if resp.StatusCode != http.StatusOK {
+	if httpTest.Code != http.StatusOK {
 		t.Error(*responseBody.Errors.Default)
 	}
 }
