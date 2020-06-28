@@ -9,7 +9,7 @@ import (
 	"github.com/taylor-vann/weblog/toolbox/golang/jwtx"
 )
 
-const SessionCookieHeader = "briantaylorvann_session"
+const SessionCookieHeader = "briantaylorvann.com_session"
 
 func CheckGuestSession(sessionToken string) bool {
 	return jwtx.ValidateSessionTokenByParams(&jwtx.ValidateTokenParams{
@@ -55,7 +55,16 @@ func RemotelyValidateSession(environment string, sessionToken string) (bool, err
 func ValidateGuestSession(environment string, sessionToken string) (bool, error) {
 	isValid := CheckGuestSession(sessionToken)
 	if !isValid {
-		return false, errors.New("infra session was invalid")
+		return false, errors.New("guest session was invalid")
+	}
+
+	return RemotelyValidateSession(environment, sessionToken)
+}
+
+func ValidateClientSession(environment string, sessionToken string) (bool, error) {
+	isValid := CheckClientSession(sessionToken)
+	if !isValid {
+		return false, errors.New("client session was invalid")
 	}
 
 	return RemotelyValidateSession(environment, sessionToken)

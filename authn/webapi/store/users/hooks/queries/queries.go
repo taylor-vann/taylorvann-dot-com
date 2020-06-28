@@ -9,7 +9,8 @@ import (
 	"webapi/store/users/hooks/errors"
 	"webapi/store/users/hooks/requests"
 	"webapi/store/users/hooks/responses"
-	"webapi/store/users/hooks/verifyx"
+	
+	"github.com/taylor-vann/weblog/toolbox/golang/verifyx"
 )
 
 func writeUsersResponse(w http.ResponseWriter, users *controller.SafeUsers) {

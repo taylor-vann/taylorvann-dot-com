@@ -16,16 +16,15 @@
 
 ## Client
 #    ignore all node modules
-node_modules/*
+**/node_modules/*
 
 ## Redis
 #    ignore all redis data
-redis_data/*
+**/redis_data/*
 
 ## Postgres
 #     This pattern will ignore all files but a simple empty ".keep" file.
-postgres_data/*
-
+**/postgres_data/*
 
 
 ### SUSPECT
@@ -40,12 +39,9 @@ postgres_data/*
 # ignore the build
 /web_client/prod/
 
-
 # ignore yarn
 yarn-error.log
 yarn.lock
-
-
 
 # DeFacto gitkeep
 !.gitkeep
