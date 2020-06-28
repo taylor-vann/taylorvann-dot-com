@@ -10,7 +10,8 @@ github.com/lib/pq/ \
 golang.org/x/net/publicsuffix/ \
 github.com/gomodule/redigo/redis/ \
 github.com/taylor-vann/weblog/toolbox/golang/clientx/ \
-github.com/taylor-vann/weblog/toolbox/golang/jwtx/
+github.com/taylor-vann/weblog/toolbox/golang/jwtx/ \
+github.com/taylor-vann/weblog/toolbox/golang/verifyx/
 
 WORKDIR /go/src/webapi
 

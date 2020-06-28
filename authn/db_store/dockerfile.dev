@@ -2,6 +2,4 @@ FROM postgres:alpine
 
 VOLUME ["/var/lib/postgresql/data/"]
 
-RUN chown -R postgres:postgres /var/lib/postgresql/data/
-
 EXPOSE 5100

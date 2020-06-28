@@ -4,15 +4,15 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/taylor-vann/weblog/toolbox/golang/clientx/fetch"
-	fetchRequests "github.com/taylor-vann/weblog/toolbox/golang/clientx/fetch/requests"
-
 	"webapi/store/roles/controller"
 	"webapi/store/roles/hooks/cache"
 	"webapi/store/roles/hooks/errors"
 	"webapi/store/roles/hooks/requests"
 	"webapi/store/roles/hooks/responses"
-	"webapi/store/users/hooks/verifyx"
+	"webapi/store/roles/hooks/verify"
+
+	"github.com/taylor-vann/weblog/toolbox/golang/clientx/fetch"
+	fetchRequests "github.com/taylor-vann/weblog/toolbox/golang/clientx/fetch/requests"
 )
 
 const InfraOverlordAdmin = "INFRA_OVERLORD_ADMIN"
@@ -38,48 +38,6 @@ func isRequestBodyValid(
 	return false
 }
 
-func isGuestSessionValid(
-	w http.ResponseWriter,
-	environment string,
-	sessionToken string,
-) bool {
-	isValid, errValidate := verifyx.ValidateGuestSession(
-		environment,
-		sessionToken,
-	)
-	if isValid {
-		return true
-	}
-	if errValidate != nil {
-		errors.DefaultResponse(w, errValidate)
-		return false
-	}
-
-	errors.CustomResponse(w, errors.InvalidInfraSession)
-	return false
-}
-
-func isInfraSessionValid(
-	w http.ResponseWriter,
-	environment string,
-	sessionToken string,
-) bool {
-	isValid, errValidate := verifyx.ValidateInfraSession(
-		environment,
-		sessionToken,
-	)
-	if isValid {
-		return true
-	}
-	if errValidate != nil {
-		errors.DefaultResponse(w, errValidate)
-		return false
-	}
-	
-	errors.CustomResponse(w, errors.InvalidInfraSession)
-	return false
-}
-
 func Read(
 	w http.ResponseWriter, 
 	sessionCookie *http.Cookie,
@@ -101,7 +59,7 @@ func Read(
 		return
 	}
 
-	if !isInfraSessionValid(w, params.Environment, sessionCookie.Value) {
+	if !verify.isInfraSessionValid(w, params.Environment, sessionCookie.Value) {
 		return
 	}
 
@@ -148,7 +106,7 @@ func ValidateInfra(w http.ResponseWriter, sessionCookie *http.Cookie, requestBod
 		return
 	}
 
-	if !isGuestSessionValid(w, params.Environment, sessionCookie.Value) {
+	if !verify.isGuestSessionValid(w, params.Environment, sessionCookie.Value) {
 		return
 	}
 
@@ -221,7 +179,7 @@ func Index(
 		return
 	}
 
-	if !isInfraSessionValid(w, params.Environment, sessionCookie.Value) {
+	if !verify.isInfraSessionValid(w, params.Environment, sessionCookie.Value) {
 		return
 	}
 
@@ -261,7 +219,7 @@ func Search(
 		return
 	}
 
-	if !isInfraSessionValid(w, params.Environment, sessionCookie.Value) {
+	if !verify.isInfraSessionValid(w, params.Environment, sessionCookie.Value) {
 		return
 	}
 

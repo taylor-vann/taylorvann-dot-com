@@ -9,7 +9,8 @@ import (
 	"webapi/store/users/hooks/errors"
 	"webapi/store/users/hooks/requests"
 	"webapi/store/users/hooks/responses"
-	"webapi/store/users/hooks/verifyx"
+
+	"github.com/taylor-vann/weblog/toolbox/golang/verifyx"
 )
 
 const SessionCookieHeader = "briantaylorvann.com_session"
@@ -32,27 +33,6 @@ func isRequestBodyValid(
 	errors.BadRequest(w, &responses.Errors{
 		RequestBody: &errors.BadRequestFail,
 	})
-	return false
-}
-
-func isGuestSessionValid(
-	w http.ResponseWriter,
-	environment string,
-	sessionToken string,
-) bool {
-	isValid, errValidate := verifyx.ValidateGuestSession(
-		environment,
-		sessionToken,
-	)
-	if isValid {
-		return true
-	}
-	if errValidate != nil {
-		errors.DefaultResponse(w, errValidate)
-		return false
-	}
-
-	errors.CustomResponse(w, errors.InvalidInfraSession)
 	return false
 }
 
