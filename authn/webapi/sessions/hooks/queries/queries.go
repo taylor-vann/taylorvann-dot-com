@@ -11,7 +11,7 @@ import (
 	"webapi/sessions/sessionsx"
 )
 
-const SessionCookieHeader = "briantaylorvann_session"
+const SessionCookieHeader = "briantaylorvann.com_session"
 
 func dropRequestNotValidBody(w http.ResponseWriter, requestBody *requests.Body) bool {
 	if requestBody != nil && requestBody.Params != nil {

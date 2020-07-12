@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"log"
+
 	"webapi/sessions/hooks/errors"
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
@@ -39,13 +41,13 @@ func Query(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cookie, _ := r.Cookie(SessionCookieHeader)
+	// cookie, _ := r.Cookie(SessionCookieHeader)
 
 	switch body.Action {
 	case ValidateGuestSession:	// the only public guest query
 		queries.ValidateGuestSession(w, &body)
-	case ValidateSession:
-		queries.ValidateSession(w, cookie, &body)
+	// case ValidateSession:
+	// 	queries.ValidateSession(w, cookie, &body)
 	default:
 		errors.BadRequest(w, &responses.Errors{
 			Session: &errors.UnrecognizedQuery,
@@ -54,6 +56,7 @@ func Query(w http.ResponseWriter, r *http.Request) {
 }
 
 func Mutation(w http.ResponseWriter, r *http.Request) {
+	log.Println("SESSEION MUTATION mutation called!")
 	if r.Body == nil {
 		errors.CustomResponse(w, errors.BadRequestFail)
 		return
@@ -62,27 +65,32 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 	var body requests.Body
 	errJsonDecode := json.NewDecoder(r.Body).Decode(&body)
 	if errJsonDecode != nil {
+		// log.Println("hooks - couldnt decode request body")
+		log.Println(errJsonDecode)
 		errors.CustomResponse(w, errors.BadRequestFail)
 		return
 	}
+	log.Println(body)
 
 	cookie, _ := r.Cookie(SessionCookieHeader)
+	log.Println("cookie:")
+	log.Println(cookie)
 
 	switch body.Action {
 	case CreateGuestSession:  // the only public mutation
 		mutations.CreateGuestSession(w, &body)
 	case CreateInfraOverlordSession:  // the only guest mutation
 		mutations.CreateInfraSession(w, cookie, &body)
-	case CreateClientSession:
-		mutations.CreateClientSession(w, cookie, &body)
-	case CreateCreateAccountSession:
-		mutations.CreateCreateAccountSession(w, cookie, &body)
-	case CreateUpdatePasswordSession:
-		mutations.CreateUpdatePasswordSession(w, cookie, &body)
-	case CreateUpdateEmailSession:
-		mutations.CreateUpdateEmailSession(w, cookie, &body)
-	case DeleteSession:
-		mutations.DeleteSession(w, cookie, &body)
+	// case CreateClientSession:
+	// 	mutations.CreateClientSession(w, cookie, &body)
+	// case CreateCreateAccountSession:
+	// 	mutations.CreateCreateAccountSession(w, cookie, &body)
+	// case CreateUpdatePasswordSession:
+	// 	mutations.CreateUpdatePasswordSession(w, cookie, &body)
+	// case CreateUpdateEmailSession:
+	// 	mutations.CreateUpdateEmailSession(w, cookie, &body)
+	// case DeleteSession:
+	// 	mutations.DeleteSession(w, cookie, &body)
 	default:
 		errors.CustomResponse(w, errors.UnrecognizedMutation)
 	}

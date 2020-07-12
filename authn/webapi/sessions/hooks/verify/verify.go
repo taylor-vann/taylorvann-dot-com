@@ -8,7 +8,7 @@ import (
 	"github.com/taylor-vann/weblog/toolbox/golang/jwtx"
 )
 
-const SessionCookieHeader = "briantaylorvann_session"
+const SessionCookieHeader = "briantaylorvann.com_session"
 
 func CheckGuestSession(sessionToken string) bool {
 	return jwtx.ValidateSessionTokenByParams(&jwtx.ValidateTokenParams{

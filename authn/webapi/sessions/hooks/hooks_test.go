@@ -9,16 +9,14 @@ import (
 	"testing"
 	"os"
 
+	"log"
+
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
 
-	"github.com/taylor-vann/weblog/toolbox/golang/clientx/sessionx"
-	"github.com/taylor-vann/weblog/toolbox/golang/jwtx"
-)
+	"webapi/sessions/clientx/sessionx"
 
-const (
-	queryAddress = "https://authn.briantaylorvann.com/q/sessions/"
-	mutationAddress = "https://authn.briantaylorvann.com/m/sessions/"
+	"github.com/taylor-vann/weblog/toolbox/golang/jwtx"
 )
 
 var (
@@ -59,16 +57,16 @@ func TestCreateGuestSession(t *testing.T) {
 		return
 	}
 	
-	httpTest := httptest.NewRecorder()
+	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Mutation)
-	handler.ServeHTTP(httpTest, resp)
+	handler.ServeHTTP(htr, resp)
 
-	if httpTest.Code != http.StatusOK {
-		t.Error(httpTest.Code)
+	if htr.Code != http.StatusOK {
+		t.Error(htr.Code)
 	}
 
 	var responseBody responses.Body
-	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
+	errJSON := json.NewDecoder(htr.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON.Error())
 	}
@@ -91,6 +89,7 @@ func TestCreateGuestSession(t *testing.T) {
 
 // clientx session
 func TestCreateClientxSession(t *testing.T) {
+	log.Println("TestCreateClientxSession")
 	cookie, errInfraSession := sessionx.Setup()
 	if errInfraSession != nil {
 		t.Error(errInfraSession)
@@ -113,11 +112,11 @@ func TestCreateGuestSessionBadRequest(t *testing.T) {
 		t.Error(errResp.Error())
 	}
 
-	httpTest := httptest.NewRecorder()
+	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Mutation)
-	handler.ServeHTTP(httpTest, resp)
+	handler.ServeHTTP(htr, resp)
 
-	if httpTest.Code != http.StatusBadRequest {
+	if htr.Code != http.StatusBadRequest {
 		t.Error("handler returned incorrect status code, should be 400")
 	}
 }
@@ -138,11 +137,11 @@ func TestCreateGuestSessionBadHeadersRequest(t *testing.T) {
 		t.Error(errReq.Error())
 	}
 
-	httpTest := httptest.NewRecorder()
+	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Mutation)
-	handler.ServeHTTP(httpTest, req)
+	handler.ServeHTTP(htr, req)
 
-	status := httpTest.Code
+	status := htr.Code
 	if status == http.StatusOK {
 		t.Error("handler returned incorrect status code, should not be 200")
 	}
@@ -181,16 +180,16 @@ func TestValidateGuestSession(t *testing.T) {
 		Value: GuestSessionTest,
 	})
 	
-	httpTest := httptest.NewRecorder()
+	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Query)
-	handler.ServeHTTP(httpTest, resp)
+	handler.ServeHTTP(htr, resp)
 
-	if httpTest.Code != http.StatusOK {
-		t.Error(httpTest.Code)
+	if htr.Code != http.StatusOK {
+		t.Error(htr.Code)
 	}
 
 	var responseBody responses.Body
-	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
+	errJSON := json.NewDecoder(htr.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON.Error())
 	}
@@ -200,6 +199,10 @@ func TestValidateGuestSession(t *testing.T) {
 }
 
 func TestCreateClientSession(t *testing.T) {
+	if ClientSessionTest == nil {
+		t.Error("client session is nil")
+		return
+	}
 	details, errDetails := jwtx.RetrieveTokenDetailsFromString(ClientSessionTest.Value)
 	if errDetails != nil {
 		t.Error(errDetails)
@@ -231,7 +234,6 @@ func TestCreateClientSession(t *testing.T) {
 		"/m/sessions/",
 		bytes.NewBuffer(marshalBody),
 	)
-	req.AddCookie(ClientSessionTest)
 	if errReq != nil {
 		t.Error(errReq.Error())
 		return
@@ -240,17 +242,18 @@ func TestCreateClientSession(t *testing.T) {
 		t.Error(req)
 		return
 	}
+	req.AddCookie(ClientSessionTest)
 
-	httpTest := httptest.NewRecorder()
+	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Mutation)
-	handler.ServeHTTP(httpTest, req)
+	handler.ServeHTTP(htr, req)
 
-	if httpTest.Code != http.StatusOK {
-		t.Error(httpTest.Code)
+	if htr.Code != http.StatusOK {
+		t.Error(htr.Code)
 	}
 
 	var responseBody responses.Body
-	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
+	errJSON := json.NewDecoder(htr.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON.Error())
 	}
@@ -260,6 +263,10 @@ func TestCreateClientSession(t *testing.T) {
 }
 
 func TestCreateAccountSession(t *testing.T) {
+	if ClientSessionTest == nil {
+		t.Error("client session is nil")
+		return
+	}
 	details, errDetails := jwtx.RetrieveTokenDetailsFromString(ClientSessionTest.Value)
 	if errDetails != nil {
 		t.Error(errDetails)
@@ -301,16 +308,16 @@ func TestCreateAccountSession(t *testing.T) {
 	}
 	req.AddCookie(ClientSessionTest)
 
-	httpTest := httptest.NewRecorder()
+	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Mutation)
-	handler.ServeHTTP(httpTest, req)
+	handler.ServeHTTP(htr, req)
 
-	if httpTest.Code != http.StatusOK {
-		t.Error(httpTest.Code)
+	if htr.Code != http.StatusOK {
+		t.Error(htr.Code)
 	}
 
 	var responseBody responses.Body
-	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
+	errJSON := json.NewDecoder(htr.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON.Error())
 	}
@@ -320,6 +327,10 @@ func TestCreateAccountSession(t *testing.T) {
 }
 
 func TestCreateUpdatePasswordSession(t *testing.T) {
+	if ClientSessionTest == nil {
+		t.Error("client session is nil")
+		return
+	}
 	details, errDetails := jwtx.RetrieveTokenDetailsFromString(ClientSessionTest.Value)
 	if errDetails != nil {
 		t.Error(errDetails)
@@ -361,16 +372,16 @@ func TestCreateUpdatePasswordSession(t *testing.T) {
 		return
 	}
 
-	httpTest := httptest.NewRecorder()
+	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Mutation)
-	handler.ServeHTTP(httpTest, req)
+	handler.ServeHTTP(htr, req)
 
-	if httpTest.Code != http.StatusOK {
-		t.Error(httpTest.Code)
+	if htr.Code != http.StatusOK {
+		t.Error(htr.Code)
 	}
 
 	var responseBody responses.Body
-	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
+	errJSON := json.NewDecoder(htr.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON.Error())
 	}
@@ -380,6 +391,10 @@ func TestCreateUpdatePasswordSession(t *testing.T) {
 }
 
 func TestCreateUpdateEmailSession(t *testing.T) {
+	if ClientSessionTest == nil {
+		t.Error("client session is nil")
+		return
+	}
 	details, errDetails := jwtx.RetrieveTokenDetailsFromString(ClientSessionTest.Value)
 	if errDetails != nil {
 		t.Error(errDetails)
@@ -421,16 +436,16 @@ func TestCreateUpdateEmailSession(t *testing.T) {
 		return
 	}
 
-	httpTest := httptest.NewRecorder()
+	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Mutation)
-	handler.ServeHTTP(httpTest, req)
+	handler.ServeHTTP(htr, req)
 
-	if httpTest.Code != http.StatusOK {
-		t.Error(httpTest.Code)
+	if htr.Code != http.StatusOK {
+		t.Error(htr.Code)
 	}
 
 	var responseBody responses.Body
-	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
+	errJSON := json.NewDecoder(htr.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON.Error())
 	}
@@ -440,6 +455,10 @@ func TestCreateUpdateEmailSession(t *testing.T) {
 }
 
 func TestValidateSession(t *testing.T) {
+	if ClientSessionTest == nil {
+		t.Error("client session is nil")
+		return
+	}
 	requestBody := requests.Body{
 		Action: ValidateSession,
 		Params: requests.Validate{
@@ -469,16 +488,16 @@ func TestValidateSession(t *testing.T) {
 		return
 	}
 
-	httpTest := httptest.NewRecorder()
+	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Query)
-	handler.ServeHTTP(httpTest, req)
+	handler.ServeHTTP(htr, req)
 
-	if httpTest.Code != http.StatusOK {
-		t.Error(httpTest.Code)
+	if htr.Code != http.StatusOK {
+		t.Error(htr.Code)
 	}
 
 	var responseBody responses.Body
-	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
+	errJSON := json.NewDecoder(htr.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON.Error())
 	}
@@ -488,6 +507,10 @@ func TestValidateSession(t *testing.T) {
 }
 
 func TestDeleteSession(t *testing.T) {
+	if ClientSessionTest == nil {
+		t.Error("client session is nil")
+		return
+	}
 	requestBody := requests.Body{
 		Action: CreateGuestSession,
 		Params: requests.Guest{
@@ -506,18 +529,18 @@ func TestDeleteSession(t *testing.T) {
 		t.Error(errResp.Error())
 	}
 
-	httpTest := httptest.NewRecorder()
+	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Mutation)
-	handler.ServeHTTP(httpTest, resp)
+	handler.ServeHTTP(htr, resp)
 
-	status := httpTest.Code
+	status := htr.Code
 	if status != http.StatusOK {
 		t.Error("guest handler returned incorrect status code")
 		return
 	}
 
 	var responseBody responses.Body
-	errJSON := json.NewDecoder(httpTest.Body).Decode(&responseBody)
+	errJSON := json.NewDecoder(htr.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON.Error())
 		return
@@ -554,11 +577,11 @@ func TestDeleteSession(t *testing.T) {
 		t.Error(errReq.Error())
 	}
 
-	httpTestRemove := httptest.NewRecorder()
+	htrRemove := httptest.NewRecorder()
 	handlerRemove := http.HandlerFunc(Mutation)
-	handlerRemove.ServeHTTP(httpTestRemove, req)
+	handlerRemove.ServeHTTP(htrRemove, req)
 
-	statusRemove := httpTestRemove.Code
+	statusRemove := htrRemove.Code
 	if statusRemove != http.StatusOK {
 		t.Error("remove handler returned incorrect status code")
 	}

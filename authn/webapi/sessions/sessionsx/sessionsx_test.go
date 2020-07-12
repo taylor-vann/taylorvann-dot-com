@@ -17,7 +17,7 @@ var GuestSession *Session
 func TestCreateGuestSession(t *testing.T) {
 	session, errSession := Create(&CreateParams{
 		Environment: unitTests,
-		Claims: *CreateGuestSessionClaims(),
+		Claims: CreateGuestSessionClaims(),
 	})
 	if session == nil {
 		t.Error("Nil value returned")
@@ -46,7 +46,7 @@ func TestRemoveSession(t *testing.T) {
 	// create public session
 	session, errSession := Create(&CreateParams{
 		Environment: unitTests,
-		Claims: *CreateGuestSessionClaims(),
+		Claims: CreateGuestSessionClaims(),
 	})
 	if session == nil {
 		t.Error("Nil value returned")

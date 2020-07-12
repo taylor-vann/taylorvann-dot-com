@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/taylor-vann/weblog/toolbox/golang/clientx/fetch"
-	fetchRequests "github.com/taylor-vann/weblog/toolbox/golang/clientx/fetch/requests"
+	"log"
+
+	"webapi/sessions/clientx/fetch"
+	fetchRequests "webapi/sessions/clientx/fetch/requests"
 
 	"webapi/sessions/hooks/errors"
 	"webapi/sessions/hooks/requests"
@@ -23,17 +25,17 @@ const (
 	ThreeSixtyFiveDaysInSeconds = 60 * 60 * 24 * 365
 )
 
-func dropRequestBodyNotValid(
+func isRequestBodyValid(
 	w http.ResponseWriter,
 	requestBody *requests.Body,
 ) bool {
 	if requestBody != nil && requestBody.Params != nil {
-		return false
+		return true
 	}
 	errors.BadRequest(w, &responses.Errors{
 		RequestBody: &errors.BadRequestFail,
 	})
-	return true
+	return false
 }
 
 func dropRequestInfraSessionNotValid(
@@ -97,7 +99,10 @@ func CreateGuestSession(
 	w http.ResponseWriter,
 	requestBody *requests.Body,
 ) {
-	if dropRequestBodyNotValid(w, requestBody) {
+	log.Println("createguestsession - attempting to create guest session!")
+	if !isRequestBodyValid(w, requestBody) {
+		log.Println(requestBody)
+		log.Println("createguestsession - request body not valid!")
 		return
 	}
 	
@@ -105,6 +110,8 @@ func CreateGuestSession(
 	bytes, _ := json.Marshal(requestBody.Params)
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
+		log.Println("error marshalling params")
+		log.Println(errParamsMarshal)
 		errors.DefaultResponse(w, errParamsMarshal)
 		return
 	}
@@ -119,8 +126,10 @@ func CreateGuestSession(
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: session,
 		})
+		log.Println("successfully created guest session")
 		return
 	}
+	log.Println("error creating guest session")
 
 	errors.DefaultResponse(w, errSession)
 }
@@ -130,25 +139,30 @@ func CreateInfraSession(
 	sessionCookie *http.Cookie,
 	requestBody *requests.Body,
 ) {
-	if dropRequestBodyNotValid(w, requestBody) {
+	log.Println("MUTATIONS CreateInfraSession")
+	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
 	
-	var params requests.InfraUser
+	var params fetchRequests.ValidateGuestUser
 	bytes, _ := json.Marshal(requestBody.Params)
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
 		errors.DefaultResponse(w, errParamsMarshal)
 		return
 	}
+
+	log.Println(params)
 	// golang defaults strings to a "", exciting! (dangerous)
 	if params.Email == "" {
 		errors.CustomResponse(w, errors.InvalidDefaultUserProvided)
 		return
 	}
 
+	log.Println("cookie:")
+	log.Println(sessionCookie)
 	resp, errResp := fetch.ValidateInfraRole(
-		fetchRequests.ValidateGuestUser(params),
+		&params,
 		sessionCookie,
 	)
 	if errResp != nil {
@@ -177,7 +191,7 @@ func CreateClientSession(
 	sessionCookie *http.Cookie,
 	requestBody *requests.Body,
 ) {
-	if dropRequestBodyNotValid(w, requestBody) {
+	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
 		
@@ -220,7 +234,7 @@ func CreateCreateAccountSession(
 	sessionCookie *http.Cookie,
 	requestBody *requests.Body,
 ) {
-	if dropRequestBodyNotValid(w, requestBody) {
+	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
 
@@ -257,7 +271,7 @@ func CreateUpdateEmailSession(
 	sessionCookie *http.Cookie,
 	requestBody *requests.Body,
 ) {
-	if dropRequestBodyNotValid(w, requestBody) {
+	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
 
@@ -294,7 +308,7 @@ func CreateUpdatePasswordSession(
 	sessionCookie *http.Cookie,
 	requestBody *requests.Body,
 ) {
-	if dropRequestBodyNotValid(w, requestBody) {
+	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
 
@@ -331,7 +345,7 @@ func CreateDeleteAccountSession(
 	sessionCookie *http.Cookie,
 	requestBody *requests.Body,
 ) {
-	if dropRequestBodyNotValid(w, requestBody) {
+	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
 
@@ -368,7 +382,7 @@ func DeleteSession(
 	sessionCookie *http.Cookie,
 	requestBody *requests.Body,
 ) {
-	if dropRequestBodyNotValid(w, requestBody) {
+	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
 
