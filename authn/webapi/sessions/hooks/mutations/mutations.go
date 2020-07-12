@@ -127,8 +127,6 @@ func CreateInfraSession(
 		return
 	}
 
-	
-	
 	resp, errResp := infrafetchx.ValidateInfraRole(
 		&params,
 		sessionCookie,
