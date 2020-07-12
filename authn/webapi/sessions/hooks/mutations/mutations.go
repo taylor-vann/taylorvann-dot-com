@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"log"
-
 	"webapi/sessions/clientx/infrafetchx"
 	fetchRequests "webapi/sessions/clientx/infrafetchx/requests"
 	"webapi/sessions/hooks/errors"
@@ -78,10 +76,7 @@ func CreateGuestSession(
 	w http.ResponseWriter,
 	requestBody *requests.Body,
 ) {
-	log.Println("createguestsession - attempting to create guest session!")
 	if !isRequestBodyValid(w, requestBody) {
-		log.Println(requestBody)
-		log.Println("createguestsession - request body not valid!")
 		return
 	}
 	
@@ -89,8 +84,6 @@ func CreateGuestSession(
 	bytes, _ := json.Marshal(requestBody.Params)
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
-		log.Println("error marshalling params")
-		log.Println(errParamsMarshal)
 		errors.DefaultResponse(w, errParamsMarshal)
 		return
 	}
@@ -105,10 +98,8 @@ func CreateGuestSession(
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: session,
 		})
-		log.Println("successfully created guest session")
 		return
 	}
-	log.Println("error creating guest session")
 
 	errors.DefaultResponse(w, errSession)
 }
@@ -118,7 +109,6 @@ func CreateInfraSession(
 	sessionCookie *http.Cookie,
 	requestBody *requests.Body,
 ) {
-	log.Println("MUTATIONS CreateInfraSession")
 	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
@@ -130,16 +120,15 @@ func CreateInfraSession(
 		errors.DefaultResponse(w, errParamsMarshal)
 		return
 	}
-
-	log.Println(params)
+	
 	// golang defaults strings to a "", exciting! (dangerous)
 	if params.Email == "" {
 		errors.CustomResponse(w, errors.InvalidDefaultUserProvided)
 		return
 	}
 
-	log.Println("cookie:")
-	log.Println(sessionCookie)
+	
+	
 	resp, errResp := infrafetchx.ValidateInfraRole(
 		&params,
 		sessionCookie,
