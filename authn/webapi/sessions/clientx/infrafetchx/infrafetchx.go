@@ -1,4 +1,4 @@
-package fetch
+package infrafetchx
 
 import (
 	"bytes"
@@ -7,12 +7,9 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	// "strconv"
 
-	"log"
-
-	"webapi/sessions/clientx/fetch/requests"
-	"webapi/sessions/clientx/fetch/responses"
+	"webapi/sessions/clientx/infrafetchx/requests"
+	"webapi/sessions/clientx/infrafetchx/responses"
 )
 
 const (
@@ -41,8 +38,6 @@ func getRequestBodyBuffer(item interface{}) (*bytes.Buffer, error) {
 // create guest session
 
 func CreateGuestSession(p *requests.GuestSession) (*string, error) {
-	log.Println("FETCH CreateGuestSession")
-	log.Println(p)
 	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
 		requests.Body{
 			Action: "CREATE_GUEST_SESSION",
@@ -85,9 +80,6 @@ func CreateGuestSession(p *requests.GuestSession) (*string, error) {
 
 
 func ValidateGuestSession(p *requests.ValidateSession, sessionCookie *http.Cookie) (*string, error) {
-	log.Println("FETCH ValidateGuestSession")
-	log.Println(p)
-	log.Println(sessionCookie)
 	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
 		requests.Body{
 			Action: "VALIDATE_GUEST_SESSION",
@@ -128,11 +120,10 @@ func ValidateGuestSession(p *requests.ValidateSession, sessionCookie *http.Cooki
 	return  &responseBody.Session.Token, nil
 }
 
-func ValidateSession(p *requests.ValidateSession, sessionCookie *http.Cookie) (*string, error) {
-	log.Println("FETCH ValidateSession")
-	log.Println(p)
-	log.Println(sessionCookie)
-	
+func ValidateSession(
+	p *requests.ValidateSession,
+	sessionCookie *http.Cookie,
+) (*string, error) {	
 	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
 		requests.Body{
 			Action: "VALIDATE_SESSION",
@@ -174,9 +165,6 @@ func ValidateSession(p *requests.ValidateSession, sessionCookie *http.Cookie) (*
 }
 
 func ValidateGuestUser(p *requests.ValidateGuestUser, sessionCookie *http.Cookie) (*responses.User, error) {
-	log.Println("FETCH ValidateGuestUser")
-	log.Println(p)
-	log.Println(sessionCookie)
 	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
 		requests.Body{
 			Action: "VALIDATE_GUEST_USER",
@@ -223,10 +211,6 @@ func ValidateGuestUser(p *requests.ValidateGuestUser, sessionCookie *http.Cookie
 }
 
 func ValidateInfraRole(p *requests.ValidateInfraRole, sessionCookie *http.Cookie) (*responses.Role, error) {
-	log.Println("FETCH ValidateInfraRole called")
-	log.Println(p)
-	log.Println(sessionCookie)
-
 	requestBodyBuffer, errRequestBodyBuffer := getRequestBodyBuffer(
 		requests.Body{
 			Action: "VALIDATE_INFRA_OVERLORD_ROLE",
@@ -234,11 +218,8 @@ func ValidateInfraRole(p *requests.ValidateInfraRole, sessionCookie *http.Cookie
 		},
 	)
 	if errRequestBodyBuffer != nil {
-		log.Println(errRequestBodyBuffer)
 		return nil, errRequestBodyBuffer
 	}
-
-	log.Println("about to create a request")
 
 	req, errReq := http.NewRequest(
 		"POST",
@@ -246,34 +227,27 @@ func ValidateInfraRole(p *requests.ValidateInfraRole, sessionCookie *http.Cookie
 		requestBodyBuffer,
 	)
 	if errReq != nil {
-		log.Println(errReq)
 		return nil, errReq
 	}
 	if sessionCookie == nil {
-		log.Println("session cookie in validate infra role is nil")
 		return nil, errors.New("session cookie is nil")
 	}
 	req.AddCookie(sessionCookie)
 
 	resp, errResp := client.Do(req)
 	if errResp != nil {
-		log.Println(errResp)
 		return nil, errResp
 	}
 	if resp.StatusCode != http.StatusOK {
-		log.Println("bad status code")
 		return nil, errors.New(string(resp.StatusCode))
 	}
 
 	var responseBody responses.RolesBody
 	errJson := json.NewDecoder(resp.Body).Decode(&responseBody)
 	if errJson != nil {
-		log.Println(errJson)
 		return nil, errJson
 	}
 	if responseBody.Errors != nil {
-		log.Println("nil respoonse, errors found")
-
 		return nil, errors.New("errors were returned in fetch")
 	}
 
@@ -285,12 +259,7 @@ func ValidateInfraRole(p *requests.ValidateInfraRole, sessionCookie *http.Cookie
 	return nil, errors.New("unable to validate infra role")
 }
 
-// create infram session
-
 func CreateInfraSession(p *requests.InfraSession, guestSessionCookie *http.Cookie) (*string, error) {
-	log.Println("FETCH CreateInfraSession:")
-	log.Println(p)
-	log.Println(guestSessionCookie)
 	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
 		requests.Body{
 			Action: "CREATE_INFRA_OVERLORD_SESSION",

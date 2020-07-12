@@ -1,12 +1,12 @@
-package sessionx
+package infrasessionx
 
 import (
 	"errors"
 	"net/http"
 	"os"
 
-	"webapi/sessions/clientx/fetch"
-	"webapi/sessions/clientx/fetch/requests"
+	"webapi/sessions/clientx/infrafetchx"
+	"webapi/sessions/clientx/infrafetchx/requests"
 )
 
 var (
@@ -30,7 +30,7 @@ var (
 )
 
 func CreateGuestSession() (*string, error) {
-	session, errSession := fetch.CreateGuestSession(
+	session, errSession := infrafetchx.CreateGuestSession(
 		&guestSessionRequestParams,
 	)
 	GuestSession = session
@@ -39,7 +39,7 @@ func CreateGuestSession() (*string, error) {
 }
 
 func CreateInfraSession(guestSessionCookie *http.Cookie) (*string, error) {
-	session, errSession := fetch.CreateInfraSession(
+	session, errSession := infrafetchx.CreateInfraSession(
 		&infraSessionRequestParams,
 		guestSessionCookie,
 	)

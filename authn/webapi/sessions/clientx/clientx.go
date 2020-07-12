@@ -6,9 +6,9 @@ import (
 	"errors"
 	"net/http"
 
-	"webapi/sessions/clientx/fetch"
-	"webapi/sessions/clientx/fetch/requests"
-	"webapi/sessions/clientx/fetch/responses"
+	"webapi/sessions/clientx/infrafetchx"
+	"webapi/sessions/clientx/infrafetchx/requests"
+	"webapi/sessions/clientx/infrafetchx/responses"
 	"webapi/sessions/clientx/sessionx"
 )
 
@@ -35,7 +35,7 @@ func ValidateSession(p requests.ValidateSession) (string, error) {
 	}
 
 	resp, errResp := Do(
-		fetch.SessionsQueryAddress,
+		infrafetchx.SessionsQueryAddress,
 		sessionBuffer,
 	)
 	if errResp != nil {

@@ -1,21 +1,21 @@
-package fetch
+package infrafetchx
 
 import (
 	"net/http"
-	"net/url"
 	"os"
 	"testing"
 
-	"webapi/sessions/clientx/fetch/requests"
+	"log"
+	"webapi/sessions/clientx/infrafetchx/requests"
 )
 
-var Environment = os.Getenv("STAGE")
+var (
+	Environment = os.Getenv("STAGE")
 
-var infraOverlordEmail = os.Getenv("INFRA_OVERLORD_EMAIL")
-var infraOverlordPassword = os.Getenv("INFRA_OVERLORD_PASSWORD")
+	infraOverlordEmail = os.Getenv("INFRA_OVERLORD_EMAIL")
+	infraOverlordPassword = os.Getenv("INFRA_OVERLORD_PASSWORD")
+)
 
-
-var parsedDomain, errPasedDomain = url.Parse("https://briantaylorvann.com")
 var GuestSessionTest *string
 var InfraSessionTest *string
 
@@ -118,26 +118,26 @@ func TestCreateInfraSession(t *testing.T) {
 	if resp == nil {
 		t.Error("nil response returned")
 	}
+
+	InfraSessionTest = resp
 }
 
-// func TestValidateInfraSession(t *testing.T) {
-// 	resp, errResp := ValidateGuestSession(
-// 		requests.ValidateSession{
-// 			Environment: Environment,
-// 			Token: *GuestSessionTest,
-// 		},
-// 		&http.Cookie{
-// 			Name: "briantaylorvann.com_session",
-// 			Value: *GuestSessionTest,
-// 		},
-// 	)
-// 	if errResp != nil {
-// 		t.Error(errResp)
-// 	}
-// 	if resp == nil {
-// 		t.Error("nil response returned")
-// 	}
-// 	if *resp == "" {
-// 		t.Error("nil session returned")
-// 	}
-// }
+func TestValidateSession(t *testing.T) {
+	resp, errResp := ValidateSession(
+		&requests.ValidateSession{
+			Environment: Environment,
+			Token: *GuestSessionTest,
+		},
+		&http.Cookie{
+			Name: "briantaylorvann.com_session",
+			Value: *InfraSessionTest,
+		},
+	)
+	if errResp != nil {
+		t.Error(errResp)
+	}
+	if resp == nil {
+		t.Error("nil response returned")
+	}
+	log.Println(resp)
+}

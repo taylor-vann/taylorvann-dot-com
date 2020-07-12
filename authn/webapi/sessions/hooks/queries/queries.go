@@ -13,40 +13,24 @@ import (
 
 const SessionCookieHeader = "briantaylorvann.com_session"
 
-func dropRequestNotValidBody(w http.ResponseWriter, requestBody *requests.Body) bool {
-	if requestBody != nil && requestBody.Params != nil {
-		return false
-	}
-	errors.CustomResponse(w, errors.BadRequestFail)
-	return true
-}
-
-func dropRequestNotValidInfraSession(
+func isRequestBodyValid(
 	w http.ResponseWriter,
-	environment string,
-	sessionCookie *http.Cookie,
+	requestBody *requests.Body,
 ) bool {
-	if sessionCookie == nil {
-		errors.CustomResponse(w, errors.NilInfraCredentials)
+	if requestBody != nil && requestBody.Params != nil {
 		return true
 	}
-	isValid, errValidate := verify.ValidateInfraSession(
-		environment,
-		sessionCookie.Value,
-	)
-	if isValid {
-		return false
-	}
-
-	errors.DefaultResponse(w, errValidate)
-	return true
+	errors.BadRequest(w, &responses.Errors{
+		RequestBody: &errors.BadRequestFail,
+	})
+	return false
 }
 
 func ValidateGuestSession(
 	w http.ResponseWriter,
 	requestBody *requests.Body,
 ) {
-	if dropRequestNotValidBody(w, requestBody) {
+	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
 
@@ -60,7 +44,10 @@ func ValidateGuestSession(
 
 	sessionIsValid, errSessionIsValid := verify.ValidateGuestSession(
 		params.Environment,
-		params.Token,
+		&http.Cookie{
+			Name: "briantaylorvann.com_session",
+			Value: params.Token,
+		},
 	)
 	if errSessionIsValid != nil {
 		errors.DefaultResponse(w, errSessionIsValid)
@@ -85,7 +72,7 @@ func ValidateSession(
 	sessionCookie *http.Cookie,
 	requestBody *requests.Body,
 ) {
-	if dropRequestNotValidBody(w, requestBody) {
+	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
 
@@ -97,17 +84,22 @@ func ValidateSession(
 		return
 	}
 
-	if dropRequestNotValidInfraSession(w, params.Environment, sessionCookie) {
+	infraSessionIsValid, errInfraSessionIsValid := verify.ValidateInfraSession(
+		params.Environment,
+		sessionCookie,
+	)
+	if errInfraSessionIsValid != nil {
+		errors.DefaultResponse(w, errInfraSessionIsValid)
 		return
 	}
 
-	sessionIsValid, errReadSession := sessionsx.Read(&params)
-	if errReadSession != nil {
-		errors.DefaultResponse(w, errReadSession)
+	sessionIsValid, errSessionIsValid := sessionsx.Read(&params)
+	if errSessionIsValid != nil {
+		errors.DefaultResponse(w, errSessionIsValid)
 		return
 	}
 	
-	if sessionIsValid {
+	if infraSessionIsValid && sessionIsValid {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: &responses.Session{

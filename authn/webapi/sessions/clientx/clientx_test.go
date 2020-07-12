@@ -3,7 +3,7 @@ package clientx
 import (
 	"testing"
 
-	"webapi/sessions/clientx/fetch/requests"
+	"webapi/sessions/clientx/infrafetchx/requests"
 	"webapi/sessions/clientx/sessionx"
 )
 
