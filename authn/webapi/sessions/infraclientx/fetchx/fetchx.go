@@ -9,8 +9,6 @@ import (
 	"net/http"
 	"os"
 
-	"log"
-
 	"webapi/sessions/infraclientx/fetchx/requests"
 	"webapi/sessions/infraclientx/fetchx/responses"
 )
@@ -125,7 +123,7 @@ func ValidateSession(
 	p *requests.ValidateSession,
 	sessionCookie *http.Cookie,
 ) (*string, error) {	
-	log.Println("FETCHX ValidateSession")
+	
 	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
 		requests.Body{
 			Action: "VALIDATE_SESSION",
@@ -133,8 +131,6 @@ func ValidateSession(
 		},
 	)
 	if errRequestBodyBuffer != nil {
-		log.Println(errRequestBodyBuffer)
-
 		return nil, errRequestBodyBuffer
 	}
 
@@ -144,35 +140,24 @@ func ValidateSession(
 		requestBodyBuffer,
 	)
 	if errReq != nil {
-		log.Println("Error creating the request")
-		log.Println(errReq)
-
 		return nil, errReq
 	}
 	req.AddCookie(sessionCookie)
 
 	resp, errResp := client.Do(req)
 	if errResp != nil {
-		log.Println("getting the response!")
-		log.Println(resp)
 		return nil, errResp
 	}
 	if resp.StatusCode != http.StatusOK {
-		log.Println("response is bad!")
-		log.Println(resp)
 		return nil, errors.New(strconv.Itoa(resp.StatusCode))
 	}
 
 	var responseBody responses.SessionBody
 	errJson := json.NewDecoder(resp.Body).Decode(&responseBody)
 	if errJson != nil {
-		log.Println("error in json decoding")
-		log.Println("errJson")
 		return nil, errJson
 	}
 	if responseBody.Errors != nil {
-		log.Println(responseBody)
-		log.Println(responseBody.Errors)
 		return nil, errors.New("errors were returned in fetch")
 	}
 
