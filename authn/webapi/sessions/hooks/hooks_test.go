@@ -9,8 +9,6 @@ import (
 	"testing"
 	"os"
 
-	"log"
-
 	"webapi/sessions/infraclientx/sessionx"
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
@@ -88,9 +86,7 @@ func TestCreateGuestSession(t *testing.T) {
 
 // clientx session
 func TestCreateClientxSession(t *testing.T) {
-	log.Println("TestCreateClientxSession")
 	session, errInfraSession := sessionx.Setup()
-	log.Println (session)
 	if errInfraSession != nil {
 		t.Error(errInfraSession)
 	}
@@ -212,8 +208,6 @@ func TestCreateClientSession(t *testing.T) {
 		t.Error("client session is nil")
 		return
 	}
-	log.Println("TEST CREATE CLIENT SESSION")
-	log.Println(*ClientSessionTest)
 
 	details, errDetails := jwtx.RetrieveTokenDetailsFromString(ClientSessionTest.Value)
 	if errDetails != nil {
