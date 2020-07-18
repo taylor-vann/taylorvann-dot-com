@@ -14,6 +14,9 @@ import (
 	"webapi/store/users/hooks/queries"
 )
 
+// you might be tempted to validate cookie sessions here
+// however, we have different stage environments for testing.
+
 const (
 	Create				 = "CREATE_USER"
 	Read					 = "READ_USER"
@@ -47,7 +50,6 @@ func Query(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	
 	cookie, errCookie := r.Cookie(SessionCookieHeader)
 	if errCookie != nil {
 		errors.DefaultResponse(w, errCookie)
@@ -65,7 +67,6 @@ func Query(w http.ResponseWriter, r *http.Request) {
 	case Read:
 		queries.Read(w, cookie, &body)
 	case ValidateGuest:
-		
 		queries.ValidateGuest(w, cookie, &body) // requires guest sessoion
 	case Search:
 		queries.Search(w, cookie, &body)
@@ -80,14 +81,16 @@ func Query(w http.ResponseWriter, r *http.Request) {
 
 func Mutation(w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
-		errors.BadRequest(w, &responses.Errors{
-			RequestBody: &errors.BadRequestFail,
-		})
+		errors.CustomResponse(w, errors.NilRequestBodyFail)
 		return
 	}
 
 	cookie, errCookie := r.Cookie(SessionCookieHeader)
 	// verify infra cookie here
+	if cookie == nil {
+		errors.CustomResponse(w, errors.NilInfraCredentials)
+		return
+	}
 	if errCookie != nil {
 		errors.DefaultResponse(w, errCookie)
 		return
@@ -99,7 +102,7 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 		errors.DefaultResponse(w, errJsonDecode)
 		return
 	}
-	
+
 	switch body.Action {
 	case Create:
 		mutations.Create(w, cookie, &body)

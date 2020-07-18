@@ -10,10 +10,8 @@ import (
 	"webapi/store/users/hooks/requests"
 	"webapi/store/users/hooks/responses"
 
-	"github.com/taylor-vann/weblog/toolbox/golang/verifyx"
+	"webapi/sessions/infraclientx/verifyx"
 )
-
-const SessionCookieHeader = "briantaylorvann.com_session"
 
 func writeUsersResponse(w http.ResponseWriter, users *controller.SafeUsers) {
 	w.Header().Set("Content-Type", "application/json")
@@ -36,37 +34,12 @@ func isRequestBodyValid(
 	return false
 }
 
-func isInfraSessionValid(
-	w http.ResponseWriter,
-	environment string,
-	sessionToken string,
-) bool {
-	isValid, errValidate := verifyx.ValidateInfraSession(
-		environment,
-		sessionToken,
-	)
-	if isValid {
-		return true
-	}
-	if errValidate != nil {
-		errors.DefaultResponse(w, errValidate)
-		return false
-	}
-	
-	errors.CustomResponse(w, errors.InvalidInfraSession)
-	return false
-}
-
 func Create(
 	w http.ResponseWriter,
 	sessionCookie *http.Cookie,
 	requestBody *requests.Body,
 ) {
 	if !isRequestBodyValid(w, requestBody) {
-		return
-	}
-	if sessionCookie == nil {
-		errors.CustomResponse(w, errors.NilInfraCredentials)
 		return
 	}
 
@@ -78,7 +51,7 @@ func Create(
 		return
 	}
 
-	if !isInfraSessionValid(w, params.Environment, sessionCookie.Value) {
+	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
 		return
 	}
 
@@ -107,10 +80,6 @@ func Update(
 	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
-	if sessionCookie == nil {
-		errors.CustomResponse(w, errors.NilInfraCredentials)
-		return
-	}
 
 	var params requests.Update
 	bytes, _ := json.Marshal(requestBody.Params)
@@ -120,7 +89,7 @@ func Update(
 		return
 	}
 
-	if !isInfraSessionValid(w, params.Environment, sessionCookie.Value) {
+	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
 		return
 	}
 
@@ -149,10 +118,6 @@ func UpdateEmail(
 	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
-	if sessionCookie == nil {
-		errors.CustomResponse(w, errors.NilInfraCredentials)
-		return
-	}
 
 	var params requests.UpdateEmail
 	bytes, _ := json.Marshal(requestBody.Params)
@@ -162,7 +127,7 @@ func UpdateEmail(
 		return
 	}
 
-	if !isInfraSessionValid(w, params.Environment, sessionCookie.Value) {
+	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
 		return
 	}
 
@@ -191,10 +156,6 @@ func UpdatePassword(
 	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
-	if sessionCookie == nil {
-		errors.CustomResponse(w, errors.NilInfraCredentials)
-		return
-	}
 
 	var params requests.UpdatePassword
 	bytes, _ := json.Marshal(requestBody.Params)
@@ -204,7 +165,7 @@ func UpdatePassword(
 		return
 	}
 
-	if !isInfraSessionValid(w, params.Environment, sessionCookie.Value) {
+	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
 		return
 	}
 
@@ -233,10 +194,6 @@ func Delete(
 	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
-	if sessionCookie == nil {
-		errors.CustomResponse(w, errors.NilInfraCredentials)
-		return
-	}
 
 	var params requests.Delete
 	bytes, _ := json.Marshal(requestBody.Params)
@@ -246,7 +203,7 @@ func Delete(
 		return
 	}
 
-	if !isInfraSessionValid(w, params.Environment, sessionCookie.Value) {
+	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
 		return
 	}
 
@@ -275,10 +232,6 @@ func Undelete(
 	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
-	if sessionCookie == nil {
-		errors.CustomResponse(w, errors.NilInfraCredentials)
-		return
-	}
 
 	var params requests.Undelete
 	bytes, _ := json.Marshal(requestBody.Params)
@@ -288,7 +241,7 @@ func Undelete(
 		return
 	}
 
-	if !isInfraSessionValid(w, params.Environment, sessionCookie.Value) {
+	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
 		return
 	}
 
