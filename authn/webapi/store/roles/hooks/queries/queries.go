@@ -9,10 +9,10 @@ import (
 	"webapi/store/roles/hooks/errors"
 	"webapi/store/roles/hooks/requests"
 	"webapi/store/roles/hooks/responses"
-	"webapi/store/roles/hooks/verify"
 
-	"github.com/taylor-vann/weblog/toolbox/golang/clientx/fetch"
-	fetchRequests "github.com/taylor-vann/weblog/toolbox/golang/clientx/fetch/requests"
+	"webapi/sessions/infraclientx/fetchx"
+	"webapi/sessions/infraclientx/verifyx"
+	fetchRequests "webapi/sessions/infraclientx/fetchx/requests"
 )
 
 const InfraOverlordAdmin = "INFRA_OVERLORD_ADMIN"
@@ -46,10 +46,6 @@ func Read(
 	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
-	if sessionCookie == nil {
-		errors.CustomResponse(w, errors.NilInfraCredentials)
-		return
-	}
 
 	var params requests.Read
 	bytes, _ := json.Marshal(requestBody.Params)
@@ -59,7 +55,7 @@ func Read(
 		return
 	}
 
-	if !verify.isInfraSessionValid(w, params.Environment, sessionCookie.Value) {
+	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
 		return
 	}
 
@@ -98,7 +94,7 @@ func ValidateInfra(w http.ResponseWriter, sessionCookie *http.Cookie, requestBod
 		return
 	}
 	
-	var params requests.ValidateInfra
+	var params fetchRequests.ValidateInfraRole
 	bytes, _ := json.Marshal(requestBody.Params)
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
@@ -106,12 +102,12 @@ func ValidateInfra(w http.ResponseWriter, sessionCookie *http.Cookie, requestBod
 		return
 	}
 
-	if !verify.isGuestSessionValid(w, params.Environment, sessionCookie.Value) {
+	if !verifyx.IsGuestSessionValid(w, params.Environment, sessionCookie) {
 		return
 	}
 
-	resp, errResp := fetch.ValidateGuestUser(
-		fetchRequests.ValidateGuestUser(params),
+	resp, errResp := fetchx.ValidateGuestUser(
+		&params,
 		sessionCookie,
 	)
 	if errResp != nil {
@@ -166,10 +162,6 @@ func Index(
 	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
-	if sessionCookie == nil {
-		errors.CustomResponse(w, errors.NilInfraCredentials)
-		return
-	}
 
 	var params requests.Index
 	bytes, _ := json.Marshal(requestBody.Params)
@@ -179,7 +171,7 @@ func Index(
 		return
 	}
 
-	if !verify.isInfraSessionValid(w, params.Environment, sessionCookie.Value) {
+	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
 		return
 	}
 
@@ -206,10 +198,6 @@ func Search(
 	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
-	if sessionCookie == nil {
-		errors.CustomResponse(w, errors.NilInfraCredentials)
-		return
-	}
 	
 	var params requests.Search
 	bytes, _ := json.Marshal(requestBody.Params)
@@ -219,7 +207,7 @@ func Search(
 		return
 	}
 
-	if !verify.isInfraSessionValid(w, params.Environment, sessionCookie.Value) {
+	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
 		return
 	}
 

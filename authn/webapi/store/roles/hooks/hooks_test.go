@@ -11,11 +11,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/taylor-vann/weblog/toolbox/golang/clientx"
-
+	"webapi/sessions/infraclientx/sessionx"
 	"webapi/store/roles/controller"	
 	"webapi/store/roles/hooks/requests"
-	"webapi/store/roles/hooks/responses"	
+	"webapi/store/roles/hooks/responses"
 )
 
 type Row struct {
@@ -51,22 +50,45 @@ var user1Updated = requests.Update{
 }
 
 var (
-	ClientSessionTest *http.Cookie
+	GuestSessionTestCookie *http.Cookie
+	ClientSessionTestCookie *http.Cookie
 )
 
-func TestCreateClientxSession(t *testing.T) {
-	cookie, errInfraSession := clientx.Setup()
+// guest session
+func TestCreateGuestSession(t *testing.T) {
+	session, errInfraSession := sessionx.CreateGuestSession()
 	if errInfraSession != nil {
 		t.Error(errInfraSession)
 	}
-	if cookie == nil {
+	if session == nil {
 		t.Error("infra session is nil!")
+		return
 	}
 
 	// set for verification on next text
-	ClientSessionTest = cookie
+	GuestSessionTestCookie = &http.Cookie{
+		Name: "briantaylorvann.com_session",
+		Value: *session,
+	}
 }
 
+// clientx session
+func TestCreateClientxSession(t *testing.T) {
+	session, errInfraSession := sessionx.Setup()
+	if errInfraSession != nil {
+		t.Error(errInfraSession)
+	}
+	if session == nil {
+		t.Error("infra session is nil!")
+		return
+	}
+
+	// set for verification on next text
+	ClientSessionTestCookie = &http.Cookie{
+		Name: "briantaylorvann.com_session",
+		Value: *session,
+	}
+}
 
 func TestCreateTable(t *testing.T) {
 	results, err := controller.CreateTable(&createTable)
@@ -79,6 +101,10 @@ func TestCreateTable(t *testing.T) {
 }
 
 func TestCreate(t *testing.T) {
+	if ClientSessionTestCookie == nil {
+		t.Error("client session is nil")
+		return
+	}
 	requestBody := requests.Body{
 		Action: Create,
 		Params: user1,
@@ -93,12 +119,13 @@ func TestCreate(t *testing.T) {
 	)
 	if errReq != nil {
 		t.Error(errReq)
+		return
 	}
 	if req == nil {
 		t.Error("response body is nil")
 		return
 	}
-	req.AddCookie(ClientSessionTest)
+	req.AddCookie(ClientSessionTestCookie)
 	
 	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Mutation)
@@ -108,17 +135,24 @@ func TestCreate(t *testing.T) {
 	errJSON := json.NewDecoder(htr.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON.Error())
+		return
 	}
 	if responseBody.Roles == nil {
 		t.Error("nil roles returned")
+		return
 	}
 
 	if htr.Code != http.StatusOK {
 		t.Error(*responseBody.Errors.Default)
+		return
 	}
 }
 
 func TestRead(t *testing.T) {
+	if ClientSessionTestCookie == nil {
+		t.Error("client session is nil")
+		return
+	}
 	requestBody := requests.Body{
 		Action: Read,
 		Params: requests.Read{
@@ -142,7 +176,7 @@ func TestRead(t *testing.T) {
 		t.Error("response body is nil")
 		return
 	}
-	req.AddCookie(ClientSessionTest)
+	req.AddCookie(ClientSessionTestCookie)
 
 	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Query)
@@ -173,8 +207,11 @@ func TestRead(t *testing.T) {
 	}
 }
 
-
 func TestIndex(t *testing.T) {
+	if ClientSessionTestCookie == nil {
+		t.Error("client session is nil")
+		return
+	}
 	requestBody := requests.Body{
 		Action: Index,
 		Params: requests.Index{
@@ -198,7 +235,7 @@ func TestIndex(t *testing.T) {
 		t.Error("response body is nil")
 		return
 	}
-	req.AddCookie(ClientSessionTest)
+	req.AddCookie(ClientSessionTestCookie)
 
 	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Query)
@@ -213,7 +250,6 @@ func TestIndex(t *testing.T) {
 		t.Error("nil roles returned")
 		return
 	}
-
 	if len(*responseBody.Roles) == 0 {
 		t.Error("zero roles returned")
 		return
@@ -225,6 +261,10 @@ func TestIndex(t *testing.T) {
 }
 
 func TestSearch(t *testing.T) {
+	if ClientSessionTestCookie == nil {
+		t.Error("client session is nil")
+		return
+	}
 	requestBody := requests.Body{
 		Action: Search,
 		Params: requests.Search{
@@ -249,7 +289,7 @@ func TestSearch(t *testing.T) {
 		t.Error("response body is nil")
 		return
 	}
-	req.AddCookie(ClientSessionTest)
+	req.AddCookie(ClientSessionTestCookie)
 
 	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Query)
@@ -280,6 +320,10 @@ func TestSearch(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
+	if ClientSessionTestCookie == nil {
+		t.Error("client session is nil")
+		return
+	}
 	requestBody := requests.Body{
 		Action: Update,
 		Params: user1Updated,
@@ -299,7 +343,7 @@ func TestUpdate(t *testing.T) {
 		t.Error("response body is nil")
 		return
 	}
-	req.AddCookie(ClientSessionTest)
+	req.AddCookie(ClientSessionTestCookie)
 	
 	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Mutation)
@@ -330,6 +374,10 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestUpdateAccess(t *testing.T) {
+	if ClientSessionTestCookie == nil {
+		t.Error("client session is nil")
+		return
+	}
 	requestBody := requests.Body{
 		Action: UpdateAccess,
 		Params: requests.UpdateAccess{
@@ -355,7 +403,7 @@ func TestUpdateAccess(t *testing.T) {
 		t.Error("response body is nil")
 		return
 	}
-	req.AddCookie(ClientSessionTest)
+	req.AddCookie(ClientSessionTestCookie)
 	
 	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Mutation)
@@ -386,6 +434,10 @@ func TestUpdateAccess(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
+	if ClientSessionTestCookie == nil {
+		t.Error("client session is nil")
+		return
+	}
 	requestBody := requests.Body{
 		Action: Delete,
 		Params: requests.Delete{
@@ -409,7 +461,7 @@ func TestDelete(t *testing.T) {
 		t.Error("response body is nil")
 		return
 	}
-	req.AddCookie(ClientSessionTest)
+	req.AddCookie(ClientSessionTestCookie)
 	
 	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Mutation)
@@ -441,6 +493,10 @@ func TestDelete(t *testing.T) {
 
 
 func TestUndelete(t *testing.T) {
+	if ClientSessionTestCookie == nil {
+		t.Error("client session is nil")
+		return
+	}
 	requestBody := requests.Body{
 		Action: Undelete,
 		Params: requests.Undelete{
@@ -464,7 +520,7 @@ func TestUndelete(t *testing.T) {
 		t.Error("response body is nil")
 		return
 	}
-	req.AddCookie(ClientSessionTest)
+	req.AddCookie(ClientSessionTestCookie)
 	
 	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Mutation)
