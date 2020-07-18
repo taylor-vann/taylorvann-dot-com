@@ -5,7 +5,6 @@ import (
 	"os"
 	"testing"
 
-	"log"
 	"webapi/sessions/infraclientx/fetchx/requests"
 )
 
@@ -145,5 +144,4 @@ func TestValidateSession(t *testing.T) {
 	if resp == nil {
 		t.Error("nil response returned")
 	}
-	log.Println(resp)
 }
