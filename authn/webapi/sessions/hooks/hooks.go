@@ -4,13 +4,11 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"log"
-
 	"webapi/sessions/hooks/errors"
-	"webapi/sessions/hooks/requests"
-	"webapi/sessions/hooks/responses"
 	"webapi/sessions/hooks/mutations"
 	"webapi/sessions/hooks/queries"
+	"webapi/sessions/hooks/requests"
+	"webapi/sessions/hooks/responses"
 )
 
 const (
@@ -19,16 +17,21 @@ const (
 	ValidateGuestSession        = "VALIDATE_GUEST_SESSION"
 	ValidateSession        			= "VALIDATE_SESSION"
 	
-	CreateGuestSession        	= "CREATE_GUEST_SESSION"
-	CreateInfraOverlordSession  = "CREATE_INFRA_OVERLORD_SESSION"
 	CreateClientSession     		= "CREATE_CLIENT_SESSION"
 	CreateCreateAccountSession	= "CREATE_CREATE_ACCOUNT_SESSION"
-	CreateUpdatePasswordSession	= "CREATE_UPDATE_PASSWORD_SESSION"
+	CreateGuestSession        	= "CREATE_GUEST_SESSION"
+	CreateInfraOverlordSession  = "CREATE_INFRA_OVERLORD_SESSION"
 	CreateUpdateEmailSession  	= "CREATE_UPDATE_EMAIL_SESSION"
+	CreateUpdatePasswordSession	= "CREATE_UPDATE_PASSWORD_SESSION"
 	DeleteSession             	= "DELETE_SESSION"
 )
 
 func Query(w http.ResponseWriter, r *http.Request) {
+	if r.Body == nil {
+		errors.CustomResponse(w, errors.NilRequestBodyFail)
+		return
+	}
+
 	var body requests.Body
 	errDecode := json.NewDecoder(r.Body).Decode(&body)
 	if errDecode != nil {
@@ -51,19 +54,21 @@ func Query(w http.ResponseWriter, r *http.Request) {
 }
 
 func Mutation(w http.ResponseWriter, r *http.Request) {
+	if r.Body == nil {
+		errors.CustomResponse(w, errors.NilRequestBodyFail)
+		return
+	}
+
 	var body requests.Body
 	errJsonDecode := json.NewDecoder(r.Body).Decode(&body)
 	if errJsonDecode != nil {
-		log.Println(errJsonDecode)
+		
 		errors.CustomResponse(w, errors.BadRequestFail)
 		return
 	}
-	log.Println(body)
-
+	
 	cookie, _ := r.Cookie(SessionCookieHeader)
-	log.Println("cookie:")
-	log.Println(cookie)
-
+	
 	switch body.Action {
 	case CreateGuestSession:  // the only public mutation
 		mutations.CreateGuestSession(w, &body)

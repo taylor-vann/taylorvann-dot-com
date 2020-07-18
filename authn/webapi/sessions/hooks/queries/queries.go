@@ -11,8 +11,6 @@ import (
 	"webapi/sessions/sessionsx"
 )
 
-const SessionCookieHeader = "briantaylorvann.com_session"
-
 func isRequestBodyValid(
 	w http.ResponseWriter,
 	requestBody *requests.Body,

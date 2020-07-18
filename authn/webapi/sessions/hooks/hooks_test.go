@@ -11,10 +11,9 @@ import (
 
 	"log"
 
+	"webapi/sessions/infraclientx/sessionx"
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
-
-	"webapi/sessions/clientx/infrasessionx"
 
 	"github.com/taylor-vann/weblog/toolbox/golang/jwtx"
 )
@@ -90,7 +89,7 @@ func TestCreateGuestSession(t *testing.T) {
 // clientx session
 func TestCreateClientxSession(t *testing.T) {
 	log.Println("TestCreateClientxSession")
-	session, errInfraSession := infrasessionx.Setup()
+	session, errInfraSession := sessionx.Setup()
 	log.Println (session)
 	if errInfraSession != nil {
 		t.Error(errInfraSession)
@@ -107,24 +106,29 @@ func TestCreateClientxSession(t *testing.T) {
 	}
 }
 
-// func TestCreateGuestSessionBadRequest(t *testing.T) {
-// 	resp, errResp := http.NewRequest(
-// 		"POST",
-// 		"/m/sessions/",
-// 		nil,
-// 	)
-// 	if errResp != nil {
-// 		t.Error(errResp.Error())
-// 	}
+func TestCreateGuestSessionBadRequest(t *testing.T) {
+	resp, errResp := http.NewRequest(
+		"POST",
+		"/m/sessions/",
+		nil,
+	)
+	if resp == nil {
+		t.Error("response is nil")
+		return
+	}
+	if errResp != nil {
+		t.Error(errResp)
+		return
+	}
 
-// 	htr := httptest.NewRecorder()
-// 	handler := http.HandlerFunc(Mutation)
-// 	handler.ServeHTTP(htr, resp)
+	htr := httptest.NewRecorder()
+	handler := http.HandlerFunc(Mutation)
+	handler.ServeHTTP(htr, resp)
 
-// 	if htr.Code != http.StatusBadRequest {
-// 		t.Error("handler returned incorrect status code, should be 400")
-// 	}
-// }
+	if htr.Code != http.StatusBadRequest {
+		t.Error("handler returned incorrect status code, should be 400")
+	}
+}
 
 func TestCreateGuestSessionBadHeadersRequest(t *testing.T) {
 	requestBody := requests.Body{

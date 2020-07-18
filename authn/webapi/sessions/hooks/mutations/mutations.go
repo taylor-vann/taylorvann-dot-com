@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"webapi/sessions/clientx/infrafetchx"
-	fetchRequests "webapi/sessions/clientx/infrafetchx/requests"
+	"webapi/sessions/infraclientx/fetchx"
+	fetchRequests "webapi/sessions/infraclientx/fetchx/requests"
 	"webapi/sessions/hooks/errors"
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
@@ -127,7 +127,7 @@ func CreateInfraSession(
 		return
 	}
 
-	resp, errResp := infrafetchx.ValidateInfraRole(
+	resp, errResp := fetchx.ValidateInfraRole(
 		&params,
 		sessionCookie,
 	)
