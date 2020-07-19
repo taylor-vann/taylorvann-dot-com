@@ -3,10 +3,9 @@ package verifyx
 import (
 	"net/http"
 
-	"github.com/taylor-vann/weblog/toolbox/golang/infraclientx/fetchx/requests"
 	"github.com/taylor-vann/weblog/toolbox/golang/infraclientx/fetchx"
+	"github.com/taylor-vann/weblog/toolbox/golang/infraclientx/fetchx/requests"
 	"github.com/taylor-vann/weblog/toolbox/golang/infraclientx/verifyx/errors"
-
 	"github.com/taylor-vann/weblog/toolbox/golang/jwtx"
 )
 
@@ -99,17 +98,21 @@ func IsInfraSessionValid(
 func IsSessionValid(
 	w http.ResponseWriter,
 	environment string,
-	sessionCookie *http.Cookie,
+	infraSessionCookie *http.Cookie,
+	sessionToken *string,
 ) bool {
-	if sessionCookie == nil {
+	if infraSessionCookie == nil {
+		return false
+	}
+	if sessionToken == nil {
 		return false
 	}
 	validToken, errValidToken := fetchx.ValidateSession(
 		&requests.ValidateSession{
 			Environment: environment,
-			Token: sessionCookie.Value,
+			Token: *sessionToken,
 		},
-		sessionCookie,
+		infraSessionCookie,
 	)
 	if validToken != nil {
 		return true
