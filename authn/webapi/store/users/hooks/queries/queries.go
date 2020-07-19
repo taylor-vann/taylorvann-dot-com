@@ -9,8 +9,8 @@ import (
 	"webapi/store/users/hooks/errors"
 	"webapi/store/users/hooks/requests"
 	"webapi/store/users/hooks/responses"
-	
-	"github.com/taylor-vann/weblog/toolbox/golang/verifyx"
+
+	"webapi/sessions/infraclientx/verifyx"
 )
 
 func writeUsersResponse(w http.ResponseWriter, users *controller.SafeUsers) {
@@ -34,58 +34,12 @@ func isRequestBodyValid(
 	return false
 }
 
-func isGuestSessionValid(
-	w http.ResponseWriter,
-	environment string,
-	sessionToken string,
-) bool {
-	isValid, errValidate := verifyx.ValidateGuestSession(
-		environment,
-		sessionToken,
-	)
-	if isValid {
-		return true
-	}
-	if errValidate != nil {
-		errors.DefaultResponse(w, errValidate)
-		return false
-	}
-
-	errors.CustomResponse(w, errors.InvalidInfraSession)
-	return false
-}
-
-func isInfraSessionValid(
-	w http.ResponseWriter,
-	environment string,
-	sessionToken string,
-) bool {
-	isValid, errValidate := verifyx.ValidateInfraSession(
-		environment,
-		sessionToken,
-	)
-	if isValid {
-		return true
-	}
-	if errValidate != nil {
-		errors.DefaultResponse(w, errValidate)
-		return false
-	}
-	
-	errors.CustomResponse(w, errors.InvalidInfraSession)
-	return false
-}
-
 func Read(
 	w http.ResponseWriter,
 	sessionCookie *http.Cookie,
 	requestBody *requests.Body,
 ) {
 	if !isRequestBodyValid(w, requestBody) {
-		return
-	}
-	if sessionCookie == nil {
-		errors.CustomResponse(w, errors.NilInfraCredentials)
 		return
 	}
 
@@ -97,7 +51,7 @@ func Read(
 		return
 	}
 
-	if !isInfraSessionValid(w, params.Environment, sessionCookie.Value) {
+	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
 		return
 	}
 
@@ -135,10 +89,6 @@ func ValidateGuest(
 	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
-	if sessionCookie == nil {
-		errors.CustomResponse(w, errors.NilInfraCredentials)
-		return
-	}
 
 	var params requests.Validate
 	bytes, _ := json.Marshal(requestBody.Params)
@@ -148,7 +98,7 @@ func ValidateGuest(
 		return
 	}
 
-	if !isGuestSessionValid(w, params.Environment, sessionCookie.Value) {
+	if !verifyx.IsGuestSessionValid(w, params.Environment, sessionCookie) {
 		return
 	}
 
@@ -180,10 +130,6 @@ func Index(
 	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
-	if sessionCookie == nil {
-		errors.CustomResponse(w, errors.NilInfraCredentials)
-		return
-	}
 
 	var params requests.Index
 	bytes, _ := json.Marshal(requestBody.Params)
@@ -193,7 +139,7 @@ func Index(
 		return
 	}
 
-	if !isInfraSessionValid(w, params.Environment, sessionCookie.Value) {
+	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
 		return
 	}
 
@@ -220,10 +166,6 @@ func Search(
 	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
-	if sessionCookie == nil {
-		errors.CustomResponse(w, errors.NilInfraCredentials)
-		return
-	}
 
 	var params requests.Search
 	bytes, _ := json.Marshal(requestBody.Params)
@@ -233,7 +175,7 @@ func Search(
 		return
 	}
 
-	if !isInfraSessionValid(w, params.Environment, sessionCookie.Value) {
+	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
 		return
 	}
 

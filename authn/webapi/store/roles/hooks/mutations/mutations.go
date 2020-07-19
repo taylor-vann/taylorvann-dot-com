@@ -9,7 +9,7 @@ import (
 	"webapi/store/roles/hooks/errors"
 	"webapi/store/roles/hooks/requests"
 	"webapi/store/roles/hooks/responses"
-	"webapi/store/roles/hooks/verify"
+	"webapi/sessions/infraclientx/verifyx"
 )
 
 func writeRolesResponse(w http.ResponseWriter, roles *controller.Roles) {
@@ -41,10 +41,6 @@ func Create(
 	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
-	if sessionCookie == nil {
-		errors.CustomResponse(w, errors.NilInfraCredentials)
-		return
-	}
 
 	var params requests.Create
 	bytes, _ := json.Marshal(requestBody.Params)
@@ -54,7 +50,7 @@ func Create(
 		return
 	}
 
-	if !verify.isInfraSessionValid(w, params.Environment, sessionCookie.Value) {
+	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
 		return
 	}
 
@@ -83,10 +79,6 @@ func Update(
 	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
-	if sessionCookie == nil {
-		errors.CustomResponse(w, errors.NilInfraCredentials)
-		return
-	}
 
 	var params requests.Update
 	bytes, _ := json.Marshal(requestBody.Params)
@@ -96,7 +88,7 @@ func Update(
 		return
 	}
 
-	if !verify.isInfraSessionValid(w, params.Environment, sessionCookie.Value) {
+	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
 		return
 	}
 
@@ -125,10 +117,6 @@ func UpdateAccess(
 	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
-	if sessionCookie == nil {
-		errors.CustomResponse(w, errors.NilInfraCredentials)
-		return
-	}
 
 	var params requests.UpdateAccess
 	bytes, _ := json.Marshal(requestBody.Params)
@@ -138,7 +126,7 @@ func UpdateAccess(
 		return
 	}
 
-	if !verify.isInfraSessionValid(w, params.Environment, sessionCookie.Value) {
+	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
 		return
 	}
 
@@ -167,10 +155,6 @@ func Delete(
 	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
-	if sessionCookie == nil {
-		errors.CustomResponse(w, errors.NilInfraCredentials)
-		return
-	}
 
 	var params requests.Delete
 	bytes, _ := json.Marshal(requestBody.Params)
@@ -180,7 +164,7 @@ func Delete(
 		return
 	}
 
-	if !verify.isInfraSessionValid(w, params.Environment, sessionCookie.Value) {
+	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
 		return
 	}
 
@@ -209,10 +193,6 @@ func Undelete(
 	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
-	if sessionCookie == nil {
-		errors.CustomResponse(w, errors.NilInfraCredentials)
-		return
-	}
 
 	var params requests.Read
 	bytes, _ := json.Marshal(requestBody.Params)
@@ -222,7 +202,7 @@ func Undelete(
 		return
 	}
 
-	if !verify.isInfraSessionValid(w, params.Environment, sessionCookie.Value) {
+	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
 		return
 	}
 

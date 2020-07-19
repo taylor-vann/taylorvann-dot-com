@@ -9,6 +9,7 @@ import (
 
 var (
 	BadRequestFail  		 		 	 		= "unable to decode request body"
+	NilRequestBodyFail						= "nil body provided in request"
 	UnrecognizedQuery 	 		 	 		= "unrecognized query action requested"
 	UnrecognizedMutation 		 	 		= "unrecognized mutation action requested"
 	UnrecognizedParams 	 		 	 		= "unrecognized params in request"

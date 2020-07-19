@@ -4,9 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/taylor-vann/weblog/toolbox/golang/clientx/fetch"
-	fetchRequests "github.com/taylor-vann/weblog/toolbox/golang/clientx/fetch/requests"
-
+	"webapi/sessions/infraclientx/fetchx"
+	fetchRequests "webapi/sessions/infraclientx/fetchx/requests"
 	"webapi/sessions/hooks/errors"
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
@@ -23,39 +22,19 @@ const (
 	ThreeSixtyFiveDaysInSeconds = 60 * 60 * 24 * 365
 )
 
-func dropRequestBodyNotValid(
+func isRequestBodyValid(
 	w http.ResponseWriter,
 	requestBody *requests.Body,
 ) bool {
 	if requestBody != nil && requestBody.Params != nil {
-		return false
+		return true
 	}
 	errors.BadRequest(w, &responses.Errors{
 		RequestBody: &errors.BadRequestFail,
 	})
-	return true
+	return false
 }
 
-func dropRequestInfraSessionNotValid(
-	w http.ResponseWriter,
-	environment string,
-	sessionCookie *http.Cookie,
-) bool {
-	if sessionCookie == nil {
-		errors.CustomResponse(w, errors.NilInfraCredentials)
-		return true
-	}
-	isValid, errValidate := verify.ValidateInfraSession(
-		environment,
-		sessionCookie.Value,
-	)
-	if isValid {
-		return false
-	}
-
-	errors.DefaultResponse(w, errValidate)
-	return true
-}
 
 func createGuestSessionCookie(session string) *http.Cookie {
 	return &http.Cookie{
@@ -97,7 +76,7 @@ func CreateGuestSession(
 	w http.ResponseWriter,
 	requestBody *requests.Body,
 ) {
-	if dropRequestBodyNotValid(w, requestBody) {
+	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
 	
@@ -130,25 +109,26 @@ func CreateInfraSession(
 	sessionCookie *http.Cookie,
 	requestBody *requests.Body,
 ) {
-	if dropRequestBodyNotValid(w, requestBody) {
+	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
 	
-	var params requests.InfraUser
+	var params fetchRequests.ValidateGuestUser
 	bytes, _ := json.Marshal(requestBody.Params)
 	errParamsMarshal := json.Unmarshal(bytes, &params)
 	if errParamsMarshal != nil {
 		errors.DefaultResponse(w, errParamsMarshal)
 		return
 	}
+	
 	// golang defaults strings to a "", exciting! (dangerous)
 	if params.Email == "" {
 		errors.CustomResponse(w, errors.InvalidDefaultUserProvided)
 		return
 	}
 
-	resp, errResp := fetch.ValidateInfraRole(
-		fetchRequests.ValidateGuestUser(params),
+	resp, errResp := fetchx.ValidateInfraRole(
+		&params,
 		sessionCookie,
 	)
 	if errResp != nil {
@@ -177,7 +157,7 @@ func CreateClientSession(
 	sessionCookie *http.Cookie,
 	requestBody *requests.Body,
 ) {
-	if dropRequestBodyNotValid(w, requestBody) {
+	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
 		
@@ -188,22 +168,28 @@ func CreateClientSession(
 		errors.DefaultResponse(w, errParamsMarshal)
 		return
 	}
+	
 	// golang defaults ints to a 0 value, exciting! (dangerous)
 	if params.UserID == 0 {
 		errors.CustomResponse(w, errors.InvalidDefaultUserProvided)
 		return
 	}
-
-	if dropRequestInfraSessionNotValid(w, params.Environment, sessionCookie) {
+	
+	infraSessionIsValid, errInfraSessionIsValid := verify.ValidateInfraSession(
+		params.Environment,
+		sessionCookie,
+	)
+	if errInfraSessionIsValid != nil {
+		errors.DefaultResponse(w, errInfraSessionIsValid)
 		return
 	}
-	
+
 	claims := sessionsx.CreateClientSessionClaims(params.UserID)
 	session, errSession := sessionsx.Create(&sessionsx.CreateParams{
 		Environment: params.Environment,
 		Claims: claims,
 	})
-	if errSession == nil {
+	if infraSessionIsValid && errSession == nil {
 		http.SetCookie(w, createClientSessionCookie(session.Token))
 		w.Header().Set(ContentType, ApplicationJson)
 		json.NewEncoder(w).Encode(&responses.Body{
@@ -220,7 +206,7 @@ func CreateCreateAccountSession(
 	sessionCookie *http.Cookie,
 	requestBody *requests.Body,
 ) {
-	if dropRequestBodyNotValid(w, requestBody) {
+	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
 
@@ -232,7 +218,12 @@ func CreateCreateAccountSession(
 		return
 	}
 
-	if dropRequestInfraSessionNotValid(w, params.Environment, sessionCookie) {
+	infraSessionIsValid, errInfraSessionIsValid := verify.ValidateInfraSession(
+		params.Environment,
+		sessionCookie,
+	)
+	if errInfraSessionIsValid != nil {
+		errors.DefaultResponse(w, errInfraSessionIsValid)
 		return
 	}
 
@@ -241,7 +232,7 @@ func CreateCreateAccountSession(
 		Environment: params.Environment,
 		Claims: claims,
 	})
-	if errSession == nil {
+	if infraSessionIsValid && errSession == nil {
 		w.Header().Set(ContentType, ApplicationJson)
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: session,
@@ -257,7 +248,7 @@ func CreateUpdateEmailSession(
 	sessionCookie *http.Cookie,
 	requestBody *requests.Body,
 ) {
-	if dropRequestBodyNotValid(w, requestBody) {
+	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
 
@@ -269,7 +260,12 @@ func CreateUpdateEmailSession(
 		return
 	}
 
-	if dropRequestInfraSessionNotValid(w, params.Environment, sessionCookie) {
+	infraSessionIsValid, errInfraSessionIsValid := verify.ValidateInfraSession(
+		params.Environment,
+		sessionCookie,
+	)
+	if errInfraSessionIsValid != nil {
+		errors.DefaultResponse(w, errInfraSessionIsValid)
 		return
 	}
 
@@ -278,7 +274,7 @@ func CreateUpdateEmailSession(
 		Environment: params.Environment,
 		Claims: claims,
 	})
-	if errSession == nil {
+	if infraSessionIsValid && errSession == nil {
 		w.Header().Set(ContentType, ApplicationJson)
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: session,
@@ -294,7 +290,7 @@ func CreateUpdatePasswordSession(
 	sessionCookie *http.Cookie,
 	requestBody *requests.Body,
 ) {
-	if dropRequestBodyNotValid(w, requestBody) {
+	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
 
@@ -306,7 +302,12 @@ func CreateUpdatePasswordSession(
 		return
 	}
 
-	if dropRequestInfraSessionNotValid(w, params.Environment, sessionCookie) {
+	infraSessionIsValid, errInfraSessionIsValid := verify.ValidateInfraSession(
+		params.Environment,
+		sessionCookie,
+	)
+	if errInfraSessionIsValid != nil {
+		errors.DefaultResponse(w, errInfraSessionIsValid)
 		return
 	}
 
@@ -315,7 +316,7 @@ func CreateUpdatePasswordSession(
 		Environment: params.Environment,
 		Claims: claims,
 	})
-	if errSession == nil {
+	if infraSessionIsValid && errSession == nil {
 		w.Header().Set(ContentType, ApplicationJson)
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: session,
@@ -331,7 +332,7 @@ func CreateDeleteAccountSession(
 	sessionCookie *http.Cookie,
 	requestBody *requests.Body,
 ) {
-	if dropRequestBodyNotValid(w, requestBody) {
+	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
 
@@ -343,7 +344,12 @@ func CreateDeleteAccountSession(
 		return
 	}
 
-	if dropRequestInfraSessionNotValid(w, params.Environment, sessionCookie) {
+	infraSessionIsValid, errInfraSessionIsValid := verify.ValidateInfraSession(
+		params.Environment,
+		sessionCookie,
+	)
+	if errInfraSessionIsValid != nil {
+		errors.DefaultResponse(w, errInfraSessionIsValid)
 		return
 	}
 
@@ -352,7 +358,7 @@ func CreateDeleteAccountSession(
 		Environment: params.Environment,
 		Claims: claims,
 	})
-	if errSession == nil {
+	if infraSessionIsValid && errSession == nil {
 		w.Header().Set(ContentType, ApplicationJson)
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: session,
@@ -368,7 +374,7 @@ func DeleteSession(
 	sessionCookie *http.Cookie,
 	requestBody *requests.Body,
 ) {
-	if dropRequestBodyNotValid(w, requestBody) {
+	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
 
@@ -380,16 +386,21 @@ func DeleteSession(
 		return
 	}
 
-	if dropRequestInfraSessionNotValid(w, params.Environment, sessionCookie) {
+	infraSessionIsValid, errInfraSessionIsValid := verify.ValidateInfraSession(
+		params.Environment,
+		sessionCookie,
+	)
+	if errInfraSessionIsValid != nil {
+		errors.DefaultResponse(w, errInfraSessionIsValid)
 		return
 	}
 
-	result, errResult := sessionsx.Delete(&params)
-	if errResult != nil {
-		errors.DefaultResponse(w, errResult)
+	sessionWasDeleted, errSessionWasDeleted := sessionsx.Delete(&params)
+	if errSessionWasDeleted != nil {
+		errors.DefaultResponse(w, errSessionWasDeleted)
 		return
 	}
-	if result == true {
+	if infraSessionIsValid && sessionWasDeleted {
 		w.Header().Set(ContentType, ApplicationJson)
 		w.WriteHeader(http.StatusOK)
 		return

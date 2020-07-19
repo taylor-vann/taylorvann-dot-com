@@ -28,7 +28,7 @@ const (
 	SessionCookieHeader = "briantaylorvann.com_session"
 )
 
-func Query(w http.ResponseWriter, r *http.Request) {
+func Query(w http.ResponseWriter, r *http.Request) {	
 	if r.Body == nil {
 		errors.BadRequest(w, &responses.Errors{
 			RequestBody: &errors.BadRequestFail,
@@ -36,11 +36,7 @@ func Query(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cookie, errCookie := r.Cookie(SessionCookieHeader)
-	if errCookie != nil {
-		errors.DefaultResponse(w, errCookie)
-		return
-	}
+	cookie, _ := r.Cookie(SessionCookieHeader)
 
 	var body requests.Body
 	errJsonDecode := json.NewDecoder(r.Body).Decode(&body)
@@ -73,11 +69,7 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cookie, errCookie := r.Cookie(SessionCookieHeader)
-	if errCookie != nil {
-		errors.DefaultResponse(w, errCookie)
-		return
-	}
+	cookie, _ := r.Cookie(SessionCookieHeader)
 
 	var body requests.Body
 	errJsonDecode := json.NewDecoder(r.Body).Decode(&body)

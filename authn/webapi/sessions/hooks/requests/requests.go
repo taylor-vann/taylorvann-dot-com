@@ -12,7 +12,7 @@ type Update = sessionsx.UpdateParams
 type Delete = sessionsx.DeleteParams
 
 type Guest struct {
-	Environment string
+	Environment string	`json:"environment"`
 }
 
 type User struct {

@@ -2,13 +2,12 @@ package verify
 
 import (
 	"errors"
+	"net/http"
 
 	"webapi/sessions/sessionsx"
 
 	"github.com/taylor-vann/weblog/toolbox/golang/jwtx"
 )
-
-const SessionCookieHeader = "briantaylorvann_session"
 
 func CheckGuestSession(sessionToken string) bool {
 	return jwtx.ValidateSessionTokenByParams(&jwtx.ValidateTokenParams{
@@ -34,38 +33,50 @@ func CheckInfraSession(sessionToken string) bool {
 	})
 }
 
-func ValidateGuestSession(environment string, sessionToken string) (bool, error) {
-	isValid := CheckGuestSession(sessionToken)
+func ValidateGuestSession(environment string, sessionCookie *http.Cookie) (bool, error) {
+	if sessionCookie == nil {
+		return false, errors.New("session cookie is nil")
+	}
+
+	isValid := CheckGuestSession(sessionCookie.Value)
 	if !isValid {
 		return false, errors.New("guest session was invalid")
 	}
 
 	return sessionsx.Read(&sessionsx.ValidateParams{
 		Environment: environment,
-		Token: sessionToken,
+		Token: sessionCookie.Value,
 	})
 }
 
-func ValidateInfraSession(environment string, sessionToken string) (bool, error) {
-	isValid := CheckInfraSession(sessionToken)
+func ValidateInfraSession(environment string, sessionCookie *http.Cookie) (bool, error) {
+	if sessionCookie == nil {
+		return false, errors.New("session cookie is nil")
+	}
+
+	isValid := CheckInfraSession(sessionCookie.Value)
 	if !isValid {
 		return false, errors.New("infra session was invalid")
 	}
 
 	return sessionsx.Read(&sessionsx.ValidateParams{
 		Environment: environment,
-		Token: sessionToken,
+		Token: sessionCookie.Value,
 	})
 }
 
-func ValidateClientSession(environment string, sessionToken string) (bool, error) {
-	isValid := CheckClientSession(sessionToken)
+func ValidateClientSession(environment string, sessionCookie *http.Cookie) (bool, error) {
+	if sessionCookie == nil {
+		return false, errors.New("session cookie is nil")
+	}
+
+	isValid := CheckClientSession(sessionCookie.Value)
 	if !isValid {
 		return false, errors.New("infra session was invalid")
 	}
 
 	return sessionsx.Read(&sessionsx.ValidateParams{
 		Environment: environment,
-		Token: sessionToken,
+		Token: sessionCookie.Value,
 	})
 }
