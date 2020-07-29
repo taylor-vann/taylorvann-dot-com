@@ -22,6 +22,77 @@ type InitDetails struct {
 
 const initFilname = "./store_db.init.json"
 
+func createOrReadUser(
+	environment string,
+	email string,
+	password string,
+) (usersController.SafeUsers, error) {
+	// make user 
+	userRows, errUserRow := usersController.Read(
+		&usersController.ReadParams{
+			Environment: environment,
+			Email: email,
+		},
+	)
+
+	if errUserRow != nil {
+		return nil, errUserRow
+	}
+
+	// if user does not exist, create a one
+	if len(userRows) == 0 {
+		userRows, errUserRow = usersController.Create(
+			&usersController.CreateParams{
+				Environment: environment,
+				Email:    email,
+				Password: password,
+			},
+		)
+	}
+
+	return userRows, errUserRow
+}
+
+// create roles
+func createRoles(
+	environment string,
+	userRow usersController.SafeRow,
+	roles []string,
+) {
+	for _, organization := range roles {
+		rolesController.Create(
+			&rolesController.CreateParams{
+				Environment: environment,
+				UserID: userRow.ID,
+				Organization: organization,
+				ReadAccess: true,
+				WriteAccess: true,
+			},
+		)
+	}
+}
+
+func createUserAndRoles(
+	environment string,
+	details *InitDetails,
+) {
+	for email, userDetails := range details.Users {
+		// read user, they might already exist
+		userRows, errUserRows := createOrReadUser(
+			environment,
+			email,
+			userDetails.Password,
+		)
+		if errUserRows != nil {
+			continue
+		}
+
+		// create roles for user
+		userRow := userRows[0]
+		createRoles(environment, userRow, userDetails.Roles)
+	}
+}
+
 func InitFromJSON() {
 	initJSON, errInitFile := ioutil.ReadFile(initFilname)
 	if errInitFile != nil {
@@ -30,48 +101,12 @@ func InitFromJSON() {
 	}
 
 	var initDetails InitDetails
-	err := json.Unmarshal(initJSON, &initDetails)
-
-	if err != nil {
+	errInitDetails := json.Unmarshal(initJSON, &initDetails)
+	if errInitDetails != nil {
 		// TODO: log a failure, but first need logging system
 		return
 	}
 
-	for email, details := range initDetails.Users {
-		userRows, errUserRow := usersController.Read(&usersController.ReadParams{
-			Environment: Environment,
-			Email:    email,
-		})
-
-		if len(userRows) == 0 || errUserRow != nil {
-			userRows, errUserRow = usersController.Create(&usersController.CreateParams{
-				Environment: Environment,
-				Email:    email,
-				Password: details.Password,
-			})
-		}
-
-		if errUserRow != nil {
-			continue
-		}
-
-		if len(userRows) == 0 {
-			continue
-		}
-
-		userRow := userRows[0]
-		for _, organization := range details.Roles {
-			_, errRoleRow := rolesController.Create(&rolesController.CreateParams{
-				Environment: Environment,
-				UserID: userRow.ID,
-				Organization: organization,
-				ReadAccess: true,
-				WriteAccess: true,
-			})
-			if errRoleRow != nil {
-				// TODO: log failure
-				continue
-			}
-		}
-	}
+	createUserAndRoles("DEVELOPMENT", &initDetails)
+	createUserAndRoles("PRODUCTION", &initDetails)
 }
