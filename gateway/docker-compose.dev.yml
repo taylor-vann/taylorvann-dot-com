@@ -13,14 +13,10 @@ services:
       dockerfile: dockerfile
     restart: always
     env_file:
-      - ./environment_variables.env
+      - ./environment_variables.dev.env
     ports:
       - "80:80"
       - "443:443"
-    extra_hosts:
-      - "briantaylrorvann.com:10.88.0.1" # IP should match docker / podman
-      - "clients.briantaylorvann.com:10.88.0.1" # IP should match docker / podman
-      - "logs.briantaylorvann.com:10.88.0.1"  # IP should match docker / podman
     volumes:
       - ./certs/:/usr/local/certs/live/
       - ./webapi/:/go/src/webapi/

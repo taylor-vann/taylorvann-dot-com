@@ -5,29 +5,34 @@ package server
 
 import (
 	"net/http"
+	"os"
 	
-	"webapi/certificatesx/constants"
-	"webapi/server/routes"
+	"webapi/server/muxrouter"
 )
 
 const (
-	Http  = ":80"
-	Https = ":443"
+	httpPort  = ":80"
+	httpsPort = ":443"
+)
+
+var (
+	certFilepath = os.Getenv("CERTS_CRT_FILEPATH")
+	keyFilepath = os.Getenv("CERTS_KEY_FILEPATH")
 )
 
 func CreateServer() {
-	proxyMux := routes.CreateProxyMux()
-	mux := routes.RedirectToHttpsMux()
+	proxyMux := muxrouter.CreateProxyMux()
+	mux := muxrouter.CreateRedirectToHttpsMux()
 
 	go http.ListenAndServeTLS(
-		Https,
-		constants.CertFilepath,
-		constants.KeyFilepath,
+		httpsPort,
+		certFilepath,
+		keyFilepath,
 		proxyMux,
 	)
 
 	http.ListenAndServe(
-		Http,
+		httpPort,
 		mux,
 	)
 }
