@@ -24,7 +24,7 @@ services:
     container_name: authn_db_store
     build:
       context: ./db_store/
-      dockerfile: dockerfile.dev
+      dockerfile: dockerfile
     restart: always
     env_file:
       - ./environment_variables.env
@@ -35,7 +35,7 @@ services:
     container_name: authn_cache_store
     build:
       context: ./cache_store/
-      dockerfile: dockerfile.dev
+      dockerfile: dockerfile
     restart: always
     volumes:
       - ./cache_store/redis_data/:/data
@@ -43,7 +43,7 @@ services:
     container_name: authn_cache_whitelist
     build:
       context: ./cache_whitelist/
-      dockerfile: dockerfile.dev
+      dockerfile: dockerfile
     restart: always
     volumes:
       - ./cache_whitelist/redis_data/:/data
