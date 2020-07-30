@@ -4,8 +4,8 @@ VOLUME [ "/go/src/webapi/", "/var/briantaylorvann/", "/usr/local/certs/live" ]
 
 RUN apk --update add --no-cache build-base git nodejs-current yarn
 
-RUN go get github.com/taylor-vann/weblog/toolbox/golang/clientx/ \
-github.com/taylor-vann/weblog/toolbox/golang/jwtx/
+RUN go get github.com/taylor-vann/weblog/toolbox/golang/infraclientx/ \
+  github.com/taylor-vann/weblog/toolbox/golang/jwtx/
 
 WORKDIR /go/src/webapi
 
