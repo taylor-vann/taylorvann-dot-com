@@ -5,28 +5,55 @@ package routes
 
 import (
 	"net/http"
-	
-	"webapi/server/routes/ping"
-	"webapi/server/routes/home"
-	// "webapi/server/routes/internal"
-	// "webapi/server/routes/login"
-	// "webapi/server/routes/logout"
+	"os"
+	"strings"
+
+	"webapi/routes/ping"
 )
 
-func Create() *http.ServeMux {
+var (
+	webClientsDirectory = os.Getenv("WEB_CLIENTS_DIRECTORY")
+	
+	directoryRune = []byte("/")[0]
+	relativeRune = []byte(".")[0]
+
+	fileServer = http.FileServer(http.Dir(webClientsDirectory))
+)
+
+func isValidPath(path string) bool {
+	searchIndex := 0
+	pathLength := len(path)
+	for searchIndex < pathLength {
+		searchIndex += 1
+		if path[searchIndex] == relativeRune && path[searchIndex - 1] == directoryRune {
+			return false
+		}
+	}
+
+	return true
+}
+
+// Blog Location
+func serveStaticFiles(w http.ResponseWriter, r *http.Request) {
+	if strings.HasSuffix(r.URL.Path, "/") {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	// check for correct paths
+	if isValidPath(r.URL.Path) {
+		fileServer.ServeHTTP(w, r)
+	}
+
+	// default 404
+	w.WriteHeader(http.StatusNotFound)
+}
+
+func CreateMux() *http.ServeMux {
 	mux := http.NewServeMux()
 
-	// mux.HandleFunc("/ping", ping.Details)
-	mux.HandleFunc("/", home.ServeFiles)
-	// mux.HandleFunc("/login", home.ServeFiles)
-	// mux.HandleFunc("/logout", home.ServeFiles)
-	// mux.HandleFunc("/internal", usersHooks.Template)
-
-	// mux.HandleFunc("/m/", home.ServeFiles)
-
-	// mux.HandleFunc("/login", home.ServeFiles)
-	// mux.HandleFunc("/logout", home.ServeFiles)
-	// mux.HandleFunc("/internal", usersHooks.Template)
+	mux.HandleFunc("/ping", ping.Details)
+	mux.HandleFunc("/", serveStaticFiles)
 
 	return mux
 }

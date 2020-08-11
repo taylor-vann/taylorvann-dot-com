@@ -1,11 +1,34 @@
 FROM golang:alpine
 
-VOLUME [ "/go/src/webapi/", "/var/briantaylorvann/", "/usr/local/certs/live" ]
+VOLUME [ "/go/src/webapi/", "/usr/local/briantaylorvann.com/" ]
 
-RUN apk --update add --no-cache build-base git nodejs-current yarn
+RUN apk --update add --no-cache build-base git nodejs-current npm
 
-RUN go get github.com/taylor-vann/weblog/toolbox/golang/infraclientx/ \
+RUN go get \
+  github.com/taylor-vann/weblog/toolbox/golang/infraclientx/fetchx/ \
+  github.com/taylor-vann/weblog/toolbox/golang/infraclientx/sessionx/ \
+  github.com/taylor-vann/weblog/toolbox/golang/infraclientx/verifyx/ \
   github.com/taylor-vann/weblog/toolbox/golang/jwtx/
+
+RUN npm install --quiet --global \
+  @rollup/plugin-html \
+  @rollup/plugin-image \
+  @rollup/plugin-json \
+  @rollup/plugin-typescript \
+  @types/jasmine \
+  @webcomponents/webcomponentsjs \
+  es-dev-server \
+  jasmine \
+  lit-element \
+  lit-html \
+  prettier \
+  rollup \
+  rollup-plugin-gzip \
+  rollup-plugin-postcss \
+  rollup-plugin-prettier \
+  rollup-plugin-web-worker-loader \
+  tslib \
+  typescript
 
 WORKDIR /go/src/webapi
 

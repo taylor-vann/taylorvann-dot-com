@@ -9,13 +9,13 @@ import (
 	"webapi/routes"
 )
 
-const Http  = ":80"
+const httpPort  = ":80"
 
 func Create() {
-	mux := routes.Create()
+	mux := routes.CreateMux()
 
 	http.ListenAndServe(
-		Http,
+		httpPort,
 		mux,
 	)
 }
