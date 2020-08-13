@@ -15,5 +15,5 @@ services:
       - "3100:80"
     volumes:
       - ./webapi/:/go/src/webapi/
-      - ./webclients/:/usr/local/briantaylorvann.com/
+      - ./webclients/:/usr/local/share/briantaylorvann.com/
     command: "go run /go/src/webapi/main.go"
