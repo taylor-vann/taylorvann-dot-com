@@ -12,7 +12,7 @@ services:
     env_file:
       - ./environment_variables.env
     ports:
-      - "3100:80"
+      - "3010:80"
     volumes:
       - ./webapi/:/go/src/webapi/
       - ./webclients/:/usr/local/share/briantaylorvann.com/

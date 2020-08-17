@@ -1,16 +1,16 @@
-FROM golang:alpine
+FROM alpine:latest
 
 VOLUME [ "/go/src/webapi/", "/usr/local/certs/live" ]
 
-RUN apk --update add --no-cache build-base openssl git certbot
+RUN apk --update add --no-cache build-base openssl git go certbot
 
 RUN go get \
-golang.org/x/crypto/argon2/ \
-github.com/lib/pq/ \
-golang.org/x/net/publicsuffix/ \
-github.com/gomodule/redigo/redis/ \
-github.com/taylor-vann/weblog/toolbox/golang/jwtx/ \
-webapi/sessions/infraclientx/verifyx/
+  golang.org/x/crypto/argon2/ \
+  github.com/lib/pq/ \
+  golang.org/x/net/publicsuffix/ \
+  github.com/gomodule/redigo/redis/ \
+  github.com/taylor-vann/weblog/toolbox/golang/jwtx/ \
+  webapi/sessions/infraclientx/verifyx/
 
 WORKDIR /go/src/webapi
 
