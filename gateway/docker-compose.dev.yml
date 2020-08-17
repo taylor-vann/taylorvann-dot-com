@@ -19,5 +19,5 @@ services:
       - "443:443"
     volumes:
       - ./certs/:/usr/local/certs/live/
-      - ./webapi/:/go/src/webapi/
-    command: "go run /go/src/webapi/main.go"
+      - ./webapi/:/root/go/src/webapi/
+    command: "go run /root/go/src/webapi/main.go"
