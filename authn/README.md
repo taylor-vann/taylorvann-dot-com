@@ -1,10 +1,10 @@
 # Authn
 
-Validate Users and Sessions designed to separate and scale
+Validate Users and Sessions
 
 ## Abstract
 
-Authn is the microservice that will issue sessions to users and microservices.
+Authn is a microservice to create users, roles, and sessions.
 
 ## Sessions
 
@@ -12,9 +12,9 @@ Control access to internal and public apis.
 
 ## Store
 
-Emails and Passwords
+Users: Emails and Passwords
 
-Permissions for Users 
+Roles: Permissions for Users 
 
 # Dependencies
 
