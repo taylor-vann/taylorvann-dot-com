@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"webapi/sessions/infraclientx/verifyx/responses"
+	"webapi/infraclientx/verifyx/responses"
 )
 
 var (

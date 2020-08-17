@@ -13,13 +13,15 @@ services:
       context: ./webapi/
       dockerfile: dockerfile
     restart: always
+    extra_hosts:
+      - "authn.briantaylorvann.com:10.88.0.1"
     env_file:
       - ./environment_variables.dev.env
     ports:
       - "3000:80"
     volumes:
-      - ./webapi/:/go/src/webapi/
-    command: "go run /go/src/webapi/main.go"
+      - ./webapi/:/root/go/src/webapi/
+    command: "go run /root/go/src/webapi/main.go"
   db_store:
     container_name: authn_db_store
     build:

@@ -3,9 +3,9 @@ package verifyx
 import (
 	"net/http"
 
-	"webapi/sessions/infraclientx/fetchx/requests"
-	"webapi/sessions/infraclientx/fetchx"
-	"webapi/sessions/infraclientx/verifyx/errors"
+	"webapi/infraclientx/fetchx/requests"
+	"webapi/infraclientx/fetchx"
+	"webapi/infraclientx/verifyx/errors"
 
 	"github.com/taylor-vann/weblog/toolbox/golang/jwtx"
 )
@@ -126,3 +126,8 @@ func IsSessionValid(
 	errors.CustomResponse(w, errors.InvalidInfraSession)
 	return false
 }
+
+
+// HasRole
+
+// IsValidPassword

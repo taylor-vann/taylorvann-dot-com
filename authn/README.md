@@ -16,7 +16,7 @@ Users: Emails and Passwords
 
 Roles: Permissions for Users 
 
-# Dependencies
+## Dependencies
 
 Aside from the Golang standard library:
 

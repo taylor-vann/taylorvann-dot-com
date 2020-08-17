@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"os"
 
-	"webapi/sessions/infraclientx/fetchx/requests"
-	"webapi/sessions/infraclientx/fetchx/responses"
+	"webapi/infraclientx/fetchx/requests"
+	"webapi/infraclientx/fetchx/responses"
 )
 
 const (
@@ -300,3 +300,8 @@ func CreateInfraSession(p *requests.InfraSession, guestSessionCookie *http.Cooki
 
 	return  &responseBody.Session.Token, nil
 }
+
+// Validate Role
+
+// Validate User Password
+

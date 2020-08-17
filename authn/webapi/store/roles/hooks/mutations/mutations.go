@@ -9,7 +9,7 @@ import (
 	"webapi/store/roles/hooks/errors"
 	"webapi/store/roles/hooks/requests"
 	"webapi/store/roles/hooks/responses"
-	"webapi/sessions/infraclientx/verifyx"
+	"webapi/infraclientx/verifyx"
 )
 
 func writeRolesResponse(w http.ResponseWriter, roles *controller.Roles) {

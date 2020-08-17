@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"os"
 
-	"webapi/sessions/infraclientx/fetchx"
-	"webapi/sessions/infraclientx/fetchx/requests"
+	"webapi/infraclientx/fetchx"
+	"webapi/infraclientx/fetchx/requests"
 )
 
 var (

@@ -10,9 +10,9 @@ import (
 	"webapi/store/roles/hooks/requests"
 	"webapi/store/roles/hooks/responses"
 
-	"webapi/sessions/infraclientx/fetchx"
-	"webapi/sessions/infraclientx/verifyx"
-	fetchRequests "webapi/sessions/infraclientx/fetchx/requests"
+	"webapi/infraclientx/fetchx"
+	"webapi/infraclientx/verifyx"
+	fetchRequests "webapi/infraclientx/fetchx/requests"
 )
 
 const InfraOverlordAdmin = "INFRA_OVERLORD_ADMIN"
