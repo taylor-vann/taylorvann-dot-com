@@ -34,29 +34,6 @@
   "[typescriptreact]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  // settings for Python environments
-  "python.formatting.provider": "black",
-  // settings for Go environments
-  "go.buildOnSave": "package",
-  "go.formatTool": "goreturns",
-  "go.lintOnSave": "package",
-  "go.lintTool": "golint",
-  "go.lintFlags": [],
-  "go.inferGopath": false,
-  // ! IMPORTANT ! you need to set gopaths individually. Go is new. Go is weird.
-  "go.gopath": "~/Documents/github/taylorvann-dot-com/authentication/web_api/",
-  "go.toolsGopath": "~/go/",
-  "[go]": {
-    "editor.formatOnSave": true
-  },
-  // settings for Prettier with ESLint
-  "prettier-eslint.eslintIntegration": true,
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact",
-    "typescript",
-    "typescriptreact"
-  ],
   // actions to be taken on save
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true,
