@@ -127,11 +127,67 @@ func IsSessionValid(
 	return false
 }
 
-// retrieveUserIdFromSession
-func retrieveUserIdFromSession(sessionToken *string) () {
-
+// has role from session
+func HasRoleFromSession(
+	w http.ResponseWriter,
+	environment string,
+	infraSessionCookie *http.Cookie,
+	sessionToken *string,
+	organization string,
+) bool {
+	if infraSessionCookie == nil {
+		return false
+	}
+	if sessionToken == nil {
+		return false
+	}
+	validRole, errValidRole := fetchx.ValidateRoleFromSession(
+		&requests.ValidateRoleFromSession{
+			Environment: environment,
+			Token: *sessionToken,
+			Organization: organization,
+		},
+		infraSessionCookie,
+	)
+	if validRole != nil {
+		return true
+	}
+	if errValidRole != nil {
+		errors.DefaultResponse(w, errValidRole)
+		return false
+	}
+	
+	errors.CustomResponse(w, errors.InvalidInfraSession)
+	return false
 }
 
-// HasRole
-
-// VerifyPassword
+// validate user
+func ValidateUser(
+	w http.ResponseWriter,
+	environment string,
+	infraSessionCookie *http.Cookie,
+	email string,
+	password string,
+) bool {
+	if infraSessionCookie == nil {
+		return false
+	}
+	validRole, errValidRole := fetchx.ValidateUser(
+		&requests.ValidateUser{
+			Environment: environment,
+			Email: email,
+			Password: password,
+		},
+		infraSessionCookie,
+	)
+	if validRole != nil {
+		return true
+	}
+	if errValidRole != nil {
+		errors.DefaultResponse(w, errValidRole)
+		return false
+	}
+	
+	errors.CustomResponse(w, errors.InvalidInfraSession)
+	return false
+}
