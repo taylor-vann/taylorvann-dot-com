@@ -29,7 +29,6 @@ type ValidateRole struct {
 
 type ValidateInfraRole = ValidateGuestUser
 type InfraSession = ValidateGuestUser
-type ValidateUserRoleFromSession = ValidateSession
 type ValidateUser = ValidateGuestUser
 
 

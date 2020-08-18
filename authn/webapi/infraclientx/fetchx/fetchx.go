@@ -303,9 +303,7 @@ func CreateInfraSession(p *requests.InfraSession, guestSessionCookie *http.Cooki
 	return  &responseBody.Session.Token, nil
 }
 
-// Validate Role
 func ValidateRoleFromSession(p *requests.ValidateRoleFromSession, infraSessionCookie *http.Cookie) (*responses.Role, error) {
-	// get jwt int64 from session
 	tokenDetails, errTokenDetails := jwtx.RetrieveTokenDetailsFromString(p.Token)
 	if errTokenDetails != nil {
 		return nil, errTokenDetails
@@ -368,7 +366,6 @@ func ValidateRoleFromSession(p *requests.ValidateRoleFromSession, infraSessionCo
 	return nil, errors.New("unable to validate role")
 }
 
-// Validate User Password
 func ValidateUser(p *requests.ValidateUser, infraSessionCookie *http.Cookie) (*responses.User, error) {
 	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
 		requests.Body{
