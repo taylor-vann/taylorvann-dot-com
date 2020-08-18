@@ -103,7 +103,43 @@ func TestIsSessionValid(t *testing.T) {
 		htr,
 		Environment,
 		InfraSessionTestCookie,
-		&GuestSessionTestCookie.Value,
+		GuestSessionTestCookie.Value,
+	) {
+		t.Error("session could not be verified")
+	}
+}
+
+func TestHasRoleFromSession(t *testing.T) {
+	if InfraSessionTestCookie == nil {
+		t.Error("guest session is nil")
+	}
+
+	htr := httptest.NewRecorder()
+
+	if !HasRoleFromSession(
+		htr,
+		Environment,
+		InfraSessionTestCookie,
+		InfraSessionTestCookie.Value,
+		"AUTHN_ADMIN",
+	) {
+		t.Error("session could not be verified")
+	}
+}
+
+func TestValidateUser(t *testing.T) {
+	if InfraSessionTestCookie == nil {
+		t.Error("guest session is nil")
+	}
+
+	htr := httptest.NewRecorder()
+
+	if !ValidateUser(
+		htr,
+		Environment,
+		InfraSessionTestCookie,
+		infraOverlordEmail,
+		infraOverlordPassword,
 	) {
 		t.Error("session could not be verified")
 	}

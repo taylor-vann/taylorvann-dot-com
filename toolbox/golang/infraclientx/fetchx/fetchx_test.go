@@ -145,3 +145,55 @@ func TestValidateSession(t *testing.T) {
 		t.Error("nil response returned")
 	}
 }
+
+func TestValidateRoleFromSession(t *testing.T) {
+	if GuestSessionTest == nil {
+		t.Error("guest session is nil")
+	}
+	if InfraSessionTest == nil {
+		t.Error("guest session is nil")
+	}
+	resp, errResp := ValidateRoleFromSession(
+		&requests.ValidateRoleFromSession{
+			Environment: Environment,
+			Token: *InfraSessionTest,
+			Organization: "AUTHN_ADMIN",
+		},
+		&http.Cookie{
+			Name: "briantaylorvann.com_session",
+			Value: *InfraSessionTest,
+		},
+	)
+	if errResp != nil {
+		t.Error(errResp)
+	}
+	if resp == nil {
+		t.Error("nil response returned")
+	}
+}
+
+func TestValidateUser(t *testing.T) {
+	if GuestSessionTest == nil {
+		t.Error("guest session is nil")
+	}
+	if InfraSessionTest == nil {
+		t.Error("guest session is nil")
+	}
+	resp, errResp := ValidateUser(
+		&requests.ValidateUser{
+			Environment: Environment,
+			Email: infraOverlordEmail,
+			Password: infraOverlordPassword,
+		},
+		&http.Cookie{
+			Name: "briantaylorvann.com_session",
+			Value: *InfraSessionTest,
+		},
+	)
+	if errResp != nil {
+		t.Error(errResp)
+	}
+	if resp == nil {
+		t.Error("nil response returned")
+	}
+}

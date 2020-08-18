@@ -99,18 +99,16 @@ func IsSessionValid(
 	w http.ResponseWriter,
 	environment string,
 	infraSessionCookie *http.Cookie,
-	sessionToken *string,
+	sessionToken string,
 ) bool {
 	if infraSessionCookie == nil {
 		return false
 	}
-	if sessionToken == nil {
-		return false
-	}
+
 	validToken, errValidToken := fetchx.ValidateSession(
 		&requests.ValidateSession{
 			Environment: environment,
-			Token: *sessionToken,
+			Token: sessionToken,
 		},
 		infraSessionCookie,
 	)
@@ -119,6 +117,67 @@ func IsSessionValid(
 	}
 	if errValidToken != nil {
 		errors.DefaultResponse(w, errValidToken)
+		return false
+	}
+	
+	errors.CustomResponse(w, errors.InvalidInfraSession)
+	return false
+}
+
+func HasRoleFromSession(
+	w http.ResponseWriter,
+	environment string,
+	infraSessionCookie *http.Cookie,
+	sessionToken string,
+	organization string,
+) bool {
+	if infraSessionCookie == nil {
+		return false
+	}
+
+	validRole, errValidRole := fetchx.ValidateRoleFromSession(
+		&requests.ValidateRoleFromSession{
+			Environment: environment,
+			Token: sessionToken,
+			Organization: organization,
+		},
+		infraSessionCookie,
+	)
+	if errValidRole != nil {
+		errors.DefaultResponse(w, errValidRole)
+		return false
+	}
+	if validRole != nil {
+		return true
+	}
+	
+	errors.CustomResponse(w, errors.InvalidInfraSession)
+	return false
+}
+
+func ValidateUser(
+	w http.ResponseWriter,
+	environment string,
+	infraSessionCookie *http.Cookie,
+	email string,
+	password string,
+) bool {
+	if infraSessionCookie == nil {
+		return false
+	}
+	validRole, errValidRole := fetchx.ValidateUser(
+		&requests.ValidateUser{
+			Environment: environment,
+			Email: email,
+			Password: password,
+		},
+		infraSessionCookie,
+	)
+	if validRole != nil {
+		return true
+	}
+	if errValidRole != nil {
+		errors.DefaultResponse(w, errValidRole)
 		return false
 	}
 	
