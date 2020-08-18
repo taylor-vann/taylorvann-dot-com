@@ -11,6 +11,9 @@ import (
 
 var (
 	Environment = os.Getenv("STAGE")
+
+	infraOverlordEmail = os.Getenv("INFRA_OVERLORD_EMAIL")
+	infraOverlordPassword = os.Getenv("INFRA_OVERLORD_PASSWORD")
 )
 
 var (

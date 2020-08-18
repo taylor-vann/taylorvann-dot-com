@@ -21,6 +21,7 @@ const (
 	Create				 = "CREATE_USER"
 	Read					 = "READ_USER"
 	ValidateGuest	 = "VALIDATE_GUEST_USER"
+	ValidateUser	 = "VALIDATE_USER"
 	Search				 = "SEARCH_USERS"
 	Index					 = "INDEX_USERS"
 	Update				 = "UPDATE_USER"
@@ -68,6 +69,8 @@ func Query(w http.ResponseWriter, r *http.Request) {
 		queries.Read(w, cookie, &body)
 	case ValidateGuest:
 		queries.ValidateGuest(w, cookie, &body) // requires guest sessoion
+	case ValidateUser:
+		queries.ValidateUser(w, cookie, &body)
 	case Search:
 		queries.Search(w, cookie, &body)
 	case Index:

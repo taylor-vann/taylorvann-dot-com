@@ -127,7 +127,11 @@ func IsSessionValid(
 	return false
 }
 
+// retrieveUserIdFromSession
+func retrieveUserIdFromSession(sessionToken *string) () {
+
+}
 
 // HasRole
 
-// IsValidPassword
+// VerifyPassword

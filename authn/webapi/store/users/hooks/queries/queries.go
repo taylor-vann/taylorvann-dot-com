@@ -102,11 +102,44 @@ func ValidateGuest(
 		return
 	}
 
-	usersStore, errUserStore := controller.Validate(&requests.Validate{
-		Environment: params.Environment,
-		Email: params.Email,
-		Password: params.Password,
+	usersStore, errUserStore := controller.Validate(&params)
+	if errUserStore != nil {
+		errors.DefaultResponse(w, errUserStore)
+		return
+	}
+	if usersStore != nil {
+		cache.UpdateReadEntry(params.Environment, &usersStore)
+		writeUsersResponse(w, &usersStore)
+		return
+	}
+	
+	errors.BadRequest(w, &responses.Errors{
+		Users: &errors.FailedToReadUser,
 	})
+}
+
+func ValidateUser(
+	w http.ResponseWriter,
+	sessionCookie *http.Cookie,
+	requestBody *requests.Body,
+) {
+	if !isRequestBodyValid(w, requestBody) {
+		return
+	}
+
+	var params requests.Validate
+	bytes, _ := json.Marshal(requestBody.Params)
+	errParamsMarshal := json.Unmarshal(bytes, &params)
+	if errParamsMarshal != nil {
+		errors.DefaultResponse(w, errParamsMarshal)
+		return
+	}
+
+	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
+		return
+	}
+
+	usersStore, errUserStore := controller.Validate(&params)
 	if errUserStore != nil {
 		errors.DefaultResponse(w, errUserStore)
 		return

@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"webapi/sessions/infraclientx/sessionx"
+	"webapi/infraclientx/sessionx"
 	"webapi/store/roles/controller"	
 	"webapi/store/roles/hooks/requests"
 	"webapi/store/roles/hooks/responses"

@@ -11,6 +11,8 @@ import (
 
 	"webapi/infraclientx/fetchx/requests"
 	"webapi/infraclientx/fetchx/responses"
+
+	"github.com/taylor-vann/weblog/toolbox/golang/jwtx"
 )
 
 const (
@@ -21,7 +23,7 @@ const (
 )
 
 var (
-	Environemnt = os.Getenv("STAGE")
+	Environment = os.Getenv("STAGE")
 
 	client = http.Client{}
 )
@@ -302,6 +304,113 @@ func CreateInfraSession(p *requests.InfraSession, guestSessionCookie *http.Cooki
 }
 
 // Validate Role
+func ValidateRoleFromSession(p *requests.ValidateRoleFromSession, infraSessionCookie *http.Cookie) (*responses.Role, error) {
+	// get jwt int64 from session
+	tokenDetails, errTokenDetails := jwtx.RetrieveTokenDetailsFromString(p.Token)
+	if errTokenDetails != nil {
+		return nil, errTokenDetails
+	}
+
+	userID, errUserID := strconv.Atoi(tokenDetails.Payload.Aud)
+	if errUserID != nil {
+		return nil, errors.New("could not parse a userID")
+	}
+
+	requestBodyBuffer, errRequestBodyBuffer := getRequestBodyBuffer(
+		requests.Body{
+			Action: "READ_ROLE",
+			Params: &requests.ValidateRole{
+				Environment: p.Environment,
+				UserID: int64(userID),
+				Organization: "AUTHN_ADMIN",
+			},
+		},
+	)
+	if errRequestBodyBuffer != nil {
+		return nil, errRequestBodyBuffer
+	}
+
+	req, errReq := http.NewRequest(
+		"POST",
+		RolesStoreQueryAddress,
+		requestBodyBuffer,
+	)
+	if errReq != nil {
+		return nil, errReq
+	}
+	if infraSessionCookie == nil {
+		return nil, errors.New("session cookie is nil")
+	}
+	req.AddCookie(infraSessionCookie)
+
+	resp, errResp := client.Do(req)
+	if errResp != nil {
+		return nil, errResp
+	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, errors.New(string(resp.StatusCode))
+	}
+
+	var responseBody responses.RolesBody
+	errJson := json.NewDecoder(resp.Body).Decode(&responseBody)
+	if errJson != nil {
+		return nil, errJson
+	}
+	if responseBody.Errors != nil {
+		return nil, errors.New("errors were returned in fetch")
+	}
+
+	roles := *responseBody.Roles
+	if roles != nil && len(roles) > 0 {
+		return &roles[0], nil
+	}
+	
+	return nil, errors.New("unable to validate role")
+}
 
 // Validate User Password
+func ValidateUser(p *requests.ValidateUser, infraSessionCookie *http.Cookie) (*responses.User, error) {
+	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
+		requests.Body{
+			Action: "VALIDATE_USER",
+			Params: p,
+		},
+	)
+	if errRequestBodyBuffer != nil {
+		return nil, errRequestBodyBuffer
+	}
 
+	req, errReq := http.NewRequest(
+		"POST",
+		UsersStoreQueryAddress,
+		requestBodyBuffer,
+	)
+	if errReq != nil {
+		return nil, errReq
+	}
+	req.AddCookie(infraSessionCookie)
+
+	resp, errResp := client.Do(req)
+	if errResp != nil {
+		return nil, errResp
+	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, errors.New(string(resp.StatusCode))
+	}
+
+	var responseBody responses.UsersBody
+	errJson := json.NewDecoder(resp.Body).Decode(&responseBody)
+	if errJson != nil {
+		return nil, errJson
+	}
+	if responseBody.Errors != nil {
+		return nil, errors.New("errors were returned in fetch")
+	}
+
+	users := *responseBody.Users
+	if users != nil && len(users) > 0 {
+		return &users[0], nil
+	}
+
+	return  nil, errors.New("nil session returned")
+}
