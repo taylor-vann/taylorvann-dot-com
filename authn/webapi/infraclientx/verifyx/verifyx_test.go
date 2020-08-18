@@ -106,7 +106,7 @@ func TestIsSessionValid(t *testing.T) {
 		htr,
 		Environment,
 		InfraSessionTestCookie,
-		&GuestSessionTestCookie.Value,
+		GuestSessionTestCookie.Value,
 	) {
 		t.Error("session could not be verified")
 	}
@@ -123,7 +123,7 @@ func TestHasRoleFromSession(t *testing.T) {
 		htr,
 		Environment,
 		InfraSessionTestCookie,
-		&InfraSessionTestCookie.Value,
+		InfraSessionTestCookie.Value,
 		"AUTHN_ADMIN",
 	) {
 		t.Error("session could not be verified")
