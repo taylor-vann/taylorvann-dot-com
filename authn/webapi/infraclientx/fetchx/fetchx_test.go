@@ -13,8 +13,8 @@ var (
 	infraOverlordPassword = os.Getenv("INFRA_OVERLORD_PASSWORD")
 )
 
-var GuestSessionTest *string
-var InfraSessionTest *string
+var GuestSessionTest *http.Cookie
+var InfraSessionTest *http.Cookie
 
 func TestGuestSession(t *testing.T) {
 	session, errSession := CreateGuestSession(
@@ -39,21 +39,15 @@ func TestValidateGuestSession(t *testing.T) {
 	resp, errResp := ValidateGuestSession(
 		&requests.ValidateSession{
 			Environment: Environment,
-			Token: *GuestSessionTest,
+			Token: GuestSessionTest.Value,
 		},
-		&http.Cookie{
-			Name: "briantaylorvann.com_session",
-			Value: *GuestSessionTest,
-		},
+		GuestSessionTest,
 	)
 	if errResp != nil {
 		t.Error(errResp)
 	}
 	if resp == nil {
 		t.Error("nil response returned")
-	}
-	if *resp == "" {
-		t.Error("nil session returned")
 	}
 }
 
@@ -64,10 +58,7 @@ func TestValidateGuestUser(t *testing.T) {
 			Email: infraOverlordEmail,
 			Password: infraOverlordPassword,
 		},
-		&http.Cookie{
-			Name: "briantaylorvann.com_session",
-			Value: *GuestSessionTest,
-		},
+		GuestSessionTest,
 	)
 	if errResp != nil {
 		t.Error(errResp)
@@ -84,10 +75,7 @@ func TestValidateInfraRole(t *testing.T) {
 			Email: infraOverlordEmail,
 			Password: infraOverlordPassword,
 		},
-		&http.Cookie{
-			Name: "briantaylorvann.com_session",
-			Value: *GuestSessionTest,
-		},
+		GuestSessionTest,
 	)
 	if errResp != nil {
 		t.Error(errResp)
@@ -104,10 +92,7 @@ func TestCreateInfraSession(t *testing.T) {
 			Email: infraOverlordEmail,
 			Password: infraOverlordPassword,
 		},
-		&http.Cookie{
-			Name: "briantaylorvann.com_session",
-			Value: *GuestSessionTest,
-		},
+		GuestSessionTest,
 	)
 	if errResp != nil {
 		t.Error(errResp)
@@ -129,12 +114,9 @@ func TestValidateSession(t *testing.T) {
 	resp, errResp := ValidateSession(
 		&requests.ValidateSession{
 			Environment: Environment,
-			Token: *GuestSessionTest,
+			Token: GuestSessionTest.Value,
 		},
-		&http.Cookie{
-			Name: "briantaylorvann.com_session",
-			Value: *InfraSessionTest,
-		},
+		InfraSessionTest,
 	)
 	if errResp != nil {
 		t.Error(errResp)
@@ -154,13 +136,10 @@ func TestValidateRoleFromSession(t *testing.T) {
 	resp, errResp := ValidateRoleFromSession(
 		&requests.ValidateRoleFromSession{
 			Environment: Environment,
-			Token: *InfraSessionTest,
+			Token: InfraSessionTest.Value,
 			Organization: "AUTHN_ADMIN",
 		},
-		&http.Cookie{
-			Name: "briantaylorvann.com_session",
-			Value: *InfraSessionTest,
-		},
+		InfraSessionTest,
 	)
 	if errResp != nil {
 		t.Error(errResp)
@@ -183,10 +162,7 @@ func TestValidateUser(t *testing.T) {
 			Email: infraOverlordEmail,
 			Password: infraOverlordPassword,
 		},
-		&http.Cookie{
-			Name: "briantaylorvann.com_session",
-			Value: *InfraSessionTest,
-		},
+		InfraSessionTest,
 	)
 	if errResp != nil {
 		t.Error(errResp)

@@ -14,6 +14,7 @@ var (
 
 	infraOverlordEmail = os.Getenv("INFRA_OVERLORD_EMAIL")
 	infraOverlordPassword = os.Getenv("INFRA_OVERLORD_PASSWORD")
+	
 	guestSessionRequestParams = requests.GuestSession{
 		Environment: Environment,
 	}
