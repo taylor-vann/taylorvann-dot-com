@@ -9,7 +9,7 @@ import (
 	"testing"
 	"os"
 
-	"webapi/sessions/infraclientx/sessionx"
+	"webapi/infraclientx/sessionx"
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
 

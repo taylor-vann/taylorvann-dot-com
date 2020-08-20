@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/taylor-vann/weblog/toolbox/golang/infraclientx/fetchx"
-	"github.com/taylor-vann/weblog/toolbox/golang/infraclientx/fetchx/requests"
+	"webapi/infraclientx/fetchx"
+	"webapi/infraclientx/fetchx/requests"
 )
 
 var (

@@ -25,7 +25,7 @@ type Header struct {
 type Claims struct {
 	Iss string       `json:"iss"`
 	Sub string       `json:"sub"`
-	Aud string       `json:"aud"`
+	Aud string       `json:"aud"`	// guest, userID, <unique_or_ambiguous_identifier>
 	Iat MilliSeconds `json:"iat"`
 	Exp MilliSeconds `json:"exp"`
 }

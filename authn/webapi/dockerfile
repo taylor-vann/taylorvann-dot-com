@@ -9,9 +9,8 @@ RUN go get \
   github.com/lib/pq/ \
   golang.org/x/net/publicsuffix/ \
   github.com/gomodule/redigo/redis/ \
-  github.com/taylor-vann/weblog/toolbox/golang/jwtx/ \
-  webapi/sessions/infraclientx/verifyx/
+  github.com/taylor-vann/weblog/toolbox/golang/jwtx/
 
-WORKDIR /go/src/webapi
+WORKDIR /root/go/src/webapi/
 
 EXPOSE 80

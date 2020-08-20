@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"webapi/sessions/infraclientx/sessionx"
+	"webapi/infraclientx/sessionx"
 	"webapi/store/users/controller"	
 	"webapi/store/users/hooks/requests"
 	"webapi/store/users/hooks/responses"
@@ -75,6 +75,7 @@ func TestCreateGuestSession(t *testing.T) {
 	session, errInfraSession := sessionx.CreateGuestSession()
 	if errInfraSession != nil {
 		t.Error(errInfraSession)
+		return
 	}
 	if session == nil {
 		t.Error("infra session is nil!")
@@ -117,6 +118,11 @@ func TestCreateTable(t *testing.T) {
 }
 
 func TestCreate(t *testing.T) {
+	if ClientSessionTestCookie == nil {
+		t.Error("client session is nil")
+		return
+	}
+
 	requestBody := requests.Body{
 		Action: Create,
 		Params: user1,
@@ -157,6 +163,11 @@ func TestCreate(t *testing.T) {
 }
 
 func TestValidateGuest(t *testing.T) {
+	if ClientSessionTestCookie == nil {
+		t.Error("client session is nil")
+		return
+	}
+
 	requestBody := requests.Body{
 		Action: ValidateGuest,
 		Params: user1,
@@ -198,6 +209,11 @@ func TestValidateGuest(t *testing.T) {
 }
 
 func TestRead(t *testing.T) {
+	if ClientSessionTestCookie == nil {
+		t.Error("client session is nil")
+		return
+	}
+
 	requestBody := requests.Body{
 		Action: Read,
 		Params: requests.Read{
@@ -247,6 +263,11 @@ func TestRead(t *testing.T) {
 }
 
 func TestIndex(t *testing.T) {
+	if ClientSessionTestCookie == nil {
+		t.Error("client session is nil")
+		return
+	}
+
 	requestBody := requests.Body{
 		Action: Index,
 		Params: requests.Index{
@@ -297,6 +318,11 @@ func TestIndex(t *testing.T) {
 }
 
 func TestSearch(t *testing.T) {
+	if ClientSessionTestCookie == nil {
+		t.Error("client session is nil")
+		return
+	}
+
 	requestBody := requests.Body{
 		Action: Search,
 		Params: user1Search,
@@ -348,6 +374,11 @@ func TestSearch(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
+	if ClientSessionTestCookie == nil {
+		t.Error("client session is nil")
+		return
+	}
+
 	requestBody := requests.Body{
 		Action: Update,
 		Params: user1Updated,
@@ -399,6 +430,11 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestUpdateEmail(t *testing.T) {
+	if ClientSessionTestCookie == nil {
+		t.Error("client session is nil")
+		return
+	}
+
 	requestBody := requests.Body{
 		Action: UpdateEmail,
 		Params: user1UpdatedEmail,
@@ -450,6 +486,11 @@ func TestUpdateEmail(t *testing.T) {
 }
 
 func TestUpdatePassword(t *testing.T) {
+	if ClientSessionTestCookie == nil {
+		t.Error("client session is nil")
+		return
+	}
+
 	requestBody := requests.Body{
 		Action: UpdatePassword,
 		Params: user1UpdatedPassword,
@@ -496,6 +537,11 @@ func TestUpdatePassword(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
+	if ClientSessionTestCookie == nil {
+		t.Error("client session is nil")
+		return
+	}
+
 	requestBody := requests.Body{
 		Action: Delete,
 		Params: requests.Delete{
@@ -549,6 +595,11 @@ func TestDelete(t *testing.T) {
 }
 
 func TestUndelete(t *testing.T) {
+	if ClientSessionTestCookie == nil {
+		t.Error("client session is nil")
+		return
+	}
+	
 	requestBody := requests.Body{
 		Action: Undelete,
 		Params: requests.Undelete{

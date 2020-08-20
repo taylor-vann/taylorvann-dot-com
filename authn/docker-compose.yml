@@ -18,8 +18,8 @@ services:
     ports:
       - "3000:80"
     volumes:
-      - ./webapi/:/go/src/webapi/
-    command: "go run /go/src/webapi/main.go"
+      - ./webapi/:/root/go/src/webapi/
+    command: "go run /root/go/src/webapi/main.go"
   db_store:
     container_name: authn_db_store
     build:
