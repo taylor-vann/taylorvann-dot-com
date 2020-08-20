@@ -26,42 +26,44 @@ var (
 )
 
 var (
-	GuestSession *string
-	InfraSession *string
+	GuestSession *http.Cookie
+	InfraSession *http.Cookie
 )
 
-func CreateGuestSession() (*string, error) {
-	session, errSession := fetchx.CreateGuestSession(
+func CreateGuestSession() (*http.Cookie, error) {
+	return fetchx.CreateGuestSession(
 		&guestSessionRequestParams,
 	)
-	GuestSession = session
-
-	return session, errSession
 }
 
-func CreateInfraSession(guestSessionCookie *http.Cookie) (*string, error) {
-	session, errSession := fetchx.CreateInfraSession(
+func CreateInfraSession(guestSessionCookie *http.Cookie) (*http.Cookie, error) {
+	return fetchx.CreateInfraSession(
 		&infraSessionRequestParams,
 		guestSessionCookie,
 	)
-	InfraSession = session
-
-	return session, errSession
 }
 
-func Setup() (*string, error) {
-	guestSession, errGuestSession := CreateGuestSession()
-	if errGuestSession != nil {
-		return nil, errGuestSession
+func Setup() (*http.Cookie, error) {
+	requestedGuestSession, errRequestedGuestSession := CreateGuestSession()
+	if errRequestedGuestSession != nil {
+		return nil, errRequestedGuestSession
 	}
-	if guestSession == nil {
+	if requestedGuestSession == nil {
 		return nil, errors.New("nil guest session returned")
 	}
 
-	return CreateInfraSession(
-		&http.Cookie{
-			Name: "briantaylorvann.com_session",
-			Value: *guestSession,
-		},
+	requestedInfraSession, errRequestedInfraSession := CreateInfraSession(
+		requestedGuestSession,
 	)
+	if errRequestedInfraSession != nil {
+		return nil, errRequestedInfraSession
+	}
+	if requestedInfraSession == nil {
+		return nil, errors.New("nil infra session returned")
+	}
+
+	GuestSession = requestedGuestSession
+	InfraSession = requestedInfraSession
+
+	return requestedInfraSession, nil
 }
