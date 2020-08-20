@@ -11,6 +11,8 @@ import (
 
 	"github.com/taylor-vann/weblog/toolbox/golang/infraclientx/fetchx/requests"
 	"github.com/taylor-vann/weblog/toolbox/golang/infraclientx/fetchx/responses"
+
+	"github.com/taylor-vann/weblog/toolbox/golang/jwtx"
 )
 
 const (
@@ -20,8 +22,12 @@ const (
 	SessionsMutationAddress = "https://authn.briantaylorvann.com/m/sessions/"
 )
 
+const (
+	SessionCookieHeader	= "briantaylorvann.com_session"
+)
+
 var (
-	Environemnt = os.Getenv("STAGE")
+	Environment = os.Getenv("STAGE")
 
 	client = http.Client{}
 )
@@ -36,7 +42,14 @@ func getRequestBodyBuffer(item interface{}) (*bytes.Buffer, error) {
 	return sessionBuffer, nil
 }
 
-func CreateGuestSession(p *requests.GuestSession) (*string, error) {
+func createCookieFromString(sessionToken string) *http.Cookie {
+	return &http.Cookie{
+		Name: SessionCookieHeader,
+		Value: sessionToken,
+	}
+}
+
+func CreateGuestSession(p *requests.GuestSession) (*http.Cookie, error) {
 	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
 		requests.Body{
 			Action: "CREATE_GUEST_SESSION",
@@ -74,11 +87,16 @@ func CreateGuestSession(p *requests.GuestSession) (*string, error) {
 		return nil, errors.New("errors were returned in fetch")
 	}
 
-	return  &responseBody.Session.Token, nil
+	sessionCookie := createCookieFromString(responseBody.Session.Token)
+
+	return  sessionCookie, nil
 }
 
 
-func ValidateGuestSession(p *requests.ValidateSession, sessionCookie *http.Cookie) (*string, error) {
+func ValidateGuestSession(
+	p *requests.ValidateSession,
+	sessionCookie *http.Cookie,
+) (*http.Cookie, error) {
 	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
 		requests.Body{
 			Action: "VALIDATE_GUEST_SESSION",
@@ -116,14 +134,15 @@ func ValidateGuestSession(p *requests.ValidateSession, sessionCookie *http.Cooki
 		return nil, errors.New("errors were returned in fetch")
 	}
 
-	return  &responseBody.Session.Token, nil
+	returnedSessionCookie := createCookieFromString(responseBody.Session.Token)
+	
+	return  returnedSessionCookie, nil
 }
 
 func ValidateSession(
 	p *requests.ValidateSession,
 	sessionCookie *http.Cookie,
-) (*string, error) {	
-	
+) (*http.Cookie, error) {	
 	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
 		requests.Body{
 			Action: "VALIDATE_SESSION",
@@ -161,10 +180,15 @@ func ValidateSession(
 		return nil, errors.New("errors were returned in fetch")
 	}
 
-	return  &responseBody.Session.Token, nil
+	returnedSessionCookie := createCookieFromString(responseBody.Session.Token)
+	
+	return  returnedSessionCookie, nil
 }
 
-func ValidateGuestUser(p *requests.ValidateGuestUser, sessionCookie *http.Cookie) (*responses.User, error) {
+func ValidateGuestUser(
+	p *requests.ValidateGuestUser,
+	sessionCookie *http.Cookie,
+) (*responses.User, error) {
 	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
 		requests.Body{
 			Action: "VALIDATE_GUEST_USER",
@@ -210,7 +234,10 @@ func ValidateGuestUser(p *requests.ValidateGuestUser, sessionCookie *http.Cookie
 	return  nil, errors.New("nil session returned")
 }
 
-func ValidateInfraRole(p *requests.ValidateInfraRole, sessionCookie *http.Cookie) (*responses.Role, error) {
+func ValidateInfraRole(
+	p *requests.ValidateInfraRole,
+	sessionCookie *http.Cookie,
+) (*responses.Role, error) {
 	requestBodyBuffer, errRequestBodyBuffer := getRequestBodyBuffer(
 		requests.Body{
 			Action: "VALIDATE_INFRA_OVERLORD_ROLE",
@@ -259,7 +286,10 @@ func ValidateInfraRole(p *requests.ValidateInfraRole, sessionCookie *http.Cookie
 	return nil, errors.New("unable to validate infra role")
 }
 
-func CreateInfraSession(p *requests.InfraSession, guestSessionCookie *http.Cookie) (*string, error) {
+func CreateInfraSession(
+	p *requests.InfraSession,
+	guestSessionCookie *http.Cookie,
+) (*http.Cookie, error) {
 	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
 		requests.Body{
 			Action: "CREATE_INFRA_OVERLORD_SESSION",
@@ -298,10 +328,15 @@ func CreateInfraSession(p *requests.InfraSession, guestSessionCookie *http.Cooki
 		return nil, errors.New("errors were returned in fetch")
 	}
 
-	return  &responseBody.Session.Token, nil
+	sessionCookie := createCookieFromString(responseBody.Session.Token)
+
+	return  sessionCookie, nil
 }
 
-func ValidateRoleFromSession(p *requests.ValidateRoleFromSession, infraSessionCookie *http.Cookie) (*responses.Role, error) {
+func ValidateRoleFromSession(
+	p *requests.ValidateRoleFromSession,
+	infraSessionCookie *http.Cookie,
+) (*responses.Role, error) {
 	tokenDetails, errTokenDetails := jwtx.RetrieveTokenDetailsFromString(p.Token)
 	if errTokenDetails != nil {
 		return nil, errTokenDetails
@@ -364,7 +399,10 @@ func ValidateRoleFromSession(p *requests.ValidateRoleFromSession, infraSessionCo
 	return nil, errors.New("unable to validate role")
 }
 
-func ValidateUser(p *requests.ValidateUser, infraSessionCookie *http.Cookie) (*responses.User, error) {
+func ValidateUser(
+	p *requests.ValidateUser,
+	infraSessionCookie *http.Cookie,
+) (*responses.User, error) {
 	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
 		requests.Body{
 			Action: "VALIDATE_USER",

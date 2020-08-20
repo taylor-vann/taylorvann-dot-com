@@ -2,7 +2,6 @@ package sessionx
 
 import (
 	"testing"
-	"net/http"
 )
 
 func TestGuestSession(t *testing.T) {
@@ -13,28 +12,22 @@ func TestGuestSession(t *testing.T) {
 	if session == nil {
 		t.Error("nil guest session returned")
 	}
-	if GuestSession == nil {
-		t.Error("guest session is nil")
-	}
 }
 
 func TestInfraSession(t *testing.T) {
-	if GuestSession == nil {
-		t.Error("GuestSession is nil")
-		return
-	}
-	session, errSession := CreateInfraSession(&http.Cookie{
-		Name: "briantaylorvann.com_session",
-		Value: *GuestSession,
-	})
+	session, errSession := CreateGuestSession()
 	if errSession != nil {
 		t.Error(errSession)
 	}
 	if session == nil {
-		t.Error("nil infra session returned")
+		t.Error("nil guest session returned")
 	}
-	if InfraSession == nil {
-		t.Error("infra session is nil")
+	infraSession, errInfraSession := CreateInfraSession(session)
+	if errInfraSession != nil {
+		t.Error(errSession)
+	}
+	if infraSession == nil {
+		t.Error("nil infra session returned")
 	}
 }
 

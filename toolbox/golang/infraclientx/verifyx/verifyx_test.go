@@ -11,6 +11,9 @@ import (
 
 var (
 	Environment = os.Getenv("STAGE")
+
+	infraOverlordEmail = os.Getenv("INFRA_OVERLORD_EMAIL")
+	infraOverlordPassword = os.Getenv("INFRA_OVERLORD_PASSWORD")
 )
 
 var (
@@ -28,14 +31,11 @@ func TestCreateGuestSession(t *testing.T) {
 		return
 	}
 
-	GuestSessionTestCookie = &http.Cookie{
-		Name: "briantaylorvann.com_session",
-		Value: *session,
-	}
+	GuestSessionTestCookie = session
 }
 
 func TestCreateClientxSession(t *testing.T) {
-	session, errInfraSession := sessionx.Setup()
+	session, errInfraSession := sessionx.CreateInfraSession(GuestSessionTestCookie)
 	if errInfraSession != nil {
 		t.Error(errInfraSession)
 	}
@@ -44,10 +44,7 @@ func TestCreateClientxSession(t *testing.T) {
 		return
 	}
 
-	InfraSessionTestCookie = &http.Cookie{
-		Name: "briantaylorvann.com_session",
-		Value: *session,
-	}
+	InfraSessionTestCookie = session
 }
 
 func TestCheckGuestSession(t *testing.T) {
@@ -101,9 +98,11 @@ func TestIsSessionValid(t *testing.T) {
 
 	if !IsSessionValid(
 		htr,
-		Environment,
-		InfraSessionTestCookie,
-		GuestSessionTestCookie.Value,
+		&IsSessionValidParams{
+			Environment: Environment,
+			InfraSessionCookie: InfraSessionTestCookie,
+			SessionCookie: GuestSessionTestCookie,
+		},
 	) {
 		t.Error("session could not be verified")
 	}
@@ -118,10 +117,12 @@ func TestHasRoleFromSession(t *testing.T) {
 
 	if !HasRoleFromSession(
 		htr,
-		Environment,
-		InfraSessionTestCookie,
-		InfraSessionTestCookie.Value,
-		"AUTHN_ADMIN",
+		&HasRoleFromSessionParams{
+			Environment: Environment,
+			InfraSessionCookie: InfraSessionTestCookie,
+			SessionCookie: InfraSessionTestCookie,
+			Organization: "AUTHN_ADMIN",
+		},
 	) {
 		t.Error("session could not be verified")
 	}
@@ -136,10 +137,12 @@ func TestValidateUser(t *testing.T) {
 
 	if !ValidateUser(
 		htr,
-		Environment,
-		InfraSessionTestCookie,
-		infraOverlordEmail,
-		infraOverlordPassword,
+		&ValidateUserParams{
+			Environment: Environment,
+			InfraSessionCookie: InfraSessionTestCookie,
+			Email: infraOverlordEmail,
+			Password: infraOverlordPassword,
+		},
 	) {
 		t.Error("session could not be verified")
 	}

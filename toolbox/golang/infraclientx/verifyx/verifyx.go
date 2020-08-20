@@ -3,11 +3,32 @@ package verifyx
 import (
 	"net/http"
 
-	"github.com/taylor-vann/weblog/toolbox/golang/infraclientx/fetchx"
 	"github.com/taylor-vann/weblog/toolbox/golang/infraclientx/fetchx/requests"
+	"github.com/taylor-vann/weblog/toolbox/golang/infraclientx/fetchx"
 	"github.com/taylor-vann/weblog/toolbox/golang/infraclientx/verifyx/errors"
+
 	"github.com/taylor-vann/weblog/toolbox/golang/jwtx"
 )
+
+type ValidateUserParams struct {
+	Environment string `json:"environment"`
+	InfraSessionCookie *http.Cookie `json:"infra_session_cookie"`
+	Email string `json:"email"`
+	Password string `json:"password"`
+}
+
+type IsSessionValidParams struct {
+	Environment string `json:"environment"`
+	InfraSessionCookie *http.Cookie `json:"infra_session_cookie"`
+	SessionCookie *http.Cookie `json:"session_cookie"`
+}
+
+type HasRoleFromSessionParams struct {
+	Environment string `json:"environment"`
+	InfraSessionCookie *http.Cookie `json:"infra_session_cookie"`
+	SessionCookie *http.Cookie `json:"session_cookie"`
+	Organization string `json:"organization"`
+}
 
 const issuer = "briantaylorvann.com"
 
@@ -97,20 +118,18 @@ func IsInfraSessionValid(
 
 func IsSessionValid(
 	w http.ResponseWriter,
-	environment string,
-	infraSessionCookie *http.Cookie,
-	sessionToken string,
+	p *IsSessionValidParams,
 ) bool {
-	if infraSessionCookie == nil {
+	if p.InfraSessionCookie == nil {
 		return false
 	}
 
 	validToken, errValidToken := fetchx.ValidateSession(
 		&requests.ValidateSession{
-			Environment: environment,
-			Token: sessionToken,
+			Environment: p.Environment,
+			Token: p.SessionCookie.Value,
 		},
-		infraSessionCookie,
+		p.InfraSessionCookie,
 	)
 	if validToken != nil {
 		return true
@@ -124,24 +143,22 @@ func IsSessionValid(
 	return false
 }
 
+// has role from session
 func HasRoleFromSession(
 	w http.ResponseWriter,
-	environment string,
-	infraSessionCookie *http.Cookie,
-	sessionToken string,
-	organization string,
+	p *HasRoleFromSessionParams,
 ) bool {
-	if infraSessionCookie == nil {
+	if p.InfraSessionCookie == nil {
 		return false
 	}
 
 	validRole, errValidRole := fetchx.ValidateRoleFromSession(
 		&requests.ValidateRoleFromSession{
-			Environment: environment,
-			Token: sessionToken,
-			Organization: organization,
+			Environment: p.Environment,
+			Token: p.SessionCookie.Value,
+			Organization: p.Organization,
 		},
-		infraSessionCookie,
+		p.InfraSessionCookie,
 	)
 	if errValidRole != nil {
 		errors.DefaultResponse(w, errValidRole)
@@ -155,23 +172,21 @@ func HasRoleFromSession(
 	return false
 }
 
+// validate user
 func ValidateUser(
 	w http.ResponseWriter,
-	environment string,
-	infraSessionCookie *http.Cookie,
-	email string,
-	password string,
+	p *ValidateUserParams,
 ) bool {
-	if infraSessionCookie == nil {
+	if p.InfraSessionCookie == nil {
 		return false
 	}
 	validRole, errValidRole := fetchx.ValidateUser(
 		&requests.ValidateUser{
-			Environment: environment,
-			Email: email,
-			Password: password,
+			Environment: p.Environment,
+			Email: p.Email,
+			Password: p.Password,
 		},
-		infraSessionCookie,
+		p.InfraSessionCookie,
 	)
 	if validRole != nil {
 		return true
