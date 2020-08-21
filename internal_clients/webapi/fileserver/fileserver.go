@@ -3,9 +3,20 @@ package fileserver
 import (
 	"net/http"
 	"os"
+
+	"github.com/taylor-vann/weblog/toolbox/golang/infraclientx/verifyx"
+	"github.com/taylor-vann/weblog/toolbox/golang/infraclientx/sessionx"
+)
+
+type ValidateParams = verifyx.HasRoleFromSessionParams
+
+const (
+	SessionCookieHeader = "briantaylorvann.com_session"
+	InternalAdmin = "INTERNAL_ADMIN"
 )
 
 var (
+	Environment = os.Getenv("STAGE")
 	webClientsDirectory = os.Getenv("WEB_CLIENTS_DIRECTORY")
 	waywardRequestFilename = webClientsDirectory + "lost/index.html"
 )
@@ -30,6 +41,26 @@ func containsRelativePaths(path string) bool {
 	return false
 }
 
+func validateInternalUser(
+	w http.ResponseWriter,
+	p *ValidateParams,
+) bool {
+	isValidSession := verifyx.IsSessionValid(w, &verifyx.IsSessionValidParams{
+		Environment: p.Environment,
+		InfraSessionCookie: p.InfraSessionCookie,
+		SessionCookie: p.SessionCookie,
+	})
+	if !isValidSession {
+		return false
+	}
+
+	if verifyx.HasRoleFromSession(w, p) {
+		return true
+	}
+
+	return false
+}
+
 func serveWaywardRequest(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
 	http.ServeFile(w, r, waywardRequestFilename)
@@ -48,6 +79,20 @@ func serveStaticFiles(
 	fileinfo, errFileInfo := os.Stat(requestedFileOrDirectory)
 	if os.IsNotExist(errFileInfo) {
 		serveWaywardRequest(w, r)
+		return
+	}
+
+	sessionCookie, _ := r.Cookie(SessionCookieHeader)
+
+	// check session
+	isValidInternalUser := validateInternalUser(w, &ValidateParams{
+			Environment: Environment,
+			InfraSessionCookie: sessionx.InfraSession,
+			SessionCookie: sessionCookie,
+			Organization: InternalAdmin,
+		},
+	)
+	if !isValidInternalUser {
 		return
 	}
 
