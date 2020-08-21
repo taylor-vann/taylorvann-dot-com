@@ -45,19 +45,10 @@ func serveStaticFiles(
 		return
 	}
 
-	fileinfo, errFileInfo := os.Stat(requestedFileOrDirectory)
+	_, errFileInfo := os.Stat(requestedFileOrDirectory)
 	if os.IsNotExist(errFileInfo) {
 		serveWaywardRequest(w, r)
 		return
-	}
-
-	if fileinfo.IsDir() {
-		requestedDirectoryAsIndex := requestedFileOrDirectory + "index.html"
-		_, errDirectoryIndex := os.Stat(requestedDirectoryAsIndex)
-		if os.IsNotExist(errDirectoryIndex) {
-			http.ServeFile(w, r, requestedDirectoryAsIndex)
-			return
-		}
 	}
 
 	http.ServeFile(w, r, requestedFileOrDirectory)
