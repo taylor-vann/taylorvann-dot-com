@@ -7,7 +7,7 @@ import (
 
 var (
 	webClientsDirectory = os.Getenv("WEB_CLIENTS_DIRECTORY")
-	waywardRequestFilename = webClientsDirectory + "lost/index.html"
+	waywardRequestFilename = webClientsDirectory + "/lost/"
 )
 
 var (

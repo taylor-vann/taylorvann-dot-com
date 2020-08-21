@@ -96,15 +96,6 @@ func serveStaticFiles(
 		return
 	}
 
-	if fileinfo.IsDir() {
-		requestedDirectoryAsIndex := requestedFileOrDirectory + "index.html"
-		_, errDirectoryIndex := os.Stat(requestedDirectoryAsIndex)
-		if os.IsNotExist(errDirectoryIndex) {
-			http.ServeFile(w, r, requestedDirectoryAsIndex)
-			return
-		}
-	}
-
 	http.ServeFile(w, r, requestedFileOrDirectory)
 }
 
