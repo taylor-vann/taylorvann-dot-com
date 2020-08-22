@@ -5,11 +5,11 @@ package main
 
 import (
 	"webapi/server"
-	// "github.com/taylor-vann/weblog/toolbox/golang/infraclientx/sessionx"
+	"github.com/taylor-vann/weblog/toolbox/golang/infraclientx/sessionx"
 )
 
 func main() {
-	// sessionx.Setup()
+	sessionx.Setup()
 
 	server.Create()
 }

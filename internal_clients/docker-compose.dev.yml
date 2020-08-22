@@ -12,7 +12,7 @@ services:
       dockerfile: dockerfile
     restart: always
     env_file:
-      - ./environment_variables.env
+      - ./environment_variables.dev.env
     ports:
       - "3015:80"
     volumes:

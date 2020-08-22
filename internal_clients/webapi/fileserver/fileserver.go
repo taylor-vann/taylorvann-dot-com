@@ -84,7 +84,6 @@ func serveStaticFiles(
 
 func ServeSignIn(w http.ResponseWriter, r *http.Request) {
 	requestedFileOrDirectory := webClientsDirectory + r.URL.Path
-	log.Println(requestedFileOrDirectory)
 	serveStaticFiles(w, r, requestedFileOrDirectory)
 }
 
