@@ -5,7 +5,8 @@ version: "3"
 services:
   webapi:
     container_name: internal_clients_webapi
-    hostname: internal.briantaylorvann.com
+    extra_hosts:
+      - "authn.briantaylorvann.com:10.88.0.1"
     build:
       context: ./
       dockerfile: dockerfile

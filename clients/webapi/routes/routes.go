@@ -12,9 +12,7 @@ import (
 func CreateMux() *http.ServeMux {
 	mux := http.NewServeMux()
 
-	// log out
-	// request quest cookie
-	// login
+	// Serve static files
 	mux.HandleFunc("/", fileserver.Serve)
 
 	return mux
