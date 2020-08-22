@@ -170,7 +170,7 @@ func CreateClientSession(
 	}
 	
 	// golang defaults ints to a 0 value, exciting! (dangerous)
-	if params.UserID == 0 {
+	if params.UserID < 1 {
 		errors.CustomResponse(w, errors.InvalidDefaultUserProvided)
 		return
 	}

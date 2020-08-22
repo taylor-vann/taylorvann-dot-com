@@ -65,16 +65,12 @@ func TestCreateGuestSession(t *testing.T) {
 		return
 	}
 
-	// set for verification on next text
-	GuestSessionTestCookie = &http.Cookie{
-		Name: "briantaylorvann.com_session",
-		Value: *session,
-	}
+	GuestSessionTestCookie = session
 }
 
 // clientx session
 func TestCreateClientxSession(t *testing.T) {
-	session, errInfraSession := sessionx.Setup()
+	session, errInfraSession := sessionx.CreateInfraSession(GuestSessionTestCookie)
 	if errInfraSession != nil {
 		t.Error(errInfraSession)
 	}
@@ -83,11 +79,7 @@ func TestCreateClientxSession(t *testing.T) {
 		return
 	}
 
-	// set for verification on next text
-	ClientSessionTestCookie = &http.Cookie{
-		Name: "briantaylorvann.com_session",
-		Value: *session,
-	}
+	ClientSessionTestCookie = session
 }
 
 func TestCreateTable(t *testing.T) {
