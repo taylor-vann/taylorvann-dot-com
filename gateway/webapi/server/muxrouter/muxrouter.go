@@ -31,6 +31,8 @@ var (
 		"mail": MailAddress,
 		"media": MediaAddress,
 	}
+
+	homeDelimiter = "/"
 )
 
 func CreateProxyMux() *subdomains.ProxyMux {
@@ -48,7 +50,7 @@ func CreateProxyMux() *subdomains.ProxyMux {
 
 func CreateRedirectToHttpsMux() *http.ServeMux {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", redirect.PassToHttps)
+	mux.HandleFunc(homeDelimiter, redirect.PassToHttps)
 
 	return mux
 }
