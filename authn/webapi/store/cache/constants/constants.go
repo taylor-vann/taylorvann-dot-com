@@ -26,6 +26,12 @@ const (
 
 var Env, ErrEnv = getConfig()
 
+var (
+	errInvalidConfig = errors.New(
+		"cache - getConfigFromEnv - unable to import required evnironment variables",
+	)
+)
+
 func getConfig() (*graylistx.Config, error) {
 	host := os.Getenv(cacheHost)
 	port := os.Getenv(cachePort)
@@ -35,9 +41,7 @@ func getConfig() (*graylistx.Config, error) {
 	idleTimoutSeconds := os.Getenv(cacheIdleTimeoutSeconds)
 
 	if host == "" || port == "" || protocol == "" || maxIdle == "" || maxActive == "" || idleTimoutSeconds == "" {
-		return nil, errors.New(
-			"cache - getConfigFromEnv - unable to import required evnironment variables",
-		)
+		return nil, errInvalidConfig
 	}
 
 	portAsInt, errPort := strconv.Atoi(port)

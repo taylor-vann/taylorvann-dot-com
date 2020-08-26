@@ -171,5 +171,4 @@ func TestRemoveSession(t *testing.T) {
 	if sessionCookie.MaxAge != -1 {
 		t.Error("session cookie age has not been reset")
 	}
-	// test cookie is available
 }

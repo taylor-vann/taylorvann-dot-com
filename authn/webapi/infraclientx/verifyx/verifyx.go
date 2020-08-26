@@ -30,13 +30,19 @@ type HasRoleFromSessionParams struct {
 	Organization string `json:"organization"`
 }
 
-const issuer = "briantaylorvann.com"
+const (
+	issuer = "briantaylorvann.com"
+
+	guest = "guest"
+	infra = "infra"
+	client = "client"
+)
 
 func CheckGuestSession(sessionToken string) bool {
 	return jwtx.ValidateSessionTokenByParams(&jwtx.ValidateTokenParams{
 		Token: sessionToken,
 		Issuer: issuer,
-		Subject: "guest",
+		Subject: guest,
 	})
 }
 
@@ -44,7 +50,7 @@ func CheckClientSession(sessionToken string) bool {
 	return jwtx.ValidateSessionTokenByParams(&jwtx.ValidateTokenParams{
 		Token: sessionToken,
 		Issuer: issuer,
-		Subject: "client",
+		Subject: client,
 	})
 }
 
@@ -52,7 +58,7 @@ func CheckInfraSession(sessionToken string) bool {
 	return jwtx.ValidateSessionTokenByParams(&jwtx.ValidateTokenParams{
 		Token: sessionToken,
 		Issuer: issuer,
-		Subject: "infra",
+		Subject: infra,
 	})
 }
 

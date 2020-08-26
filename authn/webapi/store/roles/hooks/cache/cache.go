@@ -9,8 +9,15 @@ import (
 	"webapi/store/roles/hooks/requests"
 )
 
-const Role = "ROLE"
-const Read = "READ"
+const (
+	Role = "ROLE"
+	Read = "READ"
+)
+
+var (
+	errNilParams = errors.New("nil params given")
+)
+
 
 func getReadKey(userID int64, organization string) string {
 	return Role + "_" + Read + "_" + string(userID) + "_" + organization
@@ -18,7 +25,7 @@ func getReadKey(userID int64, organization string) string {
 
 func GetReadEntry(p *requests.Read) (*controller.Roles, error) {
 	if p == nil {
-		return nil, errors.New("nil params given")
+		return nil, errNilParams
 	}
 	key := getReadKey(p.UserID, p.Organization)
 	entry, errReadEntry := cache.ReadEntry(&cache.ReadEntryParams{

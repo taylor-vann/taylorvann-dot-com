@@ -46,7 +46,7 @@ var (
 	}
 
 	errNilParams = errors.New("nil parameters provided")
-	errGraylist = errors.New("error creating graylist")
+	errCreatingGraylist = errors.New("error creating graylist")
 )
 
 var graylist, errGraylist = graylistx.Create(&config)
@@ -65,7 +65,7 @@ func CreateEntry(p *CreateEntryParams) (*Entry, error) {
 		return nil, errNilParams
 	}
 	if graylist == nil {
-		return nil, errGraylist
+		return nil, errCreatingGraylist
 	}
 
 	entry := Entry{
@@ -101,7 +101,7 @@ func ReadEntry(p *ReadEntryParams) (*Entry, error) {
 		return nil, errNilParams
 	}
 	if graylist == nil {
-		return nil, errGraylist
+		return nil, errCreatingGraylist
 	}
 
 	environmentKey := getEnvironmentKey(p.Signature, p.Environment)
@@ -130,7 +130,7 @@ func RemoveEntry(p *RemoveEntryParams) (bool, error) {
 		return false, errNilParams
 	}
 	if graylist == nil {
-		return false, errGraylist
+		return false, errCreatingGraylist
 	}
 
 	environmentKey := getEnvironmentKey(p.Signature, p.Environment)

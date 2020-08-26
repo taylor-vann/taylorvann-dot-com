@@ -4,14 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"strconv"
 	"net/http"
 	"os"
 
 	"webapi/infraclientx/fetchx/requests"
 	"webapi/infraclientx/fetchx/responses"
-
 	"github.com/taylor-vann/weblog/toolbox/golang/jwtx"
 )
 
@@ -22,13 +20,29 @@ const (
 	SessionsMutationAddress = "https://authn.briantaylorvann.com/m/sessions/"
 
 	SessionCookieHeader	= "briantaylorvann.com_session"
+
+	Post = "POST"
+	CreateGuestSessionAction = "CREATE_GUEST_SESSION"
+	ValidateGuestSessionAction = "VALIDATE_GUEST_SESSION"
+	ValidateSessionAction = "VALIDATE_SESSION"
+	ValidateGuestUserAction = "VALIDATE_GUEST_USER"
+	ValidateUserAction = "VALIDATE_USER"
+	ValidateInfraRoleAction = "VALIDATE_INFRA_OVERLORD_ROLE"
+	CreateInfraSessionAction = "CREATE_INFRA_OVERLORD_SESSION"
+	ReadRoleAction = "READ_ROLE"
+
+	AuthnAdmin = "AUTHN_ADMIN"
 )
 
 var (
 	Environment = os.Getenv("STAGE")
 
-	ErrorsReturnedInFetch = errors.New("errors were returned in fetch")
-	NilSessionReturned = errors.New("nil session returned")
+	errErrorsReturnedInFetch = errors.New("errors were returned in fetch")
+	errNilSessionReturned = errors.New("nil session returned")
+	errUnableToValidateUser = errors.New("unable to validate user")
+	errUnableToValidateRole = errors.New("unable to validate role")
+	errUnableToCreateSession = errors.New("unable to create session")
+	errUnableToParseID = errors.New("unable to parse a userID")
 
 	client = http.Client{}
 )
@@ -53,7 +67,7 @@ func createCookieFromString(sessionToken string) *http.Cookie {
 func CreateGuestSession(p *requests.GuestSession) (*http.Cookie, error) {
 	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
 		requests.Body{
-			Action: "CREATE_GUEST_SESSION",
+			Action: CreateGuestSessionAction,
 			Params: p,
 		},
 	)
@@ -62,7 +76,7 @@ func CreateGuestSession(p *requests.GuestSession) (*http.Cookie, error) {
 	}
 
 	req, errReq := http.NewRequest(
-		"POST",
+		Post,
 		SessionsMutationAddress,
 		requestBodyBuffer,
 	)
@@ -75,8 +89,7 @@ func CreateGuestSession(p *requests.GuestSession) (*http.Cookie, error) {
 		return nil, errResp
 	}
 	if resp.StatusCode != http.StatusOK {
-		errMessage := fmt.Sprintf("%d status code returned", resp.StatusCode)
-		return nil, errors.New(errMessage)
+		return nil, errUnableToCreateSession
 	}
 
 	var responseBody responses.SessionBody
@@ -85,7 +98,7 @@ func CreateGuestSession(p *requests.GuestSession) (*http.Cookie, error) {
 		return nil, errJson
 	}
 	if responseBody.Errors != nil {
-		return nil, ErrorsReturnedInFetch
+		return nil, errErrorsReturnedInFetch
 	}
 
 	sessionCookie := createCookieFromString(responseBody.Session.Token)
@@ -100,7 +113,7 @@ func ValidateGuestSession(
 ) (*http.Cookie, error) {
 	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
 		requests.Body{
-			Action: "VALIDATE_GUEST_SESSION",
+			Action: ValidateGuestSessionAction,
 			Params: p,
 		},
 	)
@@ -109,7 +122,7 @@ func ValidateGuestSession(
 	}
 
 	req, errReq := http.NewRequest(
-		"POST",
+		Post,
 		SessionsQueryAddress,
 		requestBodyBuffer,
 	)
@@ -132,7 +145,7 @@ func ValidateGuestSession(
 		return nil, errJson
 	}
 	if responseBody.Errors != nil {
-		return nil, ErrorsReturnedInFetch
+		return nil, errErrorsReturnedInFetch
 	}
 
 	returnedSessionCookie := createCookieFromString(responseBody.Session.Token)
@@ -146,7 +159,7 @@ func ValidateSession(
 ) (*http.Cookie, error) {	
 	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
 		requests.Body{
-			Action: "VALIDATE_SESSION",
+			Action: ValidateSessionAction,
 			Params: p,
 		},
 	)
@@ -155,7 +168,7 @@ func ValidateSession(
 	}
 
 	req, errReq := http.NewRequest(
-		"POST",
+		Post,
 		SessionsQueryAddress,
 		requestBodyBuffer,
 	)
@@ -178,7 +191,7 @@ func ValidateSession(
 		return nil, errJson
 	}
 	if responseBody.Errors != nil {
-		return nil, ErrorsReturnedInFetch
+		return nil, errErrorsReturnedInFetch
 	}
 
 	returnedSessionCookie := createCookieFromString(responseBody.Session.Token)
@@ -192,7 +205,7 @@ func ValidateGuestUser(
 ) (*responses.User, error) {
 	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
 		requests.Body{
-			Action: "VALIDATE_GUEST_USER",
+			Action: ValidateGuestUserAction,
 			Params: p,
 		},
 	)
@@ -201,7 +214,7 @@ func ValidateGuestUser(
 	}
 
 	req, errReq := http.NewRequest(
-		"POST",
+		Post,
 		UsersStoreQueryAddress,
 		requestBodyBuffer,
 	)
@@ -224,7 +237,7 @@ func ValidateGuestUser(
 		return nil, errJson
 	}
 	if responseBody.Errors != nil {
-		return nil, ErrorsReturnedInFetch
+		return nil, errErrorsReturnedInFetch
 	}
 
 	users := *responseBody.Users
@@ -232,7 +245,7 @@ func ValidateGuestUser(
 		return &users[0], nil
 	}
 
-	return  nil, errors.New("nil session returned")
+	return  nil, errUnableToValidateUser
 }
 
 func ValidateInfraRole(
@@ -241,7 +254,7 @@ func ValidateInfraRole(
 ) (*responses.Role, error) {
 	requestBodyBuffer, errRequestBodyBuffer := getRequestBodyBuffer(
 		requests.Body{
-			Action: "VALIDATE_INFRA_OVERLORD_ROLE",
+			Action: ValidateInfraRoleAction,
 			Params: p,
 		},
 	)
@@ -250,7 +263,7 @@ func ValidateInfraRole(
 	}
 
 	req, errReq := http.NewRequest(
-		"POST",
+		Post,
 		RolesStoreQueryAddress,
 		requestBodyBuffer,
 	)
@@ -258,7 +271,7 @@ func ValidateInfraRole(
 		return nil, errReq
 	}
 	if sessionCookie == nil {
-		return nil, NilSessionReturned
+		return nil, errNilSessionReturned
 	}
 	req.AddCookie(sessionCookie)
 
@@ -276,7 +289,7 @@ func ValidateInfraRole(
 		return nil, errJson
 	}
 	if responseBody.Errors != nil {
-		return nil, ErrorsReturnedInFetch
+		return nil, errErrorsReturnedInFetch
 	}
 
 	roles := *responseBody.Roles
@@ -284,7 +297,7 @@ func ValidateInfraRole(
 		return &roles[0], nil
 	}
 	
-	return nil, errors.New("unable to validate infra role")
+	return nil, errUnableToValidateRole
 }
 
 func CreateInfraSession(
@@ -293,7 +306,7 @@ func CreateInfraSession(
 ) (*http.Cookie, error) {
 	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
 		requests.Body{
-			Action: "CREATE_INFRA_OVERLORD_SESSION",
+			Action: CreateInfraSessionAction,
 			Params: p,
 		},
 	)
@@ -302,7 +315,7 @@ func CreateInfraSession(
 	}
 
 	req, errReq := http.NewRequest(
-		"POST",
+		Post,
 		SessionsMutationAddress,
 		requestBodyBuffer,
 	)
@@ -316,8 +329,7 @@ func CreateInfraSession(
 		return nil, errResp
 	}
 	if resp.StatusCode != http.StatusOK {
-		errMessage := fmt.Sprintf("%d status code returned", resp.StatusCode)
-		return nil, errors.New(errMessage)
+		return nil, errUnableToCreateSession
 	}
 
 	var responseBody responses.SessionBody
@@ -326,7 +338,7 @@ func CreateInfraSession(
 		return nil, errJson
 	}
 	if responseBody.Errors != nil {
-		return nil, ErrorsReturnedInFetch
+		return nil, errErrorsReturnedInFetch
 	}
 
 	sessionCookie := createCookieFromString(responseBody.Session.Token)
@@ -345,16 +357,16 @@ func ValidateRoleFromSession(
 
 	userID, errUserID := strconv.Atoi(tokenDetails.Payload.Aud)
 	if errUserID != nil {
-		return nil, errors.New("could not parse a userID")
+		return nil, errUnableToParseID
 	}
 
 	requestBodyBuffer, errRequestBodyBuffer := getRequestBodyBuffer(
 		requests.Body{
-			Action: "READ_ROLE",
+			Action: ReadRoleAction,
 			Params: &requests.ValidateRole{
 				Environment: p.Environment,
 				UserID: int64(userID),
-				Organization: "AUTHN_ADMIN",
+				Organization: AuthnAdmin,
 			},
 		},
 	)
@@ -363,7 +375,7 @@ func ValidateRoleFromSession(
 	}
 
 	req, errReq := http.NewRequest(
-		"POST",
+		Post,
 		RolesStoreQueryAddress,
 		requestBodyBuffer,
 	)
@@ -371,7 +383,7 @@ func ValidateRoleFromSession(
 		return nil, errReq
 	}
 	if infraSessionCookie == nil {
-		return nil, NilSessionReturned
+		return nil, errNilSessionReturned
 	}
 	req.AddCookie(infraSessionCookie)
 
@@ -389,7 +401,7 @@ func ValidateRoleFromSession(
 		return nil, errJson
 	}
 	if responseBody.Errors != nil {
-		return nil, ErrorsReturnedInFetch
+		return nil, errErrorsReturnedInFetch
 	}
 
 	roles := *responseBody.Roles
@@ -397,7 +409,7 @@ func ValidateRoleFromSession(
 		return &roles[0], nil
 	}
 	
-	return nil, errors.New("unable to validate role")
+	return nil, errUnableToValidateRole
 }
 
 func ValidateUser(
@@ -406,7 +418,7 @@ func ValidateUser(
 ) (*responses.User, error) {
 	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
 		requests.Body{
-			Action: "VALIDATE_USER",
+			Action: ValidateUserAction,
 			Params: p,
 		},
 	)
@@ -415,7 +427,7 @@ func ValidateUser(
 	}
 
 	req, errReq := http.NewRequest(
-		"POST",
+		Post,
 		UsersStoreQueryAddress,
 		requestBodyBuffer,
 	)
@@ -438,7 +450,7 @@ func ValidateUser(
 		return nil, errJson
 	}
 	if responseBody.Errors != nil {
-		return nil, ErrorsReturnedInFetch
+		return nil, errErrorsReturnedInFetch
 	}
 
 	users := *responseBody.Users
@@ -446,5 +458,5 @@ func ValidateUser(
 		return &users[0], nil
 	}
 
-	return  nil, errors.New("nil session returned")
+	return  nil, errUnableToValidateUser
 }

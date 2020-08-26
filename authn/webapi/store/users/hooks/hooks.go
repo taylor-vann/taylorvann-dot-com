@@ -89,7 +89,6 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cookie, errCookie := r.Cookie(SessionCookieHeader)
-	// verify infra cookie here
 	if cookie == nil {
 		errors.CustomResponse(w, errors.NilInfraCredentials)
 		return

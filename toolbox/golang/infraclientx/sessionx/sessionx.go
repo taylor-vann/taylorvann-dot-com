@@ -26,6 +26,11 @@ var (
 )
 
 var (
+	errNilGuestSession = errors.New("nil guest session returned")
+	errNileInfraSession = errors.New("nil infra session returned")
+)
+
+var (
 	GuestSession *http.Cookie
 	InfraSession *http.Cookie
 )
@@ -49,7 +54,7 @@ func Setup() (*http.Cookie, error) {
 		return nil, errRequestedGuestSession
 	}
 	if requestedGuestSession == nil {
-		return nil, errors.New("nil guest session returned")
+		return nil, errNilGuestSession
 	}
 
 	requestedInfraSession, errRequestedInfraSession := CreateInfraSession(
@@ -59,7 +64,7 @@ func Setup() (*http.Cookie, error) {
 		return nil, errRequestedInfraSession
 	}
 	if requestedInfraSession == nil {
-		return nil, errors.New("nil infra session returned")
+		return nil, errNileInfraSession
 	}
 
 	GuestSession = requestedGuestSession
