@@ -44,6 +44,9 @@ var (
 		IdleTimeout: constants.Env.IdleTimeout,
 		MaxActive:   constants.Env.MaxActive,
 	}
+
+	errNilParams = errors.New("nil parameters provided")
+	errGraylist = errors.New("error creating graylist")
 )
 
 var graylist, errGraylist = graylistx.Create(&config)
@@ -59,10 +62,10 @@ func getEnvironmentKey(key string, environment string) string {
 
 func CreateEntry(p *CreateEntryParams) (*Entry, error) {
 	if p == nil {
-		return nil, errors.New("nil parameters provided")
+		return nil, errNilParams
 	}
 	if graylist == nil {
-		return nil, errors.New("error creating graylist")
+		return nil, errGraylist
 	}
 
 	entry := Entry{
@@ -95,10 +98,10 @@ func CreateEntry(p *CreateEntryParams) (*Entry, error) {
 
 func ReadEntry(p *ReadEntryParams) (*Entry, error) {
 	if p == nil {
-		return nil, errors.New("nil parameters provided")
+		return nil, errNilParams
 	}
 	if graylist == nil {
-		return nil, errors.New("error creating graylist")
+		return nil, errGraylist
 	}
 
 	environmentKey := getEnvironmentKey(p.Signature, p.Environment)
@@ -124,10 +127,10 @@ func ReadEntry(p *ReadEntryParams) (*Entry, error) {
 
 func RemoveEntry(p *RemoveEntryParams) (bool, error) {
 	if p == nil {
-		return false, errors.New("nil parameters provided")
+		return false, errNilParams
 	}
 	if graylist == nil {
-		return false, errors.New("error creating graylist")
+		return false, errGraylist
 	}
 
 	environmentKey := getEnvironmentKey(p.Signature, p.Environment)

@@ -35,36 +35,11 @@ func isRequestBodyValid(
 	return false
 }
 
-
-func createGuestSessionCookie(session string) *http.Cookie {
-	return &http.Cookie{
-		Name:			SessionCookieHeader,
-		Value:		session,
-		MaxAge:		ThreeDaysInSeconds,
-		Domain:   CookieDomain,
-		Secure:		true,
-		HttpOnly:	true,
-		SameSite:	3,
-	}
-}
-
 func createInfraSessionCookie(session string) *http.Cookie {
 	return &http.Cookie{
 		Name:			SessionCookieHeader,
 		Value:		session,
 		MaxAge:		ThreeSixtyFiveDaysInSeconds,
-		Domain:   CookieDomain,
-		Secure:		true,
-		HttpOnly:	true,
-		SameSite:	3,
-	}
-}
-
-func createClientSessionCookie(session string) *http.Cookie {
-	return &http.Cookie{
-		Name:			SessionCookieHeader,
-		Value:		session,
-		MaxAge:		ThreeDaysInSeconds,
 		Domain:   CookieDomain,
 		Secure:		true,
 		HttpOnly:	true,
@@ -93,7 +68,6 @@ func CreateGuestSession(
 		Claims: sessionsx.CreateGuestSessionClaims(),
 	})
 	if errSession == nil {
-		http.SetCookie(w, createGuestSessionCookie(session.Token))
 		w.Header().Set(ContentType, ApplicationJson)
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: session,
@@ -190,7 +164,6 @@ func CreateClientSession(
 		Claims: claims,
 	})
 	if infraSessionIsValid && errSession == nil {
-		http.SetCookie(w, createClientSessionCookie(session.Token))
 		w.Header().Set(ContentType, ApplicationJson)
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: session,
@@ -403,6 +376,7 @@ func DeleteSession(
 	if infraSessionIsValid && sessionWasDeleted {
 		w.Header().Set(ContentType, ApplicationJson)
 		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(&responses.Body{})
 		return
 	}
 

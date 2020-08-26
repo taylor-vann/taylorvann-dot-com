@@ -26,6 +26,12 @@ const (
 
 var Env, ErrEnv = getConfig()
 
+var (
+	InvalidConfiguration = errors.New(
+		"whitelistx - getConfigFromEnv - unable to import required evnironment variables",
+	)
+)
+
 func getConfig() (*graylistx.Config, error) {
 	host := os.Getenv(whitelistHost)
 	port := os.Getenv(whitelistPort)
@@ -35,9 +41,7 @@ func getConfig() (*graylistx.Config, error) {
 	idleTimoutSeconds := os.Getenv(whitelistIdleTimeoutSeconds)
 
 	if host == "" || port == "" || protocol == "" || maxIdle == "" || maxActive == "" || idleTimoutSeconds == "" {
-		return nil, errors.New(
-			"whitelistx - getConfigFromEnv - unable to import required evnironment variables",
-		)
+		return nil, InvalidConfiguration
 	}
 
 	portAsInt, errPort := strconv.Atoi(port)

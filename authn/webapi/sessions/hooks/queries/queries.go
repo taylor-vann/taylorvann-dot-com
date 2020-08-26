@@ -11,6 +11,13 @@ import (
 	"webapi/sessions/sessionsx"
 )
 
+const (
+	SessionCookieHeader = "briantaylorvann.com_session"
+	ContentType = "Content-Type"
+	ApplicationJson = "application/json"
+)
+
+
 func isRequestBodyValid(
 	w http.ResponseWriter,
 	requestBody *requests.Body,
@@ -43,7 +50,7 @@ func ValidateGuestSession(
 	sessionIsValid, errSessionIsValid := verify.ValidateGuestSession(
 		params.Environment,
 		&http.Cookie{
-			Name: "briantaylorvann.com_session",
+			Name: SessionCookieHeader,
 			Value: params.Token,
 		},
 	)
@@ -53,7 +60,7 @@ func ValidateGuestSession(
 	}
 	
 	if sessionIsValid {
-		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set(ContentType, ApplicationJson)
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: &responses.Session{
 				Token: params.Token,
@@ -98,7 +105,7 @@ func ValidateSession(
 	}
 	
 	if infraSessionIsValid && sessionIsValid {
-		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set(ContentType, ApplicationJson)
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: &responses.Session{
 				Token: params.Token,

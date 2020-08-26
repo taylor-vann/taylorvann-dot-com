@@ -9,38 +9,52 @@ import (
 	"github.com/taylor-vann/weblog/toolbox/golang/jwtx"
 )
 
+const (
+	BrianTaylorVannDotCom = "briantaylorvann.com"
+
+	Guest = "guest"
+	Client = "client"
+	Infra = "infra"
+)
+
+var (
+	errSessionCookieIsNil = errors.New("session cookie is nil")
+	errGuestSessionIsInvalid = errors.New("guest session was invalid")
+	errInfraSessionIsInvalid = errors.New("infra session was invalid")
+)
+
 func CheckGuestSession(sessionToken string) bool {
 	return jwtx.ValidateSessionTokenByParams(&jwtx.ValidateTokenParams{
 		Token: sessionToken,
-		Issuer: "briantaylorvann.com",
-		Subject: "guest",
+		Issuer: BrianTaylorVannDotCom,
+		Subject: Guest,
 	})
 }
 
 func CheckClientSession(sessionToken string) bool {
 	return jwtx.ValidateSessionTokenByParams(&jwtx.ValidateTokenParams{
 		Token: sessionToken,
-		Issuer: "briantaylorvann.com",
-		Subject: "client",
+		Issuer: BrianTaylorVannDotCom,
+		Subject: Client,
 	})
 }
 
 func CheckInfraSession(sessionToken string) bool {
 	return jwtx.ValidateSessionTokenByParams(&jwtx.ValidateTokenParams{
 		Token: sessionToken,
-		Issuer: "briantaylorvann.com",
-		Subject: "infra",
+		Issuer: BrianTaylorVannDotCom,
+		Subject: Infra,
 	})
 }
 
 func ValidateGuestSession(environment string, sessionCookie *http.Cookie) (bool, error) {
 	if sessionCookie == nil {
-		return false, errors.New("session cookie is nil")
+		return false, errSessionCookieIsNil
 	}
 
 	isValid := CheckGuestSession(sessionCookie.Value)
 	if !isValid {
-		return false, errors.New("guest session was invalid")
+		return false, errGuestSessionIsInvalid
 	}
 
 	return sessionsx.Read(&sessionsx.ValidateParams{
@@ -51,12 +65,12 @@ func ValidateGuestSession(environment string, sessionCookie *http.Cookie) (bool,
 
 func ValidateInfraSession(environment string, sessionCookie *http.Cookie) (bool, error) {
 	if sessionCookie == nil {
-		return false, errors.New("session cookie is nil")
+		return false, errSessionCookieIsNil
 	}
 
 	isValid := CheckInfraSession(sessionCookie.Value)
 	if !isValid {
-		return false, errors.New("infra session was invalid")
+		return false, errInfraSessionIsInvalid
 	}
 
 	return sessionsx.Read(&sessionsx.ValidateParams{
@@ -67,12 +81,12 @@ func ValidateInfraSession(environment string, sessionCookie *http.Cookie) (bool,
 
 func ValidateClientSession(environment string, sessionCookie *http.Cookie) (bool, error) {
 	if sessionCookie == nil {
-		return false, errors.New("session cookie is nil")
+		return false, errSessionCookieIsNil
 	}
 
 	isValid := CheckClientSession(sessionCookie.Value)
 	if !isValid {
-		return false, errors.New("infra session was invalid")
+		return false, errInfraSessionIsInvalid
 	}
 
 	return sessionsx.Read(&sessionsx.ValidateParams{

@@ -62,7 +62,6 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 	var body requests.Body
 	errJsonDecode := json.NewDecoder(r.Body).Decode(&body)
 	if errJsonDecode != nil {
-		
 		errors.CustomResponse(w, errors.BadRequestFail)
 		return
 	}

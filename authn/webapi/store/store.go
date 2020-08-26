@@ -10,7 +10,7 @@ import (
 	usersController "webapi/store/users/controller"
 )
 
-var Environment = os.Getenv ("STAGE")
+var Environment = os.Getenv("STAGE")
 
 func CreateLocalTables() (bool, error) {
 	_, errLocal := usersController.CreateTable(&usersController.CreateTableParams{

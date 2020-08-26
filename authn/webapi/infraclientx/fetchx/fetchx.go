@@ -20,14 +20,15 @@ const (
 	RolesStoreQueryAddress = "https://authn.briantaylorvann.com/q/roles/"
 	SessionsQueryAddress = "https://authn.briantaylorvann.com/q/sessions/"
 	SessionsMutationAddress = "https://authn.briantaylorvann.com/m/sessions/"
-)
 
-const (
 	SessionCookieHeader	= "briantaylorvann.com_session"
 )
 
 var (
 	Environment = os.Getenv("STAGE")
+
+	ErrorsReturnedInFetch = errors.New("errors were returned in fetch")
+	NilSessionReturned = errors.New("nil session returned")
 
 	client = http.Client{}
 )
@@ -84,7 +85,7 @@ func CreateGuestSession(p *requests.GuestSession) (*http.Cookie, error) {
 		return nil, errJson
 	}
 	if responseBody.Errors != nil {
-		return nil, errors.New("errors were returned in fetch")
+		return nil, ErrorsReturnedInFetch
 	}
 
 	sessionCookie := createCookieFromString(responseBody.Session.Token)
@@ -131,7 +132,7 @@ func ValidateGuestSession(
 		return nil, errJson
 	}
 	if responseBody.Errors != nil {
-		return nil, errors.New("errors were returned in fetch")
+		return nil, ErrorsReturnedInFetch
 	}
 
 	returnedSessionCookie := createCookieFromString(responseBody.Session.Token)
@@ -177,7 +178,7 @@ func ValidateSession(
 		return nil, errJson
 	}
 	if responseBody.Errors != nil {
-		return nil, errors.New("errors were returned in fetch")
+		return nil, ErrorsReturnedInFetch
 	}
 
 	returnedSessionCookie := createCookieFromString(responseBody.Session.Token)
@@ -223,7 +224,7 @@ func ValidateGuestUser(
 		return nil, errJson
 	}
 	if responseBody.Errors != nil {
-		return nil, errors.New("errors were returned in fetch")
+		return nil, ErrorsReturnedInFetch
 	}
 
 	users := *responseBody.Users
@@ -257,7 +258,7 @@ func ValidateInfraRole(
 		return nil, errReq
 	}
 	if sessionCookie == nil {
-		return nil, errors.New("session cookie is nil")
+		return nil, NilSessionReturned
 	}
 	req.AddCookie(sessionCookie)
 
@@ -275,7 +276,7 @@ func ValidateInfraRole(
 		return nil, errJson
 	}
 	if responseBody.Errors != nil {
-		return nil, errors.New("errors were returned in fetch")
+		return nil, ErrorsReturnedInFetch
 	}
 
 	roles := *responseBody.Roles
@@ -325,7 +326,7 @@ func CreateInfraSession(
 		return nil, errJson
 	}
 	if responseBody.Errors != nil {
-		return nil, errors.New("errors were returned in fetch")
+		return nil, ErrorsReturnedInFetch
 	}
 
 	sessionCookie := createCookieFromString(responseBody.Session.Token)
@@ -370,7 +371,7 @@ func ValidateRoleFromSession(
 		return nil, errReq
 	}
 	if infraSessionCookie == nil {
-		return nil, errors.New("session cookie is nil")
+		return nil, NilSessionReturned
 	}
 	req.AddCookie(infraSessionCookie)
 
@@ -388,7 +389,7 @@ func ValidateRoleFromSession(
 		return nil, errJson
 	}
 	if responseBody.Errors != nil {
-		return nil, errors.New("errors were returned in fetch")
+		return nil, ErrorsReturnedInFetch
 	}
 
 	roles := *responseBody.Roles
@@ -437,7 +438,7 @@ func ValidateUser(
 		return nil, errJson
 	}
 	if responseBody.Errors != nil {
-		return nil, errors.New("errors were returned in fetch")
+		return nil, ErrorsReturnedInFetch
 	}
 
 	users := *responseBody.Users
