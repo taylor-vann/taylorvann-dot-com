@@ -21,8 +21,8 @@ type SessionErrors struct {
 }
 
 type SessionBody struct {
-	Session				 *Session				 `json:"session"`
-	SessionErrors  *SessionErrors  `json:"errors"`
+	Session		*Session				`json:"session"`
+	Errors  	*SessionErrors  `json:"errors"`
 }
 
 
@@ -45,16 +45,17 @@ type UsersErrors struct {
 
 type UsersBody struct {
 	Users  			*SafeUsers 		`json:"users"`
-	UsersErrors *UsersErrors	`json:"errors"`
+	Errors			*UsersErrors	`json:"errors"`
 }
 
-type ResponseBodyErrors struct {
+// General Responses
+type Errors struct {
 	Default 		*string `json:"default"`
 	RequestBody	*string `json:"request_body"`
 	Users 			*string `json:"users"`
 	Session			*string `json:"session"`
 }
 
-type ResponseBody struct {
-	Errors *ResponseBodyErrors `json:"errors"`
+type Body struct {
+	Errors *Errors `json:"errors"`
 }
