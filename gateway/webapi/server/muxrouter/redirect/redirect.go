@@ -7,9 +7,13 @@ import (
 	"net/http"
 )
 
+const (
+	httpsDelimiter = "https://"
+)
+
 func getRedirectURL(r *http.Request) string {
 	hostname := r.Host
-	redirectUrl := "https://" + hostname + r.RequestURI
+	redirectUrl := httpsDelimiter + hostname + r.RequestURI
 	return redirectUrl
 }
 

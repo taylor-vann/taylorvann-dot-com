@@ -8,8 +8,11 @@ import (
 	"webapi/store/users/hooks/requests"
 )
 
-const User = "USER"
-const Read = "READ"
+const (
+	User = "USER"
+	Read = "READ"
+)
+
 
 func getReadKey(email string) string {
 	return User + "_" + Read + "_" + email

@@ -1,3 +1,6 @@
+// brian taylor vann
+// briataylorvann
+
 package subdomains
 
 import (
@@ -6,9 +9,15 @@ import (
 
 type ProxyMux map[string]http.Handler
 
+const (
+	httpsStatement = "https"
+	webDomainDelimiter = "www"
+	XForwardedProto = "X-Forwarded-Proto"
+)
+
 func getSubdomain(hostname string) string {
 	index, subdomain := getDelimiterIndex(0, hostname, ".")
-	if subdomain == "www" {
+	if subdomain == webDomainDelimiter {
 		index += 1
 		index, subdomain = getDelimiterIndex(index, hostname, ".")
 	}
@@ -36,7 +45,7 @@ func (proxyMux ProxyMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	mux := proxyMux[subdomain]
 
 	if mux != nil {
-		r.Header.Set("X-Forwarded-Proto", "https")
+		r.Header.Set(XForwardedProto, httpsStatement)
 		mux.ServeHTTP(w, r)
 		return
 	}

@@ -7,6 +7,11 @@ import (
 	"webapi/store/users/hooks/responses"
 )
 
+const (
+	ContentType = "Content-Type"
+	ApplicationJson = "application/json"
+)
+
 var (
 	BadRequestFail  		 		 	 		= "unable to decode request body"
 	NilRequestBodyFail						= "nil body provided in request"
@@ -28,9 +33,10 @@ var (
 	FailedToUpdatePasswordUser 		= "failed to Update Password User"
 	FailedToDeleteUser 	 		 	 		= "failed to delete User"
 	FailedToUndeleteUser 		 	 		= "failed to undelete User"
+
+	defaultFail = "unable to return Roles"
 )
 
-var defaultFail = "unable to return Roles"
 
 func DefaultResponse(w http.ResponseWriter, err error) {
 	errAsStr := err.Error()
@@ -47,7 +53,7 @@ func CustomResponse(w http.ResponseWriter, err string) {
 
 func BadRequest(w http.ResponseWriter, errors *responses.Errors) {
 	w.WriteHeader(http.StatusBadRequest)
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(ContentType, ApplicationJson)
 
 	if errors != nil {
 		json.NewEncoder(w).Encode(&responses.Body{Errors: errors})

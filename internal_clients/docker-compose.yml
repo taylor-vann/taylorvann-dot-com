@@ -4,7 +4,7 @@
 version: "3"
 services:
   webapi:
-    container_name: clients_webapi
+    container_name: internal_clients_webapi
     build:
       context: ./
       dockerfile: dockerfile
@@ -14,6 +14,6 @@ services:
     ports:
       - "3015:80"
     volumes:
-      - ./webapi/:/go/src/webapi/
-      - ./webclients/:/usr/local/share/briantaylorvann.com/
-    command: "go run /go/src/webapi/main.go"
+      - ./webapi/:/root/go/src/webapi/
+      - ./webclients/:/usr/local/share/internal.briantaylorvann.com/
+    command: "go run /root/go/src/webapi/main.go"

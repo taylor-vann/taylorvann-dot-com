@@ -42,6 +42,14 @@ type ValidateParams = ReadParams
 type UpdateParams = ReadParams
 type DeleteParams = whitelist.RemoveEntryParams
 
+var (
+	errNilParamsProvided = errors.New("nil params provided")
+	errNilClaimsProvided = errors.New("nil claims provided")
+	errNilSessionTokenProvided = errors.New("nil session token provided")
+	errTokenIsGenericallyInvalid = errors.New("token is generically invalid")
+	errNegativeExpirationProvided = errors.New("negative expiration provided")
+)
+
 func CreateSessionClaims(p *CreateClaimsParams) *SessionClaims {
 	issuedAt := jwtx.GetNowAsMS()
 	expiresAt := issuedAt + p.Lifetime
@@ -124,10 +132,10 @@ func CreateDeleteAccountSessionClaims(email string) (*SessionClaims) {
 
 func Create(p *CreateParams) (*Session, error) {
 	if p == nil {
-		return nil, errors.New("nil params provided")
+		return nil, errNilParamsProvided
 	}
 	if p.Claims == nil {
-		return nil, errors.New("nil claims provided")
+		return nil, errNilClaimsProvided
 	}
 
 	token, errToken := jwtx.CreateJWT(p.Claims)
@@ -137,7 +145,7 @@ func Create(p *CreateParams) (*Session, error) {
 
 	lifetime := p.Claims.Exp - p.Claims.Iat
 	if lifetime < 0 {
-		return nil, errors.New("negative expiration provided")
+		return nil, errNegativeExpirationProvided
 	}
 	_, errEntry := whitelist.CreateEntry(
 		&whitelist.CreateEntryParams{
@@ -168,10 +176,10 @@ func Create(p *CreateParams) (*Session, error) {
 
 func Read(p *ReadParams) (bool, error) {
 	if p == nil {
-		return false, errors.New("nil params")
+		return false, errNilParamsProvided
 	}
 	if p.Token == "" {
-		return false, errors.New("nil session token provided")
+		return false, errNilSessionTokenProvided
 	}
 
 	isGenericallyValid := jwtx.ValidateGenericToken(
@@ -181,7 +189,7 @@ func Read(p *ReadParams) (bool, error) {
 		},
 	)
 	if !isGenericallyValid {
-		return false, errors.New("token is generically invalid")
+		return false, errTokenIsGenericallyInvalid
 	}
 
 	tokenDetails, errTokenDetails := jwtx.RetrieveTokenFromString(

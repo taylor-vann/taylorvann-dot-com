@@ -14,6 +14,6 @@ services:
     ports:
       - "3010:80"
     volumes:
-      - ./webapi/:/go/src/webapi/
+      - ./webapi/:/root/go/src/webapi/
       - ./webclients/:/usr/local/share/briantaylorvann.com/
-    command: "go run /go/src/webapi/main.go"
+    command: "go run /root/go/src/webapi/main.go"

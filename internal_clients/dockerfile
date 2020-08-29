@@ -1,8 +1,10 @@
 FROM alpine:latest
 
-VOLUME [ "/go/src/webapi/", "/usr/local/share/briantaylorvann.com/" ]
+VOLUME [ "/root/go/src/webapi/", "/usr/local/share/internal.briantaylorvann.com/" ]
 
-RUN apk --update add --no-cache build-base git go nodejs-current npm
+RUN apk --update add --no-cache build-base curl git go nodejs npm
+
+RUN npm install --global typescript jasmine @types/jasmine prettier
 
 RUN go get \
   github.com/taylor-vann/weblog/toolbox/golang/infraclientx/fetchx/ \
@@ -10,6 +12,6 @@ RUN go get \
   github.com/taylor-vann/weblog/toolbox/golang/infraclientx/verifyx/ \
   github.com/taylor-vann/weblog/toolbox/golang/jwtx/
 
-WORKDIR /go/src/webapi
+WORKDIR /root/go/src/webapi
 
 EXPOSE 80

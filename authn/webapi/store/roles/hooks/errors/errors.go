@@ -7,6 +7,11 @@ import (
 	"webapi/store/roles/hooks/responses"
 )
 
+const (
+	ContentType = "Content-Type"
+	ApplicationJson = "application/json"
+)
+
 var (
 	BadRequestFail  		 		 	= "unable to decode request body"
 	UnrecognizedQuery 	 		 	= "unrecognized query action requested"
@@ -26,9 +31,9 @@ var (
 	FailedToUpdateAccessRole 	= "failed to Update Access role"
 	FailedToDeleteRole 	 		 	= "failed to delete role"
 	FailedToUndeleteRole 		 	= "failed to undelete role"
-)
 
-var defaultFail = "unable to return Roles"
+	defaultFail = "unable to return Roles"
+)
 
 func DefaultResponse(w http.ResponseWriter, err error) {
 	errAsStr := err.Error()
@@ -45,7 +50,7 @@ func CustomResponse(w http.ResponseWriter, err string) {
 
 func BadRequest(w http.ResponseWriter, errors *responses.Errors) {
 	w.WriteHeader(http.StatusBadRequest)
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(ContentType, ApplicationJson)
 
 	if errors != nil {
 		json.NewEncoder(w).Encode(&responses.Body{Errors: errors})

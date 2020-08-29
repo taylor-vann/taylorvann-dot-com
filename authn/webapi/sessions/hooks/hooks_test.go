@@ -22,7 +22,7 @@ var (
 )
 
 var (
-	GuestSessionTest string
+	GuestSessionTest *http.Cookie
 	ClientSessionTest *http.Cookie
 )
 
@@ -81,12 +81,15 @@ func TestCreateGuestSession(t *testing.T) {
 	}
 
 	// set for verification on next text
-	GuestSessionTest = responseBody.Session.Token
+	GuestSessionTest = &http.Cookie{
+		Name: "briantaylorvann.com_session",
+		Value: responseBody.Session.Token,
+	}
 }
 
 // clientx session
 func TestCreateClientxSession(t *testing.T) {
-	session, errInfraSession := sessionx.Setup()
+	session, errInfraSession := sessionx.CreateInfraSession(GuestSessionTest)
 	if errInfraSession != nil {
 		t.Error(errInfraSession)
 	}
@@ -96,10 +99,7 @@ func TestCreateClientxSession(t *testing.T) {
 	}
 
 	// set for verification on next text
-	ClientSessionTest = &http.Cookie{
-		Name: "briantaylorvann.com_session",
-		Value: *session,
-	}
+	ClientSessionTest = session
 }
 
 func TestCreateGuestSessionBadRequest(t *testing.T) {
@@ -157,7 +157,7 @@ func TestValidateGuestSession(t *testing.T) {
 		Action: ValidateGuestSession,
 		Params: requests.Validate{
 			Environment: "LOCAL",
-			Token: GuestSessionTest,
+			Token: GuestSessionTest.Value,
 		},
 	}
 
@@ -182,7 +182,7 @@ func TestValidateGuestSession(t *testing.T) {
 	}
 	resp.AddCookie(&http.Cookie{
 		Name: "briantaylorvann.com_session",
-		Value: GuestSessionTest,
+		Value: GuestSessionTest.Value,
 	})
 	
 	htr := httptest.NewRecorder()

@@ -7,6 +7,11 @@ import (
 	"webapi/sessions/hooks/responses"
 )
 
+const (
+	ContentType = "Content-Type"
+	ApplicationJson = "application/json"
+)
+
 var (
 	BadRequestFail 								 = "unable to decode request body"
 	NilRequestBodyFail 						 = "request body is nil"
@@ -25,9 +30,9 @@ var (
 	InvalidDefaultUserProvided     = "invalid default user provided"
 	UnableToMarshalSession         = "unable to marshal session"
 	UnableToUpdateSession					 = "unable to update session"
-)
 
-var defaultFail = "unable to return session"
+	defaultFail = "unable to return session"
+)
 
 func DefaultResponse(w http.ResponseWriter, err error) {
 	errAsStr := err.Error()
@@ -44,7 +49,7 @@ func CustomResponse(w http.ResponseWriter, err string) {
 
 func BadRequest(w http.ResponseWriter, errors *responses.Errors) {
 	w.WriteHeader(http.StatusBadRequest)
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(ContentType, ApplicationJson)
 
 	if errors != nil {
 		json.NewEncoder(w).Encode(&responses.Body{Errors: errors})
@@ -53,7 +58,7 @@ func BadRequest(w http.ResponseWriter, errors *responses.Errors) {
 
 	json.NewEncoder(w).Encode(&responses.Body{
 		Errors: &responses.Errors{
-			Default:	&defaultFail,
+			Default: &defaultFail,
 		},
 	})
 }

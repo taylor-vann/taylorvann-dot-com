@@ -22,8 +22,8 @@ type AuthenticationDetails struct {
 
 var version = VersionDetails{
 	Major: 0,
-	Minor: 1,
-	Build: 2,
+	Minor: 2,
+	Build: 1,
 }
 
 const service = "authn"

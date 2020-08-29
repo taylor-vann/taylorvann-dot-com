@@ -83,10 +83,7 @@ func TestCreateGuestSession(t *testing.T) {
 	}
 
 	// set for verification on next text
-	GuestSessionTestCookie = &http.Cookie{
-		Name: "briantaylorvann.com_session",
-		Value: *session,
-	}
+	GuestSessionTestCookie = session
 }
 
 // clientx session
@@ -101,10 +98,7 @@ func TestCreateClientxSession(t *testing.T) {
 	}
 
 	// set for verification on next text
-	ClientSessionTestCookie = &http.Cookie{
-		Name: "briantaylorvann.com_session",
-		Value: *session,
-	}
+	ClientSessionTestCookie = session
 }
 
 func TestCreateTable(t *testing.T) {

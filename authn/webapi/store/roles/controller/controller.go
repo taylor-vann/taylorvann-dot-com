@@ -72,6 +72,12 @@ type UpdateAccessParams = CreateParams
 type DeleteParams = ReadParams
 type UndeleteParams = ReadParams
 
+
+var (
+	errNilParams = errors.New("nil params provided")
+)
+
+
 func getDefaultEnvironment(environment string) string {
 	if environment != "" {
 		return environment
@@ -94,7 +100,7 @@ func CreateTable(p *CreateTableParams) (*sql.Result, error) {
 
 func CreateRows(rows *sql.Rows) (Roles, error) {
 	if rows == nil {
-		return nil, errors.New("nil params provided")
+		return nil, errNilParams
 	}
 
 	var roles Roles
@@ -125,7 +131,7 @@ func CreateRows(rows *sql.Rows) (Roles, error) {
 
 func Create(p *CreateParams) (Roles, error) {
 	if p == nil {
-		return nil, errors.New("nil parameters provided.")
+		return nil, errNilParams
 	}
 
 	environment := getDefaultEnvironment(p.Environment)
@@ -148,7 +154,7 @@ func Create(p *CreateParams) (Roles, error) {
 
 func Read(p *ReadParams) (Roles, error) {
 	if p == nil {
-		return nil, errors.New("nil parameters provided")
+		return nil, errNilParams
 	}
 
 	environment := getDefaultEnvironment(p.Environment)
@@ -168,7 +174,7 @@ func Read(p *ReadParams) (Roles, error) {
 
 func Index(p *IndexParams) (Roles, error) {
 	if p == nil {
-		return nil, errors.New("nil parameters provided")
+		return nil, errNilParams
 	}
 
 	environment := getDefaultEnvironment(p.Environment)
@@ -188,7 +194,7 @@ func Index(p *IndexParams) (Roles, error) {
 
 func Search(p *SearchParams) (Roles, error) {
 	if p == nil {
-		return nil, errors.New("nil parameters provided")
+		return nil, errNilParams
 	}
 
 	environment := getDefaultEnvironment(p.Environment)
@@ -209,7 +215,7 @@ func Search(p *SearchParams) (Roles, error) {
 
 func Update(p *UpdateParams) (Roles, error) {
 	if p == nil {
-		return nil, errors.New("nil parameters provided")
+		return nil, errNilParams
 	}
 
 	environment := getDefaultEnvironment(p.Environment)
@@ -233,7 +239,7 @@ func Update(p *UpdateParams) (Roles, error) {
 
 func UpdateAccess(p *UpdateAccessParams) (Roles, error) {
 	if p == nil {
-		return nil, errors.New("nil parameters provided")
+		return nil, errNilParams
 	}
 
 	environment := getDefaultEnvironment(p.Environment)
@@ -256,7 +262,7 @@ func UpdateAccess(p *UpdateAccessParams) (Roles, error) {
 
 func Delete(p *DeleteParams) (Roles, error) {
 	if p == nil {
-		return nil, errors.New("nil parameters provided")
+		return nil, errNilParams
 	}
 
 	environment := getDefaultEnvironment(p.Environment)
@@ -277,7 +283,7 @@ func Delete(p *DeleteParams) (Roles, error) {
 
 func Undelete(p *UndeleteParams) (Roles, error) {
 	if p == nil {
-		return nil, errors.New("nil parameters provided")
+		return nil, errNilParams
 	}
 
 	environment := getDefaultEnvironment(p.Environment)

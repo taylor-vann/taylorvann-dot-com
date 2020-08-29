@@ -22,6 +22,7 @@ type InitDetails struct {
 
 const initFilname = "./store_db.init.json"
 
+
 func createOrReadUser(
 	environment string,
 	email string,

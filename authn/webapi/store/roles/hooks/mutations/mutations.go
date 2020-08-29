@@ -12,8 +12,15 @@ import (
 	"webapi/infraclientx/verifyx"
 )
 
+
+const (
+	ContentType = "Content-Type"
+	ApplicationJson = "application/json"
+)
+
+
 func writeRolesResponse(w http.ResponseWriter, roles *controller.Roles) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(ContentType, ApplicationJson)
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(&responses.Body{
 		Roles: roles,

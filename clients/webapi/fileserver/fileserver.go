@@ -7,21 +7,18 @@ import (
 
 var (
 	webClientsDirectory = os.Getenv("WEB_CLIENTS_DIRECTORY")
-	waywardRequestFilename = webClientsDirectory + "lost/index.html"
-)
+	waywardRequestFilename = webClientsDirectory + "/lost/"
 
-var (
-	directoryRune = []byte("/")[0]
 	relativeRune = []byte(".")[0]
 )
 
-func containsRelativePaths(path string) bool {
+func containsRelativeBackPaths(path string) bool {
 	pathLength := len(path)
 
 	searchIndex := 1
 	for searchIndex < pathLength {
 		if path[searchIndex] == relativeRune &&
-			path[searchIndex - 1] == directoryRune {
+			path[searchIndex - 1] == relativeRune {
 			return true
 		}
 		searchIndex += 1
@@ -40,24 +37,15 @@ func serveStaticFiles(
 	r *http.Request,
 	requestedFileOrDirectory string,
 ) {
-	if containsRelativePaths(r.URL.Path) {
+	if containsRelativeBackPaths(r.URL.Path) {
 		serveWaywardRequest(w, r)
 		return
 	}
 
-	fileinfo, errFileInfo := os.Stat(requestedFileOrDirectory)
+	_, errFileInfo := os.Stat(requestedFileOrDirectory)
 	if os.IsNotExist(errFileInfo) {
 		serveWaywardRequest(w, r)
 		return
-	}
-
-	if fileinfo.IsDir() {
-		requestedDirectoryAsIndex := requestedFileOrDirectory + "index.html"
-		_, errDirectoryIndex := os.Stat(requestedDirectoryAsIndex)
-		if os.IsNotExist(errDirectoryIndex) {
-			http.ServeFile(w, r, requestedDirectoryAsIndex)
-			return
-		}
 	}
 
 	http.ServeFile(w, r, requestedFileOrDirectory)
