@@ -13,8 +13,6 @@ import (
 
 const (
 	SessionCookieHeader = "briantaylorvann.com_session"
-	ContentType         = "Content-Type"
-	ApplicationJson     = "application/json"
 )
 
 func isRequestBodyValid(
@@ -59,7 +57,6 @@ func ValidateGuestSession(
 	}
 
 	if sessionIsValid {
-		w.Header().Set(ContentType, ApplicationJson)
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: &responses.Session{
 				Token: params.Token,
@@ -104,7 +101,6 @@ func ValidateSession(
 	}
 
 	if infraSessionIsValid && sessionIsValid {
-		w.Header().Set(ContentType, ApplicationJson)
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: &responses.Session{
 				Token: params.Token,

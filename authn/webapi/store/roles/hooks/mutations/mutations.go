@@ -12,13 +12,7 @@ import (
 	"webapi/store/roles/hooks/responses"
 )
 
-const (
-	ContentType     = "Content-Type"
-	ApplicationJson = "application/json"
-)
-
 func writeRolesResponse(w http.ResponseWriter, roles *controller.Roles) {
-	w.Header().Set(ContentType, ApplicationJson)
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(&responses.Body{
 		Roles: roles,
@@ -56,6 +50,9 @@ func Create(
 	}
 
 	if !verifyx.IsInfraSessionValid(params.Environment, sessionCookie) {
+		errors.BadRequest(w, &responses.Errors{
+			Default: &errors.InvalidInfraSession,
+		})
 		return
 	}
 
@@ -94,6 +91,9 @@ func Update(
 	}
 
 	if !verifyx.IsInfraSessionValid(params.Environment, sessionCookie) {
+		errors.BadRequest(w, &responses.Errors{
+			Default: &errors.InvalidInfraSession,
+		})
 		return
 	}
 
@@ -132,6 +132,9 @@ func UpdateAccess(
 	}
 
 	if !verifyx.IsInfraSessionValid(params.Environment, sessionCookie) {
+		errors.BadRequest(w, &responses.Errors{
+			Default: &errors.InvalidInfraSession,
+		})
 		return
 	}
 
@@ -170,6 +173,9 @@ func Delete(
 	}
 
 	if !verifyx.IsInfraSessionValid(params.Environment, sessionCookie) {
+		errors.BadRequest(w, &responses.Errors{
+			Default: &errors.InvalidInfraSession,
+		})
 		return
 	}
 
@@ -208,6 +214,9 @@ func Undelete(
 	}
 
 	if !verifyx.IsInfraSessionValid(params.Environment, sessionCookie) {
+		errors.BadRequest(w, &responses.Errors{
+			Default: &errors.InvalidInfraSession,
+		})
 		return
 	}
 

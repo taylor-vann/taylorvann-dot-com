@@ -16,14 +16,10 @@ import (
 )
 
 const (
-	ContentType     = "Content-Type"
-	ApplicationJson = "application/json"
-
 	InfraOverlordAdmin = "INFRA_OVERLORD_ADMIN"
 )
 
 func writeRolesResponse(w http.ResponseWriter, roles *controller.Roles) {
-	w.Header().Set(ContentType, ApplicationJson)
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(&responses.Body{
 		Roles: roles,
@@ -61,6 +57,9 @@ func Read(
 	}
 
 	if !verifyx.IsInfraSessionValid(params.Environment, sessionCookie) {
+		errors.BadRequest(w, &responses.Errors{
+			Default: &errors.InvalidInfraSession,
+		})
 		return
 	}
 
@@ -108,6 +107,9 @@ func ValidateInfra(w http.ResponseWriter, sessionCookie *http.Cookie, requestBod
 	}
 
 	if !verifyx.IsGuestSessionValid(params.Environment, sessionCookie) {
+		errors.BadRequest(w, &responses.Errors{
+			Default: &errors.InvalidGuestSession,
+		})
 		return
 	}
 
@@ -177,6 +179,9 @@ func Index(
 	}
 
 	if !verifyx.IsInfraSessionValid(params.Environment, sessionCookie) {
+		errors.BadRequest(w, &responses.Errors{
+			Default: &errors.InvalidInfraSession,
+		})
 		return
 	}
 
@@ -213,6 +218,9 @@ func Search(
 	}
 
 	if !verifyx.IsInfraSessionValid(params.Environment, sessionCookie) {
+		errors.BadRequest(w, &responses.Errors{
+			Default: &errors.InvalidInfraSession,
+		})
 		return
 	}
 

@@ -24,9 +24,14 @@ const (
 	CreateUpdateEmailSession    = "CREATE_UPDATE_EMAIL_SESSION"
 	CreateUpdatePasswordSession = "CREATE_UPDATE_PASSWORD_SESSION"
 	DeleteSession               = "DELETE_SESSION"
+
+	ContentType     = "Content-Type"
+	ApplicationJson = "application/json"
 )
 
 func Query(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set(ContentType, ApplicationJson)
+
 	if r.Body == nil {
 		errors.CustomResponse(w, errors.NilRequestBodyFail)
 		return
@@ -54,6 +59,8 @@ func Query(w http.ResponseWriter, r *http.Request) {
 }
 
 func Mutation(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set(ContentType, ApplicationJson)
+
 	if r.Body == nil {
 		errors.CustomResponse(w, errors.NilRequestBodyFail)
 		return

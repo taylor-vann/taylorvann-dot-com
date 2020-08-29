@@ -68,7 +68,6 @@ func CreateGuestSession(
 		Claims:      sessionsx.CreateGuestSessionClaims(),
 	})
 	if errSession == nil {
-		w.Header().Set(ContentType, ApplicationJson)
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: session,
 		})
@@ -116,7 +115,6 @@ func CreateInfraSession(
 	})
 	if errSession == nil {
 		http.SetCookie(w, createInfraSessionCookie(session.Token))
-		w.Header().Set(ContentType, ApplicationJson)
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: session,
 		})
@@ -164,7 +162,6 @@ func CreateClientSession(
 		Claims:      claims,
 	})
 	if infraSessionIsValid && errSession == nil {
-		w.Header().Set(ContentType, ApplicationJson)
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: session,
 		})
@@ -206,7 +203,6 @@ func CreateCreateAccountSession(
 		Claims:      claims,
 	})
 	if infraSessionIsValid && errSession == nil {
-		w.Header().Set(ContentType, ApplicationJson)
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: session,
 		})
@@ -248,7 +244,6 @@ func CreateUpdateEmailSession(
 		Claims:      claims,
 	})
 	if infraSessionIsValid && errSession == nil {
-		w.Header().Set(ContentType, ApplicationJson)
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: session,
 		})
@@ -290,7 +285,6 @@ func CreateUpdatePasswordSession(
 		Claims:      claims,
 	})
 	if infraSessionIsValid && errSession == nil {
-		w.Header().Set(ContentType, ApplicationJson)
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: session,
 		})
@@ -332,7 +326,6 @@ func CreateDeleteAccountSession(
 		Claims:      claims,
 	})
 	if infraSessionIsValid && errSession == nil {
-		w.Header().Set(ContentType, ApplicationJson)
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: session,
 		})
@@ -374,7 +367,6 @@ func DeleteSession(
 		return
 	}
 	if infraSessionIsValid && sessionWasDeleted {
-		w.Header().Set(ContentType, ApplicationJson)
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&responses.Body{})
 		return

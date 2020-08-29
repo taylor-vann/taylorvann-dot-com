@@ -31,6 +31,9 @@ const (
 	Undelete       = "UNDELETE_USER"
 
 	SessionCookieHeader = "briantaylorvann.com_session"
+
+	ContentType     = "Content-Type"
+	ApplicationJson = "application/json"
 )
 
 func dropRequestNotValidBody(w http.ResponseWriter, requestBody *requests.Body) bool {
@@ -44,6 +47,8 @@ func dropRequestNotValidBody(w http.ResponseWriter, requestBody *requests.Body) 
 }
 
 func Query(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set(ContentType, ApplicationJson)
+
 	if r.Body == nil {
 		errors.BadRequest(w, &responses.Errors{
 			RequestBody: &errors.BadRequestFail,
@@ -83,6 +88,8 @@ func Query(w http.ResponseWriter, r *http.Request) {
 }
 
 func Mutation(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set(ContentType, ApplicationJson)
+
 	if r.Body == nil {
 		errors.CustomResponse(w, errors.NilRequestBodyFail)
 		return
