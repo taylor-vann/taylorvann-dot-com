@@ -62,7 +62,6 @@ func CheckInfraSession(sessionToken string) bool {
 }
 
 func IsGuestSessionValid(
-	w http.ResponseWriter,
 	environment string,
 	sessionCookie *http.Cookie,
 ) bool {
@@ -87,7 +86,6 @@ func IsGuestSessionValid(
 }
 
 func IsInfraSessionValid(
-	w http.ResponseWriter,
 	environment string,
 	sessionCookie *http.Cookie,
 ) bool {
@@ -111,10 +109,7 @@ func IsInfraSessionValid(
 	return false
 }
 
-func IsSessionValid(
-	w http.ResponseWriter,
-	p *IsSessionValidParams,
-) bool {
+func IsSessionValid(p *IsSessionValidParams) bool {
 	if p.InfraSessionCookie == nil {
 		return false
 	}
@@ -137,10 +132,7 @@ func IsSessionValid(
 }
 
 // has role from session
-func HasRoleFromSession(
-	w http.ResponseWriter,
-	p *HasRoleFromSessionParams,
-) bool {
+func HasRoleFromSession(p *HasRoleFromSessionParams) bool {
 	if p.InfraSessionCookie == nil {
 		return false
 	}
@@ -161,10 +153,7 @@ func HasRoleFromSession(
 }
 
 // validate user
-func ValidateUser(
-	w http.ResponseWriter,
-	p *ValidateUserParams,
-) bool {
+func ValidateUser(p *ValidateUserParams) bool {
 	if p.InfraSessionCookie == nil {
 		return false
 	}

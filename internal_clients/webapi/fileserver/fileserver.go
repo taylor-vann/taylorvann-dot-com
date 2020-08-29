@@ -4,23 +4,23 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/taylor-vann/weblog/toolbox/golang/infraclientx/verifyx"
 	"github.com/taylor-vann/weblog/toolbox/golang/infraclientx/sessionx"
+	"github.com/taylor-vann/weblog/toolbox/golang/infraclientx/verifyx"
 )
 
 type ValidateParams = verifyx.HasRoleFromSessionParams
 
 const (
 	SessionCookieHeader = "briantaylorvann.com_session"
-	InternalAdmin = "INTERNAL_ADMIN"
+	InternalAdmin       = "INTERNAL_ADMIN"
 )
 
 var (
 	Environment = os.Getenv("STAGE")
 
-	webClientsDirectory = os.Getenv("WEB_CLIENTS_DIRECTORY")
+	webClientsDirectory    = os.Getenv("WEB_CLIENTS_DIRECTORY")
 	waywardRequestFilename = webClientsDirectory + "lost/index.html"
-	relativeRune = []byte(".")[0]
+	relativeRune           = []byte(".")[0]
 )
 
 func containsRelativeBackPaths(path string) bool {
@@ -29,7 +29,7 @@ func containsRelativeBackPaths(path string) bool {
 	searchIndex := 1
 	for searchIndex < pathLength {
 		if path[searchIndex] == relativeRune &&
-			path[searchIndex - 1] == relativeRune {
+			path[searchIndex-1] == relativeRune {
 			return true
 		}
 		searchIndex += 1
@@ -43,9 +43,9 @@ func validateInternalUser(
 	p *ValidateParams,
 ) bool {
 	isValidSession := verifyx.IsSessionValid(w, &verifyx.IsSessionValidParams{
-		Environment: p.Environment,
+		Environment:        p.Environment,
 		InfraSessionCookie: p.InfraSessionCookie,
-		SessionCookie: p.SessionCookie,
+		SessionCookie:      p.SessionCookie,
 	})
 	if !isValidSession {
 		return false
@@ -93,11 +93,11 @@ func Serve(w http.ResponseWriter, r *http.Request) {
 	sessionCookie, _ := r.Cookie(SessionCookieHeader)
 
 	isValidInternalUser := validateInternalUser(w, &ValidateParams{
-			Environment: Environment,
-			InfraSessionCookie: sessionx.InfraSession,
-			SessionCookie: sessionCookie,
-			Organization: InternalAdmin,
-		},
+		Environment:        Environment,
+		InfraSessionCookie: sessionx.InfraSession,
+		SessionCookie:      sessionCookie,
+		Organization:       InternalAdmin,
+	},
 	)
 	if !isValidInternalUser {
 		return

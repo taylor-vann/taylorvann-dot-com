@@ -8,9 +8,9 @@ import (
 )
 
 var (
-	BadRequestFail  		 			= "unable to decode request body"
-	UnrecognizedParams				= "unrecognized params given"
-	FailedToValidateGuestUser	= "failed to validate guest user"
+	BadRequestFail            = "unable to decode request body"
+	UnrecognizedParams        = "unrecognized params given"
+	FailedToValidateGuestUser = "failed to validate guest user"
 )
 
 var defaultFail = "unable to return Roles"
@@ -39,7 +39,7 @@ func BadRequest(w http.ResponseWriter, errors *responses.Errors) {
 
 	json.NewEncoder(w).Encode(&responses.Body{
 		Errors: &responses.Errors{
-			Default:	&defaultFail,
+			Default: &defaultFail,
 		},
 	})
 }

@@ -13,7 +13,7 @@ import (
 func CreateMux() *http.ServeMux {
 	mux := http.NewServeMux()
 
-		// Issue and Destroy sessions without file-serving
+	// Issue and Destroy sessions without file-serving
 	mux.HandleFunc("/request_session/", sessionrequests.RequestSession)
 	mux.HandleFunc("/remove_session/", sessionrequests.RemoveSession)
 
