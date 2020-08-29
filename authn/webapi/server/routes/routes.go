@@ -6,7 +6,7 @@ package routes
 import (
 	"net/http"
 
-	"webapi/server/ping"
+	"webapi/server/details"
 	sessionHooks "webapi/sessions/hooks"
 	rolesHooks "webapi/store/roles/hooks"
 	usersHooks "webapi/store/users/hooks"
@@ -15,7 +15,7 @@ import (
 func CreateMux() *http.ServeMux {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/ping", ping.Details)
+	mux.HandleFunc("/details/", details.Details)
 
 	mux.HandleFunc("/q/users/", usersHooks.Query)
 	mux.HandleFunc("/m/users/", usersHooks.Mutation)

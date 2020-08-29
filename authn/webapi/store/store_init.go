@@ -20,7 +20,7 @@ type InitDetails struct {
 	Users map[string]InitUserDetails `json:"users"`
 }
 
-const initFilname = "./store_db.init.json"
+const initFilname = "/root/go/src/store_db.init.json"
 
 func createOrReadUser(
 	environment string,
@@ -96,14 +96,12 @@ func createUserAndRoles(
 func InitFromJSON() {
 	initJSON, errInitFile := ioutil.ReadFile(initFilname)
 	if errInitFile != nil {
-		// TODO: log a failure, but first need logging system
 		return
 	}
 
 	var initDetails InitDetails
 	errInitDetails := json.Unmarshal(initJSON, &initDetails)
 	if errInitDetails != nil {
-		// TODO: log a failure, but first need logging system
 		return
 	}
 
