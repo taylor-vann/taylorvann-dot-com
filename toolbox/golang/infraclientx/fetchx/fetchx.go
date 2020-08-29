@@ -22,6 +22,7 @@ const (
 	SessionCookieHeader	= "briantaylorvann.com_session"
 
 	Post = "POST"
+	
 	CreateGuestSessionAction = "CREATE_GUEST_SESSION"
 	ValidateGuestSessionAction = "VALIDATE_GUEST_SESSION"
 	ValidateSessionAction = "VALIDATE_SESSION"
@@ -460,4 +461,3 @@ func ValidateUser(
 
 	return  nil, errUnableToValidateUser
 }
-
