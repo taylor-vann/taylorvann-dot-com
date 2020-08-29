@@ -55,7 +55,7 @@ func Create(
 		return
 	}
 
-	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
+	if !verifyx.IsInfraSessionValid(params.Environment, sessionCookie) {
 		return
 	}
 
@@ -93,7 +93,7 @@ func Update(
 		return
 	}
 
-	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
+	if !verifyx.IsInfraSessionValid(params.Environment, sessionCookie) {
 		return
 	}
 
@@ -131,7 +131,7 @@ func UpdateAccess(
 		return
 	}
 
-	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
+	if !verifyx.IsInfraSessionValid(params.Environment, sessionCookie) {
 		return
 	}
 
@@ -169,7 +169,7 @@ func Delete(
 		return
 	}
 
-	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
+	if !verifyx.IsInfraSessionValid(params.Environment, sessionCookie) {
 		return
 	}
 
@@ -207,7 +207,7 @@ func Undelete(
 		return
 	}
 
-	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
+	if !verifyx.IsInfraSessionValid(params.Environment, sessionCookie) {
 		return
 	}
 

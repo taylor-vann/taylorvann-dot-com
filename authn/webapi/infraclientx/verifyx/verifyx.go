@@ -5,7 +5,6 @@ import (
 
 	"webapi/infraclientx/fetchx"
 	"webapi/infraclientx/fetchx/requests"
-	"webapi/infraclientx/verifyx/errors"
 
 	"github.com/taylor-vann/weblog/toolbox/golang/jwtx"
 )
@@ -63,7 +62,6 @@ func CheckInfraSession(sessionToken string) bool {
 }
 
 func IsGuestSessionValid(
-	w http.ResponseWriter,
 	environment string,
 	sessionCookie *http.Cookie,
 ) bool {
@@ -80,18 +78,14 @@ func IsGuestSessionValid(
 		},
 		sessionCookie,
 	)
-	if validToken != nil {
+	if validToken != nil && errValidate == nil {
 		return true
-	}
-	if errValidate != nil {
-		return false
 	}
 
 	return false
 }
 
 func IsInfraSessionValid(
-	w http.ResponseWriter,
 	environment string,
 	sessionCookie *http.Cookie,
 ) bool {
@@ -108,21 +102,18 @@ func IsInfraSessionValid(
 		},
 		sessionCookie,
 	)
-	if validToken != nil {
+	if validToken != nil && errValidToken == nil {
 		return true
-	}
-	if errValidToken != nil {
-		return false
 	}
 
 	return false
 }
 
-func IsSessionValid(
-	w http.ResponseWriter,
-	p *IsSessionValidParams,
-) bool {
+func IsSessionValid(p *IsSessionValidParams) bool {
 	if p.InfraSessionCookie == nil {
+		return false
+	}
+	if !CheckInfraSession(p.InfraSessionCookie.Value) {
 		return false
 	}
 
@@ -133,21 +124,15 @@ func IsSessionValid(
 		},
 		p.InfraSessionCookie,
 	)
-	if validToken != nil {
+	if validToken != nil && errValidToken == nil {
 		return true
-	}
-	if errValidToken != nil {
-		return false
 	}
 
 	return false
 }
 
 // has role from session
-func HasRoleFromSession(
-	w http.ResponseWriter,
-	p *HasRoleFromSessionParams,
-) bool {
+func HasRoleFromSession(p *HasRoleFromSessionParams) bool {
 	if p.InfraSessionCookie == nil {
 		return false
 	}
@@ -160,10 +145,7 @@ func HasRoleFromSession(
 		},
 		p.InfraSessionCookie,
 	)
-	if errValidRole != nil {
-		return false
-	}
-	if validRole != nil {
+	if validRole != nil && errValidRole == nil {
 		return true
 	}
 
@@ -171,14 +153,11 @@ func HasRoleFromSession(
 }
 
 // validate user
-func ValidateUser(
-	w http.ResponseWriter,
-	p *ValidateUserParams,
-) bool {
+func ValidateUser(p *ValidateUserParams) bool {
 	if p.InfraSessionCookie == nil {
 		return false
 	}
-	validRole, errValidRole := fetchx.ValidateUser(
+	validUser, errValidUser := fetchx.ValidateUser(
 		&requests.ValidateUser{
 			Environment: p.Environment,
 			Email:       p.Email,
@@ -186,11 +165,8 @@ func ValidateUser(
 		},
 		p.InfraSessionCookie,
 	)
-	if validRole != nil {
+	if validUser != nil && errValidUser == nil {
 		return true
-	}
-	if errValidRole != nil {
-		return false
 	}
 
 	return false

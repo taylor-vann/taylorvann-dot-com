@@ -60,7 +60,7 @@ func Read(
 		return
 	}
 
-	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
+	if !verifyx.IsInfraSessionValid(params.Environment, sessionCookie) {
 		return
 	}
 
@@ -107,7 +107,7 @@ func ValidateInfra(w http.ResponseWriter, sessionCookie *http.Cookie, requestBod
 		return
 	}
 
-	if !verifyx.IsGuestSessionValid(w, params.Environment, sessionCookie) {
+	if !verifyx.IsGuestSessionValid(params.Environment, sessionCookie) {
 		return
 	}
 
@@ -176,7 +176,7 @@ func Index(
 		return
 	}
 
-	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
+	if !verifyx.IsInfraSessionValid(params.Environment, sessionCookie) {
 		return
 	}
 
@@ -212,7 +212,7 @@ func Search(
 		return
 	}
 
-	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
+	if !verifyx.IsInfraSessionValid(params.Environment, sessionCookie) {
 		return
 	}
 
