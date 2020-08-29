@@ -19,6 +19,9 @@ func CreateMux() *http.ServeMux {
 
 	// Serve internal files
 	mux.HandleFunc("/sign-in/", fileserver.ServeSignIn)
+
+	// briantaylorvann.com/home/
+	// for single page app snugness
 	mux.HandleFunc("/", fileserver.Serve)
 
 	return mux
