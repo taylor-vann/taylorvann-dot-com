@@ -14,10 +14,9 @@ import (
 )
 
 const (
-	ContentType = "Content-Type"
+	ContentType     = "Content-Type"
 	ApplicationJson = "application/json"
 )
-
 
 func writeUsersResponse(w http.ResponseWriter, users *controller.SafeUsers) {
 	w.Header().Set(ContentType, ApplicationJson)

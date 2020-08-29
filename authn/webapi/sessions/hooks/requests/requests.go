@@ -12,7 +12,7 @@ type Update = sessionsx.UpdateParams
 type Delete = sessionsx.DeleteParams
 
 type Guest struct {
-	Environment string	`json:"environment"`
+	Environment string `json:"environment"`
 }
 
 type User struct {
@@ -22,16 +22,16 @@ type User struct {
 
 type Ancillary struct {
 	Environment string `json:"environment"`
-	Email      string  `json:"email"`
+	Email       string `json:"email"`
 }
 
 type InfraUser struct {
 	Environment string `json:"environment"`
-	Email				string `json:"email"`
-	Password		string `json:"password"`
+	Email       string `json:"email"`
+	Password    string `json:"password"`
 }
 
 type Body struct {
-	Action string 		 `json:"action"`
+	Action string      `json:"action"`
 	Params interface{} `json:"params"`
 }

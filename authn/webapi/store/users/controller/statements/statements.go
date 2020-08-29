@@ -10,16 +10,16 @@ import (
 )
 
 type SQL struct {
-	CreateTable 	 string
-	Create      	 string
-	Index					 string
-	Read        	 string
-	Search				 string
-	Update      	 string
-	UpdateEmail 	 string
+	CreateTable    string
+	Create         string
+	Index          string
+	Read           string
+	Search         string
+	Update         string
+	UpdateEmail    string
 	UpdatePassword string
-	Delete      	 string
-	Undelete  		 string
+	Delete         string
+	Undelete       string
 }
 
 type StatementMap = map[string]SQL
@@ -155,16 +155,16 @@ RETURNING
 
 func createUsersStatements(tableName string) SQL {
 	statements := SQL{
-		CreateTable: 		fmt.Sprintf(createTable, tableName),
-		Create:      		fmt.Sprintf(create, tableName),
-		Index:					fmt.Sprintf(index, tableName),
-		Read:        		fmt.Sprintf(read, tableName),
-		Search:			 		fmt.Sprintf(search, tableName),
-		Update:      		fmt.Sprintf(update, tableName),
+		CreateTable:    fmt.Sprintf(createTable, tableName),
+		Create:         fmt.Sprintf(create, tableName),
+		Index:          fmt.Sprintf(index, tableName),
+		Read:           fmt.Sprintf(read, tableName),
+		Search:         fmt.Sprintf(search, tableName),
+		Update:         fmt.Sprintf(update, tableName),
 		UpdateEmail:    fmt.Sprintf(updateEmail, tableName),
 		UpdatePassword: fmt.Sprintf(updatePassword, tableName),
-		Delete:      		fmt.Sprintf(updateAsDeleted, tableName),
-		Undelete:      	fmt.Sprintf(updateAsUndeleted, tableName),
+		Delete:         fmt.Sprintf(updateAsDeleted, tableName),
+		Undelete:       fmt.Sprintf(updateAsUndeleted, tableName),
 	}
 
 	return statements
@@ -172,7 +172,7 @@ func createUsersStatements(tableName string) SQL {
 
 func createStatementMap() StatementMap {
 	sqlMap := make(StatementMap)
-	
+
 	sqlMap[constants.Production] = createUsersStatements(constants.Users)
 	sqlMap[constants.Development] = createUsersStatements(constants.UsersTest)
 	sqlMap[constants.Local] = createUsersStatements(constants.UsersUnitTests)
@@ -182,6 +182,6 @@ func createStatementMap() StatementMap {
 
 var SqlMap = createStatementMap()
 
-const DangerouslyDropUnitTestsTable =`
+const DangerouslyDropUnitTestsTable = `
 DROP TABLE users_unit_tests;
 `

@@ -5,9 +5,9 @@ import (
 	"webapi/store"
 )
 
-func main() {	
+func main() {
 	store.CreateRequiredTables()
 	store.InitFromJSON()
-	
+
 	server.CreateServer()
 }

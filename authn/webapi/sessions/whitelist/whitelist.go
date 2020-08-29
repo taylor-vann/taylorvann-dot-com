@@ -5,38 +5,38 @@ import (
 	"errors"
 
 	"github.com/taylor-vann/weblog/toolbox/golang/graylistx"
-	
+
 	"webapi/sessions/whitelist/constants"
 )
 
 type MilliSeconds = int64
 
 type Entry struct {
-	Signature	 string				`json:"signature"`
+	Signature  string       `json:"signature"`
 	SessionKey []byte       `json:"session_key"`
 	CreatedAt  MilliSeconds `json:"created_at"`
 	Lifetime   MilliSeconds `json:"expires_at"`
 }
 
 type CreateEntryParams struct {
-	Environment	string				`json:"environment"`
-	Signature		string				`json:"signature"`
-	SessionKey	[]byte				`json:"session_key"`
-	CreatedAt		MilliSeconds	`json:"created_at"`
-	Lifetime		MilliSeconds	`json:"lifetime"`
+	Environment string       `json:"environment"`
+	Signature   string       `json:"signature"`
+	SessionKey  []byte       `json:"session_key"`
+	CreatedAt   MilliSeconds `json:"created_at"`
+	Lifetime    MilliSeconds `json:"lifetime"`
 }
 
 type ReadEntryParams struct {
-	Environment	string `json:"environment"`
-	Signature		string `json:"signature"`
+	Environment string `json:"environment"`
+	Signature   string `json:"signature"`
 }
 
 type RemoveEntryParams = ReadEntryParams
 
 var (
-	DayAsMS = int64(1000 * 60 * 60 * 24)
+	DayAsMS       = int64(1000 * 60 * 60 * 24)
 	ThreeDaysAsMS = 3 * DayAsMS
-	config = graylistx.Config{
+	config        = graylistx.Config{
 		Host:        constants.Env.Host,
 		Port:        constants.Env.Port,
 		Protocol:    constants.Env.Protocol,
@@ -45,7 +45,7 @@ var (
 		MaxActive:   constants.Env.MaxActive,
 	}
 
-	errNilParams = errors.New("nil parameters provided")
+	errNilParams        = errors.New("nil parameters provided")
 	errCreatingGraylist = errors.New("error creating graylist")
 )
 
@@ -59,7 +59,6 @@ func getEnvironmentKey(key string, environment string) string {
 	return key + "_" + environment
 }
 
-
 func CreateEntry(p *CreateEntryParams) (*Entry, error) {
 	if p == nil {
 		return nil, errNilParams
@@ -69,7 +68,7 @@ func CreateEntry(p *CreateEntryParams) (*Entry, error) {
 	}
 
 	entry := Entry{
-		Signature:	p.Signature,
+		Signature:  p.Signature,
 		SessionKey: p.SessionKey,
 		CreatedAt:  p.CreatedAt,
 		Lifetime:   p.Lifetime,
@@ -83,8 +82,8 @@ func CreateEntry(p *CreateEntryParams) (*Entry, error) {
 	environmentKey := getEnvironmentKey(p.Signature, p.Environment)
 	whitelistResult, errWhitelist := graylist.SetAndExpire(
 		&graylistx.SetAndExpireParams{
-			Key: environmentKey,
-			Value: entryAsJSON,
+			Key:        environmentKey,
+			Value:      entryAsJSON,
 			ExpiryInMS: p.Lifetime,
 		},
 	)

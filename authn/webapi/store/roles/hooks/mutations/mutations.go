@@ -4,20 +4,18 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"webapi/infraclientx/verifyx"
 	"webapi/store/roles/controller"
 	"webapi/store/roles/hooks/cache"
 	"webapi/store/roles/hooks/errors"
 	"webapi/store/roles/hooks/requests"
 	"webapi/store/roles/hooks/responses"
-	"webapi/infraclientx/verifyx"
 )
-
 
 const (
-	ContentType = "Content-Type"
+	ContentType     = "Content-Type"
 	ApplicationJson = "application/json"
 )
-
 
 func writeRolesResponse(w http.ResponseWriter, roles *controller.Roles) {
 	w.Header().Set(ContentType, ApplicationJson)

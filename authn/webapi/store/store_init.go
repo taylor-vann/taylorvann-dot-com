@@ -22,17 +22,16 @@ type InitDetails struct {
 
 const initFilname = "./store_db.init.json"
 
-
 func createOrReadUser(
 	environment string,
 	email string,
 	password string,
 ) (usersController.SafeUsers, error) {
-	// make user 
+	// make user
 	userRows, errUserRow := usersController.Read(
 		&usersController.ReadParams{
 			Environment: environment,
-			Email: email,
+			Email:       email,
 		},
 	)
 
@@ -45,8 +44,8 @@ func createOrReadUser(
 		userRows, errUserRow = usersController.Create(
 			&usersController.CreateParams{
 				Environment: environment,
-				Email:    email,
-				Password: password,
+				Email:       email,
+				Password:    password,
 			},
 		)
 	}
@@ -63,11 +62,11 @@ func createRoles(
 	for _, organization := range roles {
 		rolesController.Create(
 			&rolesController.CreateParams{
-				Environment: environment,
-				UserID: userRow.ID,
+				Environment:  environment,
+				UserID:       userRow.ID,
 				Organization: organization,
-				ReadAccess: true,
-				WriteAccess: true,
+				ReadAccess:   true,
+				WriteAccess:  true,
 			},
 		)
 	}

@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	infraOverlordEmail = os.Getenv("INFRA_OVERLORD_EMAIL")
+	infraOverlordEmail    = os.Getenv("INFRA_OVERLORD_EMAIL")
 	infraOverlordPassword = os.Getenv("INFRA_OVERLORD_PASSWORD")
 )
 
@@ -39,7 +39,7 @@ func TestValidateGuestSession(t *testing.T) {
 	resp, errResp := ValidateGuestSession(
 		&requests.ValidateSession{
 			Environment: Environment,
-			Token: GuestSessionTest.Value,
+			Token:       GuestSessionTest.Value,
 		},
 		GuestSessionTest,
 	)
@@ -55,8 +55,8 @@ func TestValidateGuestUser(t *testing.T) {
 	resp, errResp := ValidateGuestUser(
 		&requests.ValidateGuestUser{
 			Environment: Environment,
-			Email: infraOverlordEmail,
-			Password: infraOverlordPassword,
+			Email:       infraOverlordEmail,
+			Password:    infraOverlordPassword,
 		},
 		GuestSessionTest,
 	)
@@ -72,8 +72,8 @@ func TestValidateInfraRole(t *testing.T) {
 	resp, errResp := ValidateInfraRole(
 		&requests.ValidateInfraRole{
 			Environment: Environment,
-			Email: infraOverlordEmail,
-			Password: infraOverlordPassword,
+			Email:       infraOverlordEmail,
+			Password:    infraOverlordPassword,
 		},
 		GuestSessionTest,
 	)
@@ -89,8 +89,8 @@ func TestCreateInfraSession(t *testing.T) {
 	resp, errResp := CreateInfraSession(
 		&requests.InfraSession{
 			Environment: Environment,
-			Email: infraOverlordEmail,
-			Password: infraOverlordPassword,
+			Email:       infraOverlordEmail,
+			Password:    infraOverlordPassword,
 		},
 		GuestSessionTest,
 	)
@@ -114,7 +114,7 @@ func TestValidateSession(t *testing.T) {
 	resp, errResp := ValidateSession(
 		&requests.ValidateSession{
 			Environment: Environment,
-			Token: GuestSessionTest.Value,
+			Token:       GuestSessionTest.Value,
 		},
 		InfraSessionTest,
 	)
@@ -135,8 +135,8 @@ func TestValidateRoleFromSession(t *testing.T) {
 	}
 	resp, errResp := ValidateRoleFromSession(
 		&requests.ValidateRoleFromSession{
-			Environment: Environment,
-			Token: InfraSessionTest.Value,
+			Environment:  Environment,
+			Token:        InfraSessionTest.Value,
 			Organization: "AUTHN_ADMIN",
 		},
 		InfraSessionTest,
@@ -159,8 +159,8 @@ func TestValidateUser(t *testing.T) {
 	resp, errResp := ValidateUser(
 		&requests.ValidateUser{
 			Environment: Environment,
-			Email: infraOverlordEmail,
-			Password: infraOverlordPassword,
+			Email:       infraOverlordEmail,
+			Password:    infraOverlordPassword,
 		},
 		InfraSessionTest,
 	)

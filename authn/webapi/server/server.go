@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	Http  = ":80"
+	Http = ":80"
 )
 
 func CreateServer() {

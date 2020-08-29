@@ -13,10 +13,9 @@ import (
 
 const (
 	SessionCookieHeader = "briantaylorvann.com_session"
-	ContentType = "Content-Type"
-	ApplicationJson = "application/json"
+	ContentType         = "Content-Type"
+	ApplicationJson     = "application/json"
 )
-
 
 func isRequestBodyValid(
 	w http.ResponseWriter,
@@ -42,7 +41,7 @@ func ValidateGuestSession(
 	var params requests.ValidateGuest
 	bytes, _ := json.Marshal(requestBody.Params)
 	errParamsUnmarshal := json.Unmarshal(bytes, &params)
-	if errParamsUnmarshal != nil {		
+	if errParamsUnmarshal != nil {
 		errors.DefaultResponse(w, errParamsUnmarshal)
 		return
 	}
@@ -50,7 +49,7 @@ func ValidateGuestSession(
 	sessionIsValid, errSessionIsValid := verify.ValidateGuestSession(
 		params.Environment,
 		&http.Cookie{
-			Name: SessionCookieHeader,
+			Name:  SessionCookieHeader,
 			Value: params.Token,
 		},
 	)
@@ -58,7 +57,7 @@ func ValidateGuestSession(
 		errors.DefaultResponse(w, errSessionIsValid)
 		return
 	}
-	
+
 	if sessionIsValid {
 		w.Header().Set(ContentType, ApplicationJson)
 		json.NewEncoder(w).Encode(&responses.Body{
@@ -84,7 +83,7 @@ func ValidateSession(
 	var params requests.Validate
 	bytes, _ := json.Marshal(requestBody.Params)
 	errParamsUnmarshal := json.Unmarshal(bytes, &params)
-	if errParamsUnmarshal != nil {	
+	if errParamsUnmarshal != nil {
 		errors.DefaultResponse(w, errParamsUnmarshal)
 		return
 	}
@@ -103,7 +102,7 @@ func ValidateSession(
 		errors.DefaultResponse(w, errSessionIsValid)
 		return
 	}
-	
+
 	if infraSessionIsValid && sessionIsValid {
 		w.Header().Set(ContentType, ApplicationJson)
 		json.NewEncoder(w).Encode(&responses.Body{

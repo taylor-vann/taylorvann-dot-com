@@ -12,20 +12,20 @@ import (
 	"time"
 
 	"webapi/infraclientx/sessionx"
-	"webapi/store/roles/controller"	
+	"webapi/store/roles/controller"
 	"webapi/store/roles/hooks/requests"
 	"webapi/store/roles/hooks/responses"
 )
 
 type Row struct {
-	ID					 int64     `json:"id"`
-	UserID    	 int64     `json:"user_id"`
+	ID           int64     `json:"id"`
+	UserID       int64     `json:"user_id"`
 	Organization string    `json:"organization"`
-	ReadAccess	 bool			 `json:"read_access"`
-	WriteAccess	 bool			 `json:"write_access"`
-	IsDeleted		 bool			 `json:"is_deleted"`
-	CreatedAt		 time.Time `json:"created_at"`
-	UpdatedAt		 time.Time `json:"updated_at"`
+	ReadAccess   bool      `json:"read_access"`
+	WriteAccess  bool      `json:"write_access"`
+	IsDeleted    bool      `json:"is_deleted"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
 }
 
 var createTable = controller.CreateTableParams{
@@ -33,24 +33,24 @@ var createTable = controller.CreateTableParams{
 }
 
 var user1 = requests.Create{
-	Environment: "LOCAL",
-	UserID: -1,
+	Environment:  "LOCAL",
+	UserID:       -1,
 	Organization: "STORE_ROLES_UNIT_TESTS",
-	ReadAccess: false,
-	WriteAccess: false,
+	ReadAccess:   false,
+	WriteAccess:  false,
 }
 
 var user1Updated = requests.Update{
-	Environment: "LOCAL",
-	UserID: -1,
+	Environment:  "LOCAL",
+	UserID:       -1,
 	Organization: "STORE_ROLES_UNIT_TESTS",
-	ReadAccess: true,
-	WriteAccess: true,
-	IsDeleted: false,
+	ReadAccess:   true,
+	WriteAccess:  true,
+	IsDeleted:    false,
 }
 
 var (
-	GuestSessionTestCookie *http.Cookie
+	GuestSessionTestCookie  *http.Cookie
 	ClientSessionTestCookie *http.Cookie
 )
 
@@ -104,7 +104,7 @@ func TestCreate(t *testing.T) {
 
 	marshalBytes := new(bytes.Buffer)
 	json.NewEncoder(marshalBytes).Encode(requestBody)
-	req,errReq := http.NewRequest(
+	req, errReq := http.NewRequest(
 		"POST",
 		"/m/users/",
 		marshalBytes,
@@ -118,11 +118,11 @@ func TestCreate(t *testing.T) {
 		return
 	}
 	req.AddCookie(ClientSessionTestCookie)
-	
+
 	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Mutation)
 	handler.ServeHTTP(htr, req)
-	
+
 	var responseBody responses.Body
 	errJSON := json.NewDecoder(htr.Body).Decode(&responseBody)
 	if errJSON != nil {
@@ -148,15 +148,15 @@ func TestRead(t *testing.T) {
 	requestBody := requests.Body{
 		Action: Read,
 		Params: requests.Read{
-			Environment: "LOCAL",
-			UserID: user1.UserID,
+			Environment:  "LOCAL",
+			UserID:       user1.UserID,
 			Organization: user1.Organization,
 		},
 	}
 
 	marshalBytes := new(bytes.Buffer)
 	json.NewEncoder(marshalBytes).Encode(requestBody)
-	req,errReq := http.NewRequest(
+	req, errReq := http.NewRequest(
 		"POST",
 		"/q/users/",
 		marshalBytes,
@@ -178,7 +178,7 @@ func TestRead(t *testing.T) {
 		t.Error("response body is nil")
 		return
 	}
-	
+
 	var responseBody responses.Body
 	errJSON := json.NewDecoder(htr.Body).Decode(&responseBody)
 	if errJSON != nil {
@@ -208,14 +208,14 @@ func TestIndex(t *testing.T) {
 		Action: Index,
 		Params: requests.Index{
 			Environment: "LOCAL",
-			StartIndex: 0,
-			Length: 10,
+			StartIndex:  0,
+			Length:      10,
 		},
 	}
 
 	marshalBytes := new(bytes.Buffer)
 	json.NewEncoder(marshalBytes).Encode(requestBody)
-	req,errReq := http.NewRequest(
+	req, errReq := http.NewRequest(
 		"POST",
 		"/q/users/",
 		marshalBytes,
@@ -261,15 +261,15 @@ func TestSearch(t *testing.T) {
 		Action: Search,
 		Params: requests.Search{
 			Environment: "LOCAL",
-			UserID: user1.UserID,
-			StartIndex: 0,
-			Length: 10,
+			UserID:      user1.UserID,
+			StartIndex:  0,
+			Length:      10,
 		},
 	}
 
 	marshalBytes := new(bytes.Buffer)
 	json.NewEncoder(marshalBytes).Encode(requestBody)
-	req,errReq := http.NewRequest(
+	req, errReq := http.NewRequest(
 		"POST",
 		"/q/users/",
 		marshalBytes,
@@ -323,7 +323,7 @@ func TestUpdate(t *testing.T) {
 
 	marshalBytes := new(bytes.Buffer)
 	json.NewEncoder(marshalBytes).Encode(requestBody)
-	req,errReq := http.NewRequest(
+	req, errReq := http.NewRequest(
 		"POST",
 		"/m/users/",
 		marshalBytes,
@@ -336,7 +336,7 @@ func TestUpdate(t *testing.T) {
 		return
 	}
 	req.AddCookie(ClientSessionTestCookie)
-	
+
 	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Mutation)
 	handler.ServeHTTP(htr, req)
@@ -373,17 +373,17 @@ func TestUpdateAccess(t *testing.T) {
 	requestBody := requests.Body{
 		Action: UpdateAccess,
 		Params: requests.UpdateAccess{
-			Environment: "LOCAL",
-			UserID: -1,
+			Environment:  "LOCAL",
+			UserID:       -1,
 			Organization: "STORE_ROLES_UNIT_TESTS",
-			ReadAccess: false,
-			WriteAccess: false,
+			ReadAccess:   false,
+			WriteAccess:  false,
 		},
 	}
 
 	marshalBytes := new(bytes.Buffer)
 	json.NewEncoder(marshalBytes).Encode(requestBody)
-	req,errReq := http.NewRequest(
+	req, errReq := http.NewRequest(
 		"POST",
 		"/m/users/",
 		marshalBytes,
@@ -396,7 +396,7 @@ func TestUpdateAccess(t *testing.T) {
 		return
 	}
 	req.AddCookie(ClientSessionTestCookie)
-	
+
 	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Mutation)
 	handler.ServeHTTP(htr, req)
@@ -433,15 +433,15 @@ func TestDelete(t *testing.T) {
 	requestBody := requests.Body{
 		Action: Delete,
 		Params: requests.Delete{
-			Environment: "LOCAL",
-			UserID: -1,
+			Environment:  "LOCAL",
+			UserID:       -1,
 			Organization: "STORE_ROLES_UNIT_TESTS",
 		},
 	}
 
 	marshalBytes := new(bytes.Buffer)
 	json.NewEncoder(marshalBytes).Encode(requestBody)
-	req,errReq := http.NewRequest(
+	req, errReq := http.NewRequest(
 		"POST",
 		"/m/users/",
 		marshalBytes,
@@ -454,7 +454,7 @@ func TestDelete(t *testing.T) {
 		return
 	}
 	req.AddCookie(ClientSessionTestCookie)
-	
+
 	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Mutation)
 	handler.ServeHTTP(htr, req)
@@ -483,7 +483,6 @@ func TestDelete(t *testing.T) {
 	}
 }
 
-
 func TestUndelete(t *testing.T) {
 	if ClientSessionTestCookie == nil {
 		t.Error("client session is nil")
@@ -492,15 +491,15 @@ func TestUndelete(t *testing.T) {
 	requestBody := requests.Body{
 		Action: Undelete,
 		Params: requests.Undelete{
-			Environment: "LOCAL",
-			UserID: -1,
+			Environment:  "LOCAL",
+			UserID:       -1,
 			Organization: "STORE_ROLES_UNIT_TESTS",
 		},
 	}
 
 	marshalBytes := new(bytes.Buffer)
 	json.NewEncoder(marshalBytes).Encode(requestBody)
-	req,errReq := http.NewRequest(
+	req, errReq := http.NewRequest(
 		"POST",
 		"/m/users/",
 		marshalBytes,
@@ -513,7 +512,7 @@ func TestUndelete(t *testing.T) {
 		return
 	}
 	req.AddCookie(ClientSessionTestCookie)
-	
+
 	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Mutation)
 	handler.ServeHTTP(htr, req)

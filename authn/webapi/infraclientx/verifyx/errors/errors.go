@@ -8,14 +8,14 @@ import (
 )
 
 const (
-	ContentType = "Content-Type"
+	ContentType     = "Content-Type"
 	ApplicationJson = "application/json"
 )
 
 var (
-	BadRequestFail = "unable to decode request body"
-	InvalidGuestSession	= "invalid guest session"
-	InvalidInfraSession	= "invalid infra session provided"
+	BadRequestFail      = "unable to decode request body"
+	InvalidGuestSession = "invalid guest session"
+	InvalidInfraSession = "invalid infra session provided"
 
 	defaultFail = "unable to return Roles"
 )
@@ -44,7 +44,7 @@ func BadRequest(w http.ResponseWriter, errors *responses.Errors) {
 
 	json.NewEncoder(w).Encode(&responses.Body{
 		Errors: &responses.Errors{
-			Default:	&defaultFail,
+			Default: &defaultFail,
 		},
 	})
 }

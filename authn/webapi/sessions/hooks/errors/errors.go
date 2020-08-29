@@ -8,28 +8,28 @@ import (
 )
 
 const (
-	ContentType = "Content-Type"
+	ContentType     = "Content-Type"
 	ApplicationJson = "application/json"
 )
 
 var (
-	BadRequestFail 								 = "unable to decode request body"
-	NilRequestBodyFail 						 = "request body is nil"
-	UnrecognizedQuery 						 = "unrecognized query action requested"
-	UnrecognizedMutation 					 = "unrecognized mutation action requested"
-	UnrecognizedParams 						 = "unrecognized parameters"
-	UnableToValidateSession 			 = "unable to create validate session"
-	UnableToCreatePublicSession 	 = "unable to create public session"
-	InvalidSessionCredentials 		 = "invalid session credentials provided"
-	InvalidInfraCredentials 		 	 = "invalid infra session credentials provided"
-	InvalidGuestCredentials 		 	 = "invalid guest session credentials provided"
-	NilInfraCredentials 		 	 		 = "nil infra session credentials provided"
-	InvalidSessionProvided    		 = "invalid session provided"
+	BadRequestFail                 = "unable to decode request body"
+	NilRequestBodyFail             = "request body is nil"
+	UnrecognizedQuery              = "unrecognized query action requested"
+	UnrecognizedMutation           = "unrecognized mutation action requested"
+	UnrecognizedParams             = "unrecognized parameters"
+	UnableToValidateSession        = "unable to create validate session"
+	UnableToCreatePublicSession    = "unable to create public session"
+	InvalidSessionCredentials      = "invalid session credentials provided"
+	InvalidInfraCredentials        = "invalid infra session credentials provided"
+	InvalidGuestCredentials        = "invalid guest session credentials provided"
+	NilInfraCredentials            = "nil infra session credentials provided"
+	InvalidSessionProvided         = "invalid session provided"
 	CreateGuestSessionErrorMessage = "error creating guest session"
 	InvalidRequestProvided         = "invalid request provided"
 	InvalidDefaultUserProvided     = "invalid default user provided"
 	UnableToMarshalSession         = "unable to marshal session"
-	UnableToUpdateSession					 = "unable to update session"
+	UnableToUpdateSession          = "unable to update session"
 
 	defaultFail = "unable to return session"
 )

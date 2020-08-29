@@ -8,8 +8,8 @@ import (
 
 	"webapi/server/ping"
 	sessionHooks "webapi/sessions/hooks"
-	usersHooks "webapi/store/users/hooks"
 	rolesHooks "webapi/store/roles/hooks"
+	usersHooks "webapi/store/users/hooks"
 )
 
 func CreateMux() *http.ServeMux {
@@ -22,7 +22,7 @@ func CreateMux() *http.ServeMux {
 
 	mux.HandleFunc("/q/roles/", rolesHooks.Query)
 	mux.HandleFunc("/m/roles/", rolesHooks.Mutation)
-	
+
 	mux.HandleFunc("/q/sessions/", sessionHooks.Query)
 	mux.HandleFunc("/m/sessions/", sessionHooks.Mutation)
 

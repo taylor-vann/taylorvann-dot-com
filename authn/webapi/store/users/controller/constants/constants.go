@@ -6,13 +6,13 @@ package constants
 import "os"
 
 const (
-	Production 			= "PRODUCTION"
-	Development			= "DEVELOPMENT"
-	Local						= "LOCAL"
+	Production  = "PRODUCTION"
+	Development = "DEVELOPMENT"
+	Local       = "LOCAL"
 
-	Users     			= "users"
-	UsersTest 			= "users_test"
-	UsersUnitTests  = "users_unit_tests"
+	Users          = "users"
+	UsersTest      = "users_test"
+	UsersUnitTests = "users_unit_tests"
 )
 
 var (

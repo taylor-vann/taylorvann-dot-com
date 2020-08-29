@@ -12,7 +12,7 @@ import (
 var (
 	Environment = os.Getenv("STAGE")
 
-	infraOverlordEmail = os.Getenv("INFRA_OVERLORD_EMAIL")
+	infraOverlordEmail    = os.Getenv("INFRA_OVERLORD_EMAIL")
 	infraOverlordPassword = os.Getenv("INFRA_OVERLORD_PASSWORD")
 )
 
@@ -99,9 +99,9 @@ func TestIsSessionValid(t *testing.T) {
 	if !IsSessionValid(
 		htr,
 		&IsSessionValidParams{
-			Environment: Environment,
+			Environment:        Environment,
 			InfraSessionCookie: InfraSessionTestCookie,
-			SessionCookie: GuestSessionTestCookie,
+			SessionCookie:      GuestSessionTestCookie,
 		},
 	) {
 		t.Error("session could not be verified")
@@ -118,10 +118,10 @@ func TestHasRoleFromSession(t *testing.T) {
 	if !HasRoleFromSession(
 		htr,
 		&HasRoleFromSessionParams{
-			Environment: Environment,
+			Environment:        Environment,
 			InfraSessionCookie: InfraSessionTestCookie,
-			SessionCookie: InfraSessionTestCookie,
-			Organization: "AUTHN_ADMIN",
+			SessionCookie:      InfraSessionTestCookie,
+			Organization:       "AUTHN_ADMIN",
 		},
 	) {
 		t.Error("session could not be verified")
@@ -138,10 +138,10 @@ func TestValidateUser(t *testing.T) {
 	if !ValidateUser(
 		htr,
 		&ValidateUserParams{
-			Environment: Environment,
+			Environment:        Environment,
 			InfraSessionCookie: InfraSessionTestCookie,
-			Email: infraOverlordEmail,
-			Password: infraOverlordPassword,
+			Email:              infraOverlordEmail,
+			Password:           infraOverlordPassword,
 		},
 	) {
 		t.Error("session could not be verified")

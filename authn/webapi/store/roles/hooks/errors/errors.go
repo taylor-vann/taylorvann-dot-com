@@ -8,29 +8,29 @@ import (
 )
 
 const (
-	ContentType = "Content-Type"
+	ContentType     = "Content-Type"
 	ApplicationJson = "application/json"
 )
 
 var (
-	BadRequestFail  		 		 	= "unable to decode request body"
-	UnrecognizedQuery 	 		 	= "unrecognized query action requested"
-	UnrecognizedMutation 		 	= "unrecognized mutation action requested"
-	UnrecognizedParams			 	= "unrecognized params given"
-	InvalidGuestSession 		 	= "invalid guest session"
-	InvalidGuestUser 		 			= "invalid guest user"
-	NilInfraCredentials 		 	= "nil infra session credentials provided"
-	InvalidInfraSession 		 	= "invalid infra session provided"
+	BadRequestFail       = "unable to decode request body"
+	UnrecognizedQuery    = "unrecognized query action requested"
+	UnrecognizedMutation = "unrecognized mutation action requested"
+	UnrecognizedParams   = "unrecognized params given"
+	InvalidGuestSession  = "invalid guest session"
+	InvalidGuestUser     = "invalid guest user"
+	NilInfraCredentials  = "nil infra session credentials provided"
+	InvalidInfraSession  = "invalid infra session provided"
 
-	FailedToValidateGuestUser	= "failed to validate guest user"
-	FailedToCreateRole 	 		 	= "failed to create role"
-	FailedToReadRole	 	 		 	= "failed to read role"
-	FailedToIndexRoles 	 		 	= "failed to index roles"
-	FailedToSearchRoles  		 	= "failed to search roles"
-	FailedToUpdateRole	 	 	 	= "failed to Update role"
-	FailedToUpdateAccessRole 	= "failed to Update Access role"
-	FailedToDeleteRole 	 		 	= "failed to delete role"
-	FailedToUndeleteRole 		 	= "failed to undelete role"
+	FailedToValidateGuestUser = "failed to validate guest user"
+	FailedToCreateRole        = "failed to create role"
+	FailedToReadRole          = "failed to read role"
+	FailedToIndexRoles        = "failed to index roles"
+	FailedToSearchRoles       = "failed to search roles"
+	FailedToUpdateRole        = "failed to Update role"
+	FailedToUpdateAccessRole  = "failed to Update Access role"
+	FailedToDeleteRole        = "failed to delete role"
+	FailedToUndeleteRole      = "failed to undelete role"
 
 	defaultFail = "unable to return Roles"
 )
@@ -59,7 +59,7 @@ func BadRequest(w http.ResponseWriter, errors *responses.Errors) {
 
 	json.NewEncoder(w).Encode(&responses.Body{
 		Errors: &responses.Errors{
-			Default:	&defaultFail,
+			Default: &defaultFail,
 		},
 	})
 }

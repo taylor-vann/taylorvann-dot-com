@@ -7,22 +7,22 @@ import (
 )
 
 type TestEntry struct {
-	CreatedAt	int64
-	Lifetime	int64
+	CreatedAt int64
+	Lifetime  int64
 }
 
 type TestPlan struct {
-	Key			string
-	Entry 	TestEntry
+	Key   string
+	Entry TestEntry
 }
 
 const TestEnvironment = "UNIT_TESTS"
+
 var testPlans = generateRandomTestPlans(5)
 
 func getNowAsMS() MilliSeconds {
 	return time.Now().UnixNano() / int64(time.Millisecond)
 }
-
 
 func getLaterAsMS() MilliSeconds {
 	return (time.Now().UnixNano() + DayAsMS) / int64(time.Millisecond)
@@ -31,18 +31,18 @@ func getLaterAsMS() MilliSeconds {
 func generateRandomTestPlans(num int) *[]TestPlan {
 	testPlans := make([]TestPlan, num)
 
-	for index := range testPlans{
+	for index := range testPlans {
 		nowAsMS := getNowAsMS()
 
 		indexAsStr := strconv.Itoa(index)
 		nowAsMSAsStr := strconv.FormatInt(nowAsMS, 10)
 
-		key := "UNIT_TEST_CACHE_ENTRY" + "_" + indexAsStr  + "_" + nowAsMSAsStr
+		key := "UNIT_TEST_CACHE_ENTRY" + "_" + indexAsStr + "_" + nowAsMSAsStr
 		testPlans[index] = TestPlan{
 			Key: key,
 			Entry: TestEntry{
 				CreatedAt: nowAsMS,
-				Lifetime: DayAsMS,
+				Lifetime:  DayAsMS,
 			},
 		}
 	}
@@ -56,8 +56,8 @@ func TestCreateEntry(t *testing.T) {
 			Environment: TestEnvironment,
 			CreatedAt:   entry.Entry.CreatedAt,
 			Lifetime:    entry.Entry.Lifetime,
-			Payload: 		 entry,
-			Key: 				 entry.Key,
+			Payload:     entry,
+			Key:         entry.Key,
 		})
 
 		if errEntry != nil {
@@ -79,8 +79,8 @@ func TestReadEntry(t *testing.T) {
 			Environment: TestEnvironment,
 			CreatedAt:   test.Entry.CreatedAt,
 			Lifetime:    test.Entry.Lifetime,
-			Payload: 		 test,
-			Key: 				 test.Key,
+			Payload:     test,
+			Key:         test.Key,
 		})
 
 		if errEntry != nil {
@@ -96,7 +96,7 @@ func TestReadEntry(t *testing.T) {
 	for _, test := range expected {
 		readEntry, errReadEntry := ReadEntry(&ReadEntryParams{
 			Environment: TestEnvironment,
-			Key:   			 test.Key,
+			Key:         test.Key,
 		})
 		if errReadEntry != nil {
 			t.Error(errReadEntry.Error())
@@ -117,8 +117,8 @@ func TestRemoveEntry(t *testing.T) {
 			Environment: TestEnvironment,
 			CreatedAt:   test.Entry.CreatedAt,
 			Lifetime:    test.Entry.Lifetime,
-			Key: 				 test.Key,
-			Payload:  	 test.Entry,
+			Key:         test.Key,
+			Payload:     test.Entry,
 		})
 
 		if errEntry != nil {
@@ -134,7 +134,7 @@ func TestRemoveEntry(t *testing.T) {
 	for _, test := range results {
 		removeEntry, errRemoveEntry := RemoveEntry(&RemoveEntryParams{
 			Environment: TestEnvironment,
-			Key: 				 test.Key,
+			Key:         test.Key,
 		})
 		if errRemoveEntry != nil {
 			t.Error(errRemoveEntry.Error())

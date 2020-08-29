@@ -9,6 +9,7 @@ import (
 )
 
 const unitTests = "UNIT_TESTS"
+
 var fakeSession = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ5b2Rhd2ciLCJpYXQiOjE1ODIzMTU0NDYsImV4cCI6MTYxMzg1MTQ0NiwiYXVkIjoid3d3LmJsYWhibGFoLmNvbSIsInN1YiI6ImpvaG5ueUBxdWVzdC5jb20iLCJHaXZlbk5hbWUiOiJKb2hubnkiLCJTdXJuYW1lIjoiUXVlc3QiLCJFbWFpbCI6Impyb2NrZXRAZXhhbXBsZS5jb20ifQ.hPmDUos2HzRgn-OfFcC3gzhi28xa5YEDAVwfxWYfvdY"
 var storeSuccess, errStore = store.CreateRequiredTables()
 
@@ -17,7 +18,7 @@ var GuestSession *Session
 func TestCreateGuestSession(t *testing.T) {
 	session, errSession := Create(&CreateParams{
 		Environment: unitTests,
-		Claims: CreateGuestSessionClaims(),
+		Claims:      CreateGuestSessionClaims(),
 	})
 	if session == nil {
 		t.Error("Nil value returned")
@@ -32,7 +33,7 @@ func TestCreateGuestSession(t *testing.T) {
 func TestReadSession(t *testing.T) {
 	result, errResult := Read(&ReadParams{
 		Environment: unitTests,
-		Token: GuestSession.Token,
+		Token:       GuestSession.Token,
 	})
 	if errResult != nil {
 		t.Error(errResult)
@@ -46,7 +47,7 @@ func TestRemoveSession(t *testing.T) {
 	// create public session
 	session, errSession := Create(&CreateParams{
 		Environment: unitTests,
-		Claims: CreateGuestSessionClaims(),
+		Claims:      CreateGuestSessionClaims(),
 	})
 	if session == nil {
 		t.Error("Nil value returned")
@@ -69,7 +70,7 @@ func TestRemoveSession(t *testing.T) {
 
 	entryRemoved, errEntryRemoved := Delete(&DeleteParams{
 		Environment: unitTests,
-		Signature: tokenDetails.Signature,
+		Signature:   tokenDetails.Signature,
 	})
 	if errEntryRemoved != nil {
 		t.Error(errEntryRemoved.Error())
@@ -84,7 +85,7 @@ func TestRemoveSessionRespondsFalse(t *testing.T) {
 	badSignature := "animal_crackers_with_nutella"
 	entryRemoved, errEntryRemoved := Delete(&DeleteParams{
 		Environment: unitTests,
-		Signature: badSignature,
+		Signature:   badSignature,
 	})
 	if errEntryRemoved != nil {
 		t.Error(errEntryRemoved.Error())

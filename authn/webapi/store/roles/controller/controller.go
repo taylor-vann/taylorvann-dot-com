@@ -16,14 +16,14 @@ import (
 )
 
 type Row struct {
-	ID					 int64     `json:"id"`
-	UserID    	 int64     `json:"user_id"`
+	ID           int64     `json:"id"`
+	UserID       int64     `json:"user_id"`
 	Organization string    `json:"organization"`
-	ReadAccess	 bool			 `json:"read_access"`
-	WriteAccess	 bool			 `json:"write_access"`
-	IsDeleted		 bool			 `json:"is_deleted"`
-	CreatedAt		 time.Time `json:"created_at"`
-	UpdatedAt		 time.Time `json:"updated_at"`
+	ReadAccess   bool      `json:"read_access"`
+	WriteAccess  bool      `json:"write_access"`
+	IsDeleted    bool      `json:"is_deleted"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
 }
 
 type Roles = []Row
@@ -34,49 +34,47 @@ type CreateTableParams struct {
 
 type CreateParams struct {
 	Environment  string `json:"environment`
-	UserID			 int64	`json:"user_id"`
+	UserID       int64  `json:"user_id"`
 	Organization string `json:"organization"`
-	ReadAccess	 bool		`json:"read_access"`
-	WriteAccess	 bool		`json:"write_access"`
+	ReadAccess   bool   `json:"read_access"`
+	WriteAccess  bool   `json:"write_access"`
 }
 
 type ReadParams struct {
 	Environment  string `json:"environment`
-	UserID			 int64	`json:"user_id"`
+	UserID       int64  `json:"user_id"`
 	Organization string `json:"organization"`
 }
 
 type IndexParams struct {
-	Environment  string `json:"environment`
-	StartIndex	 int64	`json:"start_index"`
-	Length  		 int64	`json:"length"`
+	Environment string `json:"environment`
+	StartIndex  int64  `json:"start_index"`
+	Length      int64  `json:"length"`
 }
 
 type SearchParams struct {
-	Environment  string `json:"environment`
-	UserID			 int64	`json:"user_id"`
-	StartIndex	 int64	`json::"start_index"`
-	Length  		 int64	`json:"length"`
+	Environment string `json:"environment`
+	UserID      int64  `json:"user_id"`
+	StartIndex  int64  `json::"start_index"`
+	Length      int64  `json:"length"`
 }
 
 type UpdateParams struct {
 	Environment  string `json:"environment`
-	UserID			 int64	`json:"user_id"`
+	UserID       int64  `json:"user_id"`
 	Organization string `json:"organization"`
-	ReadAccess	 bool		`json:"read_access"`
-	WriteAccess	 bool		`json:"write_access"`
-	IsDeleted		 bool		`json:"is_deleted"`
+	ReadAccess   bool   `json:"read_access"`
+	WriteAccess  bool   `json:"write_access"`
+	IsDeleted    bool   `json:"is_deleted"`
 }
 
 type UpdateAccessParams = CreateParams
 type DeleteParams = ReadParams
 type UndeleteParams = ReadParams
 
-
 var (
 	errNilParams = errors.New("nil params provided")
 )
-
 
 func getDefaultEnvironment(environment string) string {
 	if environment != "" {
@@ -86,7 +84,7 @@ func getDefaultEnvironment(environment string) string {
 	if constants.Environment == constants.Development {
 		return constants.Development
 	}
-	
+
 	return constants.Local
 }
 
@@ -108,7 +106,7 @@ func CreateRows(rows *sql.Rows) (Roles, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var rolesRow Row
-		
+
 		errScan := rows.Scan(
 			&rolesRow.ID,
 			&rolesRow.UserID,

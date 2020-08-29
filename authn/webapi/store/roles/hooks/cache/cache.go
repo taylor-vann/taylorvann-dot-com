@@ -18,7 +18,6 @@ var (
 	errNilParams = errors.New("nil params given")
 )
 
-
 func getReadKey(userID int64, organization string) string {
 	return Role + "_" + Read + "_" + string(userID) + "_" + organization
 }
@@ -30,7 +29,7 @@ func GetReadEntry(p *requests.Read) (*controller.Roles, error) {
 	key := getReadKey(p.UserID, p.Organization)
 	entry, errReadEntry := cache.ReadEntry(&cache.ReadEntryParams{
 		Environment: p.Environment,
-		Key: key,
+		Key:         key,
 	})
 	if errReadEntry != nil || entry == nil {
 		return nil, errReadEntry
@@ -46,16 +45,16 @@ func GetReadEntry(p *requests.Read) (*controller.Roles, error) {
 	return &roles, errRolesUnmarshal
 }
 
-func UpdateReadEntry(env string, roles *controller.Roles) (error) {
+func UpdateReadEntry(env string, roles *controller.Roles) error {
 	role := (*roles)[0]
-	
+
 	key := getReadKey(role.UserID, role.Organization)
 	_, errCreateEntry := cache.CreateEntry(&cache.CreateEntryParams{
 		Environment: env,
-		Key: key,
-		Payload: *roles,
-		Lifetime: cache.ThreeDaysAsMS,
+		Key:         key,
+		Payload:     *roles,
+		Lifetime:    cache.ThreeDaysAsMS,
 	})
-	
-	return errCreateEntry	
+
+	return errCreateEntry
 }

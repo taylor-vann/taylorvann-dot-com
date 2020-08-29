@@ -14,10 +14,9 @@ import (
 )
 
 const (
-	ContentType = "Content-Type"
+	ContentType     = "Content-Type"
 	ApplicationJson = "application/json"
 )
-
 
 func writeUsersResponse(w http.ResponseWriter, users *controller.SafeUsers) {
 	w.Header().Set(ContentType, ApplicationJson)
@@ -118,7 +117,7 @@ func ValidateGuest(
 		writeUsersResponse(w, &usersStore)
 		return
 	}
-	
+
 	errors.BadRequest(w, &responses.Errors{
 		Users: &errors.FailedToReadUser,
 	})
@@ -155,7 +154,7 @@ func ValidateUser(
 		writeUsersResponse(w, &usersStore)
 		return
 	}
-	
+
 	errors.BadRequest(w, &responses.Errors{
 		Users: &errors.FailedToReadUser,
 	})
@@ -232,4 +231,3 @@ func Search(
 		Users: &errors.FailedToSearchUsers,
 	})
 }
-

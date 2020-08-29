@@ -13,12 +13,12 @@ type SQL struct {
 	CreateTable  string
 	Create       string
 	Read         string
-	Search			 string
-	Index				 string
+	Search       string
+	Index        string
 	Update       string
 	UpdateAccess string
 	Delete       string
-	Undelete		 string
+	Undelete     string
 }
 
 type StatementMap = map[string]SQL
@@ -147,15 +147,15 @@ RETURNING
 
 func createRolesStatements(tableName string) SQL {
 	statements := SQL{
-		CreateTable:	fmt.Sprintf(createTable, tableName, tableName),
-		Create:				fmt.Sprintf(create, tableName),
-		Read:					fmt.Sprintf(read, tableName),
-		Search:				fmt.Sprintf(search, tableName),
-		Index:				fmt.Sprintf(index, tableName),
-		Update:				fmt.Sprintf(update, tableName),
+		CreateTable:  fmt.Sprintf(createTable, tableName, tableName),
+		Create:       fmt.Sprintf(create, tableName),
+		Read:         fmt.Sprintf(read, tableName),
+		Search:       fmt.Sprintf(search, tableName),
+		Index:        fmt.Sprintf(index, tableName),
+		Update:       fmt.Sprintf(update, tableName),
 		UpdateAccess: fmt.Sprintf(updateAccess, tableName),
-		Delete:				fmt.Sprintf(updateAsDeleted, tableName),
-		Undelete:			fmt.Sprintf(undelete, tableName),
+		Delete:       fmt.Sprintf(updateAsDeleted, tableName),
+		Undelete:     fmt.Sprintf(undelete, tableName),
 	}
 
 	return statements
@@ -163,7 +163,7 @@ func createRolesStatements(tableName string) SQL {
 
 func createStatementMap() StatementMap {
 	sqlMap := make(StatementMap)
-	
+
 	sqlMap[constants.Production] = createRolesStatements(constants.Roles)
 	sqlMap[constants.Development] = createRolesStatements(constants.RolesTest)
 	sqlMap[constants.Local] = createRolesStatements(constants.RolesUnitTests)
@@ -173,6 +173,6 @@ func createStatementMap() StatementMap {
 
 var SqlMap = createStatementMap()
 
-const DangerouslyDropUnitTestsTable =`
+const DangerouslyDropUnitTestsTable = `
 DROP TABLE roles_unit_tests;
 `

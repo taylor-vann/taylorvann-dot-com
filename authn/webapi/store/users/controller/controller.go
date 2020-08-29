@@ -31,11 +31,11 @@ type Row struct {
 }
 
 type SafeRow struct {
-	ID        int64       `json:"id"`
-	Email     string      `json:"email"`
-	IsDeleted bool        `json:"is_deleted"`
-	CreatedAt time.Time   `json:"created_at"` // milli seconds
-	UpdatedAt time.Time   `json:"updated_at"` // milli seconds
+	ID        int64     `json:"id"`
+	Email     string    `json:"email"`
+	IsDeleted bool      `json:"is_deleted"`
+	CreatedAt time.Time `json:"created_at"` // milli seconds
+	UpdatedAt time.Time `json:"updated_at"` // milli seconds
 }
 
 type Users = []Row
@@ -47,40 +47,40 @@ type CreateTableParams struct {
 
 type CreateParams struct {
 	Environment string `json:"environment"`
-	Email    		string `json:"email"`	
-	Password 		string `json:"password"`
+	Email       string `json:"email"`
+	Password    string `json:"password"`
 }
 
 type ReadParams struct {
 	Environment string `json:"environment"`
-	Email 			string `json:"email"`
+	Email       string `json:"email"`
 }
 
 type IndexParams struct {
-	Environment  string `json:"environment"`
-	StartIndex	 int64  `json:"start_index"`
-	Length  		 int64	`json:"length"`
+	Environment string `json:"environment"`
+	StartIndex  int64  `json:"start_index"`
+	Length      int64  `json:"length"`
 }
 
 type SearchParams struct {
-	Environment 	 string `json:"environment"`
-	EmailSubstring string	`json:"email_substring"`
-	StartIndex	 int64  `json:"start_index"`
-	Length  		 int64	`json:"length"`
+	Environment    string `json:"environment"`
+	EmailSubstring string `json:"email_substring"`
+	StartIndex     int64  `json:"start_index"`
+	Length         int64  `json:"length"`
 }
 
 type UpdateParams struct {
-	Environment 	string `json:"environment"`
-	CurrentEmail  string `json:"current_email"`
-	UpdatedEmail  string `json:"updated_email"`
-	Password      string `json:"password"`
-	IsDeleted			bool	 `json:"is_deleted"`
+	Environment  string `json:"environment"`
+	CurrentEmail string `json:"current_email"`
+	UpdatedEmail string `json:"updated_email"`
+	Password     string `json:"password"`
+	IsDeleted    bool   `json:"is_deleted"`
 }
 
 type UpdateEmailParams struct {
-	Environment 	string `json:"environment"`
-	CurrentEmail  string `json:"current_email"`
-	UpdatedEmail  string `json:"updated_email"`
+	Environment  string `json:"environment"`
+	CurrentEmail string `json:"current_email"`
+	UpdatedEmail string `json:"updated_email"`
 }
 
 type ValidateParams = CreateParams
@@ -88,16 +88,14 @@ type UpdatePasswordParams = CreateParams
 type DeleteParams = ReadParams
 type UndeleteParams = ReadParams
 
-
 var (
-	errNilParams = errors.New("nil parameters provided")
-	errUserNotFound = errors.New("user not found")
-	errInvalidPassword = errors.New("invalid password")
-	errPasswordIsEmptyString = errors.New("password cannot be empty string")
-	errEmailIsEmptyString = errors.New("current email cannot be empty string")
+	errNilParams                 = errors.New("nil parameters provided")
+	errUserNotFound              = errors.New("user not found")
+	errInvalidPassword           = errors.New("invalid password")
+	errPasswordIsEmptyString     = errors.New("password cannot be empty string")
+	errEmailIsEmptyString        = errors.New("current email cannot be empty string")
 	errUpdatedEmailIsEmptyString = errors.New("updated email cannot be empty string")
 )
-
 
 func getDefaultEnvironment(environment string) string {
 	if environment != "" {
@@ -107,7 +105,7 @@ func getDefaultEnvironment(environment string) string {
 	if constants.Environment == constants.Development {
 		return constants.Development
 	}
-	
+
 	return constants.Local
 }
 
@@ -130,7 +128,7 @@ func CreateRows(rows *sql.Rows) (Users, error) {
 	for rows.Next() {
 		var userRow Row
 		var jsonParamsAsStr string
-		
+
 		errScan := rows.Scan(
 			&userRow.ID,
 			&userRow.Email,
@@ -156,12 +154,11 @@ func CreateRows(rows *sql.Rows) (Users, error) {
 		users = append(users, userRow)
 	}
 
-
 	return users, nil
 }
 
 func CreateSafeRows(rows *sql.Rows) (SafeUsers, error) {
-	userRows, errUserRows:= CreateRows(rows)
+	userRows, errUserRows := CreateRows(rows)
 	if errUserRows != nil {
 		return nil, errNilParams
 	}
@@ -169,8 +166,8 @@ func CreateSafeRows(rows *sql.Rows) (SafeUsers, error) {
 	var users SafeUsers
 	for _, row := range userRows {
 		users = append(users, SafeRow{
-			ID: row.ID,
-			Email: row.Email,
+			ID:        row.ID,
+			Email:     row.Email,
 			IsDeleted: row.IsDeleted,
 			CreatedAt: row.CreatedAt,
 			UpdatedAt: row.UpdatedAt,
@@ -188,8 +185,8 @@ func AdoptSafeRows(userRows *Users) (SafeUsers, error) {
 	var users SafeUsers
 	for _, row := range *userRows {
 		users = append(users, SafeRow{
-			ID: row.ID,
-			Email: row.Email,
+			ID:        row.ID,
+			Email:     row.Email,
 			IsDeleted: row.IsDeleted,
 			CreatedAt: row.CreatedAt,
 			UpdatedAt: row.UpdatedAt,
@@ -276,8 +273,8 @@ func Validate(p *ValidateParams) (SafeUsers, error) {
 	}
 
 	hashResults := passwordx.HashResults{
-		Salt: userRows[0].Salt,
-		Hash: userRows[0].Hash,
+		Salt:   userRows[0].Salt,
+		Hash:   userRows[0].Hash,
 		Params: *userRows[0].Params,
 	}
 
@@ -297,7 +294,6 @@ func Validate(p *ValidateParams) (SafeUsers, error) {
 
 	return SafeUsers{}, errUserRowsSafe
 }
-
 
 func Index(p *IndexParams) (SafeUsers, error) {
 	if p == nil {
