@@ -21,6 +21,18 @@ var (
 	InfraSessionTestCookie *http.Cookie
 )
 
+var (
+	Environment = os.Getenv("STAGE")
+
+	infraOverlordEmail    = os.Getenv("INFRA_OVERLORD_EMAIL")
+	infraOverlordPassword = os.Getenv("INFRA_OVERLORD_PASSWORD")
+)
+
+var (
+	GuestSessionTestCookie *http.Cookie
+	InfraSessionTestCookie *http.Cookie
+)
+
 func TestCreateGuestSession(t *testing.T) {
 	session, errInfraSession := sessionx.CreateGuestSession()
 	if errInfraSession != nil {
