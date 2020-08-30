@@ -12,20 +12,20 @@ import (
 	"time"
 
 	"webapi/infraclientx/sessionx"
-	"webapi/store/users/controller"	
+	"webapi/store/users/controller"
 	"webapi/store/users/hooks/requests"
 	"webapi/store/users/hooks/responses"
 )
 
 type Row struct {
-	ID					 int64     `json:"id"`
-	UserID    	 int64     `json:"user_id"`
+	ID           int64     `json:"id"`
+	UserID       int64     `json:"user_id"`
 	Organization string    `json:"organization"`
-	ReadAccess	 bool			 `json:"read_access"`
-	WriteAccess	 bool			 `json:"write_access"`
-	IsDeleted		 bool			 `json:"is_deleted"`
-	CreatedAt		 time.Time `json:"created_at"`
-	UpdatedAt		 time.Time `json:"updated_at"`
+	ReadAccess   bool      `json:"read_access"`
+	WriteAccess  bool      `json:"write_access"`
+	IsDeleted    bool      `json:"is_deleted"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
 }
 
 var createTable = controller.CreateTableParams{
@@ -34,39 +34,39 @@ var createTable = controller.CreateTableParams{
 
 var user1 = requests.Create{
 	Environment: "LOCAL",
-	Email: "test_user_willhelm_dallas_truday@unit_tests.com",
-	Password: "Pazzwerd",
+	Email:       "test_user_willhelm_dallas_truday@unit_tests.com",
+	Password:    "Pazzwerd",
 }
 
 var user1Search = requests.Search{
-	Environment: "LOCAL",
+	Environment:    "LOCAL",
 	EmailSubstring: "willhelm_dallas_truday",
-	StartIndex: 0,
-	Length: 10,
+	StartIndex:     0,
+	Length:         10,
 }
 
 var user1Updated = requests.Update{
-	Environment: "LOCAL",
+	Environment:  "LOCAL",
 	CurrentEmail: "test_user_willhelm_dallas_truday@unit_tests.com",
 	UpdatedEmail: "test_user_willhelm_dallas_thursday@unit_tests.com",
-	Password: "Pazzw3rd",
-	IsDeleted: false,
+	Password:     "Pazzw3rd",
+	IsDeleted:    false,
 }
 
 var user1UpdatedEmail = requests.UpdateEmail{
-	Environment: "LOCAL",
+	Environment:  "LOCAL",
 	CurrentEmail: "test_user_willhelm_dallas_thursday@unit_tests.com",
 	UpdatedEmail: "test_user_willhelm_dallas_thursdays@unit_tests.com",
 }
 
 var user1UpdatedPassword = requests.UpdatePassword{
 	Environment: "LOCAL",
-	Email: "test_user_willhelm_dallas_thursdays@unit_tests.com",
-	Password: "PAZZw3rd",
+	Email:       "test_user_willhelm_dallas_thursdays@unit_tests.com",
+	Password:    "PAZZw3rd",
 }
 
 var (
-	GuestSessionTestCookie *http.Cookie
+	GuestSessionTestCookie  *http.Cookie
 	ClientSessionTestCookie *http.Cookie
 )
 
@@ -137,7 +137,7 @@ func TestCreate(t *testing.T) {
 		return
 	}
 	req.AddCookie(ClientSessionTestCookie)
-	
+
 	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Mutation)
 	handler.ServeHTTP(htr, req)
@@ -182,7 +182,7 @@ func TestValidateGuest(t *testing.T) {
 		return
 	}
 	req.AddCookie(GuestSessionTestCookie)
-	
+
 	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Query)
 	handler.ServeHTTP(htr, req)
@@ -212,7 +212,7 @@ func TestRead(t *testing.T) {
 		Action: Read,
 		Params: requests.Read{
 			Environment: "LOCAL",
-			Email: user1.Email,
+			Email:       user1.Email,
 		},
 	}
 
@@ -231,7 +231,7 @@ func TestRead(t *testing.T) {
 		return
 	}
 	req.AddCookie(ClientSessionTestCookie)
-	
+
 	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Query)
 	handler.ServeHTTP(htr, req)
@@ -266,8 +266,8 @@ func TestIndex(t *testing.T) {
 		Action: Index,
 		Params: requests.Index{
 			Environment: "LOCAL",
-			StartIndex: 0,
-			Length: 10,
+			StartIndex:  0,
+			Length:      10,
 		},
 	}
 
@@ -286,7 +286,7 @@ func TestIndex(t *testing.T) {
 		return
 	}
 	req.AddCookie(ClientSessionTestCookie)
-	
+
 	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Query)
 	handler.ServeHTTP(htr, req)
@@ -337,7 +337,7 @@ func TestSearch(t *testing.T) {
 		return
 	}
 	req.AddCookie(ClientSessionTestCookie)
-	
+
 	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Query)
 	handler.ServeHTTP(htr, req)
@@ -393,7 +393,7 @@ func TestUpdate(t *testing.T) {
 		return
 	}
 	req.AddCookie(ClientSessionTestCookie)
-	
+
 	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Mutation)
 	handler.ServeHTTP(htr, req)
@@ -449,7 +449,7 @@ func TestUpdateEmail(t *testing.T) {
 		return
 	}
 	req.AddCookie(ClientSessionTestCookie)
-	
+
 	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Mutation)
 	handler.ServeHTTP(htr, req)
@@ -505,7 +505,7 @@ func TestUpdatePassword(t *testing.T) {
 		return
 	}
 	req.AddCookie(ClientSessionTestCookie)
-	
+
 	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Mutation)
 	handler.ServeHTTP(htr, req)
@@ -540,7 +540,7 @@ func TestDelete(t *testing.T) {
 		Action: Delete,
 		Params: requests.Delete{
 			Environment: "LOCAL",
-			Email: user1UpdatedPassword.Email,
+			Email:       user1UpdatedPassword.Email,
 		},
 	}
 
@@ -559,7 +559,7 @@ func TestDelete(t *testing.T) {
 		return
 	}
 	req.AddCookie(ClientSessionTestCookie)
-	
+
 	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Mutation)
 	handler.ServeHTTP(htr, req)
@@ -593,12 +593,12 @@ func TestUndelete(t *testing.T) {
 		t.Error("client session is nil")
 		return
 	}
-	
+
 	requestBody := requests.Body{
 		Action: Undelete,
 		Params: requests.Undelete{
 			Environment: "LOCAL",
-			Email: user1UpdatedPassword.Email,
+			Email:       user1UpdatedPassword.Email,
 		},
 	}
 
@@ -617,7 +617,7 @@ func TestUndelete(t *testing.T) {
 		return
 	}
 	req.AddCookie(ClientSessionTestCookie)
-	
+
 	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Mutation)
 	handler.ServeHTTP(htr, req)

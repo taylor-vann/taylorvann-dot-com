@@ -8,27 +8,32 @@ import (
 	"net/http"
 
 	"webapi/store/roles/hooks/errors"
-	"webapi/store/roles/hooks/requests"
-	"webapi/store/roles/hooks/responses"
 	"webapi/store/roles/hooks/mutations"
 	"webapi/store/roles/hooks/queries"
+	"webapi/store/roles/hooks/requests"
+	"webapi/store/roles/hooks/responses"
 )
 
 const (
-	Create				= "CREATE_ROLE"
-	Read					= "READ_ROLE"
+	Create        = "CREATE_ROLE"
+	Read          = "READ_ROLE"
 	ValidateInfra = "VALIDATE_INFRA_OVERLORD_ROLE"
-	Search				= "SEARCH_ROLES"
-	Index					= "INDEX_ROLES"
-	Update				= "UPDATE_ROLE"
-	UpdateAccess	= "UPDATE_ROLE_ACCESS"
-	Delete				= "DELETE_ROLE"
-	Undelete			= "UNDELETE_ROLE"
+	Search        = "SEARCH_ROLES"
+	Index         = "INDEX_ROLES"
+	Update        = "UPDATE_ROLE"
+	UpdateAccess  = "UPDATE_ROLE_ACCESS"
+	Delete        = "DELETE_ROLE"
+	Undelete      = "UNDELETE_ROLE"
 
 	SessionCookieHeader = "briantaylorvann.com_session"
+
+	ContentType     = "Content-Type"
+	ApplicationJson = "application/json"
 )
 
-func Query(w http.ResponseWriter, r *http.Request) {	
+func Query(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set(ContentType, ApplicationJson)
+
 	if r.Body == nil {
 		errors.BadRequest(w, &responses.Errors{
 			RequestBody: &errors.BadRequestFail,
@@ -62,6 +67,8 @@ func Query(w http.ResponseWriter, r *http.Request) {
 }
 
 func Mutation(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set(ContentType, ApplicationJson)
+
 	if r.Body == nil {
 		errors.BadRequest(w, &responses.Errors{
 			RequestBody: &errors.BadRequestFail,
@@ -92,8 +99,6 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 	default:
 		errors.BadRequest(w, &responses.Errors{
 			RequestBody: &errors.UnrecognizedMutation,
-		})	
+		})
 	}
 }
-
-

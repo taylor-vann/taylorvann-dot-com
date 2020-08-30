@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"testing"
 	"os"
+	"testing"
 
 	"log"
 
@@ -17,12 +17,12 @@ import (
 )
 
 var (
-	InfraEmail 		= os.Getenv("INFRA_OVERLORD_EMAIL")
+	InfraEmail    = os.Getenv("INFRA_OVERLORD_EMAIL")
 	InfraPassword = os.Getenv("INFRA_OVERLORD_PASSWORD")
 )
 
 var (
-	GuestSessionTestCookie *http.Cookie
+	GuestSessionTestCookie  *http.Cookie
 	ClientSessionTestCookie *http.Cookie
 )
 
@@ -62,8 +62,8 @@ func TestCreateClientxSession(t *testing.T) {
 func TestRequestSession(t *testing.T) {
 	requestBody := requests.CreateSessionParams{
 		Environment: "DEVELOPMENT",
-		Email: InfraEmail,
-		Password: InfraPassword,
+		Email:       InfraEmail,
+		Password:    InfraPassword,
 	}
 
 	log.Println(requestBody)
@@ -87,11 +87,11 @@ func TestRequestSession(t *testing.T) {
 		t.Error(errResp.Error())
 		return
 	}
-	
+
 	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(RequestSession)
 	handler.ServeHTTP(htr, resp)
- 
+
 	if htr.Code != http.StatusOK {
 		t.Error("incorrect status code")
 		t.Error(htr.Code)
@@ -134,11 +134,11 @@ func TestRemoveSession(t *testing.T) {
 		return
 	}
 	req.AddCookie(ClientSessionTestCookie)
-	
+
 	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(RemoveSession)
 	handler.ServeHTTP(htr, req)
- 
+
 	if htr.Code != http.StatusOK {
 		t.Error("incorrect status code")
 		t.Error(htr.Code)
@@ -157,7 +157,7 @@ func TestRemoveSession(t *testing.T) {
 		return
 	}
 
-	var sessionCookie *http.Cookie 
+	var sessionCookie *http.Cookie
 	for _, cookie := range result.Cookies() {
 		if cookie.Name == "briantaylorvann.com_session" {
 			sessionCookie = cookie

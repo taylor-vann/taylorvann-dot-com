@@ -25,38 +25,38 @@ type Header struct {
 type Claims struct {
 	Iss string       `json:"iss"`
 	Sub string       `json:"sub"`
-	Aud string       `json:"aud"`	// guest, userID, <unique_or_ambiguous_identifier>
+	Aud string       `json:"aud"` // guest, userID, <unique_or_ambiguous_identifier>
 	Iat MilliSeconds `json:"iat"`
 	Exp MilliSeconds `json:"exp"`
 }
 
 type TokenDetails struct {
-	Header    Header	`json:"header"`
-	Payload   Claims	`json:"payload"`
-	Signature string	`json:"signature"`
+	Header    Header `json:"header"`
+	Payload   Claims `json:"payload"`
+	Signature string `json:"signature"`
 }
 
 type Token struct {
-	Header    string	`json:"header"`
-	Payload   string	`json:"payload"`
-	Signature string	`json:"signature"`
+	Header    string `json:"header"`
+	Payload   string `json:"payload"`
+	Signature string `json:"signature"`
 }
 
 type TokenPayload struct {
-	Token        Token	`json:"token"`
+	Token        Token  `json:"token"`
 	RandomSecret []byte `json:"random_secret"`
 }
 
 type ValidateTokenParams struct {
-	Token     string	`json:"token"`
-	Issuer		string	`json:"issuer"`
-	Audience  string	`json:"audience"`
-	Subject   string	`json:"subject"`
+	Token    string `json:"token"`
+	Issuer   string `json:"issuer"`
+	Audience string `json:"audience"`
+	Subject  string `json:"subject"`
 }
 
 type ValidateGenericTokenParams struct {
-	Token     string	`json:"token"`
-	Issuer		string	`json:"issuer"`
+	Token  string `json:"token"`
+	Issuer string `json:"issuer"`
 }
 
 var headerDefaultParams = Header{
@@ -285,7 +285,7 @@ func ValidateSessionTokenByParams(p *ValidateTokenParams) bool {
 	if p.Token == "" {
 		return false
 	}
-	
+
 	nowAsMS := GetNowAsMS()
 	tokenDetails, errTokenDetails := RetrieveTokenDetailsFromString(p.Token)
 	if errTokenDetails == nil &&

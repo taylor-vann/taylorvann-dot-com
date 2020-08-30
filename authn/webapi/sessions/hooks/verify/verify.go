@@ -12,37 +12,37 @@ import (
 const (
 	BrianTaylorVannDotCom = "briantaylorvann.com"
 
-	Guest = "guest"
+	Guest  = "guest"
 	Client = "client"
-	Infra = "infra"
+	Infra  = "infra"
 )
 
 var (
-	errSessionCookieIsNil = errors.New("session cookie is nil")
+	errSessionCookieIsNil    = errors.New("session cookie is nil")
 	errGuestSessionIsInvalid = errors.New("guest session was invalid")
 	errInfraSessionIsInvalid = errors.New("infra session was invalid")
 )
 
 func CheckGuestSession(sessionToken string) bool {
 	return jwtx.ValidateSessionTokenByParams(&jwtx.ValidateTokenParams{
-		Token: sessionToken,
-		Issuer: BrianTaylorVannDotCom,
+		Token:   sessionToken,
+		Issuer:  BrianTaylorVannDotCom,
 		Subject: Guest,
 	})
 }
 
 func CheckClientSession(sessionToken string) bool {
 	return jwtx.ValidateSessionTokenByParams(&jwtx.ValidateTokenParams{
-		Token: sessionToken,
-		Issuer: BrianTaylorVannDotCom,
+		Token:   sessionToken,
+		Issuer:  BrianTaylorVannDotCom,
 		Subject: Client,
 	})
 }
 
 func CheckInfraSession(sessionToken string) bool {
 	return jwtx.ValidateSessionTokenByParams(&jwtx.ValidateTokenParams{
-		Token: sessionToken,
-		Issuer: BrianTaylorVannDotCom,
+		Token:   sessionToken,
+		Issuer:  BrianTaylorVannDotCom,
 		Subject: Infra,
 	})
 }
@@ -59,7 +59,7 @@ func ValidateGuestSession(environment string, sessionCookie *http.Cookie) (bool,
 
 	return sessionsx.Read(&sessionsx.ValidateParams{
 		Environment: environment,
-		Token: sessionCookie.Value,
+		Token:       sessionCookie.Value,
 	})
 }
 
@@ -75,7 +75,7 @@ func ValidateInfraSession(environment string, sessionCookie *http.Cookie) (bool,
 
 	return sessionsx.Read(&sessionsx.ValidateParams{
 		Environment: environment,
-		Token: sessionCookie.Value,
+		Token:       sessionCookie.Value,
 	})
 }
 
@@ -91,6 +91,6 @@ func ValidateClientSession(environment string, sessionCookie *http.Cookie) (bool
 
 	return sessionsx.Read(&sessionsx.ValidateParams{
 		Environment: environment,
-		Token: sessionCookie.Value,
+		Token:       sessionCookie.Value,
 	})
 }

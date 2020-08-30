@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	webClientsDirectory = os.Getenv("WEB_CLIENTS_DIRECTORY")
+	webClientsDirectory    = os.Getenv("WEB_CLIENTS_DIRECTORY")
 	waywardRequestFilename = webClientsDirectory + "/lost/"
 
 	relativeRune = []byte(".")[0]
@@ -18,7 +18,7 @@ func containsRelativeBackPaths(path string) bool {
 	searchIndex := 1
 	for searchIndex < pathLength {
 		if path[searchIndex] == relativeRune &&
-			path[searchIndex - 1] == relativeRune {
+			path[searchIndex-1] == relativeRune {
 			return true
 		}
 		searchIndex += 1

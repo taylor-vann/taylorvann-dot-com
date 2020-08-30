@@ -13,12 +13,15 @@ import (
 func CreateMux() *http.ServeMux {
 	mux := http.NewServeMux()
 
-		// Issue and Destroy sessions without file-serving
+	// Issue and Destroy sessions without file-serving
 	mux.HandleFunc("/request_session/", sessionrequests.RequestSession)
 	mux.HandleFunc("/remove_session/", sessionrequests.RemoveSession)
 
 	// Serve internal files
 	mux.HandleFunc("/sign-in/", fileserver.ServeSignIn)
+
+	// briantaylorvann.com/home/
+	// for single page app snugness
 	mux.HandleFunc("/", fileserver.Serve)
 
 	return mux

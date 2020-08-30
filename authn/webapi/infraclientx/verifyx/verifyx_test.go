@@ -2,7 +2,6 @@ package verifyx
 
 import (
 	"net/http"
-	"net/http/httptest"
 	"os"
 	"testing"
 
@@ -12,7 +11,7 @@ import (
 var (
 	Environment = os.Getenv("STAGE")
 
-	infraOverlordEmail = os.Getenv("INFRA_OVERLORD_EMAIL")
+	infraOverlordEmail    = os.Getenv("INFRA_OVERLORD_EMAIL")
 	infraOverlordPassword = os.Getenv("INFRA_OVERLORD_PASSWORD")
 )
 
@@ -70,9 +69,7 @@ func TestIsGuestSessionValid(t *testing.T) {
 		t.Error("guest session is nil")
 	}
 
-	htr := httptest.NewRecorder()
-
-	if !IsGuestSessionValid(htr, Environment, GuestSessionTestCookie) {
+	if !IsGuestSessionValid(Environment, GuestSessionTestCookie) {
 		t.Error("guest session is not valid")
 	}
 }
@@ -82,9 +79,7 @@ func TestIsInfraSessionValid(t *testing.T) {
 		t.Error("guest session is nil")
 	}
 
-	htr := httptest.NewRecorder()
-
-	if !IsInfraSessionValid(htr, Environment, InfraSessionTestCookie) {
+	if !IsInfraSessionValid(Environment, InfraSessionTestCookie) {
 		t.Error("guest session is not valid")
 	}
 }
@@ -94,14 +89,11 @@ func TestIsSessionValid(t *testing.T) {
 		t.Error("guest session is nil")
 	}
 
-	htr := httptest.NewRecorder()
-
 	if !IsSessionValid(
-		htr,
 		&IsSessionValidParams{
-			Environment: Environment,
+			Environment:        Environment,
 			InfraSessionCookie: InfraSessionTestCookie,
-			SessionCookie: GuestSessionTestCookie,
+			SessionCookie:      GuestSessionTestCookie,
 		},
 	) {
 		t.Error("session could not be verified")
@@ -113,15 +105,12 @@ func TestHasRoleFromSession(t *testing.T) {
 		t.Error("guest session is nil")
 	}
 
-	htr := httptest.NewRecorder()
-
 	if !HasRoleFromSession(
-		htr,
 		&HasRoleFromSessionParams{
-			Environment: Environment,
+			Environment:        Environment,
 			InfraSessionCookie: InfraSessionTestCookie,
-			SessionCookie: InfraSessionTestCookie,
-			Organization: "AUTHN_ADMIN",
+			SessionCookie:      InfraSessionTestCookie,
+			Organization:       "AUTHN_ADMIN",
 		},
 	) {
 		t.Error("session could not be verified")
@@ -133,15 +122,12 @@ func TestValidateUser(t *testing.T) {
 		t.Error("guest session is nil")
 	}
 
-	htr := httptest.NewRecorder()
-
 	if !ValidateUser(
-		htr,
 		&ValidateUserParams{
-			Environment: Environment,
+			Environment:        Environment,
 			InfraSessionCookie: InfraSessionTestCookie,
-			Email: infraOverlordEmail,
-			Password: infraOverlordPassword,
+			Email:              infraOverlordEmail,
+			Password:           infraOverlordPassword,
 		},
 	) {
 		t.Error("session could not be verified")

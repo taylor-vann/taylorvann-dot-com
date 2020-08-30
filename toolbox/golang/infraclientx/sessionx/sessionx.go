@@ -12,21 +12,21 @@ import (
 var (
 	Environment = os.Getenv("STAGE")
 
-	infraOverlordEmail = os.Getenv("INFRA_OVERLORD_EMAIL")
+	infraOverlordEmail    = os.Getenv("INFRA_OVERLORD_EMAIL")
 	infraOverlordPassword = os.Getenv("INFRA_OVERLORD_PASSWORD")
-	
+
 	guestSessionRequestParams = requests.GuestSession{
 		Environment: Environment,
 	}
-	infraSessionRequestParams = requests.InfraSession {
+	infraSessionRequestParams = requests.InfraSession{
 		Environment: Environment,
-		Email: infraOverlordEmail,
-		Password: infraOverlordPassword,
+		Email:       infraOverlordEmail,
+		Password:    infraOverlordPassword,
 	}
 )
 
 var (
-	errNilGuestSession = errors.New("nil guest session returned")
+	errNilGuestSession  = errors.New("nil guest session returned")
 	errNileInfraSession = errors.New("nil infra session returned")
 )
 

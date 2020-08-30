@@ -11,12 +11,12 @@ import (
 type JWTClaimTestPlan = []jwtx.Claims
 
 const TestEnvironment = "UNIT_TESTS"
+
 var randomJWTClaims = generateRandomJWTClaims("client", 5)
 
 func getNowAsMS() MilliSeconds {
 	return time.Now().UnixNano() / int64(time.Millisecond)
 }
-
 
 func getLaterAsMS() MilliSeconds {
 	return (time.Now().UnixNano() + DayAsMS) / int64(time.Millisecond)
@@ -50,10 +50,10 @@ func TestCreateEntry(t *testing.T) {
 
 		entry, errEntry := CreateEntry(&CreateEntryParams{
 			Environment: TestEnvironment,
-			CreatedAt:  claim.Iat,
-			Lifetime:   DayAsMS,
-			SessionKey: token.RandomSecret,
-			Signature:  token.Token.Signature,
+			CreatedAt:   claim.Iat,
+			Lifetime:    DayAsMS,
+			SessionKey:  token.RandomSecret,
+			Signature:   token.Token.Signature,
 		})
 
 		if errEntry != nil {
@@ -77,10 +77,10 @@ func TestReadEntry(t *testing.T) {
 		tokens[index] = token
 		entry, errEntry := CreateEntry(&CreateEntryParams{
 			Environment: TestEnvironment,
-			CreatedAt:  claim.Iat,
-			Lifetime:   DayAsMS,
-			SessionKey: token.RandomSecret,
-			Signature:  token.Token.Signature,
+			CreatedAt:   claim.Iat,
+			Lifetime:    DayAsMS,
+			SessionKey:  token.RandomSecret,
+			Signature:   token.Token.Signature,
 		})
 
 		if errEntry != nil {
@@ -96,7 +96,7 @@ func TestReadEntry(t *testing.T) {
 	for _, token := range tokens {
 		readEntry, errReadEntry := ReadEntry(&ReadEntryParams{
 			Environment: TestEnvironment,
-			Signature: token.Token.Signature,
+			Signature:   token.Token.Signature,
 		})
 		if errReadEntry != nil {
 			t.Error(errReadEntry.Error())
@@ -125,10 +125,10 @@ func TestRemoveEntry(t *testing.T) {
 		tokens[index] = token
 		entry, errEntry := CreateEntry(&CreateEntryParams{
 			Environment: TestEnvironment,
-			CreatedAt:  claim.Iat,
-			Lifetime:   DayAsMS,
-			SessionKey: token.RandomSecret,
-			Signature:  token.Token.Signature,
+			CreatedAt:   claim.Iat,
+			Lifetime:    DayAsMS,
+			SessionKey:  token.RandomSecret,
+			Signature:   token.Token.Signature,
 		})
 
 		if errEntry != nil {
@@ -144,7 +144,7 @@ func TestRemoveEntry(t *testing.T) {
 	for _, token := range tokens {
 		removeEntry, errRemoveEntry := RemoveEntry(&RemoveEntryParams{
 			Environment: TestEnvironment,
-			Signature: token.Token.Signature,
+			Signature:   token.Token.Signature,
 		})
 		if errRemoveEntry != nil {
 			t.Error(errRemoveEntry.Error())

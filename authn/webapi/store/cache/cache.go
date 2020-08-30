@@ -5,38 +5,38 @@ import (
 	"errors"
 
 	"github.com/taylor-vann/weblog/toolbox/golang/graylistx"
-	
+
 	"webapi/sessions/whitelist/constants"
 )
 
 type MilliSeconds = int64
 
 type Entry struct {
-	Key	 			string			 `json:"key"`
-	Payload		interface{}	 `json:"payload"`
+	Key       string       `json:"key"`
+	Payload   interface{}  `json:"payload"`
 	CreatedAt MilliSeconds `json:"created_at"`
-	Lifetime	MilliSeconds `json:"expires_at"`
+	Lifetime  MilliSeconds `json:"expires_at"`
 }
 
 type CreateEntryParams struct {
-	Environment	string				`json:"environment"`
-	Key					string				`json:"key"`
-	Payload			interface{}		`json:"payload"`
-	CreatedAt		MilliSeconds	`json:"created_at"`
-	Lifetime		MilliSeconds	`json:"lifetime"`
+	Environment string       `json:"environment"`
+	Key         string       `json:"key"`
+	Payload     interface{}  `json:"payload"`
+	CreatedAt   MilliSeconds `json:"created_at"`
+	Lifetime    MilliSeconds `json:"lifetime"`
 }
 
 type ReadEntryParams struct {
-	Environment	string	`json:"environment"`
-	Key 				string	`json:"key"`
+	Environment string `json:"environment"`
+	Key         string `json:"key"`
 }
 
 type RemoveEntryParams = ReadEntryParams
 
 var (
-	DayAsMS = int64(1000 * 60 * 60 * 24)
+	DayAsMS       = int64(1000 * 60 * 60 * 24)
 	ThreeDaysAsMS = 3 * DayAsMS
-	config = graylistx.Config{
+	config        = graylistx.Config{
 		Host:        constants.Env.Host,
 		Port:        constants.Env.Port,
 		Protocol:    constants.Env.Protocol,
@@ -45,7 +45,7 @@ var (
 		MaxActive:   constants.Env.MaxActive,
 	}
 
-	errNilParams = errors.New("nil parameters provided")
+	errNilParams        = errors.New("nil parameters provided")
 	errCreatingGraylist = errors.New("error creating graylist")
 )
 
@@ -68,8 +68,8 @@ func CreateEntry(p *CreateEntryParams) (*Entry, error) {
 	}
 
 	entry := Entry{
-		Key: 			 p.Key,
-		Payload:	 p.Payload,
+		Key:       p.Key,
+		Payload:   p.Payload,
 		CreatedAt: p.CreatedAt,
 		Lifetime:  p.Lifetime,
 	}
@@ -82,8 +82,8 @@ func CreateEntry(p *CreateEntryParams) (*Entry, error) {
 	environmentKey := getEnvironmentKey(p.Key, p.Environment)
 	whitelistResult, errWhitelist := graylist.SetAndExpire(
 		&graylistx.SetAndExpireParams{
-			Key: environmentKey,
-			Value: entryAsJSON,
+			Key:        environmentKey,
+			Value:      entryAsJSON,
 			ExpiryInMS: p.Lifetime,
 		},
 	)

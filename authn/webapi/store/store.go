@@ -11,9 +11,9 @@ import (
 )
 
 const (
-	local = "LOCAL"
+	local       = "LOCAL"
 	development = "DEVELOPMENT"
-	production = "PRODUCTION"
+	production  = "PRODUCTION"
 )
 
 var Environment = os.Getenv("STAGE")
@@ -68,6 +68,6 @@ func CreateRequiredTables() (bool, error) {
 	if Environment == local {
 		return CreateLocalTables()
 	}
-	
+
 	return true, nil
 }

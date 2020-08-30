@@ -6,7 +6,7 @@ package server
 import (
 	"net/http"
 	"os"
-	
+
 	"webapi/server/muxrouter"
 )
 
@@ -17,7 +17,7 @@ const (
 
 var (
 	certFilepath = os.Getenv("CERTS_CRT_FILEPATH")
-	keyFilepath = os.Getenv("CERTS_KEY_FILEPATH")
+	keyFilepath  = os.Getenv("CERTS_KEY_FILEPATH")
 )
 
 func CreateServer() {

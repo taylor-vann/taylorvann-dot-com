@@ -8,29 +8,32 @@ import (
 	"net/http"
 
 	"webapi/store/users/hooks/errors"
-	"webapi/store/users/hooks/requests"
-	"webapi/store/users/hooks/responses"
 	"webapi/store/users/hooks/mutations"
 	"webapi/store/users/hooks/queries"
+	"webapi/store/users/hooks/requests"
+	"webapi/store/users/hooks/responses"
 )
 
 // you might be tempted to validate cookie sessions here
 // however, we have different stage environments for testing.
 
 const (
-	Create				 = "CREATE_USER"
-	Read					 = "READ_USER"
-	ValidateGuest	 = "VALIDATE_GUEST_USER"
-	ValidateUser	 = "VALIDATE_USER"
-	Search				 = "SEARCH_USERS"
-	Index					 = "INDEX_USERS"
-	Update				 = "UPDATE_USER"
-	UpdateEmail		 = "UPDATE_USER_EMAIL"
+	Create         = "CREATE_USER"
+	Read           = "READ_USER"
+	ValidateGuest  = "VALIDATE_GUEST_USER"
+	ValidateUser   = "VALIDATE_USER"
+	Search         = "SEARCH_USERS"
+	Index          = "INDEX_USERS"
+	Update         = "UPDATE_USER"
+	UpdateEmail    = "UPDATE_USER_EMAIL"
 	UpdatePassword = "UPDATE_USER_PASSWORD"
-	Delete				 = "DELETE_USER"
-	Undelete			 = "UNDELETE_USER"
+	Delete         = "DELETE_USER"
+	Undelete       = "UNDELETE_USER"
 
 	SessionCookieHeader = "briantaylorvann.com_session"
+
+	ContentType     = "Content-Type"
+	ApplicationJson = "application/json"
 )
 
 func dropRequestNotValidBody(w http.ResponseWriter, requestBody *requests.Body) bool {
@@ -44,6 +47,8 @@ func dropRequestNotValidBody(w http.ResponseWriter, requestBody *requests.Body) 
 }
 
 func Query(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set(ContentType, ApplicationJson)
+
 	if r.Body == nil {
 		errors.BadRequest(w, &responses.Errors{
 			RequestBody: &errors.BadRequestFail,
@@ -83,6 +88,8 @@ func Query(w http.ResponseWriter, r *http.Request) {
 }
 
 func Mutation(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set(ContentType, ApplicationJson)
+
 	if r.Body == nil {
 		errors.CustomResponse(w, errors.NilRequestBodyFail)
 		return
@@ -121,8 +128,6 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 	default:
 		errors.BadRequest(w, &responses.Errors{
 			RequestBody: &errors.UnrecognizedMutation,
-		})	
+		})
 	}
 }
-
-

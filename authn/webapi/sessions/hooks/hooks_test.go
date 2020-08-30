@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strconv"
 	"testing"
-	"os"
 
 	"webapi/infraclientx/sessionx"
 	"webapi/sessions/hooks/requests"
@@ -17,12 +17,12 @@ import (
 )
 
 var (
-	InfraEmail 		= os.Getenv("INFRA_OVERLORD_EMAIL")
+	InfraEmail    = os.Getenv("INFRA_OVERLORD_EMAIL")
 	InfraPassword = os.Getenv("INFRA_OVERLORD_PASSWORD")
 )
 
 var (
-	GuestSessionTest *http.Cookie
+	GuestSessionTest  *http.Cookie
 	ClientSessionTest *http.Cookie
 )
 
@@ -53,7 +53,7 @@ func TestCreateGuestSession(t *testing.T) {
 		t.Error(errResp.Error())
 		return
 	}
-	
+
 	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Mutation)
 	handler.ServeHTTP(htr, resp)
@@ -82,7 +82,7 @@ func TestCreateGuestSession(t *testing.T) {
 
 	// set for verification on next text
 	GuestSessionTest = &http.Cookie{
-		Name: "briantaylorvann.com_session",
+		Name:  "briantaylorvann.com_session",
 		Value: responseBody.Session.Token,
 	}
 }
@@ -157,7 +157,7 @@ func TestValidateGuestSession(t *testing.T) {
 		Action: ValidateGuestSession,
 		Params: requests.Validate{
 			Environment: "LOCAL",
-			Token: GuestSessionTest.Value,
+			Token:       GuestSessionTest.Value,
 		},
 	}
 
@@ -181,10 +181,10 @@ func TestValidateGuestSession(t *testing.T) {
 		return
 	}
 	resp.AddCookie(&http.Cookie{
-		Name: "briantaylorvann.com_session",
+		Name:  "briantaylorvann.com_session",
 		Value: GuestSessionTest.Value,
 	})
-	
+
 	htr := httptest.NewRecorder()
 	handler := http.HandlerFunc(Query)
 	handler.ServeHTTP(htr, resp)
@@ -225,7 +225,7 @@ func TestCreateClientSession(t *testing.T) {
 		Action: CreateClientSession,
 		Params: requests.User{
 			Environment: "LOCAL",
-			UserID: audAsInt64,
+			UserID:      audAsInt64,
 		},
 	}
 
@@ -289,7 +289,7 @@ func TestCreateAccountSession(t *testing.T) {
 		Action: CreateCreateAccountSession,
 		Params: requests.User{
 			Environment: "LOCAL",
-			UserID: audAsInt64,
+			UserID:      audAsInt64,
 		},
 	}
 
@@ -353,7 +353,7 @@ func TestCreateUpdatePasswordSession(t *testing.T) {
 		Action: CreateUpdatePasswordSession,
 		Params: requests.User{
 			Environment: "LOCAL",
-			UserID: audAsInt64,
+			UserID:      audAsInt64,
 		},
 	}
 
@@ -417,7 +417,7 @@ func TestCreateUpdateEmailSession(t *testing.T) {
 		Action: CreateUpdateEmailSession,
 		Params: requests.User{
 			Environment: "LOCAL",
-			UserID: audAsInt64,
+			UserID:      audAsInt64,
 		},
 	}
 
@@ -469,7 +469,7 @@ func TestValidateSession(t *testing.T) {
 		Action: ValidateSession,
 		Params: requests.Validate{
 			Environment: "LOCAL",
-			Token: ClientSessionTest.Value,
+			Token:       ClientSessionTest.Value,
 		},
 	}
 
@@ -564,7 +564,7 @@ func TestDeleteSession(t *testing.T) {
 		Action: DeleteSession,
 		Params: &requests.Delete{
 			Environment: "LOCAL",
-			Signature: tokenDetails.Signature,
+			Signature:   tokenDetails.Signature,
 		},
 	}
 

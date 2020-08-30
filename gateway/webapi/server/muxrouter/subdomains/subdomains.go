@@ -10,9 +10,9 @@ import (
 type ProxyMux map[string]http.Handler
 
 const (
-	httpsStatement = "https"
+	httpsStatement     = "https"
 	webDomainDelimiter = "www"
-	XForwardedProto = "X-Forwarded-Proto"
+	XForwardedProto    = "X-Forwarded-Proto"
 )
 
 func getSubdomain(hostname string) string {

@@ -4,23 +4,15 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"webapi/infraclientx/verifyx"
 	"webapi/store/roles/controller"
 	"webapi/store/roles/hooks/cache"
 	"webapi/store/roles/hooks/errors"
 	"webapi/store/roles/hooks/requests"
 	"webapi/store/roles/hooks/responses"
-	"webapi/infraclientx/verifyx"
 )
-
-
-const (
-	ContentType = "Content-Type"
-	ApplicationJson = "application/json"
-)
-
 
 func writeRolesResponse(w http.ResponseWriter, roles *controller.Roles) {
-	w.Header().Set(ContentType, ApplicationJson)
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(&responses.Body{
 		Roles: roles,
@@ -57,7 +49,10 @@ func Create(
 		return
 	}
 
-	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
+	if !verifyx.IsInfraSessionValid(params.Environment, sessionCookie) {
+		errors.BadRequest(w, &responses.Errors{
+			Default: &errors.InvalidInfraSession,
+		})
 		return
 	}
 
@@ -95,7 +90,10 @@ func Update(
 		return
 	}
 
-	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
+	if !verifyx.IsInfraSessionValid(params.Environment, sessionCookie) {
+		errors.BadRequest(w, &responses.Errors{
+			Default: &errors.InvalidInfraSession,
+		})
 		return
 	}
 
@@ -133,7 +131,10 @@ func UpdateAccess(
 		return
 	}
 
-	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
+	if !verifyx.IsInfraSessionValid(params.Environment, sessionCookie) {
+		errors.BadRequest(w, &responses.Errors{
+			Default: &errors.InvalidInfraSession,
+		})
 		return
 	}
 
@@ -171,7 +172,10 @@ func Delete(
 		return
 	}
 
-	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
+	if !verifyx.IsInfraSessionValid(params.Environment, sessionCookie) {
+		errors.BadRequest(w, &responses.Errors{
+			Default: &errors.InvalidInfraSession,
+		})
 		return
 	}
 
@@ -209,7 +213,10 @@ func Undelete(
 		return
 	}
 
-	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
+	if !verifyx.IsInfraSessionValid(params.Environment, sessionCookie) {
+		errors.BadRequest(w, &responses.Errors{
+			Default: &errors.InvalidInfraSession,
+		})
 		return
 	}
 

@@ -14,11 +14,11 @@ import (
 )
 
 const (
-	ContentType = "Content-Type"
-	ApplicationJson = "application/json"
-	SessionCookieHeader = "briantaylorvann.com_session"
-	CookieDomain = ".briantaylorvann.com"
-	ThreeDaysInSeconds = 60 * 60 * 24 * 3
+	ContentType                 = "Content-Type"
+	ApplicationJson             = "application/json"
+	SessionCookieHeader         = "briantaylorvann.com_session"
+	CookieDomain                = ".briantaylorvann.com"
+	ThreeDaysInSeconds          = 60 * 60 * 24 * 3
 	ThreeSixtyFiveDaysInSeconds = 60 * 60 * 24 * 365
 )
 
@@ -37,13 +37,13 @@ func isRequestBodyValid(
 
 func createInfraSessionCookie(session string) *http.Cookie {
 	return &http.Cookie{
-		Name:			SessionCookieHeader,
-		Value:		session,
-		MaxAge:		ThreeSixtyFiveDaysInSeconds,
+		Name:     SessionCookieHeader,
+		Value:    session,
+		MaxAge:   ThreeSixtyFiveDaysInSeconds,
 		Domain:   CookieDomain,
-		Secure:		true,
-		HttpOnly:	true,
-		SameSite:	3,
+		Secure:   true,
+		HttpOnly: true,
+		SameSite: 3,
 	}
 }
 
@@ -54,7 +54,7 @@ func CreateGuestSession(
 	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
-	
+
 	var params requests.Guest
 	bytes, _ := json.Marshal(requestBody.Params)
 	errParamsMarshal := json.Unmarshal(bytes, &params)
@@ -62,13 +62,12 @@ func CreateGuestSession(
 		errors.DefaultResponse(w, errParamsMarshal)
 		return
 	}
-	
+
 	session, errSession := sessionsx.Create(&sessionsx.CreateParams{
 		Environment: params.Environment,
-		Claims: sessionsx.CreateGuestSessionClaims(),
+		Claims:      sessionsx.CreateGuestSessionClaims(),
 	})
 	if errSession == nil {
-		w.Header().Set(ContentType, ApplicationJson)
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: session,
 		})
@@ -86,7 +85,7 @@ func CreateInfraSession(
 	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
-	
+
 	var params fetchRequests.ValidateGuestUser
 	bytes, _ := json.Marshal(requestBody.Params)
 	errParamsMarshal := json.Unmarshal(bytes, &params)
@@ -94,7 +93,7 @@ func CreateInfraSession(
 		errors.DefaultResponse(w, errParamsMarshal)
 		return
 	}
-	
+
 	// golang defaults strings to a "", exciting! (dangerous)
 	if params.Email == "" {
 		errors.CustomResponse(w, errors.InvalidDefaultUserProvided)
@@ -109,14 +108,13 @@ func CreateInfraSession(
 		errors.DefaultResponse(w, errResp)
 		return
 	}
-	
+
 	session, errSession := sessionsx.Create(&sessionsx.CreateParams{
 		Environment: params.Environment,
-		Claims: sessionsx.CreateInfraSessionClaims(resp.UserID),
+		Claims:      sessionsx.CreateInfraSessionClaims(resp.UserID),
 	})
 	if errSession == nil {
 		http.SetCookie(w, createInfraSessionCookie(session.Token))
-		w.Header().Set(ContentType, ApplicationJson)
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: session,
 		})
@@ -134,7 +132,7 @@ func CreateClientSession(
 	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
-		
+
 	var params requests.User
 	bytes, _ := json.Marshal(requestBody.Params)
 	errParamsMarshal := json.Unmarshal(bytes, &params)
@@ -142,13 +140,13 @@ func CreateClientSession(
 		errors.DefaultResponse(w, errParamsMarshal)
 		return
 	}
-	
+
 	// golang defaults ints to a 0 value, exciting! (dangerous)
 	if params.UserID < 1 {
 		errors.CustomResponse(w, errors.InvalidDefaultUserProvided)
 		return
 	}
-	
+
 	infraSessionIsValid, errInfraSessionIsValid := verify.ValidateInfraSession(
 		params.Environment,
 		sessionCookie,
@@ -161,10 +159,9 @@ func CreateClientSession(
 	claims := sessionsx.CreateClientSessionClaims(params.UserID)
 	session, errSession := sessionsx.Create(&sessionsx.CreateParams{
 		Environment: params.Environment,
-		Claims: claims,
+		Claims:      claims,
 	})
 	if infraSessionIsValid && errSession == nil {
-		w.Header().Set(ContentType, ApplicationJson)
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: session,
 		})
@@ -203,10 +200,9 @@ func CreateCreateAccountSession(
 	claims := sessionsx.CreateCreateAccountSessionClaims(params.Email)
 	session, errSession := sessionsx.Create(&sessionsx.CreateParams{
 		Environment: params.Environment,
-		Claims: claims,
+		Claims:      claims,
 	})
 	if infraSessionIsValid && errSession == nil {
-		w.Header().Set(ContentType, ApplicationJson)
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: session,
 		})
@@ -245,10 +241,9 @@ func CreateUpdateEmailSession(
 	claims := sessionsx.CreateUpdateEmailSessionClaims(params.Email)
 	session, errSession := sessionsx.Create(&sessionsx.CreateParams{
 		Environment: params.Environment,
-		Claims: claims,
+		Claims:      claims,
 	})
 	if infraSessionIsValid && errSession == nil {
-		w.Header().Set(ContentType, ApplicationJson)
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: session,
 		})
@@ -287,10 +282,9 @@ func CreateUpdatePasswordSession(
 	claims := sessionsx.CreateUpdatePasswordSessionClaims(params.Email)
 	session, errSession := sessionsx.Create(&sessionsx.CreateParams{
 		Environment: params.Environment,
-		Claims: claims,
+		Claims:      claims,
 	})
 	if infraSessionIsValid && errSession == nil {
-		w.Header().Set(ContentType, ApplicationJson)
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: session,
 		})
@@ -329,10 +323,9 @@ func CreateDeleteAccountSession(
 	claims := sessionsx.CreateDeleteAccountSessionClaims(params.Email)
 	session, errSession := sessionsx.Create(&sessionsx.CreateParams{
 		Environment: params.Environment,
-		Claims: claims,
+		Claims:      claims,
 	})
 	if infraSessionIsValid && errSession == nil {
-		w.Header().Set(ContentType, ApplicationJson)
 		json.NewEncoder(w).Encode(&responses.Body{
 			Session: session,
 		})
@@ -374,7 +367,6 @@ func DeleteSession(
 		return
 	}
 	if infraSessionIsValid && sessionWasDeleted {
-		w.Header().Set(ContentType, ApplicationJson)
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&responses.Body{})
 		return

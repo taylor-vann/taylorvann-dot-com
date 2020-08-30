@@ -6,7 +6,7 @@ package sessionsx
 import (
 	"errors"
 	"strconv"
-	
+
 	"webapi/sessions/sessionsx/constants"
 	"webapi/sessions/whitelist"
 
@@ -20,22 +20,22 @@ type Session struct {
 }
 
 type CreateClaimsParams struct {
-	Aud 		 string	`json:"aud"`
-	Iss 		 string	`json:"iss"`
-	Lifetime int64	`json:"lifetime"`
-	Sub 		 string	`json:"sub"`
+	Aud      string `json:"aud"`
+	Iss      string `json:"iss"`
+	Lifetime int64  `json:"lifetime"`
+	Sub      string `json:"sub"`
 }
 
 type SessionClaims = jwtx.Claims
 
 type CreateParams struct {
-	Environment string 					`json:"environment`
-	Claims 			*SessionClaims	`json:"claims"`
+	Environment string         `json:"environment`
+	Claims      *SessionClaims `json:"claims"`
 }
 
 type ReadParams struct {
 	Environment string `json:"environment`
-	Token 			string `json:"token"`
+	Token       string `json:"token"`
 }
 
 type ValidateParams = ReadParams
@@ -43,10 +43,10 @@ type UpdateParams = ReadParams
 type DeleteParams = whitelist.RemoveEntryParams
 
 var (
-	errNilParamsProvided = errors.New("nil params provided")
-	errNilClaimsProvided = errors.New("nil claims provided")
-	errNilSessionTokenProvided = errors.New("nil session token provided")
-	errTokenIsGenericallyInvalid = errors.New("token is generically invalid")
+	errNilParamsProvided          = errors.New("nil params provided")
+	errNilClaimsProvided          = errors.New("nil claims provided")
+	errNilSessionTokenProvided    = errors.New("nil session token provided")
+	errTokenIsGenericallyInvalid  = errors.New("token is generically invalid")
 	errNegativeExpirationProvided = errors.New("negative expiration provided")
 )
 
@@ -67,66 +67,66 @@ func CreateSessionClaims(p *CreateClaimsParams) *SessionClaims {
 
 func CreateGuestSessionClaims() *SessionClaims {
 	return CreateSessionClaims(&CreateClaimsParams{
-		Aud: constants.Client,
-		Iss: constants.BrianTaylorVannDotCom,
+		Aud:      constants.Client,
+		Iss:      constants.BrianTaylorVannDotCom,
 		Lifetime: constants.ThreeDaysAsMS,
-		Sub: constants.Guest,
+		Sub:      constants.Guest,
 	})
 }
 
 func CreateInfraSessionClaims(userID int64) *SessionClaims {
 	userIDAsStr := strconv.FormatInt(userID, 10)
 	return CreateSessionClaims(&CreateClaimsParams{
-		Aud: userIDAsStr,
-		Iss: constants.BrianTaylorVannDotCom,
+		Aud:      userIDAsStr,
+		Iss:      constants.BrianTaylorVannDotCom,
 		Lifetime: constants.ThreeSixtyFiveDaysAsMS,
-		Sub: constants.Infra,
+		Sub:      constants.Infra,
 	})
 }
 
 func CreateClientSessionClaims(userID int64) *SessionClaims {
 	userIDAsStr := strconv.FormatInt(userID, 10)
 	return CreateSessionClaims(&CreateClaimsParams{
-		Aud: userIDAsStr,
-		Iss: constants.BrianTaylorVannDotCom,
+		Aud:      userIDAsStr,
+		Iss:      constants.BrianTaylorVannDotCom,
 		Lifetime: constants.ThreeSixtyFiveDaysAsMS,
-		Sub: constants.Client,
+		Sub:      constants.Client,
 	})
 }
 
-func CreateCreateAccountSessionClaims(email string) (*SessionClaims) {
+func CreateCreateAccountSessionClaims(email string) *SessionClaims {
 	return CreateSessionClaims(&CreateClaimsParams{
-		Aud: email,
-		Iss: constants.BrianTaylorVannDotCom,
+		Aud:      email,
+		Iss:      constants.BrianTaylorVannDotCom,
 		Lifetime: constants.OneDayAsMS,
-		Sub: constants.CreateAccount,
+		Sub:      constants.CreateAccount,
 	})
 }
 
-func CreateUpdateEmailSessionClaims(email string) (*SessionClaims) {	
+func CreateUpdateEmailSessionClaims(email string) *SessionClaims {
 	return CreateSessionClaims(&CreateClaimsParams{
-		Aud: email,
-		Iss: constants.BrianTaylorVannDotCom,
+		Aud:      email,
+		Iss:      constants.BrianTaylorVannDotCom,
 		Lifetime: constants.ThreeHoursAsMS,
-		Sub: constants.UpdateEmail,
+		Sub:      constants.UpdateEmail,
 	})
 }
 
-func CreateUpdatePasswordSessionClaims(email string) (*SessionClaims) {
+func CreateUpdatePasswordSessionClaims(email string) *SessionClaims {
 	return CreateSessionClaims(&CreateClaimsParams{
-		Aud: email,
-		Iss: constants.BrianTaylorVannDotCom,
+		Aud:      email,
+		Iss:      constants.BrianTaylorVannDotCom,
 		Lifetime: constants.ThreeHoursAsMS,
-		Sub: constants.UpdatePassword,
+		Sub:      constants.UpdatePassword,
 	})
 }
 
-func CreateDeleteAccountSessionClaims(email string) (*SessionClaims) {	
+func CreateDeleteAccountSessionClaims(email string) *SessionClaims {
 	return CreateSessionClaims(&CreateClaimsParams{
-		Aud: email,
-		Iss: constants.BrianTaylorVannDotCom,
+		Aud:      email,
+		Iss:      constants.BrianTaylorVannDotCom,
 		Lifetime: constants.OneDayAsMS,
-		Sub: constants.DeleteAccount,
+		Sub:      constants.DeleteAccount,
 	})
 }
 
@@ -150,7 +150,7 @@ func Create(p *CreateParams) (*Session, error) {
 	_, errEntry := whitelist.CreateEntry(
 		&whitelist.CreateEntryParams{
 			Environment: p.Environment,
-			SessionKey:	 token.RandomSecret,
+			SessionKey:  token.RandomSecret,
 			Signature:   token.Token.Signature,
 			CreatedAt:   p.Claims.Iat,
 			Lifetime:    lifetime,
@@ -184,7 +184,7 @@ func Read(p *ReadParams) (bool, error) {
 
 	isGenericallyValid := jwtx.ValidateGenericToken(
 		&jwtx.ValidateGenericTokenParams{
-			Token: p.Token,
+			Token:  p.Token,
 			Issuer: constants.BrianTaylorVannDotCom,
 		},
 	)
@@ -202,7 +202,7 @@ func Read(p *ReadParams) (bool, error) {
 	entry, errEntry := whitelist.ReadEntry(
 		&whitelist.ReadEntryParams{
 			Environment: p.Environment,
-			Signature:	 tokenDetails.Signature,
+			Signature:   tokenDetails.Signature,
 		},
 	)
 	if entry == nil || errEntry != nil {

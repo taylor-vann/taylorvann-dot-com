@@ -13,22 +13,21 @@ import (
 	"webapi/sessionrequests/requests"
 	"webapi/sessionrequests/responses"
 
-	"github.com/taylor-vann/weblog/toolbox/golang/jwtx"
 	"github.com/taylor-vann/weblog/toolbox/golang/infraclientx/sessionx"
 	"github.com/taylor-vann/weblog/toolbox/golang/infraclientx/verifyx"
+	"github.com/taylor-vann/weblog/toolbox/golang/jwtx"
 )
 
-
 const (
-	UsersStoreQueryAddress = "https://authn.briantaylorvann.com/q/users/"
+	UsersStoreQueryAddress  = "https://authn.briantaylorvann.com/q/users/"
 	SessionsMutationAddress = "https://authn.briantaylorvann.com/m/sessions/"
 
-	SessionCookieHeader	= "briantaylorvann.com_session"
-	sameSite = "SameSite"
-	cookieDomain = "briantaylorvann.com"
-	ThreeDaysInSeconds = 60 * 60 * 24 * 3
+	SessionCookieHeader = "briantaylorvann.com_session"
+	sameSite            = "SameSite"
+	cookieDomain        = "briantaylorvann.com"
+	ThreeDaysInSeconds  = 60 * 60 * 24 * 3
 
-	ValidateUser = "VALIDATE_USER"
+	ValidateUser        = "VALIDATE_USER"
 	CreateClientSession = "CREATE_CLIENT_SESSION"
 	RemoveSessionAction = "DELETE_SESSION"
 )
@@ -39,13 +38,13 @@ var (
 	client = http.Client{}
 
 	deletedCookie = &http.Cookie{
-		Name:			SessionCookieHeader,
-		MaxAge:		-1,
-		Value:		"",
+		Name:     SessionCookieHeader,
+		MaxAge:   -1,
+		Value:    "",
 		Domain:   cookieDomain,
-		Secure:		true,
-		HttpOnly:	true,
-		SameSite:	3,
+		Secure:   true,
+		HttpOnly: true,
+		SameSite: 3,
 	}
 
 	NilSessionCookie = errors.New("nil session cookie provided")
@@ -53,13 +52,13 @@ var (
 
 func createSessionCookie(session string) *http.Cookie {
 	return &http.Cookie{
-		Name:			SessionCookieHeader,
-		Value:		session,
-		MaxAge:		ThreeDaysInSeconds,
+		Name:     SessionCookieHeader,
+		Value:    session,
+		MaxAge:   ThreeDaysInSeconds,
 		Domain:   cookieDomain,
-		Secure:		true,
-		HttpOnly:	true,
-		SameSite:	3,
+		Secure:   true,
+		HttpOnly: true,
+		SameSite: 3,
 	}
 }
 
@@ -132,7 +131,7 @@ func fetchSession(environment string, userID int64) (*http.Cookie, error) {
 			Action: CreateClientSession,
 			Params: &requests.User{
 				Environment: environment,
-				UserID: userID,
+				UserID:      userID,
 			},
 		},
 	)
@@ -175,7 +174,7 @@ func fetchSession(environment string, userID int64) (*http.Cookie, error) {
 func fetchRemoveSession(
 	environment string,
 	sessionCookie *http.Cookie,
-) (error) {
+) error {
 	log.Println(sessionCookie)
 	log.Println("fetch remove session")
 	tokenDetails, errTokenDetails := jwtx.RetrieveTokenDetailsFromString(
@@ -193,7 +192,7 @@ func fetchRemoveSession(
 			Action: RemoveSessionAction,
 			Params: &requests.RemoveSessionParams{
 				Environment: environment,
-				Signature: tokenDetails.Signature,
+				Signature:   tokenDetails.Signature,
 			},
 		},
 	)
@@ -275,7 +274,6 @@ func RequestSession(w http.ResponseWriter, r *http.Request) {
 	addCookieAndReturnRequest(w, sessionCookie)
 }
 
-
 // remove session function
 // write cookie as expired
 func RemoveSession(w http.ResponseWriter, r *http.Request) {
@@ -294,16 +292,15 @@ func RemoveSession(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !verifyx.IsSessionValid(w, &verifyx.IsSessionValidParams{
-		Environment: params.Environment,
+		Environment:        params.Environment,
 		InfraSessionCookie: sessionx.InfraSession,
-		SessionCookie: cookie,
+		SessionCookie:      cookie,
 	}) {
 		sessionErrors.DefaultResponse(w, errJsonDecode)
 		return
 	}
 
 	log.Println("verified session")
-
 
 	errRemoveSession := fetchRemoveSession(params.Environment, cookie)
 	if errRemoveSession != nil {
@@ -315,4 +312,3 @@ func RemoveSession(w http.ResponseWriter, r *http.Request) {
 
 	addCookieAndReturnRequest(w, deletedCookie)
 }
-

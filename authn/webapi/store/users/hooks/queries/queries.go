@@ -13,14 +13,7 @@ import (
 	"webapi/infraclientx/verifyx"
 )
 
-const (
-	ContentType = "Content-Type"
-	ApplicationJson = "application/json"
-)
-
-
 func writeUsersResponse(w http.ResponseWriter, users *controller.SafeUsers) {
-	w.Header().Set(ContentType, ApplicationJson)
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(&responses.Body{
 		Users: users,
@@ -57,7 +50,10 @@ func Read(
 		return
 	}
 
-	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
+	if !verifyx.IsInfraSessionValid(params.Environment, sessionCookie) {
+		errors.BadRequest(w, &responses.Errors{
+			Default: &errors.InvalidInfraSession,
+		})
 		return
 	}
 
@@ -104,7 +100,10 @@ func ValidateGuest(
 		return
 	}
 
-	if !verifyx.IsGuestSessionValid(w, params.Environment, sessionCookie) {
+	if !verifyx.IsGuestSessionValid(params.Environment, sessionCookie) {
+		errors.BadRequest(w, &responses.Errors{
+			Default: &errors.InvalidGuestSession,
+		})
 		return
 	}
 
@@ -118,7 +117,7 @@ func ValidateGuest(
 		writeUsersResponse(w, &usersStore)
 		return
 	}
-	
+
 	errors.BadRequest(w, &responses.Errors{
 		Users: &errors.FailedToReadUser,
 	})
@@ -141,7 +140,10 @@ func ValidateUser(
 		return
 	}
 
-	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
+	if !verifyx.IsInfraSessionValid(params.Environment, sessionCookie) {
+		errors.BadRequest(w, &responses.Errors{
+			Default: &errors.InvalidInfraSession,
+		})
 		return
 	}
 
@@ -155,7 +157,7 @@ func ValidateUser(
 		writeUsersResponse(w, &usersStore)
 		return
 	}
-	
+
 	errors.BadRequest(w, &responses.Errors{
 		Users: &errors.FailedToReadUser,
 	})
@@ -178,7 +180,10 @@ func Index(
 		return
 	}
 
-	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
+	if !verifyx.IsInfraSessionValid(params.Environment, sessionCookie) {
+		errors.BadRequest(w, &responses.Errors{
+			Default: &errors.InvalidInfraSession,
+		})
 		return
 	}
 
@@ -214,7 +219,10 @@ func Search(
 		return
 	}
 
-	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
+	if !verifyx.IsInfraSessionValid(params.Environment, sessionCookie) {
+		errors.BadRequest(w, &responses.Errors{
+			Default: &errors.InvalidInfraSession,
+		})
 		return
 	}
 
@@ -232,4 +240,3 @@ func Search(
 		Users: &errors.FailedToSearchUsers,
 	})
 }
-

@@ -15,11 +15,11 @@ type Undelete = controller.UndeleteParams
 
 type ValidateInfra struct {
 	Environment string `json:"environment"`
-	Email				string `json:"email"`
-	Password		string `json:"password"`
+	Email       string `json:"email"`
+	Password    string `json:"password"`
 }
 
 type Body struct {
-	Action string  		 `json:"action"`
+	Action string      `json:"action"`
 	Params interface{} `json:"params"`
 }

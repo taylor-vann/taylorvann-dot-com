@@ -11,21 +11,15 @@ import (
 	"webapi/store/roles/hooks/responses"
 
 	"webapi/infraclientx/fetchx"
-	"webapi/infraclientx/verifyx"
 	fetchRequests "webapi/infraclientx/fetchx/requests"
+	"webapi/infraclientx/verifyx"
 )
 
-
 const (
-	ContentType = "Content-Type"
-	ApplicationJson = "application/json"
-
 	InfraOverlordAdmin = "INFRA_OVERLORD_ADMIN"
 )
 
-
 func writeRolesResponse(w http.ResponseWriter, roles *controller.Roles) {
-	w.Header().Set(ContentType, ApplicationJson)
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(&responses.Body{
 		Roles: roles,
@@ -46,10 +40,10 @@ func isRequestBodyValid(
 }
 
 func Read(
-	w http.ResponseWriter, 
+	w http.ResponseWriter,
 	sessionCookie *http.Cookie,
 	requestBody *requests.Body,
-)  {
+) {
 	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
@@ -62,7 +56,10 @@ func Read(
 		return
 	}
 
-	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
+	if !verifyx.IsInfraSessionValid(params.Environment, sessionCookie) {
+		errors.BadRequest(w, &responses.Errors{
+			Default: &errors.InvalidInfraSession,
+		})
 		return
 	}
 
@@ -100,7 +97,7 @@ func ValidateInfra(w http.ResponseWriter, sessionCookie *http.Cookie, requestBod
 		errors.CustomResponse(w, errors.NilInfraCredentials)
 		return
 	}
-	
+
 	var params fetchRequests.ValidateInfraRole
 	bytes, _ := json.Marshal(requestBody.Params)
 	errParamsMarshal := json.Unmarshal(bytes, &params)
@@ -109,7 +106,10 @@ func ValidateInfra(w http.ResponseWriter, sessionCookie *http.Cookie, requestBod
 		return
 	}
 
-	if !verifyx.IsGuestSessionValid(w, params.Environment, sessionCookie) {
+	if !verifyx.IsGuestSessionValid(params.Environment, sessionCookie) {
+		errors.BadRequest(w, &responses.Errors{
+			Default: &errors.InvalidGuestSession,
+		})
 		return
 	}
 
@@ -125,10 +125,10 @@ func ValidateInfra(w http.ResponseWriter, sessionCookie *http.Cookie, requestBod
 		errors.BadRequest(w, nil)
 		return
 	}
-	
+
 	roleParams := requests.Read{
-		Environment: params.Environment,
-		UserID: resp.ID,
+		Environment:  params.Environment,
+		UserID:       resp.ID,
 		Organization: InfraOverlordAdmin,
 	}
 
@@ -142,7 +142,7 @@ func ValidateInfra(w http.ResponseWriter, sessionCookie *http.Cookie, requestBod
 		writeRolesResponse(w, roles)
 		return
 	}
-	
+
 	// check store
 	rolesStore, errRolesStore := controller.Read(&roleParams)
 	if errRolesStore != nil {
@@ -154,7 +154,7 @@ func ValidateInfra(w http.ResponseWriter, sessionCookie *http.Cookie, requestBod
 		writeRolesResponse(w, &rolesStore)
 		return
 	}
-	
+
 	// default error
 	errors.BadRequest(w, &responses.Errors{
 		Roles: &errors.FailedToReadRole,
@@ -162,7 +162,7 @@ func ValidateInfra(w http.ResponseWriter, sessionCookie *http.Cookie, requestBod
 }
 
 func Index(
-	w http.ResponseWriter, 
+	w http.ResponseWriter,
 	sessionCookie *http.Cookie,
 	requestBody *requests.Body,
 ) {
@@ -178,7 +178,10 @@ func Index(
 		return
 	}
 
-	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
+	if !verifyx.IsInfraSessionValid(params.Environment, sessionCookie) {
+		errors.BadRequest(w, &responses.Errors{
+			Default: &errors.InvalidInfraSession,
+		})
 		return
 	}
 
@@ -198,14 +201,14 @@ func Index(
 }
 
 func Search(
-	w http.ResponseWriter, 
+	w http.ResponseWriter,
 	sessionCookie *http.Cookie,
 	requestBody *requests.Body,
 ) {
 	if !isRequestBodyValid(w, requestBody) {
 		return
 	}
-	
+
 	var params requests.Search
 	bytes, _ := json.Marshal(requestBody.Params)
 	errParamsMarshal := json.Unmarshal(bytes, &params)
@@ -214,7 +217,10 @@ func Search(
 		return
 	}
 
-	if !verifyx.IsInfraSessionValid(w, params.Environment, sessionCookie) {
+	if !verifyx.IsInfraSessionValid(params.Environment, sessionCookie) {
+		errors.BadRequest(w, &responses.Errors{
+			Default: &errors.InvalidInfraSession,
+		})
 		return
 	}
 
@@ -232,4 +238,3 @@ func Search(
 		Roles: &errors.FailedToSearchRoles,
 	})
 }
-

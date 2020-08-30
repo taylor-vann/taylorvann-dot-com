@@ -12,55 +12,55 @@ var createTable = CreateTableParams{
 }
 
 var testRolesCreate = CreateParams{
-	Environment: "LOCAL",
-	UserID: 1,
+	Environment:  "LOCAL",
+	UserID:       1,
 	Organization: "internal_admin",
-	ReadAccess: true,
-	WriteAccess: true,
+	ReadAccess:   true,
+	WriteAccess:  true,
 }
 
 var testRolesCreate2 = CreateParams{
-	Environment: "LOCAL",
-	UserID: 1,
+	Environment:  "LOCAL",
+	UserID:       1,
 	Organization: "internal_rebel",
-	ReadAccess: true,
-	WriteAccess: true,
+	ReadAccess:   true,
+	WriteAccess:  true,
 }
 
 var testRolesRead = ReadParams{
-	Environment: "LOCAL",
-	UserID: 1,
-	Organization:   "internal_admin",
+	Environment:  "LOCAL",
+	UserID:       1,
+	Organization: "internal_admin",
 }
 
 var testRolesSearch = SearchParams{
 	Environment: "LOCAL",
-	UserID: 1,
-	StartIndex: 0,
-	Length: 10,
+	UserID:      1,
+	StartIndex:  0,
+	Length:      10,
 }
 
 var testRolesIndex = IndexParams{
 	Environment: "LOCAL",
-	StartIndex: 0,
-	Length: 1024,
+	StartIndex:  0,
+	Length:      1024,
 }
 
 var testRolesUpdate = UpdateParams{
-	Environment: "LOCAL",
-	UserID: 1,
+	Environment:  "LOCAL",
+	UserID:       1,
 	Organization: "internal_admin",
-	ReadAccess: false,
-	WriteAccess: false,
-	IsDeleted: false,
+	ReadAccess:   false,
+	WriteAccess:  false,
+	IsDeleted:    false,
 }
 
 var testRolesUpdateAccess = UpdateAccessParams{
-	Environment: "LOCAL",
-	UserID: 1,
+	Environment:  "LOCAL",
+	UserID:       1,
 	Organization: "internal_rebel",
-	ReadAccess: false,
-	WriteAccess: false,
+	ReadAccess:   false,
+	WriteAccess:  false,
 }
 
 func TestCreateTable(t *testing.T) {

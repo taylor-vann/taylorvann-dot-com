@@ -12,21 +12,26 @@ import (
 )
 
 const (
-	SessionCookieHeader					= "briantaylorvann.com_session"
+	SessionCookieHeader = "briantaylorvann.com_session"
 
-	ValidateGuestSession        = "VALIDATE_GUEST_SESSION"
-	ValidateSession        			= "VALIDATE_SESSION"
-	
-	CreateClientSession     		= "CREATE_CLIENT_SESSION"
-	CreateCreateAccountSession	= "CREATE_CREATE_ACCOUNT_SESSION"
-	CreateGuestSession        	= "CREATE_GUEST_SESSION"
+	ValidateGuestSession = "VALIDATE_GUEST_SESSION"
+	ValidateSession      = "VALIDATE_SESSION"
+
+	CreateClientSession         = "CREATE_CLIENT_SESSION"
+	CreateCreateAccountSession  = "CREATE_CREATE_ACCOUNT_SESSION"
+	CreateGuestSession          = "CREATE_GUEST_SESSION"
 	CreateInfraOverlordSession  = "CREATE_INFRA_OVERLORD_SESSION"
-	CreateUpdateEmailSession  	= "CREATE_UPDATE_EMAIL_SESSION"
-	CreateUpdatePasswordSession	= "CREATE_UPDATE_PASSWORD_SESSION"
-	DeleteSession             	= "DELETE_SESSION"
+	CreateUpdateEmailSession    = "CREATE_UPDATE_EMAIL_SESSION"
+	CreateUpdatePasswordSession = "CREATE_UPDATE_PASSWORD_SESSION"
+	DeleteSession               = "DELETE_SESSION"
+
+	ContentType     = "Content-Type"
+	ApplicationJson = "application/json"
 )
 
 func Query(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set(ContentType, ApplicationJson)
+
 	if r.Body == nil {
 		errors.CustomResponse(w, errors.NilRequestBodyFail)
 		return
@@ -42,7 +47,7 @@ func Query(w http.ResponseWriter, r *http.Request) {
 	cookie, _ := r.Cookie(SessionCookieHeader)
 
 	switch body.Action {
-	case ValidateGuestSession:	// the only public guest query
+	case ValidateGuestSession: // the only public guest query
 		queries.ValidateGuestSession(w, &body)
 	case ValidateSession:
 		queries.ValidateSession(w, cookie, &body)
@@ -54,6 +59,8 @@ func Query(w http.ResponseWriter, r *http.Request) {
 }
 
 func Mutation(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set(ContentType, ApplicationJson)
+
 	if r.Body == nil {
 		errors.CustomResponse(w, errors.NilRequestBodyFail)
 		return
@@ -65,13 +72,13 @@ func Mutation(w http.ResponseWriter, r *http.Request) {
 		errors.CustomResponse(w, errors.BadRequestFail)
 		return
 	}
-	
+
 	cookie, _ := r.Cookie(SessionCookieHeader)
-	
+
 	switch body.Action {
-	case CreateGuestSession:  // the only public mutation
+	case CreateGuestSession: // the only public mutation
 		mutations.CreateGuestSession(w, &body)
-	case CreateInfraOverlordSession:  // the only guest mutation
+	case CreateInfraOverlordSession: // the only guest mutation
 		mutations.CreateInfraSession(w, cookie, &body)
 	case CreateClientSession:
 		mutations.CreateClientSession(w, cookie, &body)

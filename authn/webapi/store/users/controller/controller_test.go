@@ -13,60 +13,60 @@ var createTable = CreateTableParams{
 
 var testUser = CreateParams{
 	Environment: "LOCAL",
-	Email:    "test_user@test_email.test",
-	Password: "pazzw0rd",
+	Email:       "test_user@test_email.test",
+	Password:    "pazzw0rd",
 }
 
 var testUserTwo = CreateParams{
 	Environment: "LOCAL",
-	Email:    "test_user2@test_email.test",
-	Password: "pazzw0rd",
+	Email:       "test_user2@test_email.test",
+	Password:    "pazzw0rd",
 }
 
 var testUserRead = ReadParams{
 	Environment: "LOCAL",
-	Email: "test_user@test_email.test",
+	Email:       "test_user@test_email.test",
 }
 
 var testUserSearch = SearchParams{
-	Environment: "LOCAL",
+	Environment:    "LOCAL",
 	EmailSubstring: "test_email",
 }
 
 var testUserIndex = IndexParams{
 	Environment: "LOCAL",
-	StartIndex: 0,
-	Length: 1024,
+	StartIndex:  0,
+	Length:      1024,
 }
 
 var testUserUpdated = UpdateParams{
-	Environment: "LOCAL",
+	Environment:  "LOCAL",
 	CurrentEmail: "test_user@test_email.test",
 	UpdatedEmail: "complete_update_test_user@test_email.test",
-	Password: "pazzword",
-	IsDeleted: false,
+	Password:     "pazzword",
+	IsDeleted:    false,
 }
 
-var testUserUpdatedEmail = UpdateEmailParams {
-	Environment: "LOCAL",
+var testUserUpdatedEmail = UpdateEmailParams{
+	Environment:  "LOCAL",
 	CurrentEmail: "complete_update_test_user@test_email.test",
 	UpdatedEmail: "updated_email_test_user@test_email.test",
 }
 
-var testUserUpdatedPassword = UpdatePasswordParams {
+var testUserUpdatedPassword = UpdatePasswordParams{
 	Environment: "LOCAL",
-	Email: "updated_email_test_user@test_email.test",
-	Password: "pazzw3rd",
+	Email:       "updated_email_test_user@test_email.test",
+	Password:    "pazzw3rd",
 }
 
 var testUserRemoveUpdated = DeleteParams{
 	Environment: "LOCAL",
-	Email: "updated_email_test_user@test_email.test",
+	Email:       "updated_email_test_user@test_email.test",
 }
 
 var testUserReviveUpdated = UndeleteParams{
 	Environment: "LOCAL",
-	Email: "updated_email_test_user@test_email.test",
+	Email:       "updated_email_test_user@test_email.test",
 }
 
 func TestCreateTestTable(t *testing.T) {
@@ -117,7 +117,7 @@ func TestRead(t *testing.T) {
 		t.Error("No results were returned from Read.")
 		return
 	}
-	if  len(rows) != 1 {
+	if len(rows) != 1 {
 		t.Error("Incorrect amount of rows were returned from Read.")
 		return
 	}
@@ -183,7 +183,7 @@ func TestUpdate(t *testing.T) {
 		t.Error("No results were returned from Update.")
 		return
 	}
-	if  len(rows) != 1 {
+	if len(rows) != 1 {
 		t.Error("Incorrect amount of rows were returned from Read.")
 		return
 	}
@@ -211,7 +211,7 @@ func TestUpdateEmail(t *testing.T) {
 		t.Error("No results were returned from UpdateEmail.")
 		return
 	}
-	if  len(rows) != 1 {
+	if len(rows) != 1 {
 		t.Error("Incorrect amount of rows were returned from Read.")
 		return
 	}
@@ -239,7 +239,7 @@ func TestUpdatePassword(t *testing.T) {
 		t.Error("No results were returned from UpdatePassword.")
 		return
 	}
-	if  len(rows) != 1 {
+	if len(rows) != 1 {
 		t.Error("Incorrect amount of rows were returned from UpdatePassword.")
 		return
 	}
@@ -307,8 +307,8 @@ func TestUndelete(t *testing.T) {
 func TestValidateBadPassword(t *testing.T) {
 	rows, err := Validate(&ValidateParams{
 		Environment: "LOCAL",
-		Email: testUserUpdatedPassword.Email,
-		Password: "kawabunga!",
+		Email:       testUserUpdatedPassword.Email,
+		Password:    "kawabunga!",
 	})
 	if err == nil {
 		t.Error("should be an error, invalid password returned valid response")
@@ -333,7 +333,7 @@ func TestValidate(t *testing.T) {
 		t.Error("No results were returned from Validate.")
 		return
 	}
-	if  len(rows) != 1 {
+	if len(rows) != 1 {
 		t.Error("Incorrect amount of rows were returned from Validate.")
 		return
 	}
