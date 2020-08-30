@@ -6,7 +6,7 @@ import (
 
 	"webapi/sessions/sessionsx"
 
-	"github.com/taylor-vann/weblog/toolbox/golang/jwtx"
+	"webapi/jwtx"
 )
 
 const (

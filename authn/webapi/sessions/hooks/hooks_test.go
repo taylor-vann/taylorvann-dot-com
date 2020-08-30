@@ -13,7 +13,7 @@ import (
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
 
-	"github.com/taylor-vann/weblog/toolbox/golang/jwtx"
+	"webapi/jwtx"
 )
 
 var (

@@ -8,7 +8,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/taylor-vann/weblog/toolbox/golang/jwtx"
+	"webapi/jwtx"
 	"webapi/infraclientx/fetchx/requests"
 	"webapi/infraclientx/fetchx/responses"
 )

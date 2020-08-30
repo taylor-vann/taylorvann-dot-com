@@ -5,7 +5,7 @@ import (
 	"testing"
 	"webapi/store"
 
-	"github.com/taylor-vann/weblog/toolbox/golang/jwtx"
+	"webapi/jwtx"
 )
 
 const unitTests = "UNIT_TESTS"

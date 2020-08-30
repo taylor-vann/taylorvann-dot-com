@@ -6,7 +6,7 @@ import (
 	"webapi/infraclientx/fetchx"
 	"webapi/infraclientx/fetchx/requests"
 
-	"github.com/taylor-vann/weblog/toolbox/golang/jwtx"
+	"webapi/jwtx"
 )
 
 type ValidateUserParams struct {
