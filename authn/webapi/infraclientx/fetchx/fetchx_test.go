@@ -35,6 +35,7 @@ func TestGuestSession(t *testing.T) {
 func TestValidateGuestSession(t *testing.T) {
 	if GuestSessionTest == nil {
 		t.Error("guest session is nil")
+		return
 	}
 	resp, errResp := ValidateGuestSession(
 		&requests.ValidateSession{
@@ -52,6 +53,10 @@ func TestValidateGuestSession(t *testing.T) {
 }
 
 func TestValidateGuestUser(t *testing.T) {
+	if GuestSessionTest == nil {
+		t.Error("guest session is nil")
+		return
+	}
 	resp, errResp := ValidateGuestUser(
 		&requests.ValidateGuestUser{
 			Environment: Environment,
@@ -69,6 +74,10 @@ func TestValidateGuestUser(t *testing.T) {
 }
 
 func TestValidateInfraRole(t *testing.T) {
+	if GuestSessionTest == nil {
+		t.Error("guest session is nil")
+		return
+	}
 	resp, errResp := ValidateInfraRole(
 		&requests.ValidateInfraRole{
 			Environment: Environment,
@@ -86,6 +95,10 @@ func TestValidateInfraRole(t *testing.T) {
 }
 
 func TestCreateInfraSession(t *testing.T) {
+	if GuestSessionTest == nil {
+		t.Error("guest session is nil")
+		return
+	}
 	resp, errResp := CreateInfraSession(
 		&requests.InfraSession{
 			Environment: Environment,
@@ -107,9 +120,11 @@ func TestCreateInfraSession(t *testing.T) {
 func TestValidateSession(t *testing.T) {
 	if GuestSessionTest == nil {
 		t.Error("guest session is nil")
+		return
 	}
 	if InfraSessionTest == nil {
-		t.Error("guest session is nil")
+		t.Error("infra session is nil")
+		return
 	}
 	resp, errResp := ValidateSession(
 		&requests.ValidateSession{
@@ -129,9 +144,11 @@ func TestValidateSession(t *testing.T) {
 func TestValidateRoleFromSession(t *testing.T) {
 	if GuestSessionTest == nil {
 		t.Error("guest session is nil")
+		return
 	}
 	if InfraSessionTest == nil {
-		t.Error("guest session is nil")
+		t.Error("infra session is nil")
+		return
 	}
 	resp, errResp := ValidateRoleFromSession(
 		&requests.ValidateRoleFromSession{
@@ -152,9 +169,11 @@ func TestValidateRoleFromSession(t *testing.T) {
 func TestValidateUser(t *testing.T) {
 	if GuestSessionTest == nil {
 		t.Error("guest session is nil")
+		return
 	}
 	if InfraSessionTest == nil {
-		t.Error("guest session is nil")
+		t.Error("infra session is nil")
+		return
 	}
 	resp, errResp := ValidateUser(
 		&requests.ValidateUser{

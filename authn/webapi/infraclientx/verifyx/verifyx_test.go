@@ -24,6 +24,7 @@ func TestCreateGuestSession(t *testing.T) {
 	session, errInfraSession := sessionx.CreateGuestSession()
 	if errInfraSession != nil {
 		t.Error(errInfraSession)
+		return
 	}
 	if session == nil {
 		t.Error("infra session is nil!")
@@ -37,6 +38,7 @@ func TestCreateClientxSession(t *testing.T) {
 	session, errInfraSession := sessionx.CreateInfraSession(GuestSessionTestCookie)
 	if errInfraSession != nil {
 		t.Error(errInfraSession)
+		return
 	}
 	if session == nil {
 		t.Error("infra session is nil!")
@@ -49,6 +51,7 @@ func TestCreateClientxSession(t *testing.T) {
 func TestCheckGuestSession(t *testing.T) {
 	if GuestSessionTestCookie == nil {
 		t.Error("guest session is nil")
+		return
 	}
 	if !CheckGuestSession(GuestSessionTestCookie.Value) {
 		t.Error("guest session is not valid")
@@ -58,6 +61,7 @@ func TestCheckGuestSession(t *testing.T) {
 func TestCheckInfraSession(t *testing.T) {
 	if InfraSessionTestCookie == nil {
 		t.Error("guest session is nil")
+		return
 	}
 	if !CheckInfraSession(InfraSessionTestCookie.Value) {
 		t.Error("guest session is not valid")
@@ -67,6 +71,7 @@ func TestCheckInfraSession(t *testing.T) {
 func TestIsGuestSessionValid(t *testing.T) {
 	if GuestSessionTestCookie == nil {
 		t.Error("guest session is nil")
+		return
 	}
 
 	if !IsGuestSessionValid(Environment, GuestSessionTestCookie) {
@@ -76,7 +81,8 @@ func TestIsGuestSessionValid(t *testing.T) {
 
 func TestIsInfraSessionValid(t *testing.T) {
 	if InfraSessionTestCookie == nil {
-		t.Error("guest session is nil")
+		t.Error("infra session is nil")
+		return
 	}
 
 	if !IsInfraSessionValid(Environment, InfraSessionTestCookie) {
@@ -86,7 +92,8 @@ func TestIsInfraSessionValid(t *testing.T) {
 
 func TestIsSessionValid(t *testing.T) {
 	if InfraSessionTestCookie == nil {
-		t.Error("guest session is nil")
+		t.Error("infra session is nil")
+		return
 	}
 
 	if !IsSessionValid(
@@ -102,7 +109,8 @@ func TestIsSessionValid(t *testing.T) {
 
 func TestHasRoleFromSession(t *testing.T) {
 	if InfraSessionTestCookie == nil {
-		t.Error("guest session is nil")
+		t.Error("infra session is nil")
+		return
 	}
 
 	if !HasRoleFromSession(
@@ -119,7 +127,8 @@ func TestHasRoleFromSession(t *testing.T) {
 
 func TestValidateUser(t *testing.T) {
 	if InfraSessionTestCookie == nil {
-		t.Error("guest session is nil")
+		t.Error("infra session is nil")
+		return
 	}
 
 	if !ValidateUser(
