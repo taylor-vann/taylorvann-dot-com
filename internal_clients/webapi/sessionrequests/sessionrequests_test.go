@@ -8,8 +8,6 @@ import (
 	"os"
 	"testing"
 
-	"log"
-
 	"webapi/sessionrequests/requests"
 	"webapi/sessionrequests/responses"
 
@@ -27,7 +25,10 @@ var (
 )
 
 // guest session
-func TestCreateGuestSession(t *testing.T) {
+func TestSetupSessionXAndCreateGuestSession(t *testing.T) {
+	// create session for module
+	sessionx.Setup()
+
 	session, errInfraSession := sessionx.CreateGuestSession()
 	if errInfraSession != nil {
 		t.Error(errInfraSession)
@@ -44,9 +45,14 @@ func TestCreateGuestSession(t *testing.T) {
 
 // clientx session
 func TestCreateClientxSession(t *testing.T) {
+	if GuestSessionTestCookie == nil {
+		t.Error("guest session is nil")
+		return
+	}
 	session, errInfraSession := sessionx.CreateInfraSession(GuestSessionTestCookie)
 	if errInfraSession != nil {
 		t.Error(errInfraSession)
+		return
 	}
 	if session == nil {
 		t.Error("infra session is nil!")
@@ -55,8 +61,6 @@ func TestCreateClientxSession(t *testing.T) {
 
 	// set for verification on next text
 	ClientSessionTestCookie = session
-
-	sessionx.Setup()
 }
 
 func TestRequestSession(t *testing.T) {
@@ -65,8 +69,6 @@ func TestRequestSession(t *testing.T) {
 		Email:       InfraEmail,
 		Password:    InfraPassword,
 	}
-
-	log.Println(requestBody)
 
 	marshalBody, errMarshalBody := json.Marshal(requestBody)
 	if errMarshalBody != nil {
@@ -97,8 +99,10 @@ func TestRequestSession(t *testing.T) {
 		t.Error(htr.Code)
 	}
 
+	result := htr.Result()
+
 	var responseBody responses.Body
-	errJSON := json.NewDecoder(htr.Body).Decode(&responseBody)
+	errJSON := json.NewDecoder(result.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON.Error())
 		return
@@ -107,16 +111,17 @@ func TestRequestSession(t *testing.T) {
 		t.Error("errors returned")
 		return
 	}
-
-	// test cookie is available
 }
 
 func TestRemoveSession(t *testing.T) {
+	if ClientSessionTestCookie == nil {
+		t.Error("client session test cookie is nil")
+		return
+	}
+
 	requestBody := requests.RemoveSessionParams{
 		Environment: "DEVELOPMENT",
 	}
-
-	log.Println(requestBody)
 
 	marshalBody, errMarshalBody := json.Marshal(requestBody)
 	if errMarshalBody != nil {
@@ -147,7 +152,7 @@ func TestRemoveSession(t *testing.T) {
 	result := htr.Result()
 
 	var responseBody responses.Body
-	errJSON := json.NewDecoder(htr.Body).Decode(&responseBody)
+	errJSON := json.NewDecoder(result.Body).Decode(&responseBody)
 	if errJSON != nil {
 		t.Error(errJSON.Error())
 		return
@@ -155,20 +160,5 @@ func TestRemoveSession(t *testing.T) {
 	if responseBody.Errors != nil {
 		t.Error("errors returned")
 		return
-	}
-
-	var sessionCookie *http.Cookie
-	for _, cookie := range result.Cookies() {
-		if cookie.Name == "briantaylorvann.com_session" {
-			sessionCookie = cookie
-			break
-		}
-	}
-
-	if sessionCookie == nil {
-		t.Error("there was no session cookie found")
-	}
-	if sessionCookie.MaxAge != -1 {
-		t.Error("session cookie age has not been reset")
 	}
 }
