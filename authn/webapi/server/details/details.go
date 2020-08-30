@@ -23,6 +23,9 @@ type AuthnDetails struct {
 }
 
 const (
+	ContentType     = "Content-Type"
+	ApplicationJson = "application/json"
+
 	initFilname = "/root/go/src/webapi/server_details.json"
 )
 
@@ -33,14 +36,12 @@ var (
 func ReadDetailsFromFile() *AuthnDetails {
 	initJSON, errInitFile := ioutil.ReadFile(initFilname)
 	if errInitFile != nil {
-		log.Println(errInitFile.Error())
 		return nil
 	}
 
 	var details AuthnDetails
 	errDetails := json.Unmarshal(initJSON, &details)
 	if errDetails != nil {
-		log.Println(errDetails.Error())
 		return nil
 	}
 
@@ -48,5 +49,6 @@ func ReadDetailsFromFile() *AuthnDetails {
 }
 
 func Details(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set(ContentType, ApplicationJson)
 	json.NewEncoder(w).Encode(serverDetails)
 }

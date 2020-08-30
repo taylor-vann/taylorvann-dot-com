@@ -20,7 +20,7 @@ type InitDetails struct {
 	Users map[string]InitUserDetails `json:"users"`
 }
 
-const initFilname = "/root/go/src/store_db.init.json"
+const initFilname = "/root/go/src/webapi/store_db.init.json"
 
 func createOrReadUser(
 	environment string,

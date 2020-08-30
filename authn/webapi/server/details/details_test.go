@@ -4,7 +4,6 @@ import (
 	"testing"
 )
 
-
 func TestReadDetailsFromFile(t *testing.T) {
 	details := ReadDetailsFromFile()
 
