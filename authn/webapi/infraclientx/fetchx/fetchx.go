@@ -8,9 +8,9 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/taylor-vann/weblog/toolbox/golang/jwtx"
 	"webapi/infraclientx/fetchx/requests"
 	"webapi/infraclientx/fetchx/responses"
+	"webapi/jwtx"
 )
 
 const (
@@ -38,6 +38,7 @@ const (
 var (
 	Environment = os.Getenv("STAGE")
 
+	errGuestSessionIsNil     = errors.New("guest session is nil")
 	errErrorsReturnedInFetch = errors.New("errors were returned in fetch")
 	errNilSessionReturned    = errors.New("nil session returned")
 	errUnableToValidateUser  = errors.New("unable to validate user")
@@ -304,6 +305,10 @@ func CreateInfraSession(
 	p *requests.InfraSession,
 	guestSessionCookie *http.Cookie,
 ) (*http.Cookie, error) {
+	if guestSessionCookie == nil {
+		return nil, errGuestSessionIsNil
+	}
+
 	var requestBodyBuffer, errRequestBodyBuffer = getRequestBodyBuffer(
 		requests.Body{
 			Action: CreateInfraSessionAction,
