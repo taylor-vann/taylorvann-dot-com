@@ -2,7 +2,7 @@ FROM alpine:latest
 
 VOLUME [ "/root/go/src/webapi/", "/usr/local/certs/live/" ]
 
-RUN apk --update add --no-cache build-base openssl git go certbot
+RUN apk --update add --no-cache build-base openssl git go
 
 WORKDIR /root/go/src/webapi/
 

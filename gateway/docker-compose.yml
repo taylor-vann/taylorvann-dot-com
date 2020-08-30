@@ -9,7 +9,7 @@ services:
     container_name: gateway_webapi
     hostname: briantaylorvann.com
     build:
-      context: ./webapi/
+      context: ./
       dockerfile: dockerfile
     restart: always
     env_file:
