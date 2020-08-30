@@ -10,7 +10,7 @@ import (
 	"webapi/store/users/hooks/requests"
 	"webapi/store/users/hooks/responses"
 
-	"webapi/infraclientx/verifyx"
+	"webapi/utils/infraclientx/verifyx"
 )
 
 func writeUsersResponse(w http.ResponseWriter, users *controller.SafeUsers) {

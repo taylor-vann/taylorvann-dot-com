@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"webapi/infraclientx/fetchx/requests"
+	"webapi/utils/infraclientx/fetchx/requests"
 )
 
 var (

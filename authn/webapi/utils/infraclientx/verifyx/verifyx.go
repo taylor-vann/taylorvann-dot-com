@@ -3,10 +3,10 @@ package verifyx
 import (
 	"net/http"
 
-	"webapi/infraclientx/fetchx"
-	"webapi/infraclientx/fetchx/requests"
+	"webapi/utils/infraclientx/fetchx"
+	"webapi/utils/infraclientx/fetchx/requests"
 
-	"webapi/jwtx"
+	"webapi/utils/jwtx"
 )
 
 type ValidateUserParams struct {

@@ -13,8 +13,8 @@ import (
 	"webapi/store/users/controller/statements"
 	"webapi/store/users/controller/utils"
 
-	"github.com/taylor-vann/weblog/toolbox/golang/passwordx"
-	"github.com/taylor-vann/weblog/toolbox/golang/storex"
+	"webapi/utils/passwordx"
+	"webapi/utils/storex"
 )
 
 type HashParams = passwordx.HashParams

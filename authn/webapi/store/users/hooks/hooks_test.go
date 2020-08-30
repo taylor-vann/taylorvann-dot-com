@@ -11,10 +11,10 @@ import (
 	"testing"
 	"time"
 
-	"webapi/infraclientx/sessionx"
 	"webapi/store/users/controller"
 	"webapi/store/users/hooks/requests"
 	"webapi/store/users/hooks/responses"
+	"webapi/utils/infraclientx/sessionx"
 )
 
 type Row struct {

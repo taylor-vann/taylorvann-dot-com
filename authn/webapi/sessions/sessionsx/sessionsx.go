@@ -10,7 +10,7 @@ import (
 	"webapi/sessions/sessionsx/constants"
 	"webapi/sessions/whitelist"
 
-	"webapi/jwtx"
+	"webapi/utils/jwtx"
 )
 
 type MilliSeconds = int64

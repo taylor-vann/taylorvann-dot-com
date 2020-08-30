@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"webapi/infraclientx/sessionx"
+	"webapi/utils/infraclientx/sessionx"
 )
 
 var (
