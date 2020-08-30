@@ -13,6 +13,8 @@ services:
       context: ./webapi/
       dockerfile: dockerfile
     restart: always
+    extra_hosts:
+      - "authn.briantaylorvann.com:94.237.56.52"
     env_file:
       - ./environment_variables.env
     ports:
