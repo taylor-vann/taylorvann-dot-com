@@ -6,7 +6,7 @@ import (
 
 	"webapi/sessions/sessionsx"
 
-	"webapi/jwtx"
+	"webapi/utils/jwtx"
 )
 
 const (

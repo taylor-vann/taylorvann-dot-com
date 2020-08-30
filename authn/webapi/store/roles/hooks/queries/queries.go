@@ -10,9 +10,9 @@ import (
 	"webapi/store/roles/hooks/requests"
 	"webapi/store/roles/hooks/responses"
 
-	"webapi/infraclientx/fetchx"
-	fetchRequests "webapi/infraclientx/fetchx/requests"
-	"webapi/infraclientx/verifyx"
+	"webapi/utils/infraclientx/fetchx"
+	fetchRequests "webapi/utils/infraclientx/fetchx/requests"
+	"webapi/utils/infraclientx/verifyx"
 )
 
 const (

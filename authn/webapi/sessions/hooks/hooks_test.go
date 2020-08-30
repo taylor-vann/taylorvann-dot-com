@@ -9,11 +9,11 @@ import (
 	"strconv"
 	"testing"
 
-	"webapi/infraclientx/sessionx"
 	"webapi/sessions/hooks/requests"
 	"webapi/sessions/hooks/responses"
+	"webapi/utils/infraclientx/sessionx"
 
-	"webapi/jwtx"
+	"webapi/utils/jwtx"
 )
 
 var (

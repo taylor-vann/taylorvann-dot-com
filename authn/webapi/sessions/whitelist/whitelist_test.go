@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"webapi/jwtx"
+	"webapi/utils/jwtx"
 )
 
 type JWTClaimTestPlan = []jwtx.Claims

@@ -5,7 +5,7 @@ import (
 	"testing"
 	"webapi/store"
 
-	"webapi/jwtx"
+	"webapi/utils/jwtx"
 )
 
 const unitTests = "UNIT_TESTS"

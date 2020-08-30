@@ -8,9 +8,9 @@ import (
 	"os"
 	"strconv"
 
-	"webapi/infraclientx/fetchx/requests"
-	"webapi/infraclientx/fetchx/responses"
-	"webapi/jwtx"
+	"webapi/utils/infraclientx/fetchx/requests"
+	"webapi/utils/infraclientx/fetchx/responses"
+	"webapi/utils/jwtx"
 )
 
 const (
