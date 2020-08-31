@@ -1,7 +1,6 @@
 package sessionrequests
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -116,7 +115,7 @@ func RemoveSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !verifyx.IsSessionValid(w, &verifyx.IsSessionValidParams{
+	if !verifyx.IsSessionValid(&verifyx.IsSessionValidParams{
 		Environment:        params.Environment,
 		InfraSessionCookie: sessionx.InfraSession,
 		SessionCookie:      cookie,

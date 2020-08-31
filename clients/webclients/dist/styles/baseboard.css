@@ -13,21 +13,35 @@ body {
   overflow-x: hidden;
 }
 
-body, main, header, footer, section, article, div {
+body,
+main,
+header,
+footer,
+section,
+article,
+div {
   display: block;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-summary, details, aside, blockquote, address, menu, nav, hr {
+summary,
+details,
+aside,
+blockquote,
+address,
+menu,
+nav,
+hr {
   display: block;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-summary, menu {
+summary,
+menu {
   list-style: none;
 }
 
@@ -36,7 +50,14 @@ address {
 }
 
 /* Type */
-h1, h2, h3, h4, h5, h6, p, pre {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+pre {
   display: block;
   margin: 0;
   padding: 0;
@@ -46,37 +67,53 @@ h1, h2, h3, h4, h5, h6, p, pre {
 }
 
 a {
-  cursor: pointer
+  cursor: pointer;
 }
 
-em, i, cite, dfn {
+em,
+i,
+cite,
+dfn {
   font-style: italic;
 }
 
-del, s {
+del,
+s {
   text-decoration: line-through;
 }
 
-u, ins {
+u,
+ins {
   text-decoration: underline;
 }
 
-code, samp, kbd {
+code,
+samp,
+kbd {
   font-family: monospace, monospace;
   font-size: 1.4rem;
 }
 
-sup, sub {
+sup,
+sub {
   font-size: 1.4rem;
   line-height: 0;
 }
 
-q:before, q:after {
+q:before,
+q:after {
   content: "";
 }
 
 /* Media */
-figure, figcaption, img, audio, video, canvas, object, iframe {
+figure,
+figcaption,
+img,
+audio,
+video,
+canvas,
+object,
+iframe {
   display: block;
   margin: 0;
   padding: 0;
@@ -89,7 +126,14 @@ iframe {
 }
 
 /* Forms */
-form, fieldset, label, legend, input, textarea, select, button {
+form,
+fieldset,
+label,
+legend,
+input,
+textarea,
+select,
+button {
   display: block;
   margin: 0;
   padding: 0;
@@ -100,13 +144,20 @@ fieldset {
   border: none;
 }
 
-input[type="submit"], input[type="reset"],
-input[type="button"], button {
-  cursor: pointer
+input[type="submit"],
+input[type="reset"],
+input[type="button"],
+button {
+  cursor: pointer;
 }
 
 /* Lists */
-ul, ol, dl, li, dt, dd {
+ul,
+ol,
+dl,
+li,
+dt,
+dd {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -121,7 +172,14 @@ ol {
 }
 
 /* Tables */
-table, caption, thead, tbody, tfoot, tr, th, td  {
+table,
+caption,
+thead,
+tbody,
+tfoot,
+tr,
+th,
+td {
   margin: 0;
   padding: 0;
   box-sizing: border-box;

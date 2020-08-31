@@ -3,14 +3,18 @@ package fileserver
 import (
 	"net/http"
 	"os"
+	"io/ioutil"
+
+	"log"
 )
 
 var (
 	webClientsDirectory    = os.Getenv("WEB_CLIENTS_DIRECTORY")
-	waywardRequestFilename = webClientsDirectory + "/lost/"
+	waywardRequestFilename = webClientsDirectory + "/lost/index.html"
 
 	relativeRune = []byte(".")[0]
 )
+
 
 func containsRelativeBackPaths(path string) bool {
 	pathLength := len(path)
@@ -28,8 +32,9 @@ func containsRelativeBackPaths(path string) bool {
 }
 
 func serveWaywardRequest(w http.ResponseWriter, r *http.Request) {
+	custom404, _ := ioutil.ReadFile(waywardRequestFilename)
 	w.WriteHeader(http.StatusNotFound)
-	http.ServeFile(w, r, waywardRequestFilename)
+	w.Write(custom404)
 }
 
 func serveStaticFiles(
@@ -42,13 +47,27 @@ func serveStaticFiles(
 		return
 	}
 
-	_, errFileInfo := os.Stat(requestedFileOrDirectory)
+	fileInfo, errFileInfo := os.Stat(requestedFileOrDirectory)
 	if os.IsNotExist(errFileInfo) {
 		serveWaywardRequest(w, r)
 		return
 	}
 
+	if fileInfo.IsDir() {
+		log.Println(requestedFileOrDirectory + "/index.html")
+		_, errDirInfo := os.Stat(requestedFileOrDirectory + "/index.html")
+
+		if os.IsNotExist(errDirInfo) {
+			serveWaywardRequest(w, r)
+			return
+		}
+	}
+
 	http.ServeFile(w, r, requestedFileOrDirectory)
+}
+
+func ServeLanding(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, webClientsDirectory)
 }
 
 func Serve(w http.ResponseWriter, r *http.Request) {

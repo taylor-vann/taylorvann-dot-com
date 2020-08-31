@@ -42,7 +42,7 @@ func validateInternalUser(
 	w http.ResponseWriter,
 	p *ValidateParams,
 ) bool {
-	isValidSession := verifyx.IsSessionValid(w, &verifyx.IsSessionValidParams{
+	isValidSession := verifyx.IsSessionValid(&verifyx.IsSessionValidParams{
 		Environment:        p.Environment,
 		InfraSessionCookie: p.InfraSessionCookie,
 		SessionCookie:      p.SessionCookie,
@@ -51,7 +51,7 @@ func validateInternalUser(
 		return false
 	}
 
-	if verifyx.HasRoleFromSession(w, p) {
+	if verifyx.HasRoleFromSession(p) {
 		return true
 	}
 
@@ -59,8 +59,9 @@ func validateInternalUser(
 }
 
 func serveWaywardRequest(w http.ResponseWriter, r *http.Request) {
+	custom404, _ := ioutil.ReadFile(waywardRequestFilename)
 	w.WriteHeader(http.StatusNotFound)
-	http.ServeFile(w, r, waywardRequestFilename)
+	w.Write(custom404)
 }
 
 func serveStaticFiles(
@@ -73,10 +74,19 @@ func serveStaticFiles(
 		return
 	}
 
-	_, errFileInfo := os.Stat(requestedFileOrDirectory)
+	fileInfo, errFileInfo := os.Stat(requestedFileOrDirectory)
 	if os.IsNotExist(errFileInfo) {
 		serveWaywardRequest(w, r)
 		return
+	}
+
+	if fileInfo.IsDir() {
+		_, errDirInfo := os.Stat(requestedFileOrDirectory + "/index.html")
+
+		if os.IsNotExist(errDirInfo) {
+			serveWaywardRequest(w, r)
+			return
+		}
 	}
 
 	http.ServeFile(w, r, requestedFileOrDirectory)
@@ -85,6 +95,10 @@ func serveStaticFiles(
 func ServeSignIn(w http.ResponseWriter, r *http.Request) {
 	requestedFileOrDirectory := webClientsDirectory + r.URL.Path
 	serveStaticFiles(w, r, requestedFileOrDirectory)
+}
+
+func ServeLanding(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, webClientsDirectory)
 }
 
 func Serve(w http.ResponseWriter, r *http.Request) {

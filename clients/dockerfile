@@ -4,6 +4,18 @@ VOLUME [ "/root/go/src/webapi/", "/usr/local/share/briantaylorvann.com/" ]
 
 RUN apk --update add --no-cache build-base git go nodejs-current npm
 
+RUN npm install --global \
+  @rollup/plugin-typescript \
+  @types/jasmine \
+  es-dev-server \
+  jasmine \
+  lit-element \
+  lit-html \
+  prettier \
+  rollup \
+  tslib \
+  typescript
+
 WORKDIR /root/go/src/webapi
 
 EXPOSE 80

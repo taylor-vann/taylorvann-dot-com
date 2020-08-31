@@ -18,11 +18,10 @@ func CreateMux() *http.ServeMux {
 	mux.HandleFunc("/remove_session/", sessionrequests.RemoveSession)
 
 	// Serve internal files
-	mux.HandleFunc("/sign-in/", fileserver.ServeSignIn)
+	mux.HandleFunc("/sign-in/", fileserver.)
 
-	// briantaylorvann.com/home/
-	// for single page app snugness
-	mux.HandleFunc("/", fileserver.Serve)
+	// Serve files
+	mux.HandleFunc("/", fileserver.ServeLanding)
 
 	return mux
 }

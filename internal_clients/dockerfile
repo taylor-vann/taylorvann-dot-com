@@ -4,7 +4,17 @@ VOLUME [ "/root/go/src/webapi/", "/usr/local/share/internal.briantaylorvann.com/
 
 RUN apk --update add --no-cache build-base curl git go nodejs npm
 
-RUN npm install --global typescript jasmine @types/jasmine prettier
+RUN npm install --global \
+  @rollup/plugin-typescript \
+  @types/jasmine \
+  es-dev-server \
+  jasmine \
+  lit-element \
+  lit-html \
+  prettier \
+  rollup \
+  tslib \
+  typescript
 
 RUN go get \
   github.com/taylor-vann/weblog/toolbox/golang/infraclientx/fetchx/ \
