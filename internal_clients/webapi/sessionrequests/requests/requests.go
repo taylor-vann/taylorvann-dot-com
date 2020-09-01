@@ -20,11 +20,6 @@ type RemoveSessionParams struct {
 	Signature   string `json:"signature"`
 }
 
-// type RequestSessionBody struct {
-// 	Action string			 `json:"action"`
-// 	Params interface{} `json:"params"`
-// }
-
 type RemoveSessionBody struct {
 	Action string               `json:"action"`
 	Params *RemoveSessionParams `json:"params"`
