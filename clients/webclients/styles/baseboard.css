@@ -1,8 +1,22 @@
-/* Baseboard v1.2 | Copywrite 2018 Brian Taylor Vann | MIT License */
+/* Baseboard  */
+
+/* Fonts */
+@font-face {
+  font-family: "League Junction";
+  src: url("/fonts/junction-light.woff") format("woff");
+}
+
+@font-face {
+  font-family: "League Mono";
+  src: url("/fonts/LeagueMono-Thin.woff") format("woff");
+}
 
 /* Semantics */
 html {
-  font-size: 62.5%;
+  font-size: 16px;
+  /* font-family: "League Mono", "Courier New", Courier, monospace; */
+  font-family: "League Junction", sans-serif;
+  font-weight: 100;
 }
 
 body {

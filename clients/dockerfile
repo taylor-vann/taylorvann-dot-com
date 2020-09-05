@@ -2,12 +2,17 @@ FROM alpine:latest
 
 VOLUME [ "/root/go/src/webapi/", "/usr/local/share/briantaylorvann.com/" ]
 
-RUN apk --update add --no-cache build-base git go nodejs-current npm
+RUN apk --update add --no-cache build-base curl git go nodejs npm
 
-RUN npm install --global \
-  @rollup/plugin-typescript \
+RUN npm install --global --quiet \
   @types/jasmine \
+  @typescript-eslint/eslint-plugin \
+  @typescript-eslint/parser \
+  @webcomponents/webcomponentsjs \
   es-dev-server \
+  eslint \
+  eslint-config-prettier \
+  eslint-plugin-prettier \
   jasmine \
   lit-element \
   lit-html \
@@ -16,6 +21,12 @@ RUN npm install --global \
   tslib \
   typescript
 
-WORKDIR /root/go/src/webapi
+RUN go get \
+  github.com/taylor-vann/weblog/toolbox/golang/infraclientx/fetchx/ \
+  github.com/taylor-vann/weblog/toolbox/golang/infraclientx/sessionx/ \
+  github.com/taylor-vann/weblog/toolbox/golang/infraclientx/verifyx/ \
+  github.com/taylor-vann/weblog/toolbox/golang/jwtx/
+
+WORKDIR /usr/local/share/briantaylorvann.com/
 
 EXPOSE 80
