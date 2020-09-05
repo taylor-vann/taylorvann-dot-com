@@ -1,6 +1,6 @@
 FROM alpine:latest
 
-VOLUME [ "/root/go/src/webapi/", "/usr/local/certs/live" ]
+VOLUME [ "/root/go/src/webapi/" ]
 
 RUN apk --update add --no-cache build-base openssl git go
 
