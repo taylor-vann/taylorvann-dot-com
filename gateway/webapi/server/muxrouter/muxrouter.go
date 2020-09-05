@@ -17,8 +17,8 @@ var (
 	Enviornment = os.Getenv("STAGE")
 
 	AuthnAddress           = os.Getenv("AUTHN_URL_ADDRESS")
+	BlogAddress            = os.Getenv("BLOG_URL_ADDRESS")
 	ClientsAddress         = os.Getenv("CLIENTS_URL_ADDRESS")
-	InternalClientsAddress = os.Getenv("INTERNAL_CLIENTS_URL_ADDRESS")
 	LogsAddress            = os.Getenv("LOGS_URL_ADDRESS")
 	MailAddress            = os.Getenv("MAIL_URL_ADDRESS")
 	MediaAddress           = os.Getenv("MEDIA_URL_ADDRESS")
@@ -26,7 +26,7 @@ var (
 	RouteMap = map[string]string{
 		"briantaylorvann": ClientsAddress,
 		"authn":           AuthnAddress,
-		"internal":        InternalClientsAddress,
+		"blog":            BlogAddress,
 		"logs":            LogsAddress,
 		"mail":            MailAddress,
 		"media":           MediaAddress,
