@@ -3,17 +3,17 @@
 /* Fonts */
 @font-face {
   font-family: "League Junction";
-  src: url("/fonts/junction-light.woff") format("woff");
+  src: url("./fonts/junction-light.woff") format("woff");
 }
 
 @font-face {
   font-family: "League Mono";
-  src: url("/fonts/LeagueMono-Thin.woff") format("woff");
+  src: url("./fonts/LeagueMono-Thin.woff") format("woff");
 }
 
 /* Semantics */
 html {
-  font-size: 16px;
+  font-size: 10px;
   /* font-family: "League Mono", "Courier New", Courier, monospace; */
   font-family: "League Junction", sans-serif;
   font-weight: 100;
@@ -21,10 +21,17 @@ html {
 
 body {
   font-size: 1.6rem;
-  line-height: 1;
+  line-height: 2;
   vertical-align: baseline;
   word-wrap: break-word;
   overflow-x: hidden;
+  /* 
+  background: repeating-linear-gradient(
+    #ffffff,
+    #ffffff 24px,
+    #9198e5 24px,
+    #9198e5 25px
+  ); */
 }
 
 body,
@@ -78,6 +85,8 @@ pre {
   box-sizing: border-box;
   font-size: 1.6rem;
   font-weight: normal;
+
+  margin-top: 0.8rem;
 }
 
 a {

@@ -20,16 +20,22 @@ const (
 
 var (
 	Environment = os.Getenv("STAGE")
-
 	webClientsDirectory    = os.Getenv("WEB_CLIENTS_DIRECTORY")
-	waywardRequestFilename = webClientsDirectory + "/lost/public/index.html"
-	signInRequestDirectory = webClientsDirectory + "/sign-in/"
+
+	unauthorizedFilename = webClientsDirectory + "/unauthorized/unauthorized/index.html"
+	waywardFilename = webClientsDirectory + "/lost/lost/index.html"
+	signInDirectory = webClientsDirectory + "/sign-in/"
+	homeResourcesDirectory = webClientsDirectory + "/home/home/"
+	homeFilename = webClientsDirectory + "/home/home/index.html"
+	internalResourcesDirectory = webClientsDirectory + "/internal/"
+	internalFilename = webClientsDirectory + "/internal/internal/index.html"
 
 	relativeRune           = []byte(".")[0]
 )
 
 var (
-	custom404, errCustom404 = ioutil.ReadFile(waywardRequestFilename)
+	custom401, errCustom401 = ioutil.ReadFile(unauthorizedFilename)
+	custom404, errCustom404 = ioutil.ReadFile(waywardFilename)
 )
 
 func containsRelativeBackPaths(path string) bool {
@@ -47,24 +53,35 @@ func containsRelativeBackPaths(path string) bool {
 	return false
 }
 
-func validateInternalUser(
-	w http.ResponseWriter,
-	p *ValidateParams,
-) bool {
-	isValidSession := verifyx.IsSessionValid(&verifyx.IsSessionValidParams{
-		Environment:        p.Environment,
-		InfraSessionCookie: p.InfraSessionCookie,
-		SessionCookie:      p.SessionCookie,
-	})
-	if !isValidSession {
+func isValidInternalUser(r *http.Request) bool {
+	sessionCookie, _ := r.Cookie(SessionCookieHeader)
+	if sessionCookie == nil {
 		return false
 	}
 
-	if verifyx.HasRoleFromSession(p) {
+	if !verifyx.IsSessionValid(&verifyx.IsSessionValidParams{
+		Environment:        Environment,
+		InfraSessionCookie: sessionx.InfraSession,
+		SessionCookie:      sessionCookie,
+	}) {
+		return false
+	}
+
+	if verifyx.HasRoleFromSession(&ValidateParams{
+		Environment:        Environment,
+		InfraSessionCookie: sessionx.InfraSession,
+		SessionCookie:      sessionCookie,
+		Organization:       InternalAdmin,
+	}) {
 		return true
 	}
 
 	return false
+}
+
+func serveUnauthorizedRequest(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotFound)
+	w.Write(custom401)
 }
 
 func serveWaywardRequest(w http.ResponseWriter, r *http.Request) {
@@ -99,30 +116,32 @@ func serveStaticFiles(
 	http.ServeFile(w, r, requestedFileOrDirectory)
 }
 
-func ServeSignIn(w http.ResponseWriter, r *http.Request) {
-	serveStaticFiles(w, r, signInRequestDirectory + r.URL.Path)
-}
-
-// single page app, handles it's own 404 or 401
-func ServeLanding(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, webClientsDirectory)
-}
-
-func Serve(w http.ResponseWriter, r *http.Request) {
-	requestedFileOrDirectory := webClientsDirectory + r.URL.Path
-	
-	sessionCookie, _ := r.Cookie(SessionCookieHeader)
-	isValidInternalUser := validateInternalUser(w, &ValidateParams{
-		Environment:        Environment,
-		InfraSessionCookie: sessionx.InfraSession,
-		SessionCookie:      sessionCookie,
-		Organization:       InternalAdmin,
-	},
-	)
-	if !isValidInternalUser {
-		serveWaywardRequest(w, r)
+func ServeInternalFiles(w http.ResponseWriter, r *http.Request) {
+	if !isValidInternalUser(r) {
+		serveUnauthorizedRequest(w, r)
 		return
 	}
 
-	serveStaticFiles(w, r, requestedFileOrDirectory)
+	serveStaticFiles(w, r, internalResourcesDirectory + r.URL.Path)
+}
+
+func ServeInternalApp(w http.ResponseWriter, r *http.Request) {
+	if !isValidInternalUser(r) {
+		serveUnauthorizedRequest(w, r)
+		return
+	}
+
+	serveStaticFiles(w, r, internalFilename)
+}
+
+func ServeSignInFiles(w http.ResponseWriter, r *http.Request) {
+	serveStaticFiles(w, r, signInDirectory + r.URL.Path)
+}
+
+func ServeHomeFiles(w http.ResponseWriter, r *http.Request) {
+	serveStaticFiles(w, r, homeResourcesDirectory + r.URL.Path)
+}
+
+func ServeHomeApp(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, homeFilename)
 }
