@@ -2,6 +2,8 @@
   "scripts": {
     "format": "eslint --config ./.eslintrc.json --fix && prettier --write ./",
     "test": "mocha --require ts-node/register ./**/*.test.ts",
+    "home_build": "cd ./home && tsc && rollup --config",
+    "home_test": "cd ./home && mocha --require ts-node/register ./**/*.test.ts",
     "sign-in_build": "cd ./sign-in && tsc && rollup --config",
     "sign-in_test": "cd ./sign-in && mocha --require ts-node/register ./**/*.test.ts"
   },

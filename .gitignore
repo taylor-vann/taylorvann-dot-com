@@ -3,8 +3,11 @@
 .DS_Store
 ._.DS_Store
 
+# DeFacto gitkeep
+!.gitkeep
+
 ## Environment Variables
-#    never upload
+#    never upload, but keep examples
 *.env
 !*.example.env
 *.init.json
@@ -28,11 +31,7 @@
 #     ignore all databases.
 **/postgres_data/
 
-
 # ignore node
 **/yarn-error.log
 **/yarn.lock
 **/package-lock.json
-
-# DeFacto gitkeep
-!.gitkeep
