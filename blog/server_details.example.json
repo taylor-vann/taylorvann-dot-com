@@ -1,0 +1,9 @@
+{
+  "service": "blog stuff",
+  "build": "single server does everthing",
+  "version": {
+    "major": 0,
+    "minor": 1,
+    "build": 2
+  }
+}

@@ -1,0 +1,16 @@
+FROM alpine:latest
+
+VOLUME [ "/root/go/src/webapi/" ]
+
+RUN apk --update add --no-cache build-base git go
+
+RUN go get \
+  github.com/gomodule/redigo/redis/ \
+  github.com/taylor-vann/weblog/toolbox/golang/infraclientx/fetchx/ \
+  github.com/taylor-vann/weblog/toolbox/golang/infraclientx/sessionx/ \
+  github.com/taylor-vann/weblog/toolbox/golang/infraclientx/verifyx/ \
+  github.com/taylor-vann/weblog/toolbox/golang/jwtx/
+
+WORKDIR /root/go/src/webapi/
+
+EXPOSE 80

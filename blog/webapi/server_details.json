@@ -1,0 +1,9 @@
+{
+  "service": "blog_api",
+  "build": "multi_purpose_single_server",
+  "version": {
+    "major": 0,
+    "minor": 0,
+    "build": 1
+  }
+}
