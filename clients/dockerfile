@@ -2,8 +2,34 @@ FROM alpine:latest
 
 VOLUME [ "/root/go/src/webapi/", "/usr/local/share/briantaylorvann.com/" ]
 
-RUN apk --update add --no-cache build-base git go nodejs-current npm
+RUN apk --update add --no-cache build-base git go nodejs npm
 
-WORKDIR /root/go/src/webapi
+RUN go get \
+  github.com/taylor-vann/weblog/toolbox/golang/infraclientx/fetchx/ \
+  github.com/taylor-vann/weblog/toolbox/golang/infraclientx/sessionx/ \
+  github.com/taylor-vann/weblog/toolbox/golang/infraclientx/verifyx/ \
+  github.com/taylor-vann/weblog/toolbox/golang/jwtx/
+
+RUN npm install --global --quiet \
+  @types/chai \
+  @types/mocha \
+  @typescript-eslint/eslint-plugin \
+  @typescript-eslint/parser \
+  @webcomponents/webcomponentsjs \
+  chai \
+  es-dev-server \
+  eslint \
+  eslint-config-prettier \
+  eslint-plugin-prettier \
+  lit-element \
+  lit-html \
+  mocha \
+  prettier \
+  rollup \
+  ts-node \
+  tslib \
+  typescript
+
+WORKDIR /usr/local/share/briantaylorvann.com/
 
 EXPOSE 80

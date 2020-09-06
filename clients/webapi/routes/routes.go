@@ -12,11 +12,16 @@ import (
 func CreateMux() *http.ServeMux {
 	mux := http.NewServeMux()
 
-	// briantaylorvann.com/home/ or briantaylorvann.com/
-	// for single page app snugness
+	// Serve single page app
+	mux.HandleFunc("/", fileserver.ServeHomeApp)
+	mux.HandleFunc("/scripts/", fileserver.ServeHomeFiles)
+	mux.HandleFunc("/styles/", fileserver.ServeHomeFiles)
 
-	// Serve static files
-	mux.HandleFunc("/", fileserver.Serve)
+	mux.HandleFunc("/sign-in/", fileserver.ServeSignInFiles)
+
+	mux.HandleFunc("/internal/", fileserver.ServeInternalApp)
+	mux.HandleFunc("/internal/scripts/", fileserver.ServeInternalFiles)
+	mux.HandleFunc("/internal/styles/", fileserver.ServeInternalFiles)
 
 	return mux
 }

@@ -4,16 +4,15 @@
 version: "3"
 services:
   webapi:
-    container_name: clients_webapi
+    container_name: blog_webapi
     build:
       context: ./
       dockerfile: dockerfile
     restart: always
     env_file:
-      - ./environment_variables.dev.env
+      - ./environment_variables.env
     ports:
-      - "3010:80"
+      - "3050:80"
     volumes:
       - ./webapi/:/root/go/src/webapi/
-      - ./webclients/:/usr/local/share/briantaylorvann.com/
     command: "go run /root/go/src/webapi/main.go"

@@ -1,0 +1,223 @@
+/* Baseboard  */
+
+/* Fonts */
+@font-face {
+  font-family: "League Junction";
+  src: url("./fonts/junction-light.woff") format("woff");
+}
+
+@font-face {
+  font-family: "League Mono";
+  src: url("./fonts/LeagueMono-Thin.woff") format("woff");
+}
+
+/* Semantics */
+html {
+  font-size: 10px;
+  /* font-family: "League Mono", "Courier New", Courier, monospace; */
+  font-family: "League Junction", sans-serif;
+  font-weight: 100;
+}
+
+body {
+  font-size: 1.6rem;
+  line-height: 2;
+  vertical-align: baseline;
+  word-wrap: break-word;
+  overflow-x: hidden;
+  /* 
+  background: repeating-linear-gradient(
+    #ffffff,
+    #ffffff 24px,
+    #9198e5 24px,
+    #9198e5 25px
+  ); */
+}
+
+body,
+main,
+header,
+footer,
+section,
+article,
+div {
+  display: block;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+summary,
+details,
+aside,
+blockquote,
+address,
+menu,
+nav,
+hr {
+  display: block;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+summary,
+menu {
+  list-style: none;
+}
+
+address {
+  font-style: normal;
+}
+
+/* Type */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+pre {
+  display: block;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-size: 1.6rem;
+  font-weight: normal;
+
+  margin-top: 0.8rem;
+}
+
+a {
+  cursor: pointer;
+}
+
+em,
+i,
+cite,
+dfn {
+  font-style: italic;
+}
+
+del,
+s {
+  text-decoration: line-through;
+}
+
+u,
+ins {
+  text-decoration: underline;
+}
+
+code,
+samp,
+kbd {
+  font-family: monospace, monospace;
+  font-size: 1.4rem;
+}
+
+sup,
+sub {
+  font-size: 1.4rem;
+  line-height: 0;
+}
+
+q:before,
+q:after {
+  content: "";
+}
+
+/* Media */
+figure,
+figcaption,
+img,
+audio,
+video,
+canvas,
+object,
+iframe {
+  display: block;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  border: none;
+}
+
+iframe {
+  border: none;
+}
+
+/* Forms */
+form,
+fieldset,
+label,
+legend,
+input,
+textarea,
+select,
+button {
+  display: block;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+fieldset {
+  border: none;
+}
+
+input[type="submit"],
+input[type="reset"],
+input[type="button"],
+button {
+  cursor: pointer;
+}
+
+/* Lists */
+ul,
+ol,
+dl,
+li,
+dt,
+dd {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+ul {
+  list-style: circle inside;
+}
+
+ol {
+  list-style: decimal inside;
+}
+
+/* Tables */
+table,
+caption,
+thead,
+tbody,
+tfoot,
+tr,
+th,
+td {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+table {
+  border-collapse: collapse;
+  border: 0;
+}
+
+caption {
+  text-align: left;
+}
+
+th {
+  font-weight: normal;
+  text-align: left;
+}

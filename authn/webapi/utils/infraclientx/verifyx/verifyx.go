@@ -113,6 +113,9 @@ func IsSessionValid(p *IsSessionValidParams) bool {
 	if p.InfraSessionCookie == nil {
 		return false
 	}
+	if p.SessionCookie == nil {
+		return false
+	}
 	if !CheckInfraSession(p.InfraSessionCookie.Value) {
 		return false
 	}
@@ -136,6 +139,12 @@ func HasRoleFromSession(p *HasRoleFromSessionParams) bool {
 	if p.InfraSessionCookie == nil {
 		return false
 	}
+	if p.SessionCookie == nil {
+		return false
+	}
+	if !CheckInfraSession(p.InfraSessionCookie.Value) {
+		return false
+	}
 
 	validRole, errValidRole := fetchx.ValidateRoleFromSession(
 		&requests.ValidateRoleFromSession{
@@ -157,6 +166,7 @@ func ValidateUser(p *ValidateUserParams) bool {
 	if p.InfraSessionCookie == nil {
 		return false
 	}
+
 	validUser, errValidUser := fetchx.ValidateUser(
 		&requests.ValidateUser{
 			Environment: p.Environment,
@@ -165,6 +175,7 @@ func ValidateUser(p *ValidateUserParams) bool {
 		},
 		p.InfraSessionCookie,
 	)
+
 	if validUser != nil && errValidUser == nil {
 		return true
 	}
