@@ -1,11 +1,19 @@
-# Weblog
+## Weblog
 
-Personal blog
+Personal blog.
 
-## gateway
+### Gateway
 
-Load balancer between services
+A load balancer between services.
 
-## authn
+### Authn
 
-Users, Roles, and Sessions
+Users, Roles, and Sessions.
+
+### Clients
+
+Serve static files and html.
+
+### Blog
+
+Provide external users an api.

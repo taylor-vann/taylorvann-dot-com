@@ -175,7 +175,7 @@ func ValidateUser(p *ValidateUserParams) bool {
 		},
 		p.InfraSessionCookie,
 	)
-	
+
 	if validUser != nil && errValidUser == nil {
 		return true
 	}
