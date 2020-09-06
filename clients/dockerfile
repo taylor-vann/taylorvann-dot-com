@@ -11,19 +11,22 @@ RUN go get \
   github.com/taylor-vann/weblog/toolbox/golang/jwtx/
 
 RUN npm install --global --quiet \
-  @types/jasmine \
+  @types/chai \
+  @types/mocha \
   @typescript-eslint/eslint-plugin \
   @typescript-eslint/parser \
   @webcomponents/webcomponentsjs \
+  chai \
   es-dev-server \
   eslint \
   eslint-config-prettier \
   eslint-plugin-prettier \
-  jasmine \
   lit-element \
   lit-html \
+  mocha \
   prettier \
   rollup \
+  ts-node \
   tslib \
   typescript
 
