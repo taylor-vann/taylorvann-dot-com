@@ -1,9 +1,0 @@
-{
-  "compilerOptions": {
-    "experimentalDecorators": true,
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "module": "commonjs",
-    "strict": true,
-    "target": "es2015"
-  }
-}

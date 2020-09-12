@@ -5,9 +5,12 @@ package routes
 
 import (
 	"net/http"
+	"os"
 
 	"webapi/fileserver"
 )
+
+const Environment = os.Getenv("STAGE")
 
 func CreateMux() *http.ServeMux {
 	mux := http.NewServeMux()
@@ -23,5 +26,12 @@ func CreateMux() *http.ServeMux {
 	mux.HandleFunc("/internal/scripts/", fileserver.ServeInternalFiles)
 	mux.HandleFunc("/internal/styles/", fileserver.ServeInternalFiles)
 
+	// development serve tests
+
+	if Environment == "DEVELOPMENT" {
+		mux.HandleFunc("/tests/", fileserver.ServeInternalFiles)
+		mux.HandleFunc("/internal/tests/", fileserver.ServeInternalFiles)	
+	}
+	
 	return mux
 }
