@@ -1,8 +1,8 @@
 {
   "scripts": {
     "format": "eslint --config ./.eslintrc.json --fix && prettier --write ./",
-    "home_build": "cd ./home && tsc && rollup --config",
-    "sign-in_build": "cd ./sign-in && tsc && rollup --config",
+    "build_home": "cd ./home && tsc && rollup --config",
+    "build_sign-in": "cd ./sign-in && tsc && rollup --config"
   },
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "^4.0.1",

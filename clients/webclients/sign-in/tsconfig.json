@@ -9,6 +9,5 @@
     "strict": true,
     "target": "es2015"
   },
-  "include": ["./development"],
-  "exclude": ["./**/*.test.ts"]
+  "include": ["./development", "../utils"]
 }
