@@ -1,15 +1,9 @@
 // little test runner
 // brian taylor vann
 
-// Run tests in the browser in Typescript with modules.
-// Serve tests in the same manner as a weba app.
+import { runTests } from "./runner/runner";
+import { getResults, subscribe } from "./results_store/results_store";
+import { createTest } from "./test_store/test_store";
 
-// import test store
-// test, 
-
-// export
-// test - function to declare test
-// subscribe - function to respond to changes in test state
-// start
-// stop
-
+// curated api
+export { createTest, runTests, getResults, subscribe };

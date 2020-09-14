@@ -1,8 +1,8 @@
 {
   "scripts": {
-    "format": "eslint --config ./.eslintrc.json --fix && prettier --write ./",
-    "build_home": "cd ./home && tsc && rollup --config",
-    "build_sign-in": "cd ./sign-in && tsc && rollup --config"
+    "format_home": "eslint --config ./.eslintrc.json --fix ./home/development ./utils && prettier --write ./home/development ./utils",
+    "build_home": "cd ./home && tsc --p ./tsconfig.json && rollup --config ./rollup.config.js",
+    "build_sign-in": "cd ./sign-in && tsc --p ./tsconfig.json && rollup --config ./rollup.config.js"
   },
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "^4.0.1",

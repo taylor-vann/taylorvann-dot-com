@@ -1,47 +1,28 @@
 // little test runner
 // brian taylor vann
 
-// atomic status
-type TestStatus = "processing" | "cancelled" | "completed"
-type Assertions = string[] | undefined
-
-// tests
-type SyncTest = () => Assertions
-type AsyncTest = () => Promise<Assertions>
-type Test = SyncTest | AsyncTest
-type Tests = {[testName: string]: Test}
+type Assertions = string[] | undefined;
+type SyncTest = () => Assertions;
+type AsyncTest = () => Promise<Assertions>;
+type Test = SyncTest | AsyncTest;
+type Tests = Test[];
 type TestParams = {
-  title: string,
-  tests: Tests,
-}
-type Collection = {
-  [id: string]: TestParams,
-}
+  title: string;
+  tests: Tests;
+};
+type TestCollections = TestParams[];
+type SetTestCollections = (testCollection: TestCollections) => TestCollections;
+type GetTestCollections = () => TestCollections;
 
-// test results
-type Result = {
-  status: TestStatus,
-  assertions: Assertions,
-}
-type Results = {[testName: string]: Result}
-type TestResults = {
-  title: string,
-  status: TestStatus,
-  results: Results,
-}
-type CollectionResults = {
-  [id: string]: TestResults,
-}
-type State = {
-  status: TestStatus,
-  results: CollectionResults,
-}
+let testCollection: TestCollections = [];
 
-// declare test
-type AncillaryCallback = () => {}
+const setTestCollections: SetTestCollections = (newTestCollection) => {
+  testCollection = newTestCollection;
+  return testCollection;
+};
 
-type GetState = () => State
-type CreateTest = (params: TestParams) => {}
-type Subscribe = AncillaryCallback
-type Cancel = AncillaryCallback
-type Start = AncillaryCallback
+const getTestCollections: GetTestCollections = () => {
+  return testCollection;
+};
+
+export { TestCollections, Test, setTestCollections, getTestCollections };

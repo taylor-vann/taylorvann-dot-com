@@ -9,5 +9,6 @@
     "strict": true,
     "target": "es2015"
   },
-  "include": ["./development", "../utils"]
+  "include": ["./development", "../utils"],
+  "exclude": ["./home"]
 }
