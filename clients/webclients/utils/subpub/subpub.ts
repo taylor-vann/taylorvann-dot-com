@@ -4,18 +4,20 @@
 // Dispatch a series of callbacks
 
 type RecycledStubs = Array<number>;
-type RecallSubscription<T> = (params: T) => void;
-type RecallStore<T> = { [key: string]: RecallSubscription<T> | undefined };
+type Subscription<T> = (params: T) => void;
+type SubsctiptionStore<T> = { [key: string]: Subscription<T> | undefined };
 
 class SubPub<T> {
-  private stub = -1;
+  private stub = 0;
   private recycledStubs: RecycledStubs = [];
-  private subscriptions: RecallStore<T> = {};
+  private subscriptions: SubsctiptionStore<T> = {};
 
   private getStub(): number {
-    if (this.recycledStubs.length !== 0) {
-      return this.recycledStubs.pop();
+    const stub = this.recycledStubs.pop();
+    if (stub) {
+      return stub;
     }
+
     this.stub += 1;
     return this.stub;
   }
@@ -29,7 +31,7 @@ class SubPub<T> {
     }
   }
 
-  subscribe(callback: RecallSubscription<T>): number {
+  subscribe(callback: Subscription<T>): number {
     const stub = this.getStub();
     this.subscriptions[stub] = callback;
 
@@ -42,4 +44,4 @@ class SubPub<T> {
   }
 }
 
-export { RecallSubscription, SubPub };
+export { SubPub };

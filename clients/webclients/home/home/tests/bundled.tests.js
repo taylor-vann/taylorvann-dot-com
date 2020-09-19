@@ -2,10 +2,14 @@
 const defaultResultsState = {
     status: "untested",
 };
-let resultsState = Object.assign({}, defaultResultsState);
+const resultsState = Object.assign({}, defaultResultsState);
 const getResults = () => {
     return resultsState;
 };
+
+// brian taylor vann
+// timestamps
+let currentTestTimestamp = performance.now();
 
 // little test runner
 // brian taylor vann
@@ -18,11 +22,9 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-// create and destroy tests
-let currentTestTimestamp = performance.now();
 
 // brian taylor vann
-let results = getResults();
+const results = getResults();
 console.log("tests!");
 console.log("more tests!");
 console.log(results);

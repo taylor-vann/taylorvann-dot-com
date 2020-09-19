@@ -1,51 +1,32 @@
 // little test runner
 // brian taylor vann
 
+import { Assertions } from "../results_store/results_store";
 import { Test, getTestCollections } from "../test_store/test_store";
-import { dispatch } from "../results_store/results_store";
+import {
+  getTimestamp,
+  updateTimestamp,
+  startTestCollectionRun,
+  endTestCollectionRun,
+  sendTestResult,
+  cancelRun,
+} from "./runner_publisher";
 
-type LtrTest = () => Promise<void>;
-type LtrTestCollection = LtrTest[];
-type LtrParams = {
-  ordered?: boolean;
-  timeoutInterval?: number;
-};
+type CreateTestTimeout = (requestedInterval?: number) => Promise<Assertions>;
 type BuildLtrTestParams = {
   collectionID: string;
   issuedAt: number;
   testFunc: Test;
   testID: string;
+  timeoutInterval?: number;
 };
+type LtrTest = () => Promise<void>;
 type BuildLtrTest = (params: BuildLtrTestParams) => LtrTest;
-type UpdateTimestamp = () => number;
-type BuildLtrTestCollection = (issuedAt: number) => LtrTestCollection;
-type RunTests = () => void;
-type RunLtrTests = (params?: LtrParams) => void;
+interface RunTestParams {
+  timeoutInterval?: number;
+}
+type RunTests = (params: RunTestParams) => void;
 
-type TestResultsDispatchParams = {
-  startTime: number;
-  endTime: number;
-  assertions: string[];
-  collectionID: string;
-  testID: string;
-};
-type DispatchTestResults = (params: TestResultsDispatchParams) => void;
-type RaceCheckFunction = (time: number) => void;
-type VoidFunction = () => void;
-
-// timestamps
-let currentTestTimestamp = performance.now();
-const getTimestamp: UpdateTimestamp = () => {
-  return currentTestTimestamp;
-};
-const updateTimestamp: UpdateTimestamp = () => {
-  currentTestTimestamp = performance.now();
-  return currentTestTimestamp;
-};
-
-// timeout intervals
-let timeoutInterval = 10000;
-const timeoutAssertions = ["timeout"];
 const sleep = async (time: number) => {
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -53,52 +34,33 @@ const sleep = async (time: number) => {
     }, time);
   });
 };
-const testTimeout: Test = async () => {
-  await sleep(timeoutInterval);
-  return timeoutAssertions;
-};
 
-// run tests
-const dispatchStartTestCollectionRun: RaceCheckFunction = (startTime) => {
-  dispatch({
-    action: "START_RUN",
-    params: { startTime },
-  });
-};
+const defaultTimeoutInterval = 10000;
+const getTimeoutAssertions = (timeoutInterval: number) => [
+  `timed out at: ${timeoutInterval}`,
+];
 
-const dispatchEndTestCollectionRun: RaceCheckFunction = (startTime) => {
-  if (startTime < getTimestamp()) {
-    return;
-  }
-  const endTime = performance.now();
-  dispatch({
-    action: "END_RUN",
-    params: { endTime },
-  });
-};
-
-const dispatchTestResults: DispatchTestResults = (params) => {
-  dispatch({
-    action: "END_TEST",
-    params,
-  });
-};
-
-const dispatchCancelRun: RaceCheckFunction = (endTime) => {
-  dispatch({ action: "CANCEL_RUN", params: { endTime } });
+const createTestTimeout: CreateTestTimeout = async (
+  timeoutInterval?: number
+) => {
+  const interval = timeoutInterval ?? defaultTimeoutInterval;
+  await sleep(interval);
+  return getTimeoutAssertions(interval);
 };
 
 const buildTest: BuildLtrTest = (params) => {
-  const { issuedAt, testID, collectionID } = params;
+  const { issuedAt, testID, collectionID, timeoutInterval } = params;
   return async () => {
     const startTime = performance.now();
-    const assertions = await Promise.race([params.testFunc(), testTimeout()]);
-    if (issuedAt < currentTestTimestamp) {
+    const assertions = await Promise.race([
+      params.testFunc(),
+      createTestTimeout(timeoutInterval),
+    ]);
+    if (issuedAt < getTimestamp()) {
       return;
     }
     const endTime = performance.now();
-
-    dispatchTestResults({
+    sendTestResult({
       startTime,
       endTime,
       assertions,
@@ -108,11 +70,11 @@ const buildTest: BuildLtrTest = (params) => {
   };
 };
 
-const runTestsInOrder: RunTests = async () => {
-  const startTime = updateTimestamp();
-  dispatchStartTestCollectionRun(startTime);
-
+const runTestsInOrder: RunTests = async ({ timeoutInterval }) => {
   const testCollections = getTestCollections();
+  const startTime = updateTimestamp();
+
+  startTestCollectionRun(startTime);
   for (const collectionID in testCollections) {
     const { tests } = testCollections[collectionID];
     for (const testID in tests) {
@@ -120,64 +82,23 @@ const runTestsInOrder: RunTests = async () => {
         return;
       }
       const testFunc = tests[testID];
-
       const builtTest = buildTest({
         collectionID,
         issuedAt: startTime,
         testFunc,
         testID,
+        timeoutInterval,
       });
 
       await builtTest();
     }
   }
 
-  dispatchEndTestCollectionRun(startTime);
+  endTestCollectionRun(startTime);
 };
 
-const buildAsyncRun: BuildLtrTestCollection = (issuedAt) => {
-  const builtTests: LtrTestCollection = [];
-  const testCollection = getTestCollections();
-  for (const collectionID in testCollection) {
-    const { tests } = testCollection[collectionID];
-    for (const testID in tests) {
-      const testFunc = tests[testID];
-      const builtTest = buildTest({
-        collectionID,
-        testID,
-        issuedAt,
-        testFunc,
-      });
-      builtTests.push(builtTest);
-    }
-  }
-
-  return builtTests;
+const runTests: RunTests = (params) => {
+  runTestsInOrder(params);
 };
 
-const runTestsAsync: RunTests = async () => {
-  const startTime = updateTimestamp();
-  dispatchStartTestCollectionRun(startTime);
-
-  const tests = buildAsyncRun(startTime);
-  await Promise.all(tests);
-
-  dispatchEndTestCollectionRun(startTime);
-};
-
-const cancelTestRun: VoidFunction = () => {
-  const endTime = updateTimestamp();
-  dispatchCancelRun(endTime);
-};
-
-const runTests: RunLtrTests = (params) => {
-  timeoutInterval = params?.timeoutInterval ?? timeoutInterval;
-  if (params.ordered == true) {
-    runTestsInOrder();
-    return;
-  }
-
-  runTestsAsync();
-};
-
-export { runTests, cancelTestRun };
+export { runTests, cancelRun };

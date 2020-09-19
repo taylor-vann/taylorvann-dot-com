@@ -2,7 +2,7 @@
 // brian taylor vann
 
 import { TestCollections } from "../test_store/test_store";
-import { RecallSubscription, SubPub } from "../../subpub/subpub";
+import { SubPub } from "../../subpub/subpub";
 
 // Test Results & Test Collection Results
 type TestStatus =
@@ -12,31 +12,28 @@ type TestStatus =
   | "cancelled"
   | "failed"
   | "completed";
-type Assertions = string[];
+type Assertions = string[] | undefined;
 type Result = {
   status: TestStatus;
   assertions?: Assertions;
   startTime?: number;
   endTime?: number;
+  testName: string;
 };
-type Results = { [testName: string]: Result };
+type Results = Result[];
 type TestResults = {
   title: string;
   status: TestStatus;
   results: Results;
 };
 type CollectionResults = TestResults[];
-type ResultsState = {
+type RunResultsState = {
   status: TestStatus;
   results?: CollectionResults;
 };
-type GetState = () => ResultsState;
-type RunTestsActionParams = {
-  startTime: number;
-};
-type EndTestsActionParams = {
-  endTime: number;
-};
+type GetStore = () => RunResultsState;
+type Subscription<T> = (params: T) => void;
+type Subscribe<T> = (callback: Subscription<T>) => () => void;
 
 // Actions
 type TestActionParams = {
@@ -46,9 +43,15 @@ type TestActionParams = {
   endTime: number;
   startTime: number;
 };
+type RunTestsActionParams = {
+  startTime: number;
+};
 type RunTestsAction = {
   action: "START_RUN";
   params: RunTestsActionParams;
+};
+type EndTestsActionParams = {
+  endTime: number;
 };
 type CancelTestsAction = {
   action: "CANCEL_RUN";
@@ -67,29 +70,24 @@ type ResultsStoreAction =
   | CancelTestsAction
   | CompletedTestAction
   | CompletedsAction;
-type Subscribe<T> = (callback: RecallSubscription<T>) => () => void;
 
 // create pubsub with state
-const subpub = new SubPub<ResultsState>();
+const subpub = new SubPub<RunResultsState>();
 
-const subscribe: Subscribe<ResultsState> = (callback) => {
+const subscribe: Subscribe<RunResultsState> = (callback) => {
   const stub = subpub.subscribe(callback);
   return () => {
     subpub.unsubscribe(stub);
   };
 };
 
-const defaultTestResult: Result = {
+const defaultResultsState: RunResultsState = {
   status: "untested",
 };
 
-const defaultResultsState: ResultsState = {
-  status: "untested",
-};
+const resultsState: RunResultsState = { ...defaultResultsState };
 
-const resultsState: ResultsState = { ...defaultResultsState };
-
-const createResultState = (testCollection: TestCollections) => {
+const createResultsState = (testCollection: TestCollections) => {
   // iterate through testCollection
   // stub id
   //  -> iterate through tests
@@ -105,10 +103,20 @@ const dispatch = (action: ResultsStoreAction) => {
   // stop
   // finished test
   // finished test collection
+
+  // get copy of test state
+  // broadcast test state
 };
 
-const getResults: GetState = () => {
+const getResults: GetStore = () => {
   return resultsState;
 };
 
-export { TestResults, createResultState, dispatch, getResults, subscribe };
+export {
+  Assertions,
+  TestResults,
+  createResultsState,
+  getResults,
+  dispatch,
+  subscribe,
+};
