@@ -9,6 +9,8 @@ type Tests = Test[];
 type TestParams = {
   title: string;
   tests: Tests;
+  runTestsAsynchronously?: boolean;
+  timeoutInterval?: number;
 };
 type TestCollections = TestParams[];
 type SetTestCollections = (testCollection: TestCollections) => TestCollections;
@@ -25,4 +27,4 @@ const getTestCollections: GetTestCollections = () => {
   return testCollection;
 };
 
-export { TestCollections, Test, setTestCollections, getTestCollections };
+export { TestCollections, Test, Tests, TestParams, setTestCollections, getTestCollections };

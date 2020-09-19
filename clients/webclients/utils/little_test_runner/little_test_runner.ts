@@ -2,7 +2,7 @@
 // little test runner
 
 import { runTests } from "./runner/runner";
-import { getResults, subscribe } from "./results_store/results_store";
+import { getResults } from "./results_store/results_store";
 import { setTestCollections as setTests } from "./test_store/test_store";
 
-export { setTests, runTests, getResults, subscribe };
+export { setTests, runTests, getResults };

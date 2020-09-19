@@ -1,6 +1,7 @@
 // brian taylor vann
 
-import { Assertions, dispatch } from "../results_store/results_store";
+import { Assertions } from "../../results_store/results_store";
+import { dispatch } from "../../conductor/conductor";
 
 type GetTimestamp = () => number;
 type UpdateTimestamp = GetTimestamp;
@@ -8,8 +9,8 @@ type TestResultsDispatchParams = {
   startTime: number;
   endTime: number;
   assertions: Assertions;
-  collectionID: string;
-  testID: string;
+  collectionID: number;
+  testID: number;
 };
 type DispatchTestResults = (params: TestResultsDispatchParams) => void;
 type RaceCheckFunction = (time: number) => void;
@@ -26,14 +27,27 @@ const updateTimestamp: UpdateTimestamp = () => {
 };
 
 // run tests
-const startTestCollectionRun: RaceCheckFunction = (startTime) => {
+const startTestCollectionsRun: RaceCheckFunction = (startTime) => {
+  if (startTime < getTimestamp()) {
+    return;
+  }
   dispatch({
     action: "START_RUN",
     params: { startTime },
   });
 };
 
-const endTestCollectionRun: RaceCheckFunction = (startTime) => {
+const startTest: RaceCheckFunction = (startTime) => {
+  if (startTime < getTimestamp()) {
+    return;
+  }
+  dispatch({
+    action: "START_TEST",
+    params: { startTime },
+  });
+};
+
+const endTestCollectionsRun: RaceCheckFunction = (startTime) => {
   if (startTime < getTimestamp()) {
     return;
   }
@@ -59,8 +73,8 @@ const cancelRun: VoidFunction = () => {
 export {
   getTimestamp,
   updateTimestamp,
-  startTestCollectionRun,
-  endTestCollectionRun,
+  startTestCollectionsRun,
+  endTestCollectionsRun,
   sendTestResult,
   cancelRun,
 };
