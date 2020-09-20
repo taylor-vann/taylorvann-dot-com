@@ -6,7 +6,7 @@ import {
   Test,
   TestParams,
   TestCollection,
-} from "../runner/test_types/test_types";
+} from "./test_types/test_types";
 import {
   startTestRun,
   startTestCollection,
@@ -39,7 +39,7 @@ const startLtrTestCollectionRun: StartLtrTestCollectionRun = async ({
   testCollection,
   startTime,
 }) => {
-  startTestRun(startTime);
+  startTestRun({ startTime });
 
   let collectionID = 0;
   for (const collection of testCollection) {
@@ -78,7 +78,11 @@ const startLtrTestCollectionRun: StartLtrTestCollectionRun = async ({
     collectionID += 1;
   }
 
-  endTestRun(startTime);
+  if (startTime < getTimestamp()) {
+    return;
+  }
+  const endTime = performance.now();
+  endTestRun({ endTime });
 };
 
 // iterate through tests synchronously

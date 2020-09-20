@@ -48,16 +48,16 @@ type EndTestCollectionAction = {
   params: EndTestCollectionActionParams;
 };
 
-type EndTestRunParams = {
+type EndTestRunActionParams = {
   endTime: number;
 };
 type CancelTestsAction = {
   action: "CANCEL_RUN";
-  params: EndTestRunParams;
+  params: EndTestRunActionParams;
 };
 type EndTestRunAction = {
   action: "END_TEST_RUN";
-  params: EndTestRunParams;
+  params: EndTestRunActionParams;
 };
 
 type ResultsStoreAction =
@@ -75,6 +75,6 @@ export {
   StartTestActionParams,
   EndTestActionParams,
   EndTestCollectionActionParams,
-  EndTestRunParams,
+  EndTestRunActionParams,
   ResultsStoreAction,
 };

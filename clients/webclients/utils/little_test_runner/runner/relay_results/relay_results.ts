@@ -1,42 +1,29 @@
 // brian taylor vann
 
-import { Assertions, dispatch } from "../../results_store/results_store";
+import {
+  StartTestRunActionParams,
+  StartTestCollectionActionParams,
+  StartTestActionParams,
+  EndTestActionParams,
+  EndTestCollectionActionParams,
+  EndTestRunActionParams,
+} from "../../results_store/results_store";
 
-interface StartTestCollectionParams {
-  collectionID: number;
-  startTime: number;
-}
-type StartTestCollection = (params: StartTestCollectionParams) => void;
+import { dispatch } from "../../results_store/results_store";
 
-interface StartTestParams {
-  collectionID: number;
-  testID: number;
-  startTime: number;
-}
-type StartTest = (params: StartTestParams) => void;
-
-type SendTestResultsParams = {
-  startTime: number;
-  endTime: number;
-  assertions: Assertions;
-  collectionID: number;
-  testID: number;
-};
-type SendTestResults = (params: SendTestResultsParams) => void;
-
-interface EndTestCollectionParams {
-  collectionID: number;
-  endTime: number;
-}
-type EndTestCollection = (params: EndTestCollectionParams) => void;
-
-type RaceCheck = (time: number) => void;
+type StartTestRun = (params: StartTestRunActionParams) => void;
+type StartTestCollection = (params: StartTestCollectionActionParams) => void;
+type StartTest = (params: StartTestActionParams) => void;
+type CancelRun = (params: EndTestRunActionParams) => void;
+type SendTestResults = (params: EndTestActionParams) => void;
+type EndTestCollection = (params: EndTestCollectionActionParams) => void;
+type EndTestRun = CancelRun;
 
 // run tests
-const startTestRun: RaceCheck = (startTime) => {
+const startTestRun: StartTestRun = (params) => {
   dispatch({
     action: "START_TEST_RUN",
-    params: { startTime },
+    params,
   });
 };
 
@@ -54,10 +41,10 @@ const startTest: StartTest = (params) => {
   });
 };
 
-const cancelRun: RaceCheck = (endTime) => {
+const cancelRun: CancelRun = (params) => {
   dispatch({
     action: "CANCEL_RUN",
-    params: { endTime },
+    params,
   });
 };
 
@@ -75,10 +62,10 @@ const endTestCollection: EndTestCollection = (params) => {
   });
 };
 
-const endTestRun: RaceCheck = (endTime) => {
+const endTestRun: EndTestRun = (params) => {
   dispatch({
     action: "END_TEST_RUN",
-    params: { endTime },
+    params,
   });
 };
 

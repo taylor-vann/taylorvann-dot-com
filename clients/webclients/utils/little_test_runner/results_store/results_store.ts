@@ -8,4 +8,25 @@ import {
   getResults,
 } from "./state_store/state_store";
 
-export { Assertions, TestRunResults, dispatch, subscribe, getResults };
+import {
+  StartTestRunActionParams,
+  StartTestCollectionActionParams,
+  StartTestActionParams,
+  EndTestActionParams,
+  EndTestCollectionActionParams,
+  EndTestRunActionParams,
+} from "./state_store/actions_types";
+
+export {
+  Assertions,
+  TestRunResults,
+  StartTestRunActionParams,
+  StartTestCollectionActionParams,
+  StartTestActionParams,
+  EndTestActionParams,
+  EndTestCollectionActionParams,
+  EndTestRunActionParams,
+  dispatch,
+  subscribe,
+  getResults,
+};
