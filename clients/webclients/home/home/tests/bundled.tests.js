@@ -17,7 +17,10 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 const defaultResultsState = {
     status: "untested",
 };
-// add test result
+// need to define what happens on:
+// start test run
+// start test collection
+// end / add test result
 // end test result
 // create new state based on test collection
 const getResults = () => {
