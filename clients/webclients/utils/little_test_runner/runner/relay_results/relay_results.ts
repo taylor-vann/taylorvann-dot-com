@@ -1,7 +1,6 @@
 // brian taylor vann
 
-import { Assertions } from "../../results_store/results_store";
-import { dispatch } from "../../conductor/conductor";
+import { Assertions, dispatch } from "../../results_store/results_store";
 
 interface StartTestCollectionParams {
   collectionID: number;

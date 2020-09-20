@@ -1,8 +1,22 @@
+// Little Test Runner
 // brian taylor vann
-// little test runner
+
+// Create and run tests in the browser.
+// There are no dependencies.
 
 import { runTests } from "./runner/runner";
-import { getResults } from "./results_store/results_store";
-import { setTestCollections as setTests } from "./test_store/test_store";
+import {
+  TestRunResults,
+  subscribe,
+  getResults,
+} from "./results_store/results_store";
+import { TestParams, TestCollection } from "./runner/runner";
 
-export { setTests, runTests, getResults };
+export {
+  TestParams,
+  TestCollection,
+  TestRunResults,
+  runTests,
+  subscribe,
+  getResults,
+};

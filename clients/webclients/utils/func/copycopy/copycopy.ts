@@ -10,6 +10,9 @@ const copycopy: CopyCopy = (atomToCopy) => {
   if (atomToCopy instanceof Object === false) {
     return atomToCopy;
   }
+  if (atomToCopy instanceof Date) {
+    return atomToCopy;
+  }
 
   const entries = Array.isArray(atomToCopy)
     ? ([...atomToCopy] as typeof atomToCopy)
