@@ -27,4 +27,11 @@ const getTestCollections: GetTestCollections = () => {
   return testCollection;
 };
 
-export { TestCollections, Test, Tests, TestParams, setTestCollections, getTestCollections };
+export {
+  TestCollections,
+  Test,
+  Tests,
+  TestParams,
+  setTestCollections,
+  getTestCollections,
+};

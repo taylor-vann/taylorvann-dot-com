@@ -1,12 +1,3 @@
-// little test runner
-const defaultResultsState = {
-    status: "untested",
-};
-const resultsState = Object.assign({}, defaultResultsState);
-const getResults = () => {
-    return resultsState;
-};
-
 // brian taylor vann
 // timestamps
 let currentTestTimestamp = performance.now();
@@ -21,6 +12,17 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
         function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
+};
+
+const defaultResultsState = {
+    status: "untested",
+};
+// add test result
+// end test result
+// create new state based on test collection
+const getResults = () => {
+    // need to return copy of
+    return defaultResultsState;
 };
 
 // brian taylor vann

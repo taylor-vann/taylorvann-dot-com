@@ -2,20 +2,20 @@
 // brian taylor vann
 
 import { Assertions } from "../results_store/results_store";
+import { Test, Tests, TestCollections } from "../test_store/test_store";
 import {
-  Test,
-  Tests,
-  TestCollections,
-  getTestCollections,
-} from "../test_store/test_store";
+  startTestRun,
+  startTestCollection,
+  startTest,
+  cancelRun,
+  sendTestResult,
+  endTestCollection,
+  endTestRun,
+} from "./relay_results/relay_results";
 import {
   getTimestamp,
   updateTimestamp,
-  startTestCollectionsRun,
-  endTestCollectionsRun,
-  sendTestResult,
-  cancelRun,
-} from "./relay_results/relay_results";
+} from "./timestamp_sieve/timestamp_sieve";
 
 type CreateTestTimeout = (requestedInterval?: number) => Promise<Assertions>;
 type LtrTest = () => Promise<void>;
@@ -65,11 +65,22 @@ const createTestTimeout: CreateTestTimeout = async (
 const buildTest: BuildLtrTest = (params) => {
   const { issuedAt, testID, collectionID, timeoutInterval } = params;
   return async () => {
+    if (issuedAt < getTimestamp()) {
+      return;
+    }
+
     const startTime = performance.now();
+    startTest({
+      collectionID,
+      testID,
+      startTime,
+    });
+
     const assertions = await Promise.race([
       params.testFunc(),
       createTestTimeout(timeoutInterval),
     ]);
+
     if (issuedAt < getTimestamp()) {
       return;
     }
@@ -84,28 +95,40 @@ const buildTest: BuildLtrTest = (params) => {
   };
 };
 
-const asynchonouslyRunTests: RunTests =  async ({startTime, collectionID, tests, timeoutInterval}) => {
+const asynchonouslyRunTests: RunTests = async ({
+  startTime,
+  collectionID,
+  tests,
+  timeoutInterval,
+}) => {
   const builtAsyncTests = [];
+
   let testID = 0;
   for (const testFunc of tests) {
-    const testFunc = tests[testID];
-    builtAsyncTests.push(buildTest({
-      collectionID,
-      issuedAt: startTime,
-      testFunc,
-      testID,
-      timeoutInterval,
-    }));
+    builtAsyncTests.push(
+      buildTest({
+        collectionID,
+        issuedAt: startTime,
+        testFunc,
+        testID,
+        timeoutInterval,
+      })
+    );
     testID += 1;
   }
 
   if (startTime < getTimestamp()) {
     return;
   }
-  await Promise.all(builtAsyncTests)
-}
+  await Promise.all(builtAsyncTests);
+};
 
-const iterateThroughTests: RunTests = async ({startTime, collectionID, tests, timeoutInterval}) => {
+const iterateThroughTests: RunTests = async ({
+  startTime,
+  collectionID,
+  tests,
+  timeoutInterval,
+}) => {
   let testID = 0;
   for (const testFunc of tests) {
     if (startTime < getTimestamp()) {
@@ -120,28 +143,51 @@ const iterateThroughTests: RunTests = async ({startTime, collectionID, tests, ti
     });
 
     await builtTest();
-    testID += 1
+    testID += 1;
   }
-}
+};
 
-const runTestCollections: RunTestCollections = async ({testCollections }) => {
+const runTestCollections: RunTestCollections = async ({ testCollections }) => {
   const startTime = updateTimestamp();
-  startTestCollectionsRun(startTime);
+  startTestRun(startTime);
 
   let collectionID = 0;
   for (const collection of testCollections) {
+    if (startTime < getTimestamp()) {
+      return;
+    }
+
     const { tests, runTestsAsynchronously, timeoutInterval } = collection;
-    const runParams: RunTestsParams = {collectionID, tests, startTime, timeoutInterval};
+    const runParams: RunTestsParams = {
+      collectionID,
+      tests,
+      startTime,
+      timeoutInterval,
+    };
+    startTestCollection({
+      collectionID,
+      startTime,
+    });
+
     if (runTestsAsynchronously) {
       await iterateThroughTests(runParams);
     } else {
-      await asynchonouslyRunTests(runParams)
+      await asynchonouslyRunTests(runParams);
     }
 
+    if (startTime < getTimestamp()) {
+      return;
+    }
+
+    const endTime = performance.now();
+    endTestCollection({
+      collectionID,
+      endTime,
+    });
     collectionID += 1;
   }
 
-  endTestCollectionsRun(startTime);
+  endTestRun(startTime);
 };
 
 // iterate through tests synchronously

@@ -10,9 +10,6 @@ type RunResultsState = {
   status: TestStatus;
   results?: CollectionResults;
 };
-type GetStore = () => RunResultsState;
-type Subscription<T> = (params: T) => void;
-type Subscribe<T> = (callback: Subscription<T>) => () => void;
 
 type Result = {
   status: TestStatus;
@@ -29,19 +26,27 @@ type TestResults = {
 };
 type CollectionResults = TestResults[];
 
+type GetResults = () => RunResultsState;
 const defaultResultsState: RunResultsState = {
   status: "untested",
 };
 
 
-// add test result
+// need to define what happens on:
+// start test run
+
+// start test collection
+
+// end / add test result
 
 // end test result
 
 // create new state based on test collection
 
-const getResults = () => {};
-const dispatch = () => {};
+const getResults: GetResults = () => {
+  // need to return copy of
+  return defaultResultsState;
+};
 
 export {
   Assertions,
@@ -50,5 +55,4 @@ export {
   TestResults,
   CollectionResults,
   getResults,
-  dispatch,
-}
+};
