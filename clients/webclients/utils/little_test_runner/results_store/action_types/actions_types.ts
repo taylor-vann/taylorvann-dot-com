@@ -1,7 +1,10 @@
 // brian taylor vann
 
+import { TestCollection } from "../test_types/test_types";
+
 type StartTestRunActionParams = {
   startTime: number;
+  testCollection: TestCollection;
 };
 type StartTestRunAction = {
   action: "START_TEST_RUN";

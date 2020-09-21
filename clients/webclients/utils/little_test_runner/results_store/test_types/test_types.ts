@@ -14,4 +14,4 @@ type TestParams = {
 };
 type TestCollection = TestParams[];
 
-export { Assertions, Test, TestParams, TestCollection };
+export { Test, TestParams, TestCollection };

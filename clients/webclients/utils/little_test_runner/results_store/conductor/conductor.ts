@@ -1,7 +1,9 @@
 // little test runner
 // brian taylor vann
 
-import { ResultsStoreAction } from "../state_store/actions_types";
+import { ResultsStoreAction } from "../action_types/actions_types";
+import { buildResults, getResults } from "../state_store/state_store";
+import { broadcast } from "../publisher/publisher";
 
 type Consolidate = (action: ResultsStoreAction) => void;
 
@@ -14,9 +16,9 @@ const END_TEST_COLLECTION = "END_TEST_COLLECTION";
 const END_TEST_RUN = "END_TEST_RUN";
 
 const consolidate: Consolidate = (action) => {
-  // send to results store
   switch (action.action) {
     case START_TEST_RUN:
+      buildResults(action.params);
       break;
     case START_TEST_COLLECTION:
       break;
@@ -34,7 +36,7 @@ const consolidate: Consolidate = (action) => {
       break;
   }
 
-  // dispatch to pubsub
+  broadcast(getResults());
 };
 
 const dispatch: Consolidate = (action) => {

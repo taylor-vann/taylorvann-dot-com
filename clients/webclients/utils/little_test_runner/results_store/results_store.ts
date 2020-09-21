@@ -1,13 +1,9 @@
 // brian taylor vann
 
-import { dispatch } from "./conductor/conductor";
-import { subscribe } from "./publisher/publisher";
 import {
   Assertions,
   TestRunResults,
-  getResults,
-} from "./state_store/state_store";
-
+} from "./state_store/state_types/state_types";
 import {
   StartTestRunActionParams,
   StartTestCollectionActionParams,
@@ -15,10 +11,18 @@ import {
   EndTestActionParams,
   EndTestCollectionActionParams,
   EndTestRunActionParams,
-} from "./state_store/actions_types";
+} from "./action_types/actions_types";
+import { Test, TestParams, TestCollection } from "./test_types/test_types";
+
+import { dispatch } from "./conductor/conductor";
+import { subscribe } from "./publisher/publisher";
+import { getResults } from "./state_store/state_store";
 
 export {
   Assertions,
+  Test,
+  TestParams,
+  TestCollection,
   TestRunResults,
   StartTestRunActionParams,
   StartTestCollectionActionParams,

@@ -6,7 +6,9 @@ import {
   Test,
   TestParams,
   TestCollection,
-} from "./test_types/test_types";
+  TestRunResults,
+  getResults,
+} from "../results_store/results_store";
 import {
   startTestRun,
   startTestCollection,
@@ -31,7 +33,9 @@ type StartLtrTestCollectionRun = (
 interface StartLtrTestRunParams {
   testCollection: TestCollection;
 }
-type StartLtrTestRun = (params: StartLtrTestRunParams) => Promise<void>;
+type StartLtrTestRun = (
+  params: StartLtrTestRunParams
+) => Promise<TestRunResults | undefined>;
 
 // create a test collection
 
@@ -39,7 +43,7 @@ const startLtrTestCollectionRun: StartLtrTestCollectionRun = async ({
   testCollection,
   startTime,
 }) => {
-  startTestRun({ startTime });
+  startTestRun({ testCollection, startTime });
 
   let collectionID = 0;
   for (const collection of testCollection) {
@@ -93,7 +97,7 @@ const runTests: StartLtrTestRun = async (params) => {
   await startLtrTestCollectionRun({ ...params, ...{ startTime } });
   if (startTime < getTimestamp()) {
     // get state
-    return;
+    return getResults();
   }
 };
 

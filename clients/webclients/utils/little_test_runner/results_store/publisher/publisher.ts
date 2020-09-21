@@ -1,5 +1,5 @@
 import { Subscription, SubPub } from "../../subpub/subpub";
-import { TestRunResults } from "../state_store/state_store";
+import { TestRunResults } from "../state_store/state_types/state_types";
 
 type UnsubscribeToResults = () => void;
 type SubscribeToResults = (

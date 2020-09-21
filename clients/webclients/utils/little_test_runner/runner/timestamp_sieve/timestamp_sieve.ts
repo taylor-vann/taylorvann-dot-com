@@ -3,8 +3,8 @@
 type GetTimestamp = () => number;
 type UpdateTimestamp = GetTimestamp;
 
-// timestamps
 let currentTestTimestamp = performance.now();
+
 const getTimestamp: GetTimestamp = () => {
   return currentTestTimestamp;
 };

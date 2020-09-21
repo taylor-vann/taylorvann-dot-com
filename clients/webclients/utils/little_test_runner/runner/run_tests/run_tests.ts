@@ -1,7 +1,7 @@
 // little test runner
 // brian taylor vann
 
-import { Assertions, Test } from "../test_types/test_types";
+import { Assertions, Test } from "../../results_store/results_store";
 import { startTest, sendTestResult } from "../relay_results/relay_results";
 import { getTimestamp } from "../timestamp_sieve/timestamp_sieve";
 
