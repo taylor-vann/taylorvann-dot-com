@@ -2,12 +2,11 @@
 
 type Assertions = string[] | undefined;
 type TestStatus =
-  | "untested"
+  | "unsubmitted"
   | "submitted"
   | "passed"
   | "cancelled"
-  | "failed"
-  | "completed";
+  | "failed";
 type Result = {
   status: TestStatus;
   assertions?: Assertions;
@@ -28,7 +27,7 @@ type TestRunResults = {
   status: TestStatus;
   startTime?: number;
   endTime?: number;
-  results: CollectionResults;
+  results?: CollectionResults;
 };
 
 export {

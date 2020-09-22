@@ -68,7 +68,6 @@ const buildTest: BuildLtrTest = (params) => {
     }
     const endTime = performance.now();
     sendTestResult({
-      startTime,
       endTime,
       assertions,
       collectionID,

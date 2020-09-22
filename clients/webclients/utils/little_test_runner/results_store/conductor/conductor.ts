@@ -2,7 +2,16 @@
 // brian taylor vann
 
 import { ResultsStoreAction } from "../action_types/actions_types";
-import { buildResults, getResults } from "../state_store/state_store";
+import {
+  buildResults,
+  startTestCollection,
+  startTest,
+  cancelRun,
+  endTest,
+  endTestCollection,
+  endTestRun,
+  getResults,
+} from "../state_store/state_store";
 import { broadcast } from "../publisher/publisher";
 
 type Consolidate = (action: ResultsStoreAction) => void;
@@ -21,16 +30,22 @@ const consolidate: Consolidate = (action) => {
       buildResults(action.params);
       break;
     case START_TEST_COLLECTION:
+      startTestCollection(action.params);
       break;
     case START_TEST:
+      startTest(action.params);
       break;
     case CANCEL_RUN:
+      cancelRun(action.params);
       break;
     case END_TEST:
+      endTest(action.params);
       break;
     case END_TEST_COLLECTION:
+      endTestCollection(action.params);
       break;
     case END_TEST_RUN:
+      endTestRun(action.params);
       break;
     default:
       break;
@@ -41,7 +56,6 @@ const consolidate: Consolidate = (action) => {
 
 const dispatch: Consolidate = (action) => {
   consolidate(action);
-  //
 };
 
 export { dispatch };

@@ -35,7 +35,6 @@ type EndTestActionParams = {
   collectionID: number;
   testID: number;
   endTime: number;
-  startTime: number;
 };
 type EndTestAction = {
   action: "END_TEST";

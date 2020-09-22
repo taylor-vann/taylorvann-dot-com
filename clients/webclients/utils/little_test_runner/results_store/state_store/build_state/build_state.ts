@@ -3,20 +3,17 @@ import {
   TestResults,
   TestRunResults,
 } from "../state_types/state_types";
-import { TestCollection } from "../../test_types/test_types";
+import { StartTestRunActionParams } from "../../action_types/actions_types";
 
-interface BuildResultsStateParams {
-  startTime: number;
-  testCollection: TestCollection;
-}
-type BuildResultsState = (params: BuildResultsStateParams) => TestRunResults;
+// type buildCollectionState = (tests:  )
+type BuildResultsState = (params: StartTestRunActionParams) => TestRunResults;
 
 const buildResultsState: BuildResultsState = ({
   startTime,
   testCollection,
 }) => {
   const nextState: TestRunResults = {
-    status: "untested",
+    status: "submitted",
     results: [],
     startTime,
   };
@@ -25,22 +22,24 @@ const buildResultsState: BuildResultsState = ({
     const { tests, title } = collection;
     const collectionResults: TestResults = {
       title,
-      status: "untested",
+      status: "unsubmitted",
     };
 
     const results: Results = [];
     for (const test of tests) {
       const { name } = test;
       results.push({
-        status: "untested",
+        status: "unsubmitted",
         name,
       });
     }
 
-    nextState.results.push({ ...collectionResults, ...{ results } });
+    if (nextState.results) {
+      nextState.results.push({ ...collectionResults, ...{ results } });
+    }
   }
 
   return nextState;
 };
 
-export { BuildResultsStateParams, BuildResultsState, buildResultsState };
+export { buildResultsState };
