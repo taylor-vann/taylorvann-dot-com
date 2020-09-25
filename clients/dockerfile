@@ -2,7 +2,7 @@ FROM alpine:latest
 
 VOLUME [ "/root/go/src/webapi/", "/usr/local/share/briantaylorvann.com/" ]
 
-RUN apk --update add --no-cache build-base git go nodejs npm
+RUN apk --update add --no-cache build-base git firefox-esr go nodejs npm
 
 RUN go get \
   github.com/taylor-vann/weblog/toolbox/golang/infraclientx/fetchx/ \
@@ -11,22 +11,17 @@ RUN go get \
   github.com/taylor-vann/weblog/toolbox/golang/jwtx/
 
 RUN npm install --global --quiet \
-  @types/chai \
-  @types/mocha \
   @typescript-eslint/eslint-plugin \
   @typescript-eslint/parser \
   @webcomponents/webcomponentsjs \
-  chai \
   es-dev-server \
   eslint \
   eslint-config-prettier \
   eslint-plugin-prettier \
   lit-element \
   lit-html \
-  mocha \
   prettier \
   rollup \
-  ts-node \
   tslib \
   typescript
 
