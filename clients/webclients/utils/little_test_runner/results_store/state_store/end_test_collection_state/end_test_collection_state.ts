@@ -9,7 +9,7 @@ type EndTestCollection = (
 
 const allTestsHavePassed: AllTestsHavePassed = (testResults: Results) => {
   for (const result of testResults) {
-    if (result.status === "failed") {
+    if (result.status !== "passed") {
       return false;
     }
   }

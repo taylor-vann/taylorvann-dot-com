@@ -64,9 +64,9 @@ const startLtrTestCollectionRun: StartLtrTestCollectionRun = async ({
     });
 
     if (runTestsAsynchronously) {
-      await runTestsInOrder(runParams);
-    } else {
       await runTestsAllAtOnce(runParams);
+    } else {
+      await runTestsInOrder(runParams);
     }
 
     if (startTime < getTimestamp()) {
@@ -91,14 +91,14 @@ const startLtrTestCollectionRun: StartLtrTestCollectionRun = async ({
 
 // iterate through tests synchronously
 const runTests: StartLtrTestRun = async (params) => {
-  // create results store
   const startTime = updateTimestamp();
 
   await startLtrTestCollectionRun({ ...params, ...{ startTime } });
   if (startTime < getTimestamp()) {
-    // get state
-    return getResults();
+    return;
   }
+
+  return getResults();
 };
 
 export { Assertions, Test, TestParams, TestCollection, runTests, cancelRun };

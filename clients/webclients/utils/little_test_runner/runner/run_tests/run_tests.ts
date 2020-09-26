@@ -76,7 +76,7 @@ const buildTest: BuildLtrTest = (params) => {
   };
 };
 
-const runTestsInOrder: RunTests = async ({
+const runTestsAllAtOnce: RunTests = async ({
   startTime,
   collectionID,
   tests,
@@ -93,7 +93,7 @@ const runTestsInOrder: RunTests = async ({
         testFunc,
         testID,
         timeoutInterval,
-      })
+      })() // execute test before push
     );
     testID += 1;
   }
@@ -101,10 +101,11 @@ const runTestsInOrder: RunTests = async ({
   if (startTime < getTimestamp()) {
     return;
   }
+
   await Promise.all(builtAsyncTests);
 };
 
-const runTestsAllAtOnce: RunTests = async ({
+const runTestsInOrder: RunTests = async ({
   startTime,
   collectionID,
   tests,

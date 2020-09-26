@@ -18,7 +18,10 @@ const endTestState: EndTest = (runResults, params) => {
   }
 
   testResult.status = "failed";
-  if (assertions && assertions.length < 0) {
+  if (assertions === undefined) {
+    testResult.status = "passed";
+  }
+  if (assertions && assertions.length === 0) {
     testResult.status = "passed";
   }
 
