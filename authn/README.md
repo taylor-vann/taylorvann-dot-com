@@ -15,7 +15,14 @@ Provide the following files:
 ./webapi/store_db.init.json
 ```
 
-Authn is self contained. You need to provide at least one user to authneticate and CRUD other users, roles, and sessions
+You can follow the patterns from the following files:
+
+```
+./environment-variables.example.dev
+./webapi/store_db.init.json
+```
+
+Authn is self contained. You need to provide at least one user to authneticate and CRUD other users, roles, and sessions.
 
 ## Sessions
 
