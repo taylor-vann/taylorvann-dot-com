@@ -480,29 +480,185 @@ const runTests = (params) => __awaiter$1(void 0, void 0, void 0, function* () {
 });
 
 // brian taylor vann
-// xml-crawl tests
-const testTextInterpolator = (brokenText, ...injections) => {
-    console.log(brokenText);
-    return brokenText;
+const NOT_FOUND = "NOT_FOUND";
+const OPEN_NODE = "OPEN_NODE";
+const OPEN_NODE_VALID = "OPEN_NODE_VALID";
+const OPEN_NODE_CONFIRMED = "OPEN_NODE_CONFIRMED";
+const CLOSE_NODE = "CLOSE_NODE";
+const CLOSE_NODE_VALID = "CLOSE_NODE_VALID";
+const CLOSE_NODE_CONFIRMED = "CLOSE_NODE_CONFIRMED";
+const INDEPENDENT_NODE_VALID = "INDEPENDENT_NODE_VALID";
+const INDEPENDENT_NODE_CONFIRMED = "INDEPENDENT_NODE_CONFIRMED";
+const OPEN_DELIMITER = "<";
+const CLOSE_DELIMITER = ">";
+const BACKSLASH_DELIMITER = "/";
+const ALPHA_CHAR_CODE = "a".charCodeAt(0);
+const ZETA_CHAR_CODE = "z".charCodeAt(0);
+const isAlphabeticCharacter = (char) => {
+    const charCode = char.charCodeAt(0);
+    return ALPHA_CHAR_CODE <= charCode && charCode <= ZETA_CHAR_CODE;
 };
-const testText = testTextInterpolator `<p>a modest start</p>`;
-const testTextInjected = testTextInterpolator `<p>an interesting ${"example"}</p>`;
-const testTextReally = testTextInterpolator `a most <p>interesting example${"!"}</p>`;
-const title = "bang/xml_crawler/crawl";
-const defaultFailTest = () => {
-    return ["fail crawl immediately"];
+const notFound = (char) => {
+    if (char === OPEN_DELIMITER) {
+        return OPEN_NODE;
+    }
+    return NOT_FOUND;
 };
-const unitTestCrawl = {
+const openNode = (char) => {
+    if (char === OPEN_DELIMITER) {
+        return OPEN_NODE;
+    }
+    if (char === BACKSLASH_DELIMITER) {
+        return CLOSE_NODE;
+    }
+    if (isAlphabeticCharacter(char)) {
+        return OPEN_NODE_VALID;
+    }
+    return NOT_FOUND;
+};
+const openNodeValid = (char) => {
+    if (char === OPEN_DELIMITER) {
+        return OPEN_NODE;
+    }
+    if (char == BACKSLASH_DELIMITER) {
+        return INDEPENDENT_NODE_VALID;
+    }
+    if (char == CLOSE_DELIMITER) {
+        return OPEN_NODE_CONFIRMED;
+    }
+    return OPEN_NODE_VALID;
+};
+const independentNodeValid = (char) => {
+    if (char === OPEN_DELIMITER) {
+        return OPEN_NODE;
+    }
+    if (char === CLOSE_DELIMITER) {
+        return INDEPENDENT_NODE_CONFIRMED;
+    }
+    return INDEPENDENT_NODE_VALID;
+};
+const closeNode = (char) => {
+    if (char === OPEN_DELIMITER) {
+        return OPEN_NODE;
+    }
+    if (isAlphabeticCharacter(char)) {
+        return CLOSE_NODE_VALID;
+    }
+    return NOT_FOUND;
+};
+const closeNodeValid = (char) => {
+    if (char === OPEN_DELIMITER) {
+        return OPEN_NODE;
+    }
+    if (char === CLOSE_DELIMITER) {
+        return CLOSE_NODE_CONFIRMED;
+    }
+    return CLOSE_NODE_VALID;
+};
+
+const title = "Routers | Detect node state";
+const runTestsAsynchronously = true;
+const notFoundReducesCorrectState = () => {
+    const assertions = [];
+    if (notFound("<") !== "OPEN_NODE") {
+        assertions.push("< should return OPEN_NODE");
+    }
+    if (notFound(" ") !== "NOT_FOUND") {
+        assertions.push("space should return NOT_FOUND");
+    }
+    return assertions;
+};
+const openNodeReducesCorrectState = () => {
+    const assertions = [];
+    if (openNode("<") !== "OPEN_NODE") {
+        assertions.push("< should return OPEN_NODE");
+    }
+    if (openNode("/") !== "CLOSE_NODE") {
+        assertions.push("/ should return CLOSE_NODE");
+    }
+    if (openNode("b") !== "OPEN_NODE_VALID") {
+        assertions.push("b should return OPEN_NODE_VALID");
+    }
+    if (openNode(" ") !== "NOT_FOUND") {
+        assertions.push("space should return NOT_FOUND");
+    }
+    return assertions;
+};
+const openNodeValidReducesCorrectState = () => {
+    const assertions = [];
+    if (openNodeValid("<") !== "OPEN_NODE") {
+        assertions.push("< should return OPEN_NODE");
+    }
+    if (openNodeValid("/") !== "INDEPENDENT_NODE_VALID") {
+        assertions.push("/ should return INDEPENDENT_NODE_VALID");
+    }
+    if (openNodeValid(">") !== "OPEN_NODE_CONFIRMED") {
+        assertions.push("> should return OPEN_NODE_CONFIRMED");
+    }
+    if (openNodeValid(" ") !== "OPEN_NODE_VALID") {
+        assertions.push("space should return OPEN_NODE_VALID");
+    }
+    return assertions;
+};
+const independentNodeValidReducesCorrectState = () => {
+    const assertions = [];
+    if (independentNodeValid("<") !== "OPEN_NODE") {
+        assertions.push("< should return OPEN_NODE");
+    }
+    if (independentNodeValid(">") !== "INDEPENDENT_NODE_CONFIRMED") {
+        assertions.push("/ should return INDEPENDENT_NODE_CONFIRMED");
+    }
+    if (independentNodeValid(" ") !== "INDEPENDENT_NODE_VALID") {
+        assertions.push("space should return INDEPENDENT_NODE_VALID");
+    }
+    return assertions;
+};
+const closeNodeReducesCorrectState = () => {
+    const assertions = [];
+    if (closeNode("<") !== "OPEN_NODE") {
+        assertions.push("< should return OPEN_NODE");
+    }
+    if (closeNode("a") !== "CLOSE_NODE_VALID") {
+        assertions.push("'a' should return CLOSE_NODE_VALID");
+    }
+    if (closeNode(" ") !== "NOT_FOUND") {
+        assertions.push("space should return CLOSE_NODE_VALID");
+    }
+    return assertions;
+};
+const closeNodeValidReducesCorrectState = () => {
+    const assertions = [];
+    if (closeNodeValid("<") !== "OPEN_NODE") {
+        assertions.push("< should return OPEN_NODE");
+    }
+    if (closeNodeValid(">") !== "CLOSE_NODE_CONFIRMED") {
+        assertions.push("> should return CLOSE_NODE_CONFIRMED");
+    }
+    if (closeNodeValid(" ") !== "CLOSE_NODE_VALID") {
+        assertions.push("space should return CLOSE_NODE_VALID");
+    }
+    return assertions;
+};
+const tests = [
+    notFoundReducesCorrectState,
+    openNodeReducesCorrectState,
+    openNodeValidReducesCorrectState,
+    independentNodeValidReducesCorrectState,
+    closeNodeReducesCorrectState,
+    closeNodeValidReducesCorrectState,
+];
+const unitTestRouters = {
     title,
-    tests: [defaultFailTest],
+    tests,
+    runTestsAsynchronously,
 };
 
 // brian taylor vann
 // import { unitTestXMLCrawler } from "./xml_crawler/xml_crawler.test";
-const tests = [unitTestCrawl];
+const tests$1 = [unitTestRouters];
 
 // brian taylor vann
-const testCollection = [...tests];
+const testCollection = [...tests$1];
 runTests({ testCollection })
     .then((results) => console.log("results: ", results))
     .catch((errors) => console.log("errors: ", errors));

@@ -33,19 +33,82 @@ interface CrawlResults {
   target: TargetTextVector;
 }
 
+const UNKNOWN = "UNKNOWN";
+const OPEN_NODE = "OPEN_NODE";
+const OPEN_NODE_VALID = "OPEN_NODE_VALID";
+const OPEN_NODE_CONFIRMED = "OPEN_NODE_CONFIRMED";
+const CLOSED_NODE = "CLOSED_NODE";
+const CLOSED_NODE_VALID = "CLOSED_NODE_VALID";
+const CLOSED_NODE_CONFIRMED = "CLOSED_NODE_CONFIRMED";
+
 const SPACE_DELIMITER = " ";
 const OPEN_DELIMITER = "<";
 const CLOSE_DELIMITER = ">";
+const BACKSLASH_CHAR = "/";
 const ALPHA_CHAR_CODE = "a".charCodeAt(0);
 const ZETA_CHAR_CODE = "z".charCodeAt(0);
-const BACKSLASH_CHAR_CODE = "/".charCodeAt(0);
 
-type IsAlphabeticCharacter = (targetStr: string, index?: number) => boolean;
+type IsAlphabeticCharacter = (char: string) => boolean;
 type Crawl = (params: CrawlParams) => TargetTextVector;
 
-const isAlphabeticCharacter: IsAlphabeticCharacter = (targetStr, index = 0) => {
-  const charCode = targetStr.charCodeAt(index);
+const isAlphabeticCharacter: IsAlphabeticCharacter = (char: string) => {
+  const charCode = char.charCodeAt(0);
   return ALPHA_CHAR_CODE <= charCode && charCode <= ZETA_CHAR_CODE;
+};
+
+const unknownFunc = (char: string) => {
+  if (char == OPEN_DELIMITER) {
+    return OPEN_NODE;
+  }
+
+  return UNKNOWN;
+};
+
+const openNodeFunc = (char: string) => {
+  if (char == OPEN_DELIMITER) {
+    return OPEN_NODE;
+  }
+  if (isAlphabeticCharacter(char)) {
+    return OPEN_NODE_VALID;
+  }
+  if (char == BACKSLASH_CHAR) {
+    return CLOSED_NODE;
+  }
+
+  return UNKNOWN;
+};
+
+const openNodeValidFunc = (char: string) => {
+  if (char == OPEN_DELIMITER) {
+    return OPEN_NODE;
+  }
+  if (char == CLOSE_DELIMITER) {
+    return OPEN_NODE_CONFIRMED;
+  }
+
+  return OPEN_NODE_VALID;
+};
+
+const closedNodeFunc = (char: string) => {
+  if (char == OPEN_DELIMITER) {
+    return OPEN_NODE;
+  }
+  if (isAlphabeticCharacter(char)) {
+    return CLOSED_NODE_VALID;
+  }
+
+  return UNKNOWN;
+};
+
+const closedNodeValidFunc = (char: string) => {
+  if (char == OPEN_DELIMITER) {
+    return OPEN_NODE;
+  }
+  if (char === CLOSE_DELIMITER) {
+    return CLOSED_NODE_CONFIRMED;
+  }
+
+  return CLOSED_NODE_VALID;
 };
 
 // use GRAPHS to decide what node

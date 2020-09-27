@@ -8,8 +8,6 @@ const testTextInterpolator = (
   brokenText: TemplateStringsArray,
   ...injections: string[]
 ) => {
-  console.log(brokenText);
-
   return brokenText;
 };
 
@@ -22,9 +20,6 @@ const title = "bang/xml_crawler/crawl";
 const defaultFailTest = () => {
   return ["fail crawl immediately"];
 };
-
-// frist testText
-// {0, 0}, {0, 2}
 
 const unitTestCrawl = {
   title,
