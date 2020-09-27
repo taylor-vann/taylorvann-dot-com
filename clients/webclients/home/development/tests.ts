@@ -3,17 +3,10 @@
 
 import { runTests } from "../../utils/little_test_runner/little_test_runner";
 
-const title = "first unit test";
+import { tests } from "../../utils/bang/bang.test";
 
-const littleUnitTest = () => {
-  return ["fail immediately"];
-};
+const testCollection = [...tests];
 
-const firstUnitTests = {
-  title,
-  tests: [littleUnitTest],
-};
-
-runTests({ testCollection: [firstUnitTests] })
+runTests({ testCollection })
   .then((results) => console.log("results: ", results))
   .catch((errors) => console.log("errors: ", errors));

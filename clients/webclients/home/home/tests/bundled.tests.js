@@ -480,14 +480,29 @@ const runTests = (params) => __awaiter$1(void 0, void 0, void 0, function* () {
 });
 
 // brian taylor vann
-const title = "first unit test";
-const littleUnitTest = () => {
-    return ["fail immediately"];
+// xml-crawl tests
+const testTextInterpolator = (brokenText, ...injections) => {
+    console.log(brokenText);
+    return brokenText;
 };
-const firstUnitTests = {
+const testText = testTextInterpolator `<p>a modest start</p>`;
+const testTextInjected = testTextInterpolator `<p>an interesting ${"example"}</p>`;
+const testTextReally = testTextInterpolator `a most <p>interesting example${"!"}</p>`;
+const title = "bang/xml_crawler/crawl";
+const defaultFailTest = () => {
+    return ["fail crawl immediately"];
+};
+const unitTestCrawl = {
     title,
-    tests: [littleUnitTest],
+    tests: [defaultFailTest],
 };
-runTests({ testCollection: [firstUnitTests] })
+
+// brian taylor vann
+// import { unitTestXMLCrawler } from "./xml_crawler/xml_crawler.test";
+const tests = [unitTestCrawl];
+
+// brian taylor vann
+const testCollection = [...tests];
+runTests({ testCollection })
     .then((results) => console.log("results: ", results))
     .catch((errors) => console.log("errors: ", errors));
