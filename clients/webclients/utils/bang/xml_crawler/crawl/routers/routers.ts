@@ -1,13 +1,9 @@
 // brian taylor vann
 
-// <node>   | open node
-// </node>  | close node
-// <node/>  | independent node
-// or NOT_FOUND for "not found"
-
-type NodeType = "OPEN_NODE" | "CLOSE_NODE" | "INDEPENDENT_NODE" | "NOT_FOUND";
+type IsAlphabeticCharacter = (char: string) => boolean;
 
 type CrawlStatus =
+  | "NOT_FOUND"
   | "OPEN_NODE"
   | "OPEN_NODE_VALID"
   | "OPEN_NODE_CONFIRMED"
@@ -15,7 +11,10 @@ type CrawlStatus =
   | "CLOSE_NODE_VALID"
   | "CLOSE_NODE_CONFIRMED"
   | "INDEPENDENT_NODE"
+  | "INDEPENDENT_NODE_VALID"
   | "INDEPENDENT_NODE_CONFIRMED";
+
+type RoutersReducer = (char: string) => CrawlStatus;
 
 const NOT_FOUND = "NOT_FOUND";
 const OPEN_NODE = "OPEN_NODE";
@@ -33,14 +32,12 @@ const BACKSLASH_DELIMITER = "/";
 const ALPHA_CHAR_CODE = "a".charCodeAt(0);
 const ZETA_CHAR_CODE = "z".charCodeAt(0);
 
-type IsAlphabeticCharacter = (char: string) => boolean;
-
-const isAlphabeticCharacter: IsAlphabeticCharacter = (char: string) => {
+const isAlphabeticCharacter: IsAlphabeticCharacter = (char) => {
   const charCode = char.charCodeAt(0);
   return ALPHA_CHAR_CODE <= charCode && charCode <= ZETA_CHAR_CODE;
 };
 
-const notFound = (char: string) => {
+const notFound: RoutersReducer = (char) => {
   if (char === OPEN_DELIMITER) {
     return OPEN_NODE;
   }
@@ -48,7 +45,7 @@ const notFound = (char: string) => {
   return NOT_FOUND;
 };
 
-const openNode = (char: string) => {
+const openNode: RoutersReducer = (char) => {
   if (char === OPEN_DELIMITER) {
     return OPEN_NODE;
   }
@@ -62,7 +59,7 @@ const openNode = (char: string) => {
   return NOT_FOUND;
 };
 
-const openNodeValid = (char: string) => {
+const openNodeValid: RoutersReducer = (char) => {
   if (char === OPEN_DELIMITER) {
     return OPEN_NODE;
   }
@@ -76,7 +73,7 @@ const openNodeValid = (char: string) => {
   return OPEN_NODE_VALID;
 };
 
-const independentNodeValid = (char: string) => {
+const independentNodeValid: RoutersReducer = (char) => {
   if (char === OPEN_DELIMITER) {
     return OPEN_NODE;
   }
@@ -87,7 +84,7 @@ const independentNodeValid = (char: string) => {
   return INDEPENDENT_NODE_VALID;
 };
 
-const closeNode = (char: string) => {
+const closeNode: RoutersReducer = (char) => {
   if (char === OPEN_DELIMITER) {
     return OPEN_NODE;
   }
@@ -98,7 +95,7 @@ const closeNode = (char: string) => {
   return NOT_FOUND;
 };
 
-const closeNodeValid = (char: string) => {
+const closeNodeValid: RoutersReducer = (char) => {
   if (char === OPEN_DELIMITER) {
     return OPEN_NODE;
   }
@@ -110,6 +107,17 @@ const closeNodeValid = (char: string) => {
 };
 
 export {
+  CrawlStatus,
+  RoutersReducer,
+  NOT_FOUND,
+  OPEN_NODE,
+  OPEN_NODE_VALID,
+  OPEN_NODE_CONFIRMED,
+  CLOSE_NODE,
+  CLOSE_NODE_VALID,
+  CLOSE_NODE_CONFIRMED,
+  INDEPENDENT_NODE_VALID,
+  INDEPENDENT_NODE_CONFIRMED,
   notFound,
   openNode,
   openNodeValid,

@@ -556,8 +556,116 @@ const closeNodeValid = (char) => {
     return CLOSE_NODE_VALID;
 };
 
-const title = "Routers | Detect node state";
+// brian taylor vann
+const crawlReducer = {
+    [NOT_FOUND]: notFound,
+    [OPEN_NODE]: openNode,
+    [OPEN_NODE_VALID]: openNodeValid,
+    [CLOSE_NODE]: closeNode,
+    [CLOSE_NODE_VALID]: closeNodeValid,
+    [INDEPENDENT_NODE_VALID]: independentNodeValid,
+};
+const validSieve = {
+    [OPEN_NODE_VALID]: OPEN_NODE_VALID,
+    [CLOSE_NODE_VALID]: CLOSE_NODE_VALID,
+    [INDEPENDENT_NODE_VALID]: INDEPENDENT_NODE_VALID,
+};
+const confirmedSieve = {
+    [OPEN_NODE_CONFIRMED]: OPEN_NODE_CONFIRMED,
+    [CLOSE_NODE_CONFIRMED]: CLOSE_NODE_CONFIRMED,
+    [INDEPENDENT_NODE_CONFIRMED]: INDEPENDENT_NODE_CONFIRMED,
+};
+const createDefaultState = () => {
+    return {
+        nodeType: "NOT_FOUND",
+        target: {
+            startPosition: {
+                stringArrayIndex: 0,
+                stringIndex: 0,
+            },
+            endPosition: {
+                stringArrayIndex: 0,
+                stringIndex: 0,
+            },
+        },
+    };
+};
+const setStartStateProperties = (params) => {
+    const cState = createDefaultState();
+    const { startPosition } = params;
+    if (startPosition === undefined) {
+        return cState;
+    }
+    const { stringArrayIndex, stringIndex } = startPosition;
+    if (cState.target) {
+        cState.target.startPosition.stringArrayIndex = stringArrayIndex;
+        cState.target.endPosition.stringIndex = stringIndex;
+    }
+    return cState;
+};
+const setStartPosition = (results, stringArrayIndex, stringIndex) => {
+    results.target.startPosition.stringArrayIndex = stringArrayIndex;
+    results.target.startPosition.stringIndex = stringIndex;
+};
+const setEndPosition = (results, stringArrayIndex, stringIndex) => {
+    results.target.endPosition.stringArrayIndex = stringArrayIndex;
+    results.target.endPosition.stringIndex = stringIndex;
+};
+const crawl = (params) => {
+    const { brokenText } = params;
+    const cState = setStartStateProperties(params);
+    let { stringIndex, stringArrayIndex } = cState.target.startPosition;
+    while (stringArrayIndex < brokenText.length) {
+        const chunk = brokenText[stringArrayIndex];
+        if (validSieve[cState.nodeType]) {
+            cState.nodeType = NOT_FOUND;
+        }
+        while (stringIndex < chunk.length) {
+            const crawlFunc = crawlReducer[cState.nodeType];
+            if (crawlFunc) {
+                cState.nodeType = crawlFunc(chunk.charAt(stringIndex));
+            }
+            if (confirmedSieve[cState.nodeType]) {
+                setEndPosition(cState, stringArrayIndex, stringIndex);
+                return cState;
+            }
+            if (cState.nodeType === OPEN_NODE) {
+                setStartPosition(cState, stringArrayIndex, stringIndex);
+            }
+            stringIndex += 1;
+        }
+        // skip to next chunk
+        stringIndex = 0;
+        stringArrayIndex += 1;
+    }
+    // finished default walk
+    return createDefaultState();
+};
+
+// brian taylor vann
+const testTextInterpolator = (brokenText, ...injections) => {
+    return brokenText;
+};
+const title = "bang/xml_crawler/crawl";
 const runTestsAsynchronously = true;
+const testBlank = testTextInterpolator `no nodes to be found!`;
+const findNothingWhenThereIsPlainText = () => {
+    const assertions = [];
+    const result = crawl({ brokenText: testBlank });
+    if (result && result.nodeType !== "NOT_FOUND") {
+        assertions.push(`should return NOT_FOUND instead of ${result.nodeType}`);
+    }
+    return assertions;
+};
+const tests = [findNothingWhenThereIsPlainText];
+const unitTestCrawl = {
+    title,
+    tests,
+    runTestsAsynchronously,
+};
+
+const title$1 = "Routers | Detect node state";
+const runTestsAsynchronously$1 = true;
 const notFoundReducesCorrectState = () => {
     const assertions = [];
     if (notFound("<") !== "OPEN_NODE") {
@@ -639,7 +747,7 @@ const closeNodeValidReducesCorrectState = () => {
     }
     return assertions;
 };
-const tests = [
+const tests$1 = [
     notFoundReducesCorrectState,
     openNodeReducesCorrectState,
     openNodeValidReducesCorrectState,
@@ -648,17 +756,17 @@ const tests = [
     closeNodeValidReducesCorrectState,
 ];
 const unitTestRouters = {
-    title,
-    tests,
-    runTestsAsynchronously,
+    title: title$1,
+    tests: tests$1,
+    runTestsAsynchronously: runTestsAsynchronously$1,
 };
 
 // brian taylor vann
 // import { unitTestXMLCrawler } from "./xml_crawler/xml_crawler.test";
-const tests$1 = [unitTestRouters];
+const tests$2 = [unitTestRouters, unitTestCrawl];
 
 // brian taylor vann
-const testCollection = [...tests$1];
+const testCollection = [...tests$2];
 runTests({ testCollection })
     .then((results) => console.log("results: ", results))
     .catch((errors) => console.log("errors: ", errors));

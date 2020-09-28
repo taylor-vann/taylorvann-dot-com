@@ -5,6 +5,6 @@ import { unitTestRouters } from "./xml_crawler/crawl/routers/routers.test";
 
 // import { unitTestXMLCrawler } from "./xml_crawler/xml_crawler.test";
 
-const tests = [unitTestRouters];
+const tests = [unitTestRouters, unitTestCrawl];
 
 export { tests };
