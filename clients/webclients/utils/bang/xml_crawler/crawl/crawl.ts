@@ -1,39 +1,16 @@
 // brian taylor vann
 
-import {
-  CrawlStatus,
-  RoutersReducer,
-  NOT_FOUND,
-  OPEN_NODE,
-  OPEN_NODE_VALID,
-  OPEN_NODE_CONFIRMED,
-  CLOSE_NODE,
-  CLOSE_NODE_VALID,
-  CLOSE_NODE_CONFIRMED,
-  INDEPENDENT_NODE_VALID,
-  INDEPENDENT_NODE_CONFIRMED,
-  notFound,
-  openNode,
-  openNodeValid,
-  independentNodeValid,
-  closeNode,
-  closeNodeValid,
-} from "./routers/routers";
-
-type CrawlReducer = Partial<Record<CrawlStatus, RoutersReducer>>;
+import { CrawlStatus, routers } from "./routers/routers";
 
 type Sieve = Partial<Record<CrawlStatus, CrawlStatus>>;
-
 interface BrokenTextPostition {
   stringArrayIndex: number;
   stringIndex: number;
 }
-
 interface BrokenTextVector {
   startPosition: BrokenTextPostition;
   endPosition: BrokenTextPostition;
 }
-
 interface CrawlResults {
   nodeType: CrawlStatus;
   target: BrokenTextVector;
@@ -42,19 +19,17 @@ interface CrawlParams {
   brokenText: TemplateStringsArray;
   startPosition?: BrokenTextPostition;
 }
-
 type CreateDefaultState = () => CrawlResults;
 type Crawl = (params: CrawlParams) => CrawlResults;
 
-const crawlReducer: CrawlReducer = {
-  [NOT_FOUND]: notFound,
-  [OPEN_NODE]: openNode,
-  [OPEN_NODE_VALID]: openNodeValid,
-  [CLOSE_NODE]: closeNode,
-  [CLOSE_NODE_VALID]: closeNodeValid,
-  [INDEPENDENT_NODE_VALID]: independentNodeValid,
-};
-
+const NOT_FOUND = "NOT_FOUND";
+const OPEN_NODE = "OPEN_NODE";
+const OPEN_NODE_VALID = "OPEN_NODE_VALID";
+const OPEN_NODE_CONFIRMED = "OPEN_NODE_CONFIRMED";
+const CLOSE_NODE_VALID = "CLOSE_NODE_VALID";
+const CLOSE_NODE_CONFIRMED = "CLOSE_NODE_CONFIRMED";
+const INDEPENDENT_NODE_VALID = "INDEPENDENT_NODE_VALID";
+const INDEPENDENT_NODE_CONFIRMED = "INDEPENDENT_NODE_CONFIRMED";
 const validSieve: Sieve = {
   [OPEN_NODE_VALID]: OPEN_NODE_VALID,
   [CLOSE_NODE_VALID]: CLOSE_NODE_VALID,
@@ -129,10 +104,8 @@ const crawl: Crawl = (params) => {
     }
 
     while (stringIndex < chunk.length) {
-      const crawlFunc = crawlReducer[cState.nodeType];
-      if (crawlFunc) {
-        cState.nodeType = crawlFunc(chunk.charAt(stringIndex));
-      }
+      cState.nodeType =
+        routers[cState.nodeType]?.[chunk.charAt(stringIndex)] ?? NOT_FOUND;
       if (confirmedSieve[cState.nodeType]) {
         setEndPosition(cState, stringArrayIndex, stringIndex);
         return cState;
@@ -153,4 +126,4 @@ const crawl: Crawl = (params) => {
   return createDefaultState();
 };
 
-export { crawl };
+export { CrawlResults, crawl };

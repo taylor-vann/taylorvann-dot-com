@@ -480,91 +480,56 @@ const runTests = (params) => __awaiter$1(void 0, void 0, void 0, function* () {
 });
 
 // brian taylor vann
+const createAlphabetKeys = (route) => {
+    const alphabetSet = {};
+    let lowercaseIndex = "a".charCodeAt(0);
+    const lowercaseLimit = "z".charCodeAt(0);
+    let uppercaseIndex = "A".charCodeAt(0);
+    const uppercaseLimit = "Z".charCodeAt(0);
+    while (lowercaseIndex <= lowercaseLimit) {
+        alphabetSet[String.fromCharCode(lowercaseIndex)] = route;
+        lowercaseIndex += 1;
+    }
+    while (uppercaseIndex <= uppercaseLimit) {
+        alphabetSet[String.fromCharCode(uppercaseLimit)] = route;
+        uppercaseIndex += 1;
+    }
+    return alphabetSet;
+};
+const routers = {
+    NOT_FOUND: {
+        "<": "OPEN_NODE",
+        DEFAULT: "NOT_FOUND",
+    },
+    OPEN_NODE: Object.assign(Object.assign({}, createAlphabetKeys("OPEN_NODE_VALID")), { "<": "OPEN_NODE", "/": "CLOSE_NODE", DEFAULT: "NOT_FOUND" }),
+    OPEN_NODE_VALID: {
+        "<": "OPEN_NODE",
+        "/": "INDEPENDENT_NODE_VALID",
+        ">": "OPEN_NODE_CONFIRMED",
+        DEFAULT: "OPEN_NODE_VALID",
+    },
+    CLOSE_NODE: Object.assign(Object.assign({}, createAlphabetKeys("CLOSE_NODE_VALID")), { "<": "OPEN_NODE", DEFAULT: "NOT_FOUND" }),
+    CLOSE_NODE_VALID: {
+        "<": "OPEN_NODE",
+        ">": "CLOSE_NODE_CONFIRMED",
+        DEFAULT: "CLOSE_NODE_VALID",
+    },
+    INDEPENDENT_NODE_VALID: {
+        "<": "OPEN_NODE",
+        ">": "INDEPENDENT_NODE_CONFIRMED",
+        DEFAULT: "INDEPENDENT_NODE_VALID",
+    },
+};
+
+// brian taylor vann
 const NOT_FOUND = "NOT_FOUND";
 const OPEN_NODE = "OPEN_NODE";
 const OPEN_NODE_VALID = "OPEN_NODE_VALID";
 const OPEN_NODE_CONFIRMED = "OPEN_NODE_CONFIRMED";
-const CLOSE_NODE = "CLOSE_NODE";
 const CLOSE_NODE_VALID = "CLOSE_NODE_VALID";
 const CLOSE_NODE_CONFIRMED = "CLOSE_NODE_CONFIRMED";
 const INDEPENDENT_NODE_VALID = "INDEPENDENT_NODE_VALID";
 const INDEPENDENT_NODE_CONFIRMED = "INDEPENDENT_NODE_CONFIRMED";
-const OPEN_DELIMITER = "<";
-const CLOSE_DELIMITER = ">";
-const BACKSLASH_DELIMITER = "/";
-const ALPHA_CHAR_CODE = "a".charCodeAt(0);
-const ZETA_CHAR_CODE = "z".charCodeAt(0);
-const isAlphabeticCharacter = (char) => {
-    const charCode = char.charCodeAt(0);
-    return ALPHA_CHAR_CODE <= charCode && charCode <= ZETA_CHAR_CODE;
-};
-const notFound = (char) => {
-    if (char === OPEN_DELIMITER) {
-        return OPEN_NODE;
-    }
-    return NOT_FOUND;
-};
-const openNode = (char) => {
-    if (char === OPEN_DELIMITER) {
-        return OPEN_NODE;
-    }
-    if (char === BACKSLASH_DELIMITER) {
-        return CLOSE_NODE;
-    }
-    if (isAlphabeticCharacter(char)) {
-        return OPEN_NODE_VALID;
-    }
-    return NOT_FOUND;
-};
-const openNodeValid = (char) => {
-    if (char === OPEN_DELIMITER) {
-        return OPEN_NODE;
-    }
-    if (char == BACKSLASH_DELIMITER) {
-        return INDEPENDENT_NODE_VALID;
-    }
-    if (char == CLOSE_DELIMITER) {
-        return OPEN_NODE_CONFIRMED;
-    }
-    return OPEN_NODE_VALID;
-};
-const independentNodeValid = (char) => {
-    if (char === OPEN_DELIMITER) {
-        return OPEN_NODE;
-    }
-    if (char === CLOSE_DELIMITER) {
-        return INDEPENDENT_NODE_CONFIRMED;
-    }
-    return INDEPENDENT_NODE_VALID;
-};
-const closeNode = (char) => {
-    if (char === OPEN_DELIMITER) {
-        return OPEN_NODE;
-    }
-    if (isAlphabeticCharacter(char)) {
-        return CLOSE_NODE_VALID;
-    }
-    return NOT_FOUND;
-};
-const closeNodeValid = (char) => {
-    if (char === OPEN_DELIMITER) {
-        return OPEN_NODE;
-    }
-    if (char === CLOSE_DELIMITER) {
-        return CLOSE_NODE_CONFIRMED;
-    }
-    return CLOSE_NODE_VALID;
-};
-
-// brian taylor vann
-const crawlReducer = {
-    [NOT_FOUND]: notFound,
-    [OPEN_NODE]: openNode,
-    [OPEN_NODE_VALID]: openNodeValid,
-    [CLOSE_NODE]: closeNode,
-    [CLOSE_NODE_VALID]: closeNodeValid,
-    [INDEPENDENT_NODE_VALID]: independentNodeValid,
-};
 const validSieve = {
     [OPEN_NODE_VALID]: OPEN_NODE_VALID,
     [CLOSE_NODE_VALID]: CLOSE_NODE_VALID,
@@ -612,6 +577,7 @@ const setEndPosition = (results, stringArrayIndex, stringIndex) => {
     results.target.endPosition.stringIndex = stringIndex;
 };
 const crawl = (params) => {
+    var _a, _b;
     const { brokenText } = params;
     const cState = setStartStateProperties(params);
     let { stringIndex, stringArrayIndex } = cState.target.startPosition;
@@ -621,10 +587,7 @@ const crawl = (params) => {
             cState.nodeType = NOT_FOUND;
         }
         while (stringIndex < chunk.length) {
-            const crawlFunc = crawlReducer[cState.nodeType];
-            if (crawlFunc) {
-                cState.nodeType = crawlFunc(chunk.charAt(stringIndex));
-            }
+            cState.nodeType = (_b = (_a = routers[cState.nodeType]) === null || _a === void 0 ? void 0 : _a[chunk.charAt(stringIndex)]) !== null && _b !== void 0 ? _b : NOT_FOUND;
             if (confirmedSieve[cState.nodeType]) {
                 setEndPosition(cState, stringArrayIndex, stringIndex);
                 return cState;
@@ -638,7 +601,7 @@ const crawl = (params) => {
         stringIndex = 0;
         stringArrayIndex += 1;
     }
-    // finished default walk
+    // finished walk without results
     return createDefaultState();
 };
 
@@ -667,82 +630,85 @@ const unitTestCrawl = {
 const title$1 = "Routers | Detect node state";
 const runTestsAsynchronously$1 = true;
 const notFoundReducesCorrectState = () => {
+    var _a, _b;
     const assertions = [];
-    if (notFound("<") !== "OPEN_NODE") {
+    if (((_a = routers["NOT_FOUND"]) === null || _a === void 0 ? void 0 : _a["<"]) !== "OPEN_NODE") {
         assertions.push("< should return OPEN_NODE");
     }
-    if (notFound(" ") !== "NOT_FOUND") {
+    if (((_b = routers["NOT_FOUND"]) === null || _b === void 0 ? void 0 : _b["DEFAULT"]) !== "NOT_FOUND") {
         assertions.push("space should return NOT_FOUND");
     }
     return assertions;
 };
 const openNodeReducesCorrectState = () => {
+    var _a, _b, _c, _d;
     const assertions = [];
-    if (openNode("<") !== "OPEN_NODE") {
+    if (((_a = routers["OPEN_NODE"]) === null || _a === void 0 ? void 0 : _a["<"]) !== "OPEN_NODE") {
         assertions.push("< should return OPEN_NODE");
     }
-    if (openNode("/") !== "CLOSE_NODE") {
+    if (((_b = routers["OPEN_NODE"]) === null || _b === void 0 ? void 0 : _b["/"]) !== "CLOSE_NODE") {
         assertions.push("/ should return CLOSE_NODE");
     }
-    if (openNode("b") !== "OPEN_NODE_VALID") {
+    if (((_c = routers["OPEN_NODE"]) === null || _c === void 0 ? void 0 : _c["b"]) !== "OPEN_NODE_VALID") {
         assertions.push("b should return OPEN_NODE_VALID");
     }
-    if (openNode(" ") !== "NOT_FOUND") {
+    if (((_d = routers["OPEN_NODE"]) === null || _d === void 0 ? void 0 : _d["DEFAULT"]) !== "NOT_FOUND") {
         assertions.push("space should return NOT_FOUND");
     }
     return assertions;
 };
 const openNodeValidReducesCorrectState = () => {
+    var _a, _b, _c, _d;
     const assertions = [];
-    if (openNodeValid("<") !== "OPEN_NODE") {
+    if (((_a = routers["OPEN_NODE_VALID"]) === null || _a === void 0 ? void 0 : _a["<"]) !== "OPEN_NODE") {
         assertions.push("< should return OPEN_NODE");
     }
-    if (openNodeValid("/") !== "INDEPENDENT_NODE_VALID") {
+    if (((_b = routers["OPEN_NODE_VALID"]) === null || _b === void 0 ? void 0 : _b["/"]) !== "INDEPENDENT_NODE_VALID") {
         assertions.push("/ should return INDEPENDENT_NODE_VALID");
     }
-    if (openNodeValid(">") !== "OPEN_NODE_CONFIRMED") {
+    if (((_c = routers["OPEN_NODE_VALID"]) === null || _c === void 0 ? void 0 : _c[">"]) !== "OPEN_NODE_CONFIRMED") {
         assertions.push("> should return OPEN_NODE_CONFIRMED");
     }
-    if (openNodeValid(" ") !== "OPEN_NODE_VALID") {
+    if (((_d = routers["OPEN_NODE_VALID"]) === null || _d === void 0 ? void 0 : _d["DEFAULT"]) !== "OPEN_NODE_VALID") {
         assertions.push("space should return OPEN_NODE_VALID");
     }
     return assertions;
 };
 const independentNodeValidReducesCorrectState = () => {
+    var _a, _b;
     const assertions = [];
-    if (independentNodeValid("<") !== "OPEN_NODE") {
+    if (((_a = routers["INDEPENDENT_NODE_VALID"]) === null || _a === void 0 ? void 0 : _a["<"]) !== "OPEN_NODE") {
         assertions.push("< should return OPEN_NODE");
     }
-    if (independentNodeValid(">") !== "INDEPENDENT_NODE_CONFIRMED") {
-        assertions.push("/ should return INDEPENDENT_NODE_CONFIRMED");
-    }
-    if (independentNodeValid(" ") !== "INDEPENDENT_NODE_VALID") {
+    if (((_b = routers["INDEPENDENT_NODE_VALID"]) === null || _b === void 0 ? void 0 : _b["DEFAULT"]) !== "INDEPENDENT_NODE_VALID") {
         assertions.push("space should return INDEPENDENT_NODE_VALID");
     }
     return assertions;
 };
 const closeNodeReducesCorrectState = () => {
+    var _a, _b, _c;
     const assertions = [];
-    if (closeNode("<") !== "OPEN_NODE") {
+    if (((_a = routers["CLOSE_NODE"]) === null || _a === void 0 ? void 0 : _a["<"]) !== "OPEN_NODE") {
         assertions.push("< should return OPEN_NODE");
     }
-    if (closeNode("a") !== "CLOSE_NODE_VALID") {
+    if (((_b = routers["CLOSE_NODE"]) === null || _b === void 0 ? void 0 : _b["a"]) !== "CLOSE_NODE_VALID") {
         assertions.push("'a' should return CLOSE_NODE_VALID");
     }
-    if (closeNode(" ") !== "NOT_FOUND") {
+    if (((_c = routers["CLOSE_NODE"]) === null || _c === void 0 ? void 0 : _c["DEFAULT"]) !== "NOT_FOUND") {
         assertions.push("space should return CLOSE_NODE_VALID");
     }
     return assertions;
 };
 const closeNodeValidReducesCorrectState = () => {
+    var _a, _b, _c;
     const assertions = [];
-    if (closeNodeValid("<") !== "OPEN_NODE") {
+    if (((_a = routers["CLOSE_NODE_VALID"]) === null || _a === void 0 ? void 0 : _a["<"]) !== "OPEN_NODE") {
         assertions.push("< should return OPEN_NODE");
     }
-    if (closeNodeValid(">") !== "CLOSE_NODE_CONFIRMED") {
+    if (((_b = routers["CLOSE_NODE_VALID"]) === null || _b === void 0 ? void 0 : _b[">"]) !== "CLOSE_NODE_CONFIRMED") {
         assertions.push("> should return CLOSE_NODE_CONFIRMED");
     }
-    if (closeNodeValid(" ") !== "CLOSE_NODE_VALID") {
+    if (((_c = routers["CLOSE_NODE_VALID"]) === null || _c === void 0 ? void 0 : _c["DEFAULT"]) !== "CLOSE_NODE_VALID") {
         assertions.push("space should return CLOSE_NODE_VALID");
     }
     return assertions;
