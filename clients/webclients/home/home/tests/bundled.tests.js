@@ -491,7 +491,7 @@ const createAlphabetKeys = (route) => {
         lowercaseIndex += 1;
     }
     while (uppercaseIndex <= uppercaseLimit) {
-        alphabetSet[String.fromCharCode(uppercaseLimit)] = route;
+        alphabetSet[String.fromCharCode(uppercaseIndex)] = route;
         uppercaseIndex += 1;
     }
     return alphabetSet;
@@ -577,17 +577,18 @@ const setEndPosition = (results, stringArrayIndex, stringIndex) => {
     results.target.endPosition.stringIndex = stringIndex;
 };
 const crawl = (params) => {
-    var _a, _b;
+    var _a, _b, _c, _d;
     const { brokenText } = params;
     const cState = setStartStateProperties(params);
     let { stringIndex, stringArrayIndex } = cState.target.startPosition;
     while (stringArrayIndex < brokenText.length) {
         const chunk = brokenText[stringArrayIndex];
-        if (validSieve[cState.nodeType]) {
+        if (validSieve[cState.nodeType] === undefined) {
             cState.nodeType = NOT_FOUND;
         }
         while (stringIndex < chunk.length) {
-            cState.nodeType = (_b = (_a = routers[cState.nodeType]) === null || _a === void 0 ? void 0 : _a[chunk.charAt(stringIndex)]) !== null && _b !== void 0 ? _b : NOT_FOUND;
+            const defaultNodeType = (_b = (_a = routers[cState.nodeType]) === null || _a === void 0 ? void 0 : _a["DEFAULT"]) !== null && _b !== void 0 ? _b : NOT_FOUND;
+            cState.nodeType = (_d = (_c = routers[cState.nodeType]) === null || _c === void 0 ? void 0 : _c[chunk.charAt(stringIndex)]) !== null && _d !== void 0 ? _d : defaultNodeType;
             if (confirmedSieve[cState.nodeType]) {
                 setEndPosition(cState, stringArrayIndex, stringIndex);
                 return cState;
@@ -611,16 +612,272 @@ const testTextInterpolator = (brokenText, ...injections) => {
 };
 const title = "bang/xml_crawler/crawl";
 const runTestsAsynchronously = true;
-const testBlank = testTextInterpolator `no nodes to be found!`;
 const findNothingWhenThereIsPlainText = () => {
+    const testBlank = testTextInterpolator `no nodes to be found!`;
     const assertions = [];
     const result = crawl({ brokenText: testBlank });
     if (result && result.nodeType !== "NOT_FOUND") {
         assertions.push(`should return NOT_FOUND instead of ${result.nodeType}`);
     }
+    if (result.target.startPosition.stringArrayIndex !== 0) {
+        assertions.push(`should return startPosition stringArrayIndex as 0`);
+    }
+    if (result.target.startPosition.stringIndex !== 0) {
+        assertions.push(`should return startPosition stringIndex as 0`);
+    }
+    if (result.target.endPosition.stringArrayIndex !== 0) {
+        assertions.push(`should return endPosition stringArrayIndex as 0`);
+    }
+    if (result.target.endPosition.stringIndex !== 0) {
+        assertions.push(`should return endPosition stringIndex as 0`);
+    }
     return assertions;
 };
-const tests = [findNothingWhenThereIsPlainText];
+const findParagraphInPlainText = () => {
+    const testOpenNode = testTextInterpolator `<p>`;
+    const assertions = [];
+    const result = crawl({ brokenText: testOpenNode });
+    if (result.nodeType !== "OPEN_NODE_CONFIRMED") {
+        assertions.push(`should return OPEN_NODE_CONFIRMED instead of ${result.nodeType}`);
+    }
+    if (result.target.startPosition.stringArrayIndex !== 0) {
+        assertions.push(`should return startPosition stringArrayIndex as 0`);
+    }
+    if (result.target.startPosition.stringIndex !== 0) {
+        assertions.push(`should return startPosition stringIndex as 0`);
+    }
+    if (result.target.endPosition.stringArrayIndex !== 0) {
+        assertions.push(`should return endPosition stringArrayIndex as 0`);
+    }
+    if (result.target.endPosition.stringIndex !== 2) {
+        assertions.push(`should return endPosition stringIndex as 2`);
+    }
+    return assertions;
+};
+const findCloseParagraphInPlainText = () => {
+    const testTextCloseNode = testTextInterpolator `</p>`;
+    const assertions = [];
+    const result = crawl({ brokenText: testTextCloseNode });
+    if (result && result.nodeType !== "CLOSE_NODE_CONFIRMED") {
+        assertions.push(`should return CLOSE_NODE_CONFIRMED instead of ${result.nodeType}`);
+    }
+    if (result.target.startPosition.stringArrayIndex !== 0) {
+        assertions.push(`should return startPosition stringArrayIndex as 0`);
+    }
+    if (result.target.startPosition.stringIndex !== 0) {
+        assertions.push(`should return startPosition stringIndex as 2`);
+    }
+    if (result.target.endPosition.stringArrayIndex !== 0) {
+        assertions.push(`should return endPosition stringArrayIndex as 0`);
+    }
+    if (result.target.endPosition.stringIndex !== 3) {
+        assertions.push(`should return endPosition stringIndex as 3`);
+    }
+    return assertions;
+};
+const findIndependentParagraphInPlainText = () => {
+    const testTextIndependentNode = testTextInterpolator `<p/>`;
+    const assertions = [];
+    const result = crawl({ brokenText: testTextIndependentNode });
+    if (result && result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
+        assertions.push(`should return INDEPENDENT_NODE_CONFIRMED instead of ${result.nodeType}`);
+    }
+    if (result.target.startPosition.stringArrayIndex !== 0) {
+        assertions.push(`should return startPosition stringArrayIndex as 0`);
+    }
+    if (result.target.startPosition.stringIndex !== 0) {
+        assertions.push(`should return startPosition stringIndex as 0`);
+    }
+    if (result.target.endPosition.stringArrayIndex !== 0) {
+        assertions.push(`should return endPosition stringArrayIndex as 0`);
+    }
+    if (result.target.endPosition.stringIndex !== 3) {
+        assertions.push(`should return endPosition stringIndex as 3`);
+    }
+    return assertions;
+};
+const findOpenParagraphInTextWithArgs = () => {
+    const testTextWithArgs = testTextInterpolator `an ${"example"} <p>${"!"}</p>`;
+    const assertions = [];
+    const result = crawl({ brokenText: testTextWithArgs });
+    if (result && result.nodeType !== "OPEN_NODE_CONFIRMED") {
+        assertions.push(`should return OPEN_NODE_CONFIRMED instead of ${result.nodeType}`);
+    }
+    if (result.target.startPosition.stringArrayIndex !== 1) {
+        assertions.push(`should return startPosition stringArrayIndex as 1`);
+    }
+    if (result.target.startPosition.stringIndex !== 1) {
+        assertions.push(`should return startPosition stringIndex as 1`);
+    }
+    if (result.target.endPosition.stringArrayIndex !== 1) {
+        assertions.push(`should return endPosition stringArrayIndex as 1`);
+    }
+    if (result.target.endPosition.stringIndex !== 3) {
+        assertions.push(`should return endPosition stringIndex as 3`);
+    }
+    return assertions;
+};
+const notFoundInUgglyMessText = () => {
+    const testInvalidUgglyMess = testTextInterpolator `an <${"invalid"}p> example${"!"}`;
+    const assertions = [];
+    const result = crawl({ brokenText: testInvalidUgglyMess });
+    if (result && result.nodeType !== "NOT_FOUND") {
+        assertions.push(`should return NOT_FOUND instead of ${result.nodeType}`);
+    }
+    if (result.target.startPosition.stringArrayIndex !== 0) {
+        assertions.push(`should return startPosition stringArrayIndex as 0`);
+    }
+    if (result.target.startPosition.stringIndex !== 0) {
+        assertions.push(`should return startPosition stringIndex as 0`);
+    }
+    if (result.target.endPosition.stringArrayIndex !== 0) {
+        assertions.push(`should return endPosition stringArrayIndex as 0`);
+    }
+    if (result.target.endPosition.stringIndex !== 0) {
+        assertions.push(`should return endPosition stringIndex as 0`);
+    }
+    return assertions;
+};
+const invalidCloseNodeWithArgs = () => {
+    const testInvlaidCloseNodeWithArgs = testTextInterpolator `closed </${"example"}p>`;
+    const assertions = [];
+    const result = crawl({ brokenText: testInvlaidCloseNodeWithArgs });
+    if (result && result.nodeType !== "NOT_FOUND") {
+        assertions.push(`should return NOT_FOUND instead of ${result.nodeType}`);
+    }
+    if (result.target.startPosition.stringArrayIndex !== 0) {
+        assertions.push(`should return startPosition stringArrayIndex as 0`);
+    }
+    if (result.target.startPosition.stringIndex !== 0) {
+        assertions.push(`should return startPosition stringIndex as 0`);
+    }
+    if (result.target.endPosition.stringArrayIndex !== 0) {
+        assertions.push(`should return endPosition stringArrayIndex as 0`);
+    }
+    if (result.target.endPosition.stringIndex !== 0) {
+        assertions.push(`should return endPosition stringIndex as 0`);
+    }
+    return assertions;
+};
+const validCloseNodeWithArgs = () => {
+    const testValidCloseNodeWithArgs = testTextInterpolator `closed </p ${"example"}>`;
+    const assertions = [];
+    const result = crawl({ brokenText: testValidCloseNodeWithArgs });
+    if (result && result.nodeType !== "CLOSE_NODE_CONFIRMED") {
+        assertions.push(`should return CLOSE_NODE_CONFIRMED instead of ${result.nodeType}`);
+    }
+    if (result.target.startPosition.stringArrayIndex !== 0) {
+        assertions.push(`should return startPosition stringArrayIndex as 0`);
+    }
+    if (result.target.startPosition.stringIndex !== 7) {
+        assertions.push(`should return startPosition stringIndex as 7`);
+    }
+    if (result.target.endPosition.stringArrayIndex !== 1) {
+        assertions.push(`should return endPosition stringArrayIndex as 1`);
+    }
+    if (result.target.endPosition.stringIndex !== 0) {
+        assertions.push(`should return endPosition stringIndex as 0`);
+    }
+    return assertions;
+};
+const invalidIndependentNodeWithArgs = () => {
+    const testInvalidIndependentNode = testTextInterpolator `independent <${"example"}p/>`;
+    const assertions = [];
+    const result = crawl({ brokenText: testInvalidIndependentNode });
+    if (result && result.nodeType !== "NOT_FOUND") {
+        assertions.push(`should return NOT_FOUND instead of ${result.nodeType}`);
+    }
+    if (result.target.startPosition.stringArrayIndex !== 0) {
+        assertions.push(`should return startPosition stringArrayIndex as 0`);
+    }
+    if (result.target.startPosition.stringIndex !== 0) {
+        assertions.push(`should return startPosition stringIndex as 0`);
+    }
+    if (result.target.endPosition.stringArrayIndex !== 0) {
+        assertions.push(`should return endPosition stringArrayIndex as 0`);
+    }
+    if (result.target.endPosition.stringIndex !== 0) {
+        assertions.push(`should return endPosition stringIndex as 0`);
+    }
+    return assertions;
+};
+const validIndependentNodeWithArgs = () => {
+    const testValidIndependentNode = testTextInterpolator `independent <p ${"example"} / >`;
+    const assertions = [];
+    const result = crawl({ brokenText: testValidIndependentNode });
+    if (result && result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
+        assertions.push(`should return INDEPENDENT_NODE_CONFIRMED instead of ${result.nodeType}`);
+    }
+    if (result.target.startPosition.stringArrayIndex !== 0) {
+        assertions.push(`should return startPosition stringArrayIndex as 0`);
+    }
+    if (result.target.startPosition.stringIndex !== 12) {
+        assertions.push(`should return startPosition stringIndex as 12`);
+    }
+    if (result.target.endPosition.stringArrayIndex !== 1) {
+        assertions.push(`should return endPosition stringArrayIndex as 1`);
+    }
+    if (result.target.endPosition.stringIndex !== 3) {
+        assertions.push(`should return endPosition stringIndex as 3`);
+    }
+    return assertions;
+};
+const invalidOpenNodeWithArgs = () => {
+    const testInvalidOpenNode = testTextInterpolator `open <${"example"}p>`;
+    const assertions = [];
+    const result = crawl({ brokenText: testInvalidOpenNode });
+    if (result && result.nodeType !== "NOT_FOUND") {
+        assertions.push(`should return NOT_FOUND instead of ${result.nodeType}`);
+    }
+    if (result.target.startPosition.stringArrayIndex !== 0) {
+        assertions.push(`should return startPosition stringArrayIndex as 0`);
+    }
+    if (result.target.startPosition.stringIndex !== 0) {
+        assertions.push(`should return startPosition stringIndex as 0`);
+    }
+    if (result.target.endPosition.stringArrayIndex !== 0) {
+        assertions.push(`should return endPosition stringArrayIndex as 0`);
+    }
+    if (result.target.endPosition.stringIndex !== 0) {
+        assertions.push(`should return endPosition stringIndex as 0`);
+    }
+    return assertions;
+};
+const validOpenNodeWithArgs = () => {
+    const testValidOpenNode = testTextInterpolator `open <p ${"example"}>`;
+    const assertions = [];
+    const result = crawl({ brokenText: testValidOpenNode });
+    if (result && result.nodeType !== "OPEN_NODE_CONFIRMED") {
+        assertions.push(`should return OPEN_NODE_CONFIRMED instead of ${result.nodeType}`);
+    }
+    if (result.target.startPosition.stringArrayIndex !== 0) {
+        assertions.push(`should return startPosition stringArrayIndex as 0`);
+    }
+    if (result.target.startPosition.stringIndex !== 5) {
+        assertions.push(`should return startPosition stringIndex as 5`);
+    }
+    if (result.target.endPosition.stringArrayIndex !== 1) {
+        assertions.push(`should return endPosition stringArrayIndex as 1`);
+    }
+    if (result.target.endPosition.stringIndex !== 0) {
+        assertions.push(`should return endPosition stringIndex as 0`);
+    }
+    return assertions;
+};
+const tests = [
+    findNothingWhenThereIsPlainText,
+    findParagraphInPlainText,
+    findCloseParagraphInPlainText,
+    findIndependentParagraphInPlainText,
+    findOpenParagraphInTextWithArgs,
+    notFoundInUgglyMessText,
+    invalidCloseNodeWithArgs,
+    validCloseNodeWithArgs,
+    invalidIndependentNodeWithArgs,
+    validIndependentNodeWithArgs,
+    invalidOpenNodeWithArgs,
+    validOpenNodeWithArgs,
+];
 const unitTestCrawl = {
     title,
     tests,

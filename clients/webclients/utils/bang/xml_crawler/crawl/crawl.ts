@@ -30,6 +30,7 @@ const CLOSE_NODE_VALID = "CLOSE_NODE_VALID";
 const CLOSE_NODE_CONFIRMED = "CLOSE_NODE_CONFIRMED";
 const INDEPENDENT_NODE_VALID = "INDEPENDENT_NODE_VALID";
 const INDEPENDENT_NODE_CONFIRMED = "INDEPENDENT_NODE_CONFIRMED";
+
 const validSieve: Sieve = {
   [OPEN_NODE_VALID]: OPEN_NODE_VALID,
   [CLOSE_NODE_VALID]: CLOSE_NODE_VALID,
@@ -99,13 +100,17 @@ const crawl: Crawl = (params) => {
   while (stringArrayIndex < brokenText.length) {
     const chunk = brokenText[stringArrayIndex];
 
-    if (validSieve[cState.nodeType]) {
+    if (validSieve[cState.nodeType] === undefined) {
       cState.nodeType = NOT_FOUND;
     }
 
     while (stringIndex < chunk.length) {
+      const defaultNodeType =
+        routers[cState.nodeType]?.["DEFAULT"] ?? NOT_FOUND;
       cState.nodeType =
-        routers[cState.nodeType]?.[chunk.charAt(stringIndex)] ?? NOT_FOUND;
+        routers[cState.nodeType]?.[chunk.charAt(stringIndex)] ??
+        defaultNodeType;
+
       if (confirmedSieve[cState.nodeType]) {
         setEndPosition(cState, stringArrayIndex, stringIndex);
         return cState;

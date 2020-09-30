@@ -32,7 +32,7 @@ const createAlphabetKeys: CreateAlphabetKeys = (route) => {
   }
 
   while (uppercaseIndex <= uppercaseLimit) {
-    alphabetSet[String.fromCharCode(uppercaseLimit)] = route;
+    alphabetSet[String.fromCharCode(uppercaseIndex)] = route;
     uppercaseIndex += 1;
   }
 
