@@ -22,7 +22,7 @@ const findNothingWhenThereIsPlainText = () => {
   const assertions: string[] = [];
 
   const result = crawl({ brokenText: testBlank });
-  if (result && result.nodeType !== "NOT_FOUND") {
+  if (result.nodeType !== "NOT_FOUND") {
     assertions.push(`should return NOT_FOUND instead of ${result.nodeType}`);
   }
 
@@ -80,7 +80,7 @@ const findCloseParagraphInPlainText = () => {
   const assertions: string[] = [];
 
   const result = crawl({ brokenText: testTextCloseNode });
-  if (result && result.nodeType !== "CLOSE_NODE_CONFIRMED") {
+  if (result.nodeType !== "CLOSE_NODE_CONFIRMED") {
     assertions.push(
       `should return CLOSE_NODE_CONFIRMED instead of ${result.nodeType}`
     );
@@ -110,7 +110,7 @@ const findIndependentParagraphInPlainText = () => {
   const assertions: string[] = [];
 
   const result = crawl({ brokenText: testTextIndependentNode });
-  if (result && result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
+  if (result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
     assertions.push(
       `should return INDEPENDENT_NODE_CONFIRMED instead of ${result.nodeType}`
     );
@@ -140,7 +140,7 @@ const findOpenParagraphInTextWithArgs = () => {
   const assertions: string[] = [];
 
   const result = crawl({ brokenText: testTextWithArgs });
-  if (result && result.nodeType !== "OPEN_NODE_CONFIRMED") {
+  if (result.nodeType !== "OPEN_NODE_CONFIRMED") {
     assertions.push(
       `should return OPEN_NODE_CONFIRMED instead of ${result.nodeType}`
     );
@@ -170,7 +170,7 @@ const notFoundInUgglyMessText = () => {
   const assertions: string[] = [];
 
   const result = crawl({ brokenText: testInvalidUgglyMess });
-  if (result && result.nodeType !== "NOT_FOUND") {
+  if (result.nodeType !== "NOT_FOUND") {
     assertions.push(`should return NOT_FOUND instead of ${result.nodeType}`);
   }
 
@@ -198,7 +198,7 @@ const invalidCloseNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const result = crawl({ brokenText: testInvlaidCloseNodeWithArgs });
-  if (result && result.nodeType !== "NOT_FOUND") {
+  if (result.nodeType !== "NOT_FOUND") {
     assertions.push(`should return NOT_FOUND instead of ${result.nodeType}`);
   }
 
@@ -226,7 +226,7 @@ const validCloseNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const result = crawl({ brokenText: testValidCloseNodeWithArgs });
-  if (result && result.nodeType !== "CLOSE_NODE_CONFIRMED") {
+  if (result.nodeType !== "CLOSE_NODE_CONFIRMED") {
     assertions.push(
       `should return CLOSE_NODE_CONFIRMED instead of ${result.nodeType}`
     );
@@ -256,7 +256,7 @@ const invalidIndependentNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const result = crawl({ brokenText: testInvalidIndependentNode });
-  if (result && result.nodeType !== "NOT_FOUND") {
+  if (result.nodeType !== "NOT_FOUND") {
     assertions.push(`should return NOT_FOUND instead of ${result.nodeType}`);
   }
 
@@ -284,7 +284,7 @@ const validIndependentNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const result = crawl({ brokenText: testValidIndependentNode });
-  if (result && result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
+  if (result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
     assertions.push(
       `should return INDEPENDENT_NODE_CONFIRMED instead of ${result.nodeType}`
     );
@@ -314,7 +314,7 @@ const invalidOpenNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const result = crawl({ brokenText: testInvalidOpenNode });
-  if (result && result.nodeType !== "NOT_FOUND") {
+  if (result.nodeType !== "NOT_FOUND") {
     assertions.push(`should return NOT_FOUND instead of ${result.nodeType}`);
   }
 
@@ -342,7 +342,7 @@ const validOpenNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const result = crawl({ brokenText: testValidOpenNode });
-  if (result && result.nodeType !== "OPEN_NODE_CONFIRMED") {
+  if (result.nodeType !== "OPEN_NODE_CONFIRMED") {
     assertions.push(
       `should return OPEN_NODE_CONFIRMED instead of ${result.nodeType}`
     );

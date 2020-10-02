@@ -616,7 +616,7 @@ const findNothingWhenThereIsPlainText = () => {
     const testBlank = testTextInterpolator `no nodes to be found!`;
     const assertions = [];
     const result = crawl({ brokenText: testBlank });
-    if (result && result.nodeType !== "NOT_FOUND") {
+    if (result.nodeType !== "NOT_FOUND") {
         assertions.push(`should return NOT_FOUND instead of ${result.nodeType}`);
     }
     if (result.target.startPosition.stringArrayIndex !== 0) {
@@ -658,7 +658,7 @@ const findCloseParagraphInPlainText = () => {
     const testTextCloseNode = testTextInterpolator `</p>`;
     const assertions = [];
     const result = crawl({ brokenText: testTextCloseNode });
-    if (result && result.nodeType !== "CLOSE_NODE_CONFIRMED") {
+    if (result.nodeType !== "CLOSE_NODE_CONFIRMED") {
         assertions.push(`should return CLOSE_NODE_CONFIRMED instead of ${result.nodeType}`);
     }
     if (result.target.startPosition.stringArrayIndex !== 0) {
@@ -679,7 +679,7 @@ const findIndependentParagraphInPlainText = () => {
     const testTextIndependentNode = testTextInterpolator `<p/>`;
     const assertions = [];
     const result = crawl({ brokenText: testTextIndependentNode });
-    if (result && result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
+    if (result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
         assertions.push(`should return INDEPENDENT_NODE_CONFIRMED instead of ${result.nodeType}`);
     }
     if (result.target.startPosition.stringArrayIndex !== 0) {
@@ -700,7 +700,7 @@ const findOpenParagraphInTextWithArgs = () => {
     const testTextWithArgs = testTextInterpolator `an ${"example"} <p>${"!"}</p>`;
     const assertions = [];
     const result = crawl({ brokenText: testTextWithArgs });
-    if (result && result.nodeType !== "OPEN_NODE_CONFIRMED") {
+    if (result.nodeType !== "OPEN_NODE_CONFIRMED") {
         assertions.push(`should return OPEN_NODE_CONFIRMED instead of ${result.nodeType}`);
     }
     if (result.target.startPosition.stringArrayIndex !== 1) {
@@ -721,7 +721,7 @@ const notFoundInUgglyMessText = () => {
     const testInvalidUgglyMess = testTextInterpolator `an <${"invalid"}p> example${"!"}`;
     const assertions = [];
     const result = crawl({ brokenText: testInvalidUgglyMess });
-    if (result && result.nodeType !== "NOT_FOUND") {
+    if (result.nodeType !== "NOT_FOUND") {
         assertions.push(`should return NOT_FOUND instead of ${result.nodeType}`);
     }
     if (result.target.startPosition.stringArrayIndex !== 0) {
@@ -742,7 +742,7 @@ const invalidCloseNodeWithArgs = () => {
     const testInvlaidCloseNodeWithArgs = testTextInterpolator `closed </${"example"}p>`;
     const assertions = [];
     const result = crawl({ brokenText: testInvlaidCloseNodeWithArgs });
-    if (result && result.nodeType !== "NOT_FOUND") {
+    if (result.nodeType !== "NOT_FOUND") {
         assertions.push(`should return NOT_FOUND instead of ${result.nodeType}`);
     }
     if (result.target.startPosition.stringArrayIndex !== 0) {
@@ -763,7 +763,7 @@ const validCloseNodeWithArgs = () => {
     const testValidCloseNodeWithArgs = testTextInterpolator `closed </p ${"example"}>`;
     const assertions = [];
     const result = crawl({ brokenText: testValidCloseNodeWithArgs });
-    if (result && result.nodeType !== "CLOSE_NODE_CONFIRMED") {
+    if (result.nodeType !== "CLOSE_NODE_CONFIRMED") {
         assertions.push(`should return CLOSE_NODE_CONFIRMED instead of ${result.nodeType}`);
     }
     if (result.target.startPosition.stringArrayIndex !== 0) {
@@ -784,7 +784,7 @@ const invalidIndependentNodeWithArgs = () => {
     const testInvalidIndependentNode = testTextInterpolator `independent <${"example"}p/>`;
     const assertions = [];
     const result = crawl({ brokenText: testInvalidIndependentNode });
-    if (result && result.nodeType !== "NOT_FOUND") {
+    if (result.nodeType !== "NOT_FOUND") {
         assertions.push(`should return NOT_FOUND instead of ${result.nodeType}`);
     }
     if (result.target.startPosition.stringArrayIndex !== 0) {
@@ -805,7 +805,7 @@ const validIndependentNodeWithArgs = () => {
     const testValidIndependentNode = testTextInterpolator `independent <p ${"example"} / >`;
     const assertions = [];
     const result = crawl({ brokenText: testValidIndependentNode });
-    if (result && result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
+    if (result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
         assertions.push(`should return INDEPENDENT_NODE_CONFIRMED instead of ${result.nodeType}`);
     }
     if (result.target.startPosition.stringArrayIndex !== 0) {
@@ -826,7 +826,7 @@ const invalidOpenNodeWithArgs = () => {
     const testInvalidOpenNode = testTextInterpolator `open <${"example"}p>`;
     const assertions = [];
     const result = crawl({ brokenText: testInvalidOpenNode });
-    if (result && result.nodeType !== "NOT_FOUND") {
+    if (result.nodeType !== "NOT_FOUND") {
         assertions.push(`should return NOT_FOUND instead of ${result.nodeType}`);
     }
     if (result.target.startPosition.stringArrayIndex !== 0) {
@@ -847,7 +847,7 @@ const validOpenNodeWithArgs = () => {
     const testValidOpenNode = testTextInterpolator `open <p ${"example"}>`;
     const assertions = [];
     const result = crawl({ brokenText: testValidOpenNode });
-    if (result && result.nodeType !== "OPEN_NODE_CONFIRMED") {
+    if (result.nodeType !== "OPEN_NODE_CONFIRMED") {
         assertions.push(`should return OPEN_NODE_CONFIRMED instead of ${result.nodeType}`);
     }
     if (result.target.startPosition.stringArrayIndex !== 0) {
