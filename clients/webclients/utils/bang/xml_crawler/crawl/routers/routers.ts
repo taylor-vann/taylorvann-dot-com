@@ -1,7 +1,8 @@
 // brian taylor vann
 
 type CrawlStatus =
-  | "NOT_FOUND"
+  | "UNCRAWLED"
+  | "CONTENT_NODE"
   | "OPEN_NODE"
   | "OPEN_NODE_VALID"
   | "OPEN_NODE_CONFIRMED"
@@ -40,15 +41,15 @@ const createAlphabetKeys: CreateAlphabetKeys = (route) => {
 };
 
 const routers: Routers = {
-  NOT_FOUND: {
+  CONTENT_NODE: {
     "<": "OPEN_NODE",
-    DEFAULT: "NOT_FOUND",
+    DEFAULT: "CONTENT_NODE",
   },
   OPEN_NODE: {
     ...createAlphabetKeys("OPEN_NODE_VALID"),
     "<": "OPEN_NODE",
     "/": "CLOSE_NODE",
-    DEFAULT: "NOT_FOUND",
+    DEFAULT: "CONTENT_NODE",
   },
   OPEN_NODE_VALID: {
     "<": "OPEN_NODE",
@@ -59,7 +60,7 @@ const routers: Routers = {
   CLOSE_NODE: {
     ...createAlphabetKeys("CLOSE_NODE_VALID"),
     "<": "OPEN_NODE",
-    DEFAULT: "NOT_FOUND",
+    DEFAULT: "CONTENT_NODE",
   },
   CLOSE_NODE_VALID: {
     "<": "OPEN_NODE",

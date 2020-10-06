@@ -5,12 +5,12 @@ const runTestsAsynchronously = true;
 
 const notFoundReducesCorrectState = () => {
   const assertions: string[] = [];
-  if (routers["NOT_FOUND"]?.["<"] !== "OPEN_NODE") {
+  if (routers["CONTENT_NODE"]?.["<"] !== "OPEN_NODE") {
     assertions.push("< should return OPEN_NODE");
   }
 
-  if (routers["NOT_FOUND"]?.["DEFAULT"] !== "NOT_FOUND") {
-    assertions.push("space should return NOT_FOUND");
+  if (routers["CONTENT_NODE"]?.["DEFAULT"] !== "CONTENT_NODE") {
+    assertions.push("space should return CONTENT_NODE");
   }
 
   return assertions;
@@ -30,8 +30,8 @@ const openNodeReducesCorrectState = () => {
     assertions.push("b should return OPEN_NODE_VALID");
   }
 
-  if (routers["OPEN_NODE"]?.["DEFAULT"] !== "NOT_FOUND") {
-    assertions.push("space should return NOT_FOUND");
+  if (routers["OPEN_NODE"]?.["DEFAULT"] !== "CONTENT_NODE") {
+    assertions.push("space should return CONTENT_NODE");
   }
 
   return assertions;
@@ -77,7 +77,7 @@ const closeNodeReducesCorrectState = () => {
   if (routers["CLOSE_NODE"]?.["a"] !== "CLOSE_NODE_VALID") {
     assertions.push("'a' should return CLOSE_NODE_VALID");
   }
-  if (routers["CLOSE_NODE"]?.["DEFAULT"] !== "NOT_FOUND") {
+  if (routers["CLOSE_NODE"]?.["DEFAULT"] !== "CONTENT_NODE") {
     assertions.push("space should return CLOSE_NODE_VALID");
   }
 

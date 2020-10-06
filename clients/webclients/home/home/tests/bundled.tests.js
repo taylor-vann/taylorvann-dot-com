@@ -497,18 +497,18 @@ const createAlphabetKeys = (route) => {
     return alphabetSet;
 };
 const routers = {
-    NOT_FOUND: {
+    CONTENT_NODE: {
         "<": "OPEN_NODE",
-        DEFAULT: "NOT_FOUND",
+        DEFAULT: "CONTENT_NODE",
     },
-    OPEN_NODE: Object.assign(Object.assign({}, createAlphabetKeys("OPEN_NODE_VALID")), { "<": "OPEN_NODE", "/": "CLOSE_NODE", DEFAULT: "NOT_FOUND" }),
+    OPEN_NODE: Object.assign(Object.assign({}, createAlphabetKeys("OPEN_NODE_VALID")), { "<": "OPEN_NODE", "/": "CLOSE_NODE", DEFAULT: "CONTENT_NODE" }),
     OPEN_NODE_VALID: {
         "<": "OPEN_NODE",
         "/": "INDEPENDENT_NODE_VALID",
         ">": "OPEN_NODE_CONFIRMED",
         DEFAULT: "OPEN_NODE_VALID",
     },
-    CLOSE_NODE: Object.assign(Object.assign({}, createAlphabetKeys("CLOSE_NODE_VALID")), { "<": "OPEN_NODE", DEFAULT: "NOT_FOUND" }),
+    CLOSE_NODE: Object.assign(Object.assign({}, createAlphabetKeys("CLOSE_NODE_VALID")), { "<": "OPEN_NODE", DEFAULT: "CONTENT_NODE" }),
     CLOSE_NODE_VALID: {
         "<": "OPEN_NODE",
         ">": "CLOSE_NODE_CONFIRMED",
@@ -522,79 +522,99 @@ const routers = {
 };
 
 // brian taylor vann
-const NOT_FOUND = "NOT_FOUND";
+const CONTENT_NODE = "CONTENT_NODE";
 const OPEN_NODE = "OPEN_NODE";
-const OPEN_NODE_VALID = "OPEN_NODE_VALID";
-const OPEN_NODE_CONFIRMED = "OPEN_NODE_CONFIRMED";
-const CLOSE_NODE_VALID = "CLOSE_NODE_VALID";
-const CLOSE_NODE_CONFIRMED = "CLOSE_NODE_CONFIRMED";
-const INDEPENDENT_NODE_VALID = "INDEPENDENT_NODE_VALID";
-const INDEPENDENT_NODE_CONFIRMED = "INDEPENDENT_NODE_CONFIRMED";
 const validSieve = {
-    [OPEN_NODE_VALID]: OPEN_NODE_VALID,
-    [CLOSE_NODE_VALID]: CLOSE_NODE_VALID,
-    [INDEPENDENT_NODE_VALID]: INDEPENDENT_NODE_VALID,
+    ["OPEN_NODE_VALID"]: "OPEN_NODE_VALID",
+    ["CLOSE_NODE_VALID"]: "CLOSE_NODE_VALID",
+    ["INDEPENDENT_NODE_VALID"]: "INDEPENDENT_NODE_VALID",
 };
 const confirmedSieve = {
-    [OPEN_NODE_CONFIRMED]: OPEN_NODE_CONFIRMED,
-    [CLOSE_NODE_CONFIRMED]: CLOSE_NODE_CONFIRMED,
-    [INDEPENDENT_NODE_CONFIRMED]: INDEPENDENT_NODE_CONFIRMED,
+    ["OPEN_NODE_CONFIRMED"]: "OPEN_NODE_CONFIRMED",
+    ["CLOSE_NODE_CONFIRMED"]: "CLOSE_NODE_CONFIRMED",
+    ["INDEPENDENT_NODE_CONFIRMED"]: "INDEPENDENT_NODE_CONFIRMED",
 };
-const createDefaultState = () => {
+const createDefaultTarget = () => {
     return {
-        nodeType: "NOT_FOUND",
-        target: {
-            startPosition: {
-                stringArrayIndex: 0,
-                stringIndex: 0,
-            },
-            endPosition: {
-                stringArrayIndex: 0,
-                stringIndex: 0,
-            },
+        startPosition: {
+            stringArrayIndex: 0,
+            stringIndex: 0,
+        },
+        endPosition: {
+            stringArrayIndex: 0,
+            stringIndex: 0,
         },
     };
 };
+const createNotFoundCrawlState = () => {
+    return {
+        nodeType: "CONTENT_NODE",
+        target: createDefaultTarget(),
+    };
+};
 const setStartStateProperties = (params) => {
-    const cState = createDefaultState();
-    const { startPosition } = params;
-    if (startPosition === undefined) {
-        return cState;
-    }
-    const { stringArrayIndex, stringIndex } = startPosition;
-    if (cState.target) {
+    const cState = createNotFoundCrawlState();
+    if (params.previousCrawl) {
+        console.log("previous crawl");
+        console.log(params.previousCrawl);
+        let { stringArrayIndex, stringIndex, } = params.previousCrawl.target.endPosition;
+        stringIndex += 1;
+        stringIndex %= params.brokenText[stringArrayIndex].length;
+        if (stringIndex === 0) {
+            stringArrayIndex += 1;
+        }
+        if (stringArrayIndex >= params.brokenText.length) {
+            return;
+        }
         cState.target.startPosition.stringArrayIndex = stringArrayIndex;
+        cState.target.startPosition.stringIndex = stringIndex;
+        cState.target.endPosition.stringArrayIndex = stringArrayIndex;
         cState.target.endPosition.stringIndex = stringIndex;
     }
+    return cState;
+};
+const setNodeType = (cState, char) => {
+    var _a, _b, _c, _d;
+    const defaultNodeType = (_b = (_a = routers[cState.nodeType]) === null || _a === void 0 ? void 0 : _a["DEFAULT"]) !== null && _b !== void 0 ? _b : CONTENT_NODE;
+    cState.nodeType = (_d = (_c = routers[cState.nodeType]) === null || _c === void 0 ? void 0 : _c[char]) !== null && _d !== void 0 ? _d : defaultNodeType;
     return cState;
 };
 const setStartPosition = (results, stringArrayIndex, stringIndex) => {
     results.target.startPosition.stringArrayIndex = stringArrayIndex;
     results.target.startPosition.stringIndex = stringIndex;
+    results.target.endPosition.stringArrayIndex = stringArrayIndex;
+    results.target.endPosition.stringIndex = stringIndex;
 };
 const setEndPosition = (results, stringArrayIndex, stringIndex) => {
     results.target.endPosition.stringArrayIndex = stringArrayIndex;
     results.target.endPosition.stringIndex = stringIndex;
 };
 const crawl = (params) => {
-    var _a, _b, _c, _d;
     const { brokenText } = params;
     const cState = setStartStateProperties(params);
+    if (cState === undefined) {
+        return;
+    }
     let { stringIndex, stringArrayIndex } = cState.target.startPosition;
+    const potentialPosition = {
+        stringArrayIndex,
+        stringIndex,
+    };
     while (stringArrayIndex < brokenText.length) {
-        const chunk = brokenText[stringArrayIndex];
         if (validSieve[cState.nodeType] === undefined) {
-            cState.nodeType = NOT_FOUND;
+            cState.nodeType = CONTENT_NODE;
         }
+        const chunk = brokenText[stringArrayIndex];
         while (stringIndex < chunk.length) {
-            const defaultNodeType = (_b = (_a = routers[cState.nodeType]) === null || _a === void 0 ? void 0 : _a["DEFAULT"]) !== null && _b !== void 0 ? _b : NOT_FOUND;
-            cState.nodeType = (_d = (_c = routers[cState.nodeType]) === null || _c === void 0 ? void 0 : _c[chunk.charAt(stringIndex)]) !== null && _d !== void 0 ? _d : defaultNodeType;
+            setNodeType(cState, chunk.charAt(stringIndex));
             if (confirmedSieve[cState.nodeType]) {
+                setStartPosition(cState, potentialPosition.stringArrayIndex, potentialPosition.stringIndex);
                 setEndPosition(cState, stringArrayIndex, stringIndex);
                 return cState;
             }
             if (cState.nodeType === OPEN_NODE) {
-                setStartPosition(cState, stringArrayIndex, stringIndex);
+                potentialPosition.stringArrayIndex = stringArrayIndex;
+                potentialPosition.stringIndex = stringIndex;
             }
             stringIndex += 1;
         }
@@ -603,33 +623,36 @@ const crawl = (params) => {
         stringArrayIndex += 1;
     }
     // finished walk without results
-    return createDefaultState();
+    stringArrayIndex = brokenText.length - 1;
+    stringIndex = brokenText[stringArrayIndex].length - 1;
+    setEndPosition(cState, stringArrayIndex, stringIndex);
+    return cState;
 };
 
 // brian taylor vann
 const testTextInterpolator = (brokenText, ...injections) => {
     return brokenText;
 };
-const title = "bang/xml_crawler/crawl";
+const title = "Crawl";
 const runTestsAsynchronously = true;
 const findNothingWhenThereIsPlainText = () => {
     const testBlank = testTextInterpolator `no nodes to be found!`;
     const assertions = [];
     const result = crawl({ brokenText: testBlank });
-    if (result.nodeType !== "NOT_FOUND") {
-        assertions.push(`should return NOT_FOUND instead of ${result.nodeType}`);
+    if (result && result.nodeType !== "CONTENT_NODE") {
+        assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
     }
-    if (result.target.startPosition.stringArrayIndex !== 0) {
+    if (result && result.target.startPosition.stringArrayIndex !== 0) {
         assertions.push(`should return startPosition stringArrayIndex as 0`);
     }
-    if (result.target.startPosition.stringIndex !== 0) {
+    if (result && result.target.startPosition.stringIndex !== 0) {
         assertions.push(`should return startPosition stringIndex as 0`);
     }
-    if (result.target.endPosition.stringArrayIndex !== 0) {
+    if (result && result.target.endPosition.stringArrayIndex !== 0) {
         assertions.push(`should return endPosition stringArrayIndex as 0`);
     }
-    if (result.target.endPosition.stringIndex !== 0) {
-        assertions.push(`should return endPosition stringIndex as 0`);
+    if (result && result.target.endPosition.stringIndex !== 20) {
+        assertions.push(`should return endPosition stringIndex as 20`);
     }
     return assertions;
 };
@@ -637,19 +660,19 @@ const findParagraphInPlainText = () => {
     const testOpenNode = testTextInterpolator `<p>`;
     const assertions = [];
     const result = crawl({ brokenText: testOpenNode });
-    if (result.nodeType !== "OPEN_NODE_CONFIRMED") {
+    if (result && result.nodeType !== "OPEN_NODE_CONFIRMED") {
         assertions.push(`should return OPEN_NODE_CONFIRMED instead of ${result.nodeType}`);
     }
-    if (result.target.startPosition.stringArrayIndex !== 0) {
+    if (result && result.target.startPosition.stringArrayIndex !== 0) {
         assertions.push(`should return startPosition stringArrayIndex as 0`);
     }
-    if (result.target.startPosition.stringIndex !== 0) {
+    if (result && result.target.startPosition.stringIndex !== 0) {
         assertions.push(`should return startPosition stringIndex as 0`);
     }
-    if (result.target.endPosition.stringArrayIndex !== 0) {
+    if (result && result.target.endPosition.stringArrayIndex !== 0) {
         assertions.push(`should return endPosition stringArrayIndex as 0`);
     }
-    if (result.target.endPosition.stringIndex !== 2) {
+    if (result && result.target.endPosition.stringIndex !== 2) {
         assertions.push(`should return endPosition stringIndex as 2`);
     }
     return assertions;
@@ -658,19 +681,19 @@ const findCloseParagraphInPlainText = () => {
     const testTextCloseNode = testTextInterpolator `</p>`;
     const assertions = [];
     const result = crawl({ brokenText: testTextCloseNode });
-    if (result.nodeType !== "CLOSE_NODE_CONFIRMED") {
+    if (result && result.nodeType !== "CLOSE_NODE_CONFIRMED") {
         assertions.push(`should return CLOSE_NODE_CONFIRMED instead of ${result.nodeType}`);
     }
-    if (result.target.startPosition.stringArrayIndex !== 0) {
+    if (result && result.target.startPosition.stringArrayIndex !== 0) {
         assertions.push(`should return startPosition stringArrayIndex as 0`);
     }
-    if (result.target.startPosition.stringIndex !== 0) {
+    if (result && result.target.startPosition.stringIndex !== 0) {
         assertions.push(`should return startPosition stringIndex as 2`);
     }
-    if (result.target.endPosition.stringArrayIndex !== 0) {
+    if (result && result.target.endPosition.stringArrayIndex !== 0) {
         assertions.push(`should return endPosition stringArrayIndex as 0`);
     }
-    if (result.target.endPosition.stringIndex !== 3) {
+    if (result && result.target.endPosition.stringIndex !== 3) {
         assertions.push(`should return endPosition stringIndex as 3`);
     }
     return assertions;
@@ -679,19 +702,19 @@ const findIndependentParagraphInPlainText = () => {
     const testTextIndependentNode = testTextInterpolator `<p/>`;
     const assertions = [];
     const result = crawl({ brokenText: testTextIndependentNode });
-    if (result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
+    if (result && result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
         assertions.push(`should return INDEPENDENT_NODE_CONFIRMED instead of ${result.nodeType}`);
     }
-    if (result.target.startPosition.stringArrayIndex !== 0) {
+    if (result && result.target.startPosition.stringArrayIndex !== 0) {
         assertions.push(`should return startPosition stringArrayIndex as 0`);
     }
-    if (result.target.startPosition.stringIndex !== 0) {
+    if (result && result.target.startPosition.stringIndex !== 0) {
         assertions.push(`should return startPosition stringIndex as 0`);
     }
-    if (result.target.endPosition.stringArrayIndex !== 0) {
+    if (result && result.target.endPosition.stringArrayIndex !== 0) {
         assertions.push(`should return endPosition stringArrayIndex as 0`);
     }
-    if (result.target.endPosition.stringIndex !== 3) {
+    if (result && result.target.endPosition.stringIndex !== 3) {
         assertions.push(`should return endPosition stringIndex as 3`);
     }
     return assertions;
@@ -700,19 +723,19 @@ const findOpenParagraphInTextWithArgs = () => {
     const testTextWithArgs = testTextInterpolator `an ${"example"} <p>${"!"}</p>`;
     const assertions = [];
     const result = crawl({ brokenText: testTextWithArgs });
-    if (result.nodeType !== "OPEN_NODE_CONFIRMED") {
+    if (result && result.nodeType !== "OPEN_NODE_CONFIRMED") {
         assertions.push(`should return OPEN_NODE_CONFIRMED instead of ${result.nodeType}`);
     }
-    if (result.target.startPosition.stringArrayIndex !== 1) {
+    if (result && result.target.startPosition.stringArrayIndex !== 1) {
         assertions.push(`should return startPosition stringArrayIndex as 1`);
     }
-    if (result.target.startPosition.stringIndex !== 1) {
+    if (result && result.target.startPosition.stringIndex !== 1) {
         assertions.push(`should return startPosition stringIndex as 1`);
     }
-    if (result.target.endPosition.stringArrayIndex !== 1) {
+    if (result && result.target.endPosition.stringArrayIndex !== 1) {
         assertions.push(`should return endPosition stringArrayIndex as 1`);
     }
-    if (result.target.endPosition.stringIndex !== 3) {
+    if (result && result.target.endPosition.stringIndex !== 3) {
         assertions.push(`should return endPosition stringIndex as 3`);
     }
     return assertions;
@@ -721,20 +744,20 @@ const notFoundInUgglyMessText = () => {
     const testInvalidUgglyMess = testTextInterpolator `an <${"invalid"}p> example${"!"}`;
     const assertions = [];
     const result = crawl({ brokenText: testInvalidUgglyMess });
-    if (result.nodeType !== "NOT_FOUND") {
-        assertions.push(`should return NOT_FOUND instead of ${result.nodeType}`);
+    if (result && result.nodeType !== "CONTENT_NODE") {
+        assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
     }
-    if (result.target.startPosition.stringArrayIndex !== 0) {
+    if (result && result.target.startPosition.stringArrayIndex !== 0) {
         assertions.push(`should return startPosition stringArrayIndex as 0`);
     }
-    if (result.target.startPosition.stringIndex !== 0) {
+    if (result && result.target.startPosition.stringIndex !== 0) {
         assertions.push(`should return startPosition stringIndex as 0`);
     }
-    if (result.target.endPosition.stringArrayIndex !== 0) {
-        assertions.push(`should return endPosition stringArrayIndex as 0`);
+    if (result && result.target.endPosition.stringArrayIndex !== 2) {
+        assertions.push(`should return endPosition stringArrayIndex as 2`);
     }
-    if (result.target.endPosition.stringIndex !== 0) {
-        assertions.push(`should return endPosition stringIndex as 0`);
+    if (result && result.target.endPosition.stringIndex !== -1) {
+        assertions.push(`should return endPosition stringIndex as -1`);
     }
     return assertions;
 };
@@ -742,20 +765,20 @@ const invalidCloseNodeWithArgs = () => {
     const testInvlaidCloseNodeWithArgs = testTextInterpolator `closed </${"example"}p>`;
     const assertions = [];
     const result = crawl({ brokenText: testInvlaidCloseNodeWithArgs });
-    if (result.nodeType !== "NOT_FOUND") {
-        assertions.push(`should return NOT_FOUND instead of ${result.nodeType}`);
+    if (result && result.nodeType !== "CONTENT_NODE") {
+        assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
     }
-    if (result.target.startPosition.stringArrayIndex !== 0) {
+    if (result && result.target.startPosition.stringArrayIndex !== 0) {
         assertions.push(`should return startPosition stringArrayIndex as 0`);
     }
-    if (result.target.startPosition.stringIndex !== 0) {
+    if (result && result.target.startPosition.stringIndex !== 0) {
         assertions.push(`should return startPosition stringIndex as 0`);
     }
-    if (result.target.endPosition.stringArrayIndex !== 0) {
-        assertions.push(`should return endPosition stringArrayIndex as 0`);
+    if (result && result.target.endPosition.stringArrayIndex !== 1) {
+        assertions.push(`should return endPosition stringArrayIndex as 1`);
     }
-    if (result.target.endPosition.stringIndex !== 0) {
-        assertions.push(`should return endPosition stringIndex as 0`);
+    if (result && result.target.endPosition.stringIndex !== 1) {
+        assertions.push(`should return endPosition stringIndex as 1`);
     }
     return assertions;
 };
@@ -763,19 +786,19 @@ const validCloseNodeWithArgs = () => {
     const testValidCloseNodeWithArgs = testTextInterpolator `closed </p ${"example"}>`;
     const assertions = [];
     const result = crawl({ brokenText: testValidCloseNodeWithArgs });
-    if (result.nodeType !== "CLOSE_NODE_CONFIRMED") {
+    if (result && result.nodeType !== "CLOSE_NODE_CONFIRMED") {
         assertions.push(`should return CLOSE_NODE_CONFIRMED instead of ${result.nodeType}`);
     }
-    if (result.target.startPosition.stringArrayIndex !== 0) {
+    if (result && result.target.startPosition.stringArrayIndex !== 0) {
         assertions.push(`should return startPosition stringArrayIndex as 0`);
     }
-    if (result.target.startPosition.stringIndex !== 7) {
+    if (result && result.target.startPosition.stringIndex !== 7) {
         assertions.push(`should return startPosition stringIndex as 7`);
     }
-    if (result.target.endPosition.stringArrayIndex !== 1) {
+    if (result && result.target.endPosition.stringArrayIndex !== 1) {
         assertions.push(`should return endPosition stringArrayIndex as 1`);
     }
-    if (result.target.endPosition.stringIndex !== 0) {
+    if (result && result.target.endPosition.stringIndex !== 0) {
         assertions.push(`should return endPosition stringIndex as 0`);
     }
     return assertions;
@@ -784,20 +807,20 @@ const invalidIndependentNodeWithArgs = () => {
     const testInvalidIndependentNode = testTextInterpolator `independent <${"example"}p/>`;
     const assertions = [];
     const result = crawl({ brokenText: testInvalidIndependentNode });
-    if (result.nodeType !== "NOT_FOUND") {
-        assertions.push(`should return NOT_FOUND instead of ${result.nodeType}`);
+    if (result && result.nodeType !== "CONTENT_NODE") {
+        assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
     }
-    if (result.target.startPosition.stringArrayIndex !== 0) {
+    if (result && result.target.startPosition.stringArrayIndex !== 0) {
         assertions.push(`should return startPosition stringArrayIndex as 0`);
     }
-    if (result.target.startPosition.stringIndex !== 0) {
+    if (result && result.target.startPosition.stringIndex !== 0) {
         assertions.push(`should return startPosition stringIndex as 0`);
     }
-    if (result.target.endPosition.stringArrayIndex !== 0) {
-        assertions.push(`should return endPosition stringArrayIndex as 0`);
+    if (result && result.target.endPosition.stringArrayIndex !== 1) {
+        assertions.push(`should return endPosition stringArrayIndex as 1`);
     }
-    if (result.target.endPosition.stringIndex !== 0) {
-        assertions.push(`should return endPosition stringIndex as 0`);
+    if (result && result.target.endPosition.stringIndex !== 2) {
+        assertions.push(`should return endPosition stringIndex as 2`);
     }
     return assertions;
 };
@@ -805,19 +828,19 @@ const validIndependentNodeWithArgs = () => {
     const testValidIndependentNode = testTextInterpolator `independent <p ${"example"} / >`;
     const assertions = [];
     const result = crawl({ brokenText: testValidIndependentNode });
-    if (result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
+    if (result && result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
         assertions.push(`should return INDEPENDENT_NODE_CONFIRMED instead of ${result.nodeType}`);
     }
-    if (result.target.startPosition.stringArrayIndex !== 0) {
+    if (result && result.target.startPosition.stringArrayIndex !== 0) {
         assertions.push(`should return startPosition stringArrayIndex as 0`);
     }
-    if (result.target.startPosition.stringIndex !== 12) {
+    if (result && result.target.startPosition.stringIndex !== 12) {
         assertions.push(`should return startPosition stringIndex as 12`);
     }
-    if (result.target.endPosition.stringArrayIndex !== 1) {
+    if (result && result.target.endPosition.stringArrayIndex !== 1) {
         assertions.push(`should return endPosition stringArrayIndex as 1`);
     }
-    if (result.target.endPosition.stringIndex !== 3) {
+    if (result && result.target.endPosition.stringIndex !== 3) {
         assertions.push(`should return endPosition stringIndex as 3`);
     }
     return assertions;
@@ -826,20 +849,20 @@ const invalidOpenNodeWithArgs = () => {
     const testInvalidOpenNode = testTextInterpolator `open <${"example"}p>`;
     const assertions = [];
     const result = crawl({ brokenText: testInvalidOpenNode });
-    if (result.nodeType !== "NOT_FOUND") {
-        assertions.push(`should return NOT_FOUND instead of ${result.nodeType}`);
+    if (result && result.nodeType !== "CONTENT_NODE") {
+        assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
     }
-    if (result.target.startPosition.stringArrayIndex !== 0) {
+    if (result && result.target.startPosition.stringArrayIndex !== 0) {
         assertions.push(`should return startPosition stringArrayIndex as 0`);
     }
-    if (result.target.startPosition.stringIndex !== 0) {
+    if (result && result.target.startPosition.stringIndex !== 0) {
         assertions.push(`should return startPosition stringIndex as 0`);
     }
-    if (result.target.endPosition.stringArrayIndex !== 0) {
-        assertions.push(`should return endPosition stringArrayIndex as 0`);
+    if (result && result.target.endPosition.stringArrayIndex !== 1) {
+        assertions.push(`should return endPosition stringArrayIndex as 1`);
     }
-    if (result.target.endPosition.stringIndex !== 0) {
-        assertions.push(`should return endPosition stringIndex as 0`);
+    if (result && result.target.endPosition.stringIndex !== 1) {
+        assertions.push(`should return endPosition stringIndex as 1`);
     }
     return assertions;
 };
@@ -847,20 +870,42 @@ const validOpenNodeWithArgs = () => {
     const testValidOpenNode = testTextInterpolator `open <p ${"example"}>`;
     const assertions = [];
     const result = crawl({ brokenText: testValidOpenNode });
-    if (result.nodeType !== "OPEN_NODE_CONFIRMED") {
+    if (result && result.nodeType !== "OPEN_NODE_CONFIRMED") {
         assertions.push(`should return OPEN_NODE_CONFIRMED instead of ${result.nodeType}`);
     }
-    if (result.target.startPosition.stringArrayIndex !== 0) {
+    if (result && result.target.startPosition.stringArrayIndex !== 0) {
         assertions.push(`should return startPosition stringArrayIndex as 0`);
     }
-    if (result.target.startPosition.stringIndex !== 5) {
+    if (result && result.target.startPosition.stringIndex !== 5) {
         assertions.push(`should return startPosition stringIndex as 5`);
     }
-    if (result.target.endPosition.stringArrayIndex !== 1) {
+    if (result && result.target.endPosition.stringArrayIndex !== 1) {
         assertions.push(`should return endPosition stringArrayIndex as 1`);
     }
-    if (result.target.endPosition.stringIndex !== 0) {
+    if (result && result.target.endPosition.stringIndex !== 0) {
         assertions.push(`should return endPosition stringIndex as 0`);
+    }
+    return assertions;
+};
+const validSecondaryIndependentNodeWithArgs = () => {
+    const testValidOpenNode = testTextInterpolator `<p ${"small"}/>${"example"}<p/>`;
+    const assertions = [];
+    const previousCrawl = crawl({ brokenText: testValidOpenNode });
+    const result = crawl({ brokenText: testValidOpenNode, previousCrawl });
+    if (result && result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
+        assertions.push(`should return INDEPENDENT_NODE_CONFIRMED instead of ${result.nodeType}`);
+    }
+    if (result && result.target.startPosition.stringArrayIndex !== 2) {
+        assertions.push(`should return startPosition stringArrayIndex as 2`);
+    }
+    if (result && result.target.startPosition.stringIndex !== 0) {
+        assertions.push(`should return startPosition stringIndex as 0`);
+    }
+    if (result && result.target.endPosition.stringArrayIndex !== 2) {
+        assertions.push(`should return endPosition stringArrayIndex as 1`);
+    }
+    if (result && result.target.endPosition.stringIndex !== 3) {
+        assertions.push(`should return endPosition stringIndex as 3`);
     }
     return assertions;
 };
@@ -877,6 +922,7 @@ const tests = [
     validIndependentNodeWithArgs,
     invalidOpenNodeWithArgs,
     validOpenNodeWithArgs,
+    validSecondaryIndependentNodeWithArgs,
 ];
 const unitTestCrawl = {
     title,
@@ -889,11 +935,11 @@ const runTestsAsynchronously$1 = true;
 const notFoundReducesCorrectState = () => {
     var _a, _b;
     const assertions = [];
-    if (((_a = routers["NOT_FOUND"]) === null || _a === void 0 ? void 0 : _a["<"]) !== "OPEN_NODE") {
+    if (((_a = routers["CONTENT_NODE"]) === null || _a === void 0 ? void 0 : _a["<"]) !== "OPEN_NODE") {
         assertions.push("< should return OPEN_NODE");
     }
-    if (((_b = routers["NOT_FOUND"]) === null || _b === void 0 ? void 0 : _b["DEFAULT"]) !== "NOT_FOUND") {
-        assertions.push("space should return NOT_FOUND");
+    if (((_b = routers["CONTENT_NODE"]) === null || _b === void 0 ? void 0 : _b["DEFAULT"]) !== "CONTENT_NODE") {
+        assertions.push("space should return CONTENT_NODE");
     }
     return assertions;
 };
@@ -909,8 +955,8 @@ const openNodeReducesCorrectState = () => {
     if (((_c = routers["OPEN_NODE"]) === null || _c === void 0 ? void 0 : _c["b"]) !== "OPEN_NODE_VALID") {
         assertions.push("b should return OPEN_NODE_VALID");
     }
-    if (((_d = routers["OPEN_NODE"]) === null || _d === void 0 ? void 0 : _d["DEFAULT"]) !== "NOT_FOUND") {
-        assertions.push("space should return NOT_FOUND");
+    if (((_d = routers["OPEN_NODE"]) === null || _d === void 0 ? void 0 : _d["DEFAULT"]) !== "CONTENT_NODE") {
+        assertions.push("space should return CONTENT_NODE");
     }
     return assertions;
 };
@@ -951,7 +997,7 @@ const closeNodeReducesCorrectState = () => {
     if (((_b = routers["CLOSE_NODE"]) === null || _b === void 0 ? void 0 : _b["a"]) !== "CLOSE_NODE_VALID") {
         assertions.push("'a' should return CLOSE_NODE_VALID");
     }
-    if (((_c = routers["CLOSE_NODE"]) === null || _c === void 0 ? void 0 : _c["DEFAULT"]) !== "NOT_FOUND") {
+    if (((_c = routers["CLOSE_NODE"]) === null || _c === void 0 ? void 0 : _c["DEFAULT"]) !== "CONTENT_NODE") {
         assertions.push("space should return CLOSE_NODE_VALID");
     }
     return assertions;
@@ -984,12 +1030,183 @@ const unitTestRouters = {
     runTestsAsynchronously: runTestsAsynchronously$1,
 };
 
-// brian taylor vann
-// import { unitTestXMLCrawler } from "./xml_crawler/xml_crawler.test";
-const tests$2 = [unitTestRouters, unitTestCrawl];
+const MAX_RECURSION = 1000;
+const SKELETON_SIEVE = {
+    ["OPEN_NODE_CONFIRMED"]: "OPEN_NODE",
+    ["INDEPENDENT_NODE_CONFRIMED"]: "INDEPENDENT_NODE",
+    ["CLOSE_NODE_CONFIRMED"]: "CLOSE_NODE",
+    ["CONTENT_NODE"]: "CONTENT_NODE",
+};
+const crawlIsNotComplete = (brokenText, currentCrawl) => {
+    const { stringArrayIndex, stringIndex } = currentCrawl.target.endPosition;
+    const brokenTextSafeLength = brokenText.length;
+    return (stringArrayIndex < brokenTextSafeLength &&
+        stringIndex < brokenText[stringArrayIndex].length - 1);
+};
+const buildSkeletonStringBone = ({ brokenText, previousCrawl, currentCrawl, }) => {
+    // this can be a single function
+    const { endPosition } = previousCrawl.target;
+    const { startPosition } = currentCrawl.target;
+    const stringDistance = startPosition.stringIndex - endPosition.stringIndex;
+    const stringArrayDistance = startPosition.stringArrayIndex - endPosition.stringArrayIndex;
+    if (stringArrayDistance + stringDistance < 2) {
+        return;
+    }
+    // at least distance of 2
+    // this can be a single function
+    let endStringArrayIndex = startPosition.stringArrayIndex;
+    let endStringIndex = startPosition.stringIndex - 1;
+    if (endStringIndex < 0 && 0 < endStringArrayIndex) {
+        endStringIndex = startPosition.stringIndex - 1;
+        endStringArrayIndex = endStringArrayIndex - 1;
+        endStringIndex = brokenText[endStringArrayIndex].length + endStringIndex;
+    }
+    return {
+        nodeType: "CONTENT_NODE",
+        target: {
+            startPosition: {
+                stringArrayIndex: endPosition.stringArrayIndex,
+                stringIndex: endPosition.stringIndex,
+            },
+            endPosition: {
+                stringArrayIndex: 0,
+                stringIndex: 0,
+            },
+        },
+    };
+};
+const buildSkeleton = (brokenText, ...injections) => {
+    // iterate through brokenText and injectsion
+    // add string and nodes to results array
+    const skeleton = [];
+    let previousCrawl;
+    let currentCrawl = createNotFoundCrawlState();
+    let currRecursionDepth = 0;
+    while (crawlIsNotComplete(brokenText, currentCrawl) &&
+        currRecursionDepth < MAX_RECURSION) {
+        let { endPosition } = currentCrawl.target;
+        previousCrawl = currentCrawl;
+        currentCrawl = crawl({ brokenText, previousCrawl });
+        if (currentCrawl === undefined) {
+            break;
+        }
+        const stringNodeBone = buildSkeletonStringBone({
+            brokenText,
+            previousCrawl,
+            currentCrawl,
+        });
+        // if (stringNodeBone) {
+        //   skeleton.push(stringNodeBone);
+        // }
+        const nodeType = SKELETON_SIEVE[currentCrawl.nodeType];
+        if (nodeType) {
+            skeleton.push(currentCrawl);
+        }
+        currRecursionDepth += 1;
+    }
+    return skeleton;
+};
 
 // brian taylor vann
-const testCollection = [...tests$2];
+// order of start, end aren't being respected
+const title$2 = "bang/xml_crawler/crawl";
+const runTestsAsynchronously$2 = true;
+const findNothingWhenThereIsPlainText$1 = () => {
+    const testBlank = buildSkeleton `no nodes to be found!`;
+    console.log(testBlank);
+    const assertions = [];
+    return assertions;
+};
+const findParagraphInPlainText$1 = () => {
+    const testOpenNode = buildSkeleton `<p>`;
+    console.log(testOpenNode);
+    const assertions = [];
+    return assertions;
+};
+// const findComplexFromPlainText = () => {
+//   const testComplexNode = buildSkeleton`hello<p>world</p>`;
+//   console.log(testComplexNode);
+//   const assertions: string[] = [];
+//   return assertions;
+// };
+// const findCompoundFromPlainText = () => {
+//   const testComplexNode = buildSkeleton`<h1>hello</h1><h2>world</h2><p>howdy</p>`;
+//   console.log(testComplexNode);
+//   const assertions: string[] = [];
+//   return assertions;
+// };
+// const findBrokenFromPlainText = () => {
+//   const testComplexNode = buildSkeleton`<h1>hello</h1><${"hello"}h2>world</h2><p>howdy</p>`;
+//   console.log(testComplexNode);
+//   const assertions: string[] = [];
+//   return assertions;
+// };
+// const findCloseParagraphInPlainText = () => {
+//   const testTextCloseNode = testTextInterpolator`</p>`;
+//   const assertions: string[] = [];
+//   return assertions;
+// };
+// const findIndependentParagraphInPlainText = () => {
+//   const testTextIndependentNode = testTextInterpolator`<p/>`;
+//   const assertions: string[] = [];
+//   return assertions;
+// };
+// const findOpenParagraphInTextWithArgs = () => {
+//   const testTextWithArgs = testTextInterpolator`an ${"example"} <p>${"!"}</p>`;
+//   const assertions: string[] = [];
+//   return assertions;
+// };
+// const notFoundInUgglyMessText = () => {
+//   const testInvalidUgglyMess = testTextInterpolator`an <${"invalid"}p> example${"!"}`;
+//   const assertions: string[] = [];
+//   return assertions;
+// };
+// const invalidCloseNodeWithArgs = () => {
+//   const testInvlaidCloseNodeWithArgs = testTextInterpolator`closed </${"example"}p>`;
+//   const assertions: string[] = [];
+//   return assertions;
+// };
+// const validCloseNodeWithArgs = () => {
+//   const testValidCloseNodeWithArgs = testTextInterpolator`closed </p ${"example"}>`;
+//   const assertions: string[] = [];
+//   return assertions;
+// };
+// const invalidIndependentNodeWithArgs = () => {
+//   const testInvalidIndependentNode = testTextInterpolator`independent <${"example"}p/>`;
+//   const assertions: string[] = [];
+//   return assertions;
+// };
+// const validIndependentNodeWithArgs = () => {
+//   const testValidIndependentNode = testTextInterpolator`independent <p ${"example"} / >`;
+//   const assertions: string[] = [];
+//   return assertions;
+// };
+// const invalidOpenNodeWithArgs = () => {
+//   const testInvalidOpenNode = testTextInterpolator`open <${"example"}p>`;
+//   const assertions: string[] = [];
+//   return assertions;
+// };
+// const validOpenNodeWithArgs = () => {
+//   const testValidOpenNode = testTextInterpolator`open <p ${"example"}>`;
+//   const assertions: string[] = [];
+//   return assertions;
+// };
+const tests$2 = [
+    findNothingWhenThereIsPlainText$1,
+    findParagraphInPlainText$1,
+];
+const unitTestBuildSkeleton = {
+    title: title$2,
+    tests: tests$2,
+    runTestsAsynchronously: runTestsAsynchronously$2,
+};
+
+// brian taylor vann
+// import { unitTestXMLCrawler } from "./xml_crawler/xml_crawler.test";
+const tests$3 = [unitTestRouters, unitTestCrawl, unitTestBuildSkeleton];
+
+// brian taylor vann
+const testCollection = [...tests$3];
 runTests({ testCollection })
     .then((results) => console.log("results: ", results))
     .catch((errors) => console.log("errors: ", errors));

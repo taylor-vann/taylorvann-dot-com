@@ -14,7 +14,15 @@ const testTextInterpolator: TextTextInterpolator = (
   return brokenText;
 };
 
-const title = "bang/xml_crawler/crawl";
+const testDebugTextInterpolator: TextTextInterpolator = (
+  brokenText,
+  ...injections
+) => {
+  console.log(brokenText);
+  return brokenText;
+};
+
+const title = "Crawl";
 const runTestsAsynchronously = true;
 
 const findNothingWhenThereIsPlainText = () => {
@@ -22,24 +30,25 @@ const findNothingWhenThereIsPlainText = () => {
   const assertions: string[] = [];
 
   const result = crawl({ brokenText: testBlank });
-  if (result.nodeType !== "NOT_FOUND") {
-    assertions.push(`should return NOT_FOUND instead of ${result.nodeType}`);
+
+  if (result && result.nodeType !== "CONTENT_NODE") {
+    assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
   }
 
-  if (result.target.startPosition.stringArrayIndex !== 0) {
+  if (result && result.target.startPosition.stringArrayIndex !== 0) {
     assertions.push(`should return startPosition stringArrayIndex as 0`);
   }
 
-  if (result.target.startPosition.stringIndex !== 0) {
+  if (result && result.target.startPosition.stringIndex !== 0) {
     assertions.push(`should return startPosition stringIndex as 0`);
   }
 
-  if (result.target.endPosition.stringArrayIndex !== 0) {
+  if (result && result.target.endPosition.stringArrayIndex !== 0) {
     assertions.push(`should return endPosition stringArrayIndex as 0`);
   }
 
-  if (result.target.endPosition.stringIndex !== 0) {
-    assertions.push(`should return endPosition stringIndex as 0`);
+  if (result && result.target.endPosition.stringIndex !== 20) {
+    assertions.push(`should return endPosition stringIndex as 20`);
   }
 
   return assertions;
@@ -50,25 +59,25 @@ const findParagraphInPlainText = () => {
   const assertions: string[] = [];
 
   const result = crawl({ brokenText: testOpenNode });
-  if (result.nodeType !== "OPEN_NODE_CONFIRMED") {
+  if (result && result.nodeType !== "OPEN_NODE_CONFIRMED") {
     assertions.push(
       `should return OPEN_NODE_CONFIRMED instead of ${result.nodeType}`
     );
   }
 
-  if (result.target.startPosition.stringArrayIndex !== 0) {
+  if (result && result.target.startPosition.stringArrayIndex !== 0) {
     assertions.push(`should return startPosition stringArrayIndex as 0`);
   }
 
-  if (result.target.startPosition.stringIndex !== 0) {
+  if (result && result.target.startPosition.stringIndex !== 0) {
     assertions.push(`should return startPosition stringIndex as 0`);
   }
 
-  if (result.target.endPosition.stringArrayIndex !== 0) {
+  if (result && result.target.endPosition.stringArrayIndex !== 0) {
     assertions.push(`should return endPosition stringArrayIndex as 0`);
   }
 
-  if (result.target.endPosition.stringIndex !== 2) {
+  if (result && result.target.endPosition.stringIndex !== 2) {
     assertions.push(`should return endPosition stringIndex as 2`);
   }
 
@@ -80,25 +89,25 @@ const findCloseParagraphInPlainText = () => {
   const assertions: string[] = [];
 
   const result = crawl({ brokenText: testTextCloseNode });
-  if (result.nodeType !== "CLOSE_NODE_CONFIRMED") {
+  if (result && result.nodeType !== "CLOSE_NODE_CONFIRMED") {
     assertions.push(
       `should return CLOSE_NODE_CONFIRMED instead of ${result.nodeType}`
     );
   }
 
-  if (result.target.startPosition.stringArrayIndex !== 0) {
+  if (result && result.target.startPosition.stringArrayIndex !== 0) {
     assertions.push(`should return startPosition stringArrayIndex as 0`);
   }
 
-  if (result.target.startPosition.stringIndex !== 0) {
+  if (result && result.target.startPosition.stringIndex !== 0) {
     assertions.push(`should return startPosition stringIndex as 2`);
   }
 
-  if (result.target.endPosition.stringArrayIndex !== 0) {
+  if (result && result.target.endPosition.stringArrayIndex !== 0) {
     assertions.push(`should return endPosition stringArrayIndex as 0`);
   }
 
-  if (result.target.endPosition.stringIndex !== 3) {
+  if (result && result.target.endPosition.stringIndex !== 3) {
     assertions.push(`should return endPosition stringIndex as 3`);
   }
 
@@ -110,25 +119,25 @@ const findIndependentParagraphInPlainText = () => {
   const assertions: string[] = [];
 
   const result = crawl({ brokenText: testTextIndependentNode });
-  if (result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
+  if (result && result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
     assertions.push(
       `should return INDEPENDENT_NODE_CONFIRMED instead of ${result.nodeType}`
     );
   }
 
-  if (result.target.startPosition.stringArrayIndex !== 0) {
+  if (result && result.target.startPosition.stringArrayIndex !== 0) {
     assertions.push(`should return startPosition stringArrayIndex as 0`);
   }
 
-  if (result.target.startPosition.stringIndex !== 0) {
+  if (result && result.target.startPosition.stringIndex !== 0) {
     assertions.push(`should return startPosition stringIndex as 0`);
   }
 
-  if (result.target.endPosition.stringArrayIndex !== 0) {
+  if (result && result.target.endPosition.stringArrayIndex !== 0) {
     assertions.push(`should return endPosition stringArrayIndex as 0`);
   }
 
-  if (result.target.endPosition.stringIndex !== 3) {
+  if (result && result.target.endPosition.stringIndex !== 3) {
     assertions.push(`should return endPosition stringIndex as 3`);
   }
 
@@ -140,25 +149,25 @@ const findOpenParagraphInTextWithArgs = () => {
   const assertions: string[] = [];
 
   const result = crawl({ brokenText: testTextWithArgs });
-  if (result.nodeType !== "OPEN_NODE_CONFIRMED") {
+  if (result && result.nodeType !== "OPEN_NODE_CONFIRMED") {
     assertions.push(
       `should return OPEN_NODE_CONFIRMED instead of ${result.nodeType}`
     );
   }
 
-  if (result.target.startPosition.stringArrayIndex !== 1) {
+  if (result && result.target.startPosition.stringArrayIndex !== 1) {
     assertions.push(`should return startPosition stringArrayIndex as 1`);
   }
 
-  if (result.target.startPosition.stringIndex !== 1) {
+  if (result && result.target.startPosition.stringIndex !== 1) {
     assertions.push(`should return startPosition stringIndex as 1`);
   }
 
-  if (result.target.endPosition.stringArrayIndex !== 1) {
+  if (result && result.target.endPosition.stringArrayIndex !== 1) {
     assertions.push(`should return endPosition stringArrayIndex as 1`);
   }
 
-  if (result.target.endPosition.stringIndex !== 3) {
+  if (result && result.target.endPosition.stringIndex !== 3) {
     assertions.push(`should return endPosition stringIndex as 3`);
   }
 
@@ -170,24 +179,24 @@ const notFoundInUgglyMessText = () => {
   const assertions: string[] = [];
 
   const result = crawl({ brokenText: testInvalidUgglyMess });
-  if (result.nodeType !== "NOT_FOUND") {
-    assertions.push(`should return NOT_FOUND instead of ${result.nodeType}`);
+  if (result && result.nodeType !== "CONTENT_NODE") {
+    assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
   }
 
-  if (result.target.startPosition.stringArrayIndex !== 0) {
+  if (result && result.target.startPosition.stringArrayIndex !== 0) {
     assertions.push(`should return startPosition stringArrayIndex as 0`);
   }
 
-  if (result.target.startPosition.stringIndex !== 0) {
+  if (result && result.target.startPosition.stringIndex !== 0) {
     assertions.push(`should return startPosition stringIndex as 0`);
   }
 
-  if (result.target.endPosition.stringArrayIndex !== 0) {
-    assertions.push(`should return endPosition stringArrayIndex as 0`);
+  if (result && result.target.endPosition.stringArrayIndex !== 2) {
+    assertions.push(`should return endPosition stringArrayIndex as 2`);
   }
 
-  if (result.target.endPosition.stringIndex !== 0) {
-    assertions.push(`should return endPosition stringIndex as 0`);
+  if (result && result.target.endPosition.stringIndex !== -1) {
+    assertions.push(`should return endPosition stringIndex as -1`);
   }
 
   return assertions;
@@ -198,24 +207,24 @@ const invalidCloseNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const result = crawl({ brokenText: testInvlaidCloseNodeWithArgs });
-  if (result.nodeType !== "NOT_FOUND") {
-    assertions.push(`should return NOT_FOUND instead of ${result.nodeType}`);
+  if (result && result.nodeType !== "CONTENT_NODE") {
+    assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
   }
 
-  if (result.target.startPosition.stringArrayIndex !== 0) {
+  if (result && result.target.startPosition.stringArrayIndex !== 0) {
     assertions.push(`should return startPosition stringArrayIndex as 0`);
   }
 
-  if (result.target.startPosition.stringIndex !== 0) {
+  if (result && result.target.startPosition.stringIndex !== 0) {
     assertions.push(`should return startPosition stringIndex as 0`);
   }
 
-  if (result.target.endPosition.stringArrayIndex !== 0) {
-    assertions.push(`should return endPosition stringArrayIndex as 0`);
+  if (result && result.target.endPosition.stringArrayIndex !== 1) {
+    assertions.push(`should return endPosition stringArrayIndex as 1`);
   }
 
-  if (result.target.endPosition.stringIndex !== 0) {
-    assertions.push(`should return endPosition stringIndex as 0`);
+  if (result && result.target.endPosition.stringIndex !== 1) {
+    assertions.push(`should return endPosition stringIndex as 1`);
   }
 
   return assertions;
@@ -226,25 +235,25 @@ const validCloseNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const result = crawl({ brokenText: testValidCloseNodeWithArgs });
-  if (result.nodeType !== "CLOSE_NODE_CONFIRMED") {
+  if (result && result.nodeType !== "CLOSE_NODE_CONFIRMED") {
     assertions.push(
       `should return CLOSE_NODE_CONFIRMED instead of ${result.nodeType}`
     );
   }
 
-  if (result.target.startPosition.stringArrayIndex !== 0) {
+  if (result && result.target.startPosition.stringArrayIndex !== 0) {
     assertions.push(`should return startPosition stringArrayIndex as 0`);
   }
 
-  if (result.target.startPosition.stringIndex !== 7) {
+  if (result && result.target.startPosition.stringIndex !== 7) {
     assertions.push(`should return startPosition stringIndex as 7`);
   }
 
-  if (result.target.endPosition.stringArrayIndex !== 1) {
+  if (result && result.target.endPosition.stringArrayIndex !== 1) {
     assertions.push(`should return endPosition stringArrayIndex as 1`);
   }
 
-  if (result.target.endPosition.stringIndex !== 0) {
+  if (result && result.target.endPosition.stringIndex !== 0) {
     assertions.push(`should return endPosition stringIndex as 0`);
   }
 
@@ -256,24 +265,24 @@ const invalidIndependentNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const result = crawl({ brokenText: testInvalidIndependentNode });
-  if (result.nodeType !== "NOT_FOUND") {
-    assertions.push(`should return NOT_FOUND instead of ${result.nodeType}`);
+  if (result && result.nodeType !== "CONTENT_NODE") {
+    assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
   }
 
-  if (result.target.startPosition.stringArrayIndex !== 0) {
+  if (result && result.target.startPosition.stringArrayIndex !== 0) {
     assertions.push(`should return startPosition stringArrayIndex as 0`);
   }
 
-  if (result.target.startPosition.stringIndex !== 0) {
+  if (result && result.target.startPosition.stringIndex !== 0) {
     assertions.push(`should return startPosition stringIndex as 0`);
   }
 
-  if (result.target.endPosition.stringArrayIndex !== 0) {
-    assertions.push(`should return endPosition stringArrayIndex as 0`);
+  if (result && result.target.endPosition.stringArrayIndex !== 1) {
+    assertions.push(`should return endPosition stringArrayIndex as 1`);
   }
 
-  if (result.target.endPosition.stringIndex !== 0) {
-    assertions.push(`should return endPosition stringIndex as 0`);
+  if (result && result.target.endPosition.stringIndex !== 2) {
+    assertions.push(`should return endPosition stringIndex as 2`);
   }
 
   return assertions;
@@ -284,25 +293,25 @@ const validIndependentNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const result = crawl({ brokenText: testValidIndependentNode });
-  if (result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
+  if (result && result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
     assertions.push(
       `should return INDEPENDENT_NODE_CONFIRMED instead of ${result.nodeType}`
     );
   }
 
-  if (result.target.startPosition.stringArrayIndex !== 0) {
+  if (result && result.target.startPosition.stringArrayIndex !== 0) {
     assertions.push(`should return startPosition stringArrayIndex as 0`);
   }
 
-  if (result.target.startPosition.stringIndex !== 12) {
+  if (result && result.target.startPosition.stringIndex !== 12) {
     assertions.push(`should return startPosition stringIndex as 12`);
   }
 
-  if (result.target.endPosition.stringArrayIndex !== 1) {
+  if (result && result.target.endPosition.stringArrayIndex !== 1) {
     assertions.push(`should return endPosition stringArrayIndex as 1`);
   }
 
-  if (result.target.endPosition.stringIndex !== 3) {
+  if (result && result.target.endPosition.stringIndex !== 3) {
     assertions.push(`should return endPosition stringIndex as 3`);
   }
 
@@ -314,24 +323,24 @@ const invalidOpenNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const result = crawl({ brokenText: testInvalidOpenNode });
-  if (result.nodeType !== "NOT_FOUND") {
-    assertions.push(`should return NOT_FOUND instead of ${result.nodeType}`);
+  if (result && result.nodeType !== "CONTENT_NODE") {
+    assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
   }
 
-  if (result.target.startPosition.stringArrayIndex !== 0) {
+  if (result && result.target.startPosition.stringArrayIndex !== 0) {
     assertions.push(`should return startPosition stringArrayIndex as 0`);
   }
 
-  if (result.target.startPosition.stringIndex !== 0) {
+  if (result && result.target.startPosition.stringIndex !== 0) {
     assertions.push(`should return startPosition stringIndex as 0`);
   }
 
-  if (result.target.endPosition.stringArrayIndex !== 0) {
-    assertions.push(`should return endPosition stringArrayIndex as 0`);
+  if (result && result.target.endPosition.stringArrayIndex !== 1) {
+    assertions.push(`should return endPosition stringArrayIndex as 1`);
   }
 
-  if (result.target.endPosition.stringIndex !== 0) {
-    assertions.push(`should return endPosition stringIndex as 0`);
+  if (result && result.target.endPosition.stringIndex !== 1) {
+    assertions.push(`should return endPosition stringIndex as 1`);
   }
 
   return assertions;
@@ -342,26 +351,57 @@ const validOpenNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const result = crawl({ brokenText: testValidOpenNode });
-  if (result.nodeType !== "OPEN_NODE_CONFIRMED") {
+  if (result && result.nodeType !== "OPEN_NODE_CONFIRMED") {
     assertions.push(
       `should return OPEN_NODE_CONFIRMED instead of ${result.nodeType}`
     );
   }
 
-  if (result.target.startPosition.stringArrayIndex !== 0) {
+  if (result && result.target.startPosition.stringArrayIndex !== 0) {
     assertions.push(`should return startPosition stringArrayIndex as 0`);
   }
 
-  if (result.target.startPosition.stringIndex !== 5) {
+  if (result && result.target.startPosition.stringIndex !== 5) {
     assertions.push(`should return startPosition stringIndex as 5`);
   }
 
-  if (result.target.endPosition.stringArrayIndex !== 1) {
+  if (result && result.target.endPosition.stringArrayIndex !== 1) {
     assertions.push(`should return endPosition stringArrayIndex as 1`);
   }
 
-  if (result.target.endPosition.stringIndex !== 0) {
+  if (result && result.target.endPosition.stringIndex !== 0) {
     assertions.push(`should return endPosition stringIndex as 0`);
+  }
+  return assertions;
+};
+
+const validSecondaryIndependentNodeWithArgs = () => {
+  const testValidOpenNode = testTextInterpolator`<p ${"small"}/>${"example"}<p/>`;
+  const assertions: string[] = [];
+
+  const previousCrawl = crawl({ brokenText: testValidOpenNode });
+  const result = crawl({ brokenText: testValidOpenNode, previousCrawl });
+
+  if (result && result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
+    assertions.push(
+      `should return INDEPENDENT_NODE_CONFIRMED instead of ${result.nodeType}`
+    );
+  }
+
+  if (result && result.target.startPosition.stringArrayIndex !== 2) {
+    assertions.push(`should return startPosition stringArrayIndex as 2`);
+  }
+
+  if (result && result.target.startPosition.stringIndex !== 0) {
+    assertions.push(`should return startPosition stringIndex as 0`);
+  }
+
+  if (result && result.target.endPosition.stringArrayIndex !== 2) {
+    assertions.push(`should return endPosition stringArrayIndex as 1`);
+  }
+
+  if (result && result.target.endPosition.stringIndex !== 3) {
+    assertions.push(`should return endPosition stringIndex as 3`);
   }
   return assertions;
 };
@@ -379,6 +419,7 @@ const tests = [
   validIndependentNodeWithArgs,
   invalidOpenNodeWithArgs,
   validOpenNodeWithArgs,
+  validSecondaryIndependentNodeWithArgs,
 ];
 
 const unitTestCrawl = {

@@ -1,20 +1,19 @@
 // brian taylor vann
 
-import { BrokenTextVector, CrawlResults, crawl } from "./crawl/crawl";
-import { CrawlNodes, buildSkeleton } from "./build_skeleton/build_skeleton";
+import { SkeletonNodes, buildSkeleton } from "./build_skeleton/build_skeleton";
 
 class XMLCrawler {
   private brokenText: TemplateStringsArray;
   private injections: string[];
-  private results: CrawlNodes;
+  private results: SkeletonNodes;
 
   constructor(brokenText: TemplateStringsArray, ...injections: string[]) {
     this.brokenText = brokenText;
     this.injections = injections;
-    this.results = buildSkeleton();
+    this.results = buildSkeleton(brokenText, ...injections);
   }
 
-  getResults(): CrawlNodes {
+  getResults(): SkeletonNodes {
     return this.results;
   }
 }

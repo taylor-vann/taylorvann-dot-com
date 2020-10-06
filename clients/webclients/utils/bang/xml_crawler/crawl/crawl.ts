@@ -17,12 +17,26 @@ interface CrawlResults {
 }
 interface CrawlParams {
   brokenText: TemplateStringsArray;
+  previousCrawl?: CrawlResults;
   startPosition?: BrokenTextPostition;
 }
-type CreateDefaultState = () => CrawlResults;
-type Crawl = (params: CrawlParams) => CrawlResults;
 
-const NOT_FOUND = "NOT_FOUND";
+type SetPosition = (
+  results: CrawlResults,
+  stringArrayIndex: number,
+  stringIndex: number
+) => void;
+
+type CreateDefaultTarget = () => BrokenTextVector;
+type CreateCrawlState = () => CrawlResults;
+type SetNodeType = (results: CrawlResults, character: string) => void;
+type SetStartStateProperties = (
+  params: CrawlParams
+) => CrawlResults | undefined;
+
+type Crawl = (params: CrawlParams) => CrawlResults | undefined;
+
+const CONTENT_NODE = "CONTENT_NODE";
 const OPEN_NODE = "OPEN_NODE";
 
 const validSieve: Sieve = {
@@ -36,48 +50,74 @@ const confirmedSieve: Sieve = {
   ["INDEPENDENT_NODE_CONFIRMED"]: "INDEPENDENT_NODE_CONFIRMED",
 };
 
-const createDefaultState: CreateDefaultState = () => {
+const createDefaultTarget: CreateDefaultTarget = () => {
   return {
-    nodeType: "NOT_FOUND",
-    target: {
-      startPosition: {
-        stringArrayIndex: 0,
-        stringIndex: 0,
-      },
-      endPosition: {
-        stringArrayIndex: 0,
-        stringIndex: 0,
-      },
+    startPosition: {
+      stringArrayIndex: 0,
+      stringIndex: 0,
+    },
+    endPosition: {
+      stringArrayIndex: 0,
+      stringIndex: 0,
     },
   };
 };
 
-const setStartStateProperties: Crawl = (params) => {
-  const cState = createDefaultState();
-  const { startPosition } = params;
-  if (startPosition === undefined) {
-    return cState;
-  }
+const createNotFoundCrawlState: CreateCrawlState = () => {
+  return {
+    nodeType: "CONTENT_NODE",
+    target: createDefaultTarget(),
+  };
+};
 
-  const { stringArrayIndex, stringIndex } = startPosition;
-  if (cState.target) {
+const setStartStateProperties: SetStartStateProperties = (params) => {
+  const cState = createNotFoundCrawlState();
+  if (params.previousCrawl) {
+    console.log("previous crawl");
+    console.log(params.previousCrawl);
+    let {
+      stringArrayIndex,
+      stringIndex,
+    } = params.previousCrawl.target.endPosition;
+
+    stringIndex += 1;
+    stringIndex %= params.brokenText[stringArrayIndex].length;
+
+    if (stringIndex === 0) {
+      stringArrayIndex += 1;
+    }
+    if (stringArrayIndex >= params.brokenText.length) {
+      return;
+    }
+
     cState.target.startPosition.stringArrayIndex = stringArrayIndex;
+    cState.target.startPosition.stringIndex = stringIndex;
+    cState.target.endPosition.stringArrayIndex = stringArrayIndex;
     cState.target.endPosition.stringIndex = stringIndex;
   }
 
   return cState;
 };
 
-const setStartPosition = (
+const setNodeType: SetNodeType = (cState, char) => {
+  const defaultNodeType = routers[cState.nodeType]?.["DEFAULT"] ?? CONTENT_NODE;
+  cState.nodeType = routers[cState.nodeType]?.[char] ?? defaultNodeType;
+
+  return cState;
+};
+
+const setStartPosition: SetPosition = (
   results: CrawlResults,
   stringArrayIndex: number,
   stringIndex: number
 ) => {
   results.target.startPosition.stringArrayIndex = stringArrayIndex;
   results.target.startPosition.stringIndex = stringIndex;
+  results.target.endPosition.stringArrayIndex = stringArrayIndex;
+  results.target.endPosition.stringIndex = stringIndex;
 };
 
-const setEndPosition = (
+const setEndPosition: SetPosition = (
   results: CrawlResults,
   stringArrayIndex: number,
   stringIndex: number
@@ -89,28 +129,38 @@ const setEndPosition = (
 const crawl: Crawl = (params) => {
   const { brokenText } = params;
   const cState = setStartStateProperties(params);
+  if (cState === undefined) {
+    return;
+  }
 
   let { stringIndex, stringArrayIndex } = cState.target.startPosition;
-  while (stringArrayIndex < brokenText.length) {
-    const chunk = brokenText[stringArrayIndex];
+  const potentialPosition: BrokenTextPostition = {
+    stringArrayIndex,
+    stringIndex,
+  };
 
+  while (stringArrayIndex < brokenText.length) {
     if (validSieve[cState.nodeType] === undefined) {
-      cState.nodeType = NOT_FOUND;
+      cState.nodeType = CONTENT_NODE;
     }
 
+    const chunk = brokenText[stringArrayIndex];
     while (stringIndex < chunk.length) {
-      const defaultNodeType =
-        routers[cState.nodeType]?.["DEFAULT"] ?? NOT_FOUND;
-      cState.nodeType =
-        routers[cState.nodeType]?.[chunk.charAt(stringIndex)] ??
-        defaultNodeType;
+      setNodeType(cState, chunk.charAt(stringIndex));
 
       if (confirmedSieve[cState.nodeType]) {
+        setStartPosition(
+          cState,
+          potentialPosition.stringArrayIndex,
+          potentialPosition.stringIndex
+        );
         setEndPosition(cState, stringArrayIndex, stringIndex);
         return cState;
       }
+
       if (cState.nodeType === OPEN_NODE) {
-        setStartPosition(cState, stringArrayIndex, stringIndex);
+        potentialPosition.stringArrayIndex = stringArrayIndex;
+        potentialPosition.stringIndex = stringIndex;
       }
 
       stringIndex += 1;
@@ -122,7 +172,11 @@ const crawl: Crawl = (params) => {
   }
 
   // finished walk without results
-  return createDefaultState();
+  stringArrayIndex = brokenText.length - 1;
+  stringIndex = brokenText[stringArrayIndex].length - 1;
+  setEndPosition(cState, stringArrayIndex, stringIndex);
+
+  return cState;
 };
 
-export { BrokenTextVector, CrawlResults, crawl };
+export { BrokenTextVector, CrawlResults, crawl, createNotFoundCrawlState };
