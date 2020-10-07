@@ -29,23 +29,23 @@ const findParagraphInPlainText = () => {
   return assertions;
 };
 
-// const findComplexFromPlainText = () => {
-//   const testComplexNode = buildSkeleton`hello<p>world</p>`;
-//   console.log(testComplexNode);
+const findComplexFromPlainText = () => {
+  const testComplexNode = buildSkeleton`hello<p>world</p>`;
+  console.log(testComplexNode);
 
-//   const assertions: string[] = [];
+  const assertions: string[] = [];
 
-//   return assertions;
-// };
+  return assertions;
+};
 
-// const findCompoundFromPlainText = () => {
-//   const testComplexNode = buildSkeleton`<h1>hello</h1><h2>world</h2><p>howdy</p>`;
-//   console.log(testComplexNode);
+const findCompoundFromPlainText = () => {
+  const testComplexNode = buildSkeleton`<h1>hello</h1><h2>world</h2><img/><p>howdy</p>`;
+  console.log(testComplexNode);
 
-//   const assertions: string[] = [];
+  const assertions: string[] = [];
 
-//   return assertions;
-// };
+  return assertions;
+};
 
 // const findBrokenFromPlainText = () => {
 //   const testComplexNode = buildSkeleton`<h1>hello</h1><${"hello"}h2>world</h2><p>howdy</p>`;
@@ -129,8 +129,8 @@ const findParagraphInPlainText = () => {
 const tests = [
   findNothingWhenThereIsPlainText,
   findParagraphInPlainText,
-  // findComplexFromPlainText,
-  // findCompoundFromPlainText,
+  findComplexFromPlainText,
+  findCompoundFromPlainText,
   // findBrokenFromPlainText,
   // findCloseParagraphInPlainText,
   // findIndependentParagraphInPlainText,

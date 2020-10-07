@@ -1,7 +1,6 @@
 // brian taylor vann
 
 type CrawlStatus =
-  | "UNCRAWLED"
   | "CONTENT_NODE"
   | "OPEN_NODE"
   | "OPEN_NODE_VALID"
@@ -15,7 +14,6 @@ type CrawlStatus =
 
 type Routes = Record<string, CrawlStatus>;
 type Routers = Partial<Record<CrawlStatus, Routes>>;
-
 type CreateAlphabetKeys = (route: CrawlStatus) => Routes;
 
 const createAlphabetKeys: CreateAlphabetKeys = (route) => {
@@ -23,7 +21,6 @@ const createAlphabetKeys: CreateAlphabetKeys = (route) => {
 
   let lowercaseIndex = "a".charCodeAt(0);
   const lowercaseLimit = "z".charCodeAt(0);
-
   let uppercaseIndex = "A".charCodeAt(0);
   const uppercaseLimit = "Z".charCodeAt(0);
 

@@ -1,4 +1,4 @@
-import { CrawlResults, crawl, createNotFoundCrawlState } from "../crawl/crawl";
+import { BrokenTextPostition, crawl, CrawlResults } from "../crawl/crawl";
 
 type NodeType =
   | "OPEN_NODE"
@@ -8,19 +8,19 @@ type NodeType =
 
 type SkeletonNodes = CrawlResults[];
 
+type GetStringBonePosition = (
+  brokenText: TemplateStringsArray,
+  crawlResult: CrawlResults
+) => BrokenTextPostition | void;
+
 interface BuildSkeletonStringBoneParams {
   brokenText: TemplateStringsArray;
-  previousCrawl: CrawlResults;
   currentCrawl: CrawlResults;
+  previousCrawl?: CrawlResults;
 }
 type BuildSkeletonStringBone = (
   params: BuildSkeletonStringBoneParams
 ) => CrawlResults | void;
-
-type HasReachedTheEnd = (
-  brokenText: TemplateStringsArray,
-  currentCrawl: CrawlResults
-) => boolean;
 
 type BuildSkeletonSieve = Record<string, NodeType>;
 
@@ -29,102 +29,103 @@ type BuildSkeleton = (
   ...injections: string[]
 ) => SkeletonNodes;
 
-const MAX_RECURSION = 1000;
+const MAX_RECURSION = 128;
 
 const SKELETON_SIEVE: BuildSkeletonSieve = {
   ["OPEN_NODE_CONFIRMED"]: "OPEN_NODE",
-  ["INDEPENDENT_NODE_CONFRIMED"]: "INDEPENDENT_NODE",
+  ["INDEPENDENT_NODE_CONFIRMED"]: "INDEPENDENT_NODE",
   ["CLOSE_NODE_CONFIRMED"]: "CLOSE_NODE",
   ["CONTENT_NODE"]: "CONTENT_NODE",
 };
 
-const crawlIsNotComplete: HasReachedTheEnd = (brokenText, currentCrawl) => {
-  const { stringArrayIndex, stringIndex } = currentCrawl.target.endPosition;
-  const brokenTextSafeLength = brokenText.length;
-  return (
-    stringArrayIndex < brokenTextSafeLength &&
-    stringIndex < brokenText[stringArrayIndex].length - 1
-  );
-};
-
-const buildSkeletonStringBone: BuildSkeletonStringBone = ({
+const getStringBoneStart: GetStringBonePosition = (
   brokenText,
-  previousCrawl,
-  currentCrawl,
-}) => {
-  // this can be a single function
-  const { endPosition } = previousCrawl.target;
-  const { startPosition } = currentCrawl.target;
-  const stringDistance = startPosition.stringIndex - endPosition.stringIndex;
-  const stringArrayDistance =
-    startPosition.stringArrayIndex - endPosition.stringArrayIndex;
-
-  if (stringArrayDistance + stringDistance < 2) {
-    return;
-  }
-
-  // at least distance of 2
-  // this can be a single function
-  let endStringArrayIndex = startPosition.stringArrayIndex;
-  let endStringIndex = startPosition.stringIndex - 1;
-  if (endStringIndex < 0 && 0 < endStringArrayIndex) {
-    endStringIndex = startPosition.stringIndex - 1;
-
-    endStringArrayIndex = endStringArrayIndex - 1;
-    endStringIndex = brokenText[endStringArrayIndex].length + endStringIndex;
+  previousCrawl
+) => {
+  let { arrayIndex, stringIndex } = previousCrawl.target.end;
+  stringIndex += 1;
+  stringIndex %= brokenText[arrayIndex].length;
+  if (stringIndex === 0) {
+    arrayIndex += 1;
   }
 
   return {
-    nodeType: "CONTENT_NODE",
-    target: {
-      startPosition: {
-        stringArrayIndex: endPosition.stringArrayIndex,
-        stringIndex: endPosition.stringIndex,
-      },
-      endPosition: {
-        stringArrayIndex: 0,
-        stringIndex: 0,
-      },
-    },
+    arrayIndex,
+    stringIndex,
   };
 };
 
+const getStringBoneEnd: GetStringBonePosition = (brokenText, currentCrawl) => {
+  let { arrayIndex, stringIndex } = currentCrawl.target.start;
+  stringIndex -= 1;
+  if (stringIndex === -1) {
+    stringIndex %= brokenText[arrayIndex - 1].length;
+    arrayIndex -= 1;
+  }
+
+  return {
+    arrayIndex,
+    stringIndex,
+  };
+};
+
+// this is totally wrong
+const buildSkeletonStringBone: BuildSkeletonStringBone = ({
+  brokenText,
+  currentCrawl,
+  previousCrawl,
+}) => {
+  if (previousCrawl === undefined) {
+    return;
+  }
+  const { end } = previousCrawl.target;
+  const { start } = currentCrawl.target;
+
+  const stringDistance = start.stringIndex - end.stringIndex;
+  const stringArrayDistance = start.arrayIndex - end.arrayIndex;
+  if (2 > stringArrayDistance + stringDistance) {
+    return;
+  }
+
+  const contentStart = getStringBoneStart(brokenText, previousCrawl);
+  const contentEnd = getStringBoneEnd(brokenText, currentCrawl);
+  if (contentStart && contentEnd) {
+    return {
+      nodeType: "CONTENT_NODE",
+      target: {
+        start: contentStart,
+        end: contentEnd,
+      },
+    };
+  }
+};
+
 const buildSkeleton: BuildSkeleton = (brokenText, ...injections) => {
-  // iterate through brokenText and injectsion
-  // add string and nodes to results array
+  let depth = 0;
   const skeleton: SkeletonNodes = [];
+
   let previousCrawl: CrawlResults | undefined;
-  let currentCrawl: CrawlResults | undefined = createNotFoundCrawlState();
+  let currentCrawl = crawl(brokenText, previousCrawl);
 
-  let currRecursionDepth = 0;
-
-  while (
-    crawlIsNotComplete(brokenText, currentCrawl) &&
-    currRecursionDepth < MAX_RECURSION
-  ) {
-    let { endPosition } = currentCrawl.target;
-    previousCrawl = currentCrawl;
-    currentCrawl = crawl({ brokenText, previousCrawl });
-    if (currentCrawl === undefined) {
-      break;
-    }
-
-    const stringNodeBone = buildSkeletonStringBone({
+  while (currentCrawl && depth < MAX_RECURSION) {
+    // get string in between crawls
+    const stringBone = buildSkeletonStringBone({
       brokenText,
       previousCrawl,
       currentCrawl,
     });
-    // if (stringNodeBone) {
-    //   skeleton.push(stringNodeBone);
-    // }
-
-    const nodeType = SKELETON_SIEVE[currentCrawl.nodeType];
-
-    if (nodeType) {
-      skeleton.push(currentCrawl);
+    if (stringBone) {
+      skeleton.push(stringBone);
     }
 
-    currRecursionDepth += 1;
+    if (SKELETON_SIEVE[currentCrawl.nodeType]) {
+      skeleton.push(currentCrawl);
+      console.log(currentCrawl);
+    }
+    previousCrawl = currentCrawl;
+    currentCrawl = crawl(brokenText, previousCrawl);
+
+    depth += 1;
   }
 
   return skeleton;

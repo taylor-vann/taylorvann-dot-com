@@ -4,37 +4,36 @@ import { CrawlStatus, routers } from "./routers/routers";
 
 type Sieve = Partial<Record<CrawlStatus, CrawlStatus>>;
 interface BrokenTextPostition {
-  stringArrayIndex: number;
+  arrayIndex: number;
   stringIndex: number;
 }
 interface BrokenTextVector {
-  startPosition: BrokenTextPostition;
-  endPosition: BrokenTextPostition;
+  start: BrokenTextPostition;
+  end: BrokenTextPostition;
 }
 interface CrawlResults {
   nodeType: CrawlStatus;
   target: BrokenTextVector;
 }
-interface CrawlParams {
-  brokenText: TemplateStringsArray;
-  previousCrawl?: CrawlResults;
-  startPosition?: BrokenTextPostition;
-}
 
 type SetPosition = (
   results: CrawlResults,
-  stringArrayIndex: number,
+  arrayIndex: number,
   stringIndex: number
 ) => void;
 
-type CreateDefaultTarget = () => BrokenTextVector;
 type CreateCrawlState = () => CrawlResults;
 type SetNodeType = (results: CrawlResults, character: string) => void;
+
 type SetStartStateProperties = (
-  params: CrawlParams
+  brokenText: TemplateStringsArray,
+  previousCrawl?: CrawlResults
 ) => CrawlResults | undefined;
 
-type Crawl = (params: CrawlParams) => CrawlResults | undefined;
+type Crawl = (
+  brokenText: TemplateStringsArray,
+  previousCrawl?: CrawlResults
+) => CrawlResults | undefined;
 
 const CONTENT_NODE = "CONTENT_NODE";
 const OPEN_NODE = "OPEN_NODE";
@@ -50,50 +49,43 @@ const confirmedSieve: Sieve = {
   ["INDEPENDENT_NODE_CONFIRMED"]: "INDEPENDENT_NODE_CONFIRMED",
 };
 
-const createDefaultTarget: CreateDefaultTarget = () => {
-  return {
-    startPosition: {
-      stringArrayIndex: 0,
-      stringIndex: 0,
-    },
-    endPosition: {
-      stringArrayIndex: 0,
-      stringIndex: 0,
-    },
-  };
-};
-
 const createNotFoundCrawlState: CreateCrawlState = () => {
   return {
     nodeType: "CONTENT_NODE",
-    target: createDefaultTarget(),
+    target: {
+      start: {
+        arrayIndex: 0,
+        stringIndex: 0,
+      },
+      end: {
+        arrayIndex: 0,
+        stringIndex: 0,
+      },
+    },
   };
 };
 
-const setStartStateProperties: SetStartStateProperties = (params) => {
+const setStartStateProperties: SetStartStateProperties = (
+  brokenText,
+  previousCrawl
+) => {
   const cState = createNotFoundCrawlState();
-  if (params.previousCrawl) {
-    console.log("previous crawl");
-    console.log(params.previousCrawl);
-    let {
-      stringArrayIndex,
-      stringIndex,
-    } = params.previousCrawl.target.endPosition;
+  if (previousCrawl) {
+    let { arrayIndex, stringIndex } = previousCrawl.target.end;
 
     stringIndex += 1;
-    stringIndex %= params.brokenText[stringArrayIndex].length;
-
+    stringIndex %= brokenText[arrayIndex].length;
     if (stringIndex === 0) {
-      stringArrayIndex += 1;
+      arrayIndex += 1;
     }
-    if (stringArrayIndex >= params.brokenText.length) {
+    if (arrayIndex >= brokenText.length) {
       return;
     }
 
-    cState.target.startPosition.stringArrayIndex = stringArrayIndex;
-    cState.target.startPosition.stringIndex = stringIndex;
-    cState.target.endPosition.stringArrayIndex = stringArrayIndex;
-    cState.target.endPosition.stringIndex = stringIndex;
+    cState.target.start.arrayIndex = arrayIndex;
+    cState.target.start.stringIndex = stringIndex;
+    cState.target.end.arrayIndex = arrayIndex;
+    cState.target.end.stringIndex = stringIndex;
   }
 
   return cState;
@@ -106,61 +98,58 @@ const setNodeType: SetNodeType = (cState, char) => {
   return cState;
 };
 
-const setStartPosition: SetPosition = (
+const setStart: SetPosition = (
   results: CrawlResults,
-  stringArrayIndex: number,
+  arrayIndex: number,
   stringIndex: number
 ) => {
-  results.target.startPosition.stringArrayIndex = stringArrayIndex;
-  results.target.startPosition.stringIndex = stringIndex;
-  results.target.endPosition.stringArrayIndex = stringArrayIndex;
-  results.target.endPosition.stringIndex = stringIndex;
+  results.target.start.arrayIndex = arrayIndex;
+  results.target.start.stringIndex = stringIndex;
+  results.target.end.arrayIndex = arrayIndex;
+  results.target.end.stringIndex = stringIndex;
 };
 
-const setEndPosition: SetPosition = (
+const setEnd: SetPosition = (
   results: CrawlResults,
-  stringArrayIndex: number,
+  arrayIndex: number,
   stringIndex: number
 ) => {
-  results.target.endPosition.stringArrayIndex = stringArrayIndex;
-  results.target.endPosition.stringIndex = stringIndex;
+  results.target.end.arrayIndex = arrayIndex;
+  results.target.end.stringIndex = stringIndex;
 };
 
-const crawl: Crawl = (params) => {
-  const { brokenText } = params;
-  const cState = setStartStateProperties(params);
+const crawl: Crawl = (brokenText, previousCrawl) => {
+  const cState = setStartStateProperties(brokenText, previousCrawl);
   if (cState === undefined) {
     return;
   }
 
-  let { stringIndex, stringArrayIndex } = cState.target.startPosition;
-  const potentialPosition: BrokenTextPostition = {
-    stringArrayIndex,
+  let { stringIndex, arrayIndex } = cState.target.start;
+  // retain most recent postition
+  const suspect: BrokenTextPostition = {
+    arrayIndex,
     stringIndex,
   };
 
-  while (stringArrayIndex < brokenText.length) {
+  while (arrayIndex < brokenText.length) {
     if (validSieve[cState.nodeType] === undefined) {
       cState.nodeType = CONTENT_NODE;
     }
 
-    const chunk = brokenText[stringArrayIndex];
+    const chunk = brokenText[arrayIndex];
     while (stringIndex < chunk.length) {
       setNodeType(cState, chunk.charAt(stringIndex));
 
       if (confirmedSieve[cState.nodeType]) {
-        setStartPosition(
-          cState,
-          potentialPosition.stringArrayIndex,
-          potentialPosition.stringIndex
-        );
-        setEndPosition(cState, stringArrayIndex, stringIndex);
+        // if confirmed, suspected target is verified
+        setStart(cState, suspect.arrayIndex, suspect.stringIndex);
+        setEnd(cState, arrayIndex, stringIndex);
         return cState;
       }
 
       if (cState.nodeType === OPEN_NODE) {
-        potentialPosition.stringArrayIndex = stringArrayIndex;
-        potentialPosition.stringIndex = stringIndex;
+        suspect.arrayIndex = arrayIndex;
+        suspect.stringIndex = stringIndex;
       }
 
       stringIndex += 1;
@@ -168,15 +157,15 @@ const crawl: Crawl = (params) => {
 
     // skip to next chunk
     stringIndex = 0;
-    stringArrayIndex += 1;
+    arrayIndex += 1;
   }
 
   // finished walk without results
-  stringArrayIndex = brokenText.length - 1;
-  stringIndex = brokenText[stringArrayIndex].length - 1;
-  setEndPosition(cState, stringArrayIndex, stringIndex);
+  arrayIndex = brokenText.length - 1;
+  stringIndex = brokenText[arrayIndex].length - 1;
+  setEnd(cState, arrayIndex, stringIndex);
 
   return cState;
 };
 
-export { BrokenTextVector, CrawlResults, crawl, createNotFoundCrawlState };
+export { BrokenTextVector, BrokenTextPostition, CrawlResults, crawl };
