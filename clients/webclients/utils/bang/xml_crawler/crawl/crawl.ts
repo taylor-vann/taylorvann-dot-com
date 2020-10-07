@@ -70,23 +70,25 @@ const setStartStateProperties: SetStartStateProperties = (
   previousCrawl
 ) => {
   const cState = createNotFoundCrawlState();
-  if (previousCrawl) {
-    let { arrayIndex, stringIndex } = previousCrawl.target.end;
-
-    stringIndex += 1;
-    stringIndex %= brokenText[arrayIndex].length;
-    if (stringIndex === 0) {
-      arrayIndex += 1;
-    }
-    if (arrayIndex >= brokenText.length) {
-      return;
-    }
-
-    cState.target.start.arrayIndex = arrayIndex;
-    cState.target.start.stringIndex = stringIndex;
-    cState.target.end.arrayIndex = arrayIndex;
-    cState.target.end.stringIndex = stringIndex;
+  if (previousCrawl === undefined) {
+    return cState;
   }
+  
+  let { arrayIndex, stringIndex } = previousCrawl.target.end;
+
+  stringIndex += 1;
+  stringIndex %= brokenText[arrayIndex].length;
+  if (stringIndex === 0) {
+    arrayIndex += 1;
+  }
+  if (arrayIndex >= brokenText.length) {
+    return;
+  }
+
+  cState.target.start.arrayIndex = arrayIndex;
+  cState.target.start.stringIndex = stringIndex;
+  cState.target.end.arrayIndex = arrayIndex;
+  cState.target.end.stringIndex = stringIndex;
 
   return cState;
 };

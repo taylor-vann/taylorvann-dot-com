@@ -59,8 +59,8 @@ const getStringBoneEnd: GetStringBonePosition = (brokenText, currentCrawl) => {
   let { arrayIndex, stringIndex } = currentCrawl.target.start;
   stringIndex -= 1;
   if (stringIndex === -1) {
-    stringIndex %= brokenText[arrayIndex - 1].length;
     arrayIndex -= 1;
+    stringIndex += brokenText[arrayIndex].length;
   }
 
   return {
@@ -69,7 +69,6 @@ const getStringBoneEnd: GetStringBonePosition = (brokenText, currentCrawl) => {
   };
 };
 
-// this is totally wrong
 const buildSkeletonStringBone: BuildSkeletonStringBone = ({
   brokenText,
   currentCrawl,
@@ -81,7 +80,7 @@ const buildSkeletonStringBone: BuildSkeletonStringBone = ({
   const { end } = previousCrawl.target;
   const { start } = currentCrawl.target;
 
-  const stringDistance = start.stringIndex - end.stringIndex;
+  const stringDistance = Math.abs(start.stringIndex - end.stringIndex);
   const stringArrayDistance = start.arrayIndex - end.arrayIndex;
   if (2 > stringArrayDistance + stringDistance) {
     return;
@@ -120,7 +119,6 @@ const buildSkeleton: BuildSkeleton = (brokenText, ...injections) => {
 
     if (SKELETON_SIEVE[currentCrawl.nodeType]) {
       skeleton.push(currentCrawl);
-      console.log(currentCrawl);
     }
     previousCrawl = currentCrawl;
     currentCrawl = crawl(brokenText, previousCrawl);

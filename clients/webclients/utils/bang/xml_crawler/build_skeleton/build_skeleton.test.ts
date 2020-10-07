@@ -11,50 +11,50 @@ type TextTextInterpolator = (
 const title = "bang/xml_crawler/crawl";
 const runTestsAsynchronously = true;
 
-const findNothingWhenThereIsPlainText = () => {
-  const testBlank = buildSkeleton`no nodes to be found!`;
-  console.log(testBlank);
+// const findNothingWhenThereIsPlainText = () => {
+//   const testBlank = buildSkeleton`no nodes to be found!`;
+//   console.log(testBlank);
 
-  const assertions: string[] = [];
+//   const assertions: string[] = [];
 
-  return assertions;
-};
+//   return assertions;
+// };
 
-const findParagraphInPlainText = () => {
-  const testOpenNode = buildSkeleton`<p>`;
-  console.log(testOpenNode);
+// const findParagraphInPlainText = () => {
+//   const testOpenNode = buildSkeleton`<p>`;
+//   console.log(testOpenNode);
 
-  const assertions: string[] = [];
+//   const assertions: string[] = [];
 
-  return assertions;
-};
+//   return assertions;
+// };
 
-const findComplexFromPlainText = () => {
-  const testComplexNode = buildSkeleton`hello<p>world</p>`;
-  console.log(testComplexNode);
-
-  const assertions: string[] = [];
-
-  return assertions;
-};
-
-const findCompoundFromPlainText = () => {
-  const testComplexNode = buildSkeleton`<h1>hello</h1><h2>world</h2><img/><p>howdy</p>`;
-  console.log(testComplexNode);
-
-  const assertions: string[] = [];
-
-  return assertions;
-};
-
-// const findBrokenFromPlainText = () => {
-//   const testComplexNode = buildSkeleton`<h1>hello</h1><${"hello"}h2>world</h2><p>howdy</p>`;
+// const findComplexFromPlainText = () => {
+//   const testComplexNode = buildSkeleton`hello<p>world</p>`;
 //   console.log(testComplexNode);
 
 //   const assertions: string[] = [];
 
 //   return assertions;
 // };
+
+// const findCompoundFromPlainText = () => {
+//   const testComplexNode = buildSkeleton`<h1>hello</h1><h2>world</h2><img/><p>howdy</p>`;
+//   console.log(testComplexNode);
+
+//   const assertions: string[] = [];
+
+//   return assertions;
+// };
+
+const findBrokenFromPlainText = () => {
+  const testComplexNode = buildSkeleton`<h1>hello</h1><${"hello"}h2>world</h2><p>howdy</p>`;
+  console.log(testComplexNode);
+
+  const assertions: string[] = [];
+
+  return assertions;
+};
 
 // const findCloseParagraphInPlainText = () => {
 //   const testTextCloseNode = testTextInterpolator`</p>`;
@@ -127,11 +127,11 @@ const findCompoundFromPlainText = () => {
 // };
 
 const tests = [
-  findNothingWhenThereIsPlainText,
-  findParagraphInPlainText,
-  findComplexFromPlainText,
-  findCompoundFromPlainText,
-  // findBrokenFromPlainText,
+  // findNothingWhenThereIsPlainText,
+  // findParagraphInPlainText,
+  // findComplexFromPlainText,
+  // findCompoundFromPlainText,
+  findBrokenFromPlainText,
   // findCloseParagraphInPlainText,
   // findIndependentParagraphInPlainText,
   // findOpenParagraphInTextWithArgs,

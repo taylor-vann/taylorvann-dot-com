@@ -551,21 +551,22 @@ const createNotFoundCrawlState = () => {
 };
 const setStartStateProperties = (brokenText, previousCrawl) => {
     const cState = createNotFoundCrawlState();
-    if (previousCrawl) {
-        let { arrayIndex, stringIndex } = previousCrawl.target.end;
-        stringIndex += 1;
-        stringIndex %= brokenText[arrayIndex].length;
-        if (stringIndex === 0) {
-            arrayIndex += 1;
-        }
-        if (arrayIndex >= brokenText.length) {
-            return;
-        }
-        cState.target.start.arrayIndex = arrayIndex;
-        cState.target.start.stringIndex = stringIndex;
-        cState.target.end.arrayIndex = arrayIndex;
-        cState.target.end.stringIndex = stringIndex;
+    if (previousCrawl === undefined) {
+        return cState;
     }
+    let { arrayIndex, stringIndex } = previousCrawl.target.end;
+    stringIndex += 1;
+    stringIndex %= brokenText[arrayIndex].length;
+    if (stringIndex === 0) {
+        arrayIndex += 1;
+    }
+    if (arrayIndex >= brokenText.length) {
+        return;
+    }
+    cState.target.start.arrayIndex = arrayIndex;
+    cState.target.start.stringIndex = stringIndex;
+    cState.target.end.arrayIndex = arrayIndex;
+    cState.target.end.stringIndex = stringIndex;
     return cState;
 };
 const setNodeType = (cState, char) => {
@@ -1088,22 +1089,21 @@ const getStringBoneEnd = (brokenText, currentCrawl) => {
     let { arrayIndex, stringIndex } = currentCrawl.target.start;
     stringIndex -= 1;
     if (stringIndex === -1) {
-        stringIndex %= brokenText[arrayIndex - 1].length;
         arrayIndex -= 1;
+        stringIndex += brokenText[arrayIndex].length;
     }
     return {
         arrayIndex,
         stringIndex,
     };
 };
-// this is totally wrong
 const buildSkeletonStringBone = ({ brokenText, currentCrawl, previousCrawl, }) => {
     if (previousCrawl === undefined) {
         return;
     }
     const { end } = previousCrawl.target;
     const { start } = currentCrawl.target;
-    const stringDistance = start.stringIndex - end.stringIndex;
+    const stringDistance = Math.abs(start.stringIndex - end.stringIndex);
     const stringArrayDistance = start.arrayIndex - end.arrayIndex;
     if (2 > stringArrayDistance + stringDistance) {
         return;
@@ -1137,7 +1137,6 @@ const buildSkeleton = (brokenText, ...injections) => {
         }
         if (SKELETON_SIEVE[currentCrawl.nodeType]) {
             skeleton.push(currentCrawl);
-            console.log(currentCrawl);
         }
         previousCrawl = currentCrawl;
         currentCrawl = crawl(brokenText, previousCrawl);
@@ -1150,36 +1149,36 @@ const buildSkeleton = (brokenText, ...injections) => {
 // order of start, end aren't being respected
 const title$2 = "bang/xml_crawler/crawl";
 const runTestsAsynchronously$2 = true;
-const findNothingWhenThereIsPlainText$1 = () => {
-    const testBlank = buildSkeleton `no nodes to be found!`;
-    console.log(testBlank);
-    const assertions = [];
-    return assertions;
-};
-const findParagraphInPlainText$1 = () => {
-    const testOpenNode = buildSkeleton `<p>`;
-    console.log(testOpenNode);
-    const assertions = [];
-    return assertions;
-};
-const findComplexFromPlainText = () => {
-    const testComplexNode = buildSkeleton `hello<p>world</p>`;
-    console.log(testComplexNode);
-    const assertions = [];
-    return assertions;
-};
-const findCompoundFromPlainText = () => {
-    const testComplexNode = buildSkeleton `<h1>hello</h1><h2>world</h2><img/><p>howdy</p>`;
-    console.log(testComplexNode);
-    const assertions = [];
-    return assertions;
-};
-// const findBrokenFromPlainText = () => {
-//   const testComplexNode = buildSkeleton`<h1>hello</h1><${"hello"}h2>world</h2><p>howdy</p>`;
+// const findNothingWhenThereIsPlainText = () => {
+//   const testBlank = buildSkeleton`no nodes to be found!`;
+//   console.log(testBlank);
+//   const assertions: string[] = [];
+//   return assertions;
+// };
+// const findParagraphInPlainText = () => {
+//   const testOpenNode = buildSkeleton`<p>`;
+//   console.log(testOpenNode);
+//   const assertions: string[] = [];
+//   return assertions;
+// };
+// const findComplexFromPlainText = () => {
+//   const testComplexNode = buildSkeleton`hello<p>world</p>`;
 //   console.log(testComplexNode);
 //   const assertions: string[] = [];
 //   return assertions;
 // };
+// const findCompoundFromPlainText = () => {
+//   const testComplexNode = buildSkeleton`<h1>hello</h1><h2>world</h2><img/><p>howdy</p>`;
+//   console.log(testComplexNode);
+//   const assertions: string[] = [];
+//   return assertions;
+// };
+const findBrokenFromPlainText = () => {
+    const testComplexNode = buildSkeleton `<h1>hello</h1><${"hello"}h2>world</h2><p>howdy</p>`;
+    console.log(testComplexNode);
+    const assertions = [];
+    return assertions;
+};
 // const findCloseParagraphInPlainText = () => {
 //   const testTextCloseNode = testTextInterpolator`</p>`;
 //   const assertions: string[] = [];
@@ -1231,10 +1230,11 @@ const findCompoundFromPlainText = () => {
 //   return assertions;
 // };
 const tests$2 = [
-    findNothingWhenThereIsPlainText$1,
-    findParagraphInPlainText$1,
-    findComplexFromPlainText,
-    findCompoundFromPlainText,
+    // findNothingWhenThereIsPlainText,
+    // findParagraphInPlainText,
+    // findComplexFromPlainText,
+    // findCompoundFromPlainText,
+    findBrokenFromPlainText,
 ];
 const unitTestBuildSkeleton = {
     title: title$2,
