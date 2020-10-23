@@ -1066,7 +1066,8 @@ const unitTestRouters = {
     runTestsAsynchronously: runTestsAsynchronously$1,
 };
 
-const MAX_RECURSION = 128;
+// brian taylor vann
+const MAX_DEPTH = 128;
 const SKELETON_SIEVE = {
     ["OPEN_NODE_CONFIRMED"]: "OPEN_NODE",
     ["INDEPENDENT_NODE_CONFIRMED"]: "INDEPENDENT_NODE",
@@ -1120,12 +1121,12 @@ const buildSkeletonStringBone = ({ brokenText, currentCrawl, previousCrawl, }) =
         };
     }
 };
-const buildSkeleton = (brokenText, ...injections) => {
+const buildSkeleton = (brokenText) => {
     let depth = 0;
     const skeleton = [];
     let previousCrawl;
     let currentCrawl = crawl(brokenText, previousCrawl);
-    while (currentCrawl && depth < MAX_RECURSION) {
+    while (currentCrawl && depth < MAX_DEPTH) {
         // get string in between crawls
         const stringBone = buildSkeletonStringBone({
             brokenText,
@@ -1146,94 +1147,52 @@ const buildSkeleton = (brokenText, ...injections) => {
 };
 
 // brian taylor vann
+const getTemplateArray = (brokenText, ...injections) => {
+    return brokenText;
+};
 // order of start, end aren't being respected
 const title$2 = "bang/xml_crawler/crawl";
 const runTestsAsynchronously$2 = true;
-// const findNothingWhenThereIsPlainText = () => {
-//   const testBlank = buildSkeleton`no nodes to be found!`;
-//   console.log(testBlank);
-//   const assertions: string[] = [];
-//   return assertions;
-// };
-// const findParagraphInPlainText = () => {
-//   const testOpenNode = buildSkeleton`<p>`;
-//   console.log(testOpenNode);
-//   const assertions: string[] = [];
-//   return assertions;
-// };
-// const findComplexFromPlainText = () => {
-//   const testComplexNode = buildSkeleton`hello<p>world</p>`;
-//   console.log(testComplexNode);
-//   const assertions: string[] = [];
-//   return assertions;
-// };
-// const findCompoundFromPlainText = () => {
-//   const testComplexNode = buildSkeleton`<h1>hello</h1><h2>world</h2><img/><p>howdy</p>`;
-//   console.log(testComplexNode);
-//   const assertions: string[] = [];
-//   return assertions;
-// };
-const findBrokenFromPlainText = () => {
-    const testComplexNode = buildSkeleton `<h1>hello</h1><${"hello"}h2>world</h2><p>howdy</p>`;
-    console.log(testComplexNode);
+const findNothingWhenThereIsPlainText$1 = () => {
+    const testBlank = getTemplateArray `no nodes to be found!`;
+    const testSkeleton = buildSkeleton(testBlank);
+    console.log(testSkeleton);
     const assertions = [];
     return assertions;
 };
-// const findCloseParagraphInPlainText = () => {
-//   const testTextCloseNode = testTextInterpolator`</p>`;
-//   const assertions: string[] = [];
-//   return assertions;
-// };
-// const findIndependentParagraphInPlainText = () => {
-//   const testTextIndependentNode = testTextInterpolator`<p/>`;
-//   const assertions: string[] = [];
-//   return assertions;
-// };
-// const findOpenParagraphInTextWithArgs = () => {
-//   const testTextWithArgs = testTextInterpolator`an ${"example"} <p>${"!"}</p>`;
-//   const assertions: string[] = [];
-//   return assertions;
-// };
-// const notFoundInUgglyMessText = () => {
-//   const testInvalidUgglyMess = testTextInterpolator`an <${"invalid"}p> example${"!"}`;
-//   const assertions: string[] = [];
-//   return assertions;
-// };
-// const invalidCloseNodeWithArgs = () => {
-//   const testInvlaidCloseNodeWithArgs = testTextInterpolator`closed </${"example"}p>`;
-//   const assertions: string[] = [];
-//   return assertions;
-// };
-// const validCloseNodeWithArgs = () => {
-//   const testValidCloseNodeWithArgs = testTextInterpolator`closed </p ${"example"}>`;
-//   const assertions: string[] = [];
-//   return assertions;
-// };
-// const invalidIndependentNodeWithArgs = () => {
-//   const testInvalidIndependentNode = testTextInterpolator`independent <${"example"}p/>`;
-//   const assertions: string[] = [];
-//   return assertions;
-// };
-// const validIndependentNodeWithArgs = () => {
-//   const testValidIndependentNode = testTextInterpolator`independent <p ${"example"} / >`;
-//   const assertions: string[] = [];
-//   return assertions;
-// };
-// const invalidOpenNodeWithArgs = () => {
-//   const testInvalidOpenNode = testTextInterpolator`open <${"example"}p>`;
-//   const assertions: string[] = [];
-//   return assertions;
-// };
-// const validOpenNodeWithArgs = () => {
-//   const testValidOpenNode = testTextInterpolator`open <p ${"example"}>`;
-//   const assertions: string[] = [];
-//   return assertions;
-// };
+const findParagraphInPlainText$1 = () => {
+    const testOpenNode = getTemplateArray `<p>`;
+    const testSkeleton = buildSkeleton(testOpenNode);
+    console.log(testOpenNode);
+    const assertions = [];
+    return assertions;
+};
+const findComplexFromPlainText = () => {
+    const testComplexNode = getTemplateArray `hello<p>world</p>`;
+    const testSkeleton = buildSkeleton(testComplexNode);
+    console.log(testSkeleton);
+    const assertions = [];
+    return assertions;
+};
+const findCompoundFromPlainText = () => {
+    const testComplexNode = getTemplateArray `<h1>hello</h1><h2>world</h2><img/><p>howdy</p>`;
+    const testSkeleton = buildSkeleton(testComplexNode);
+    console.log(testSkeleton);
+    const assertions = [];
+    return assertions;
+};
+const findBrokenFromPlainText = () => {
+    const testComplexNode = getTemplateArray `<h1>hello</h1><${"hello"}h2>world</h2><p>howdy</p>`;
+    const testSkeleton = buildSkeleton(testComplexNode);
+    console.log(testSkeleton);
+    const assertions = [];
+    return assertions;
+};
 const tests$2 = [
-    // findNothingWhenThereIsPlainText,
-    // findParagraphInPlainText,
-    // findComplexFromPlainText,
-    // findCompoundFromPlainText,
+    findNothingWhenThereIsPlainText$1,
+    findParagraphInPlainText$1,
+    findComplexFromPlainText,
+    findCompoundFromPlainText,
     findBrokenFromPlainText,
 ];
 const unitTestBuildSkeleton = {

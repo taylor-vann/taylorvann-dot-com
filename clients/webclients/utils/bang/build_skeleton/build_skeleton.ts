@@ -1,3 +1,5 @@
+// brian taylor vann
+
 import { BrokenTextPostition, crawl, CrawlResults } from "../crawl/crawl";
 
 type NodeType =
@@ -29,7 +31,7 @@ type BuildSkeleton = (
   ...injections: string[]
 ) => SkeletonNodes;
 
-const MAX_RECURSION = 128;
+const MAX_DEPTH = 128;
 
 const SKELETON_SIEVE: BuildSkeletonSieve = {
   ["OPEN_NODE_CONFIRMED"]: "OPEN_NODE",
@@ -99,14 +101,14 @@ const buildSkeletonStringBone: BuildSkeletonStringBone = ({
   }
 };
 
-const buildSkeleton: BuildSkeleton = (brokenText, ...injections) => {
+const buildSkeleton: BuildSkeleton = (brokenText) => {
   let depth = 0;
   const skeleton: SkeletonNodes = [];
 
   let previousCrawl: CrawlResults | undefined;
   let currentCrawl = crawl(brokenText, previousCrawl);
 
-  while (currentCrawl && depth < MAX_RECURSION) {
+  while (currentCrawl && depth < MAX_DEPTH) {
     // get string in between crawls
     const stringBone = buildSkeletonStringBone({
       brokenText,

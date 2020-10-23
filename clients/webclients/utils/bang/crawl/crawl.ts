@@ -73,7 +73,7 @@ const setStartStateProperties: SetStartStateProperties = (
   if (previousCrawl === undefined) {
     return cState;
   }
-  
+
   let { arrayIndex, stringIndex } = previousCrawl.target.end;
 
   stringIndex += 1;

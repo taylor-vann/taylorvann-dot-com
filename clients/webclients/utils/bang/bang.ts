@@ -2,6 +2,13 @@
 
 // bang - document builder (build a node graph)
 
-// what is render?
+// U Unique Tag names
+// N Node
+// A Attributables
+// E Event Listeners
 
-// what is being created and returned?
+class Bang<U, N, A, E> {
+  // createStructure
+  // attachStructure
+  // constructor takes in an interface (as in DOM or THREE)
+}
