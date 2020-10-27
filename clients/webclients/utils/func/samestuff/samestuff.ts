@@ -1,12 +1,12 @@
 // brian taylor vann
-// samesame
+// samestuff
 
 // deep compare obejcts and arrays and collections of objects and arrays
 // does not support DateTime obejcts
 
-type SameSame = <T>(source: T, comparator: T) => boolean;
+type SameStuff = <T>(source: T, comparator: T) => boolean;
 
-const samesame: SameSame = (source, comparator) => {
+const samestuff: SameStuff = (source, comparator) => {
   if (source instanceof Object === false) {
     return source === comparator;
   }
@@ -19,7 +19,7 @@ const samesame: SameSame = (source, comparator) => {
     const nextSource = source[sourceKey];
     const nextComparator = comparator[sourceKey];
 
-    const result = samesame(nextSource, nextComparator);
+    const result = samestuff(nextSource, nextComparator);
     if (!result) {
       return result;
     }
@@ -28,4 +28,4 @@ const samesame: SameSame = (source, comparator) => {
   return true;
 };
 
-export { samesame };
+export { samestuff };

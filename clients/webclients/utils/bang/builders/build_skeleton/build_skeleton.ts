@@ -1,6 +1,6 @@
 // brian taylor vann
 
-import { BrokenTextPostition, crawl, CrawlResults } from "../crawl/crawl";
+import { BrokenTextPostition, CrawlResults, crawl } from "./crawl/crawl";
 
 type NodeType =
   | "OPEN_NODE"

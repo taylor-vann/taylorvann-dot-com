@@ -7,14 +7,18 @@ import {
   CreateContentNode,
   AddDescendent,
   RemoveDescendent,
-  Hooks,
-} from "../../bang/bang_hooks/bang_hooks";
+  InterfaceHooks,
+} from "../../bang/interface_hooks/interface_hooks";
 
-type TagNames = keyof HTMLElementTagNameMap;
+// Structure
+// {
+//   id,
+// }
+
 type DocumentNode = Text | Element | Node | HTMLElement;
 type NodeFunctor = <A>(params: A) => DocumentNode[];
 type AttributeKinds = boolean | string | undefined | NodeFunctor;
-type NodeParams = ParseResults<TagNames, AttributeKinds, EventListener>;
+type NodeParams = ParseResults<AttributeKinds>;
 
 const createNode: CreateNode<NodeParams, DocumentNode> = (parseResults) => {
   return document.createElement(parseResults.tag);
@@ -35,9 +39,7 @@ const removeDescendent: RemoveDescendent<DocumentNode> = (
   return element.removeChild(descendent);
 };
 
-const parseNode: ParseNode<TagNames, AttributeKinds, EventListener> = (
-  params
-) => {
+const parseNode: ParseNode<AttributeKinds> = (params) => {
   return {
     tag: "div",
     kind: "OPEN_NODE",
@@ -45,7 +47,7 @@ const parseNode: ParseNode<TagNames, AttributeKinds, EventListener> = (
   };
 };
 
-const hooks: Hooks<TagNames, DocumentNode, AttributeKinds, EventListener> = {
+const hooks: InterfaceHooks<DocumentNode, AttributeKinds> = {
   parseNode,
   createNode,
   createContentNode,

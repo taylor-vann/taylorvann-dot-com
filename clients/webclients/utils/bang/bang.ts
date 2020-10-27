@@ -1,14 +1,15 @@
 // brian taylor vann
 
-// bang - document builder (build a node graph)
+// bang - stateless document builder (build a node graph)
 
-// U Unique Tag names
 // N Node
 // A Attributables
-// E Event Listeners
 
-class Bang<U, N, A, E> {
+import { InterfaceHooks } from "./interface_hooks/interface_hooks";
+
+class Bang<N, A> {
   // createStructure
   // attachStructure
-  // constructor takes in an interface (as in DOM or THREE)
+
+  constructor(interfaceHooks: InterfaceHooks<N, A>) {}
 }

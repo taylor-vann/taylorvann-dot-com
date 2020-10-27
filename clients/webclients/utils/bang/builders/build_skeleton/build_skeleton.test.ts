@@ -12,7 +12,7 @@ const getTemplateArray: TextTextInterpolator = (brokenText, ...injections) => {
 };
 
 // order of start, end aren't being respected
-const title = "bang/xml_crawler/crawl";
+const title = "Bang XML Crawl";
 const runTestsAsynchronously = true;
 
 const findNothingWhenThereIsPlainText = () => {

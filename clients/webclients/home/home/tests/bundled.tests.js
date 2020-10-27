@@ -1151,7 +1151,7 @@ const getTemplateArray = (brokenText, ...injections) => {
     return brokenText;
 };
 // order of start, end aren't being respected
-const title$2 = "bang/xml_crawler/crawl";
+const title$2 = "Bang XML Crawl";
 const runTestsAsynchronously$2 = true;
 const findNothingWhenThereIsPlainText$1 = () => {
     const testBlank = getTemplateArray `no nodes to be found!`;
@@ -1202,7 +1202,6 @@ const unitTestBuildSkeleton = {
 };
 
 // brian taylor vann
-// import { unitTestXMLCrawler } from "./xml_crawler/xml_crawler.test";
 const tests$3 = [unitTestRouters, unitTestCrawl, unitTestBuildSkeleton];
 
 // brian taylor vann
