@@ -2,7 +2,6 @@
 
 import {
   ParseNode,
-  ParseResults,
   CreateNode,
   CreateContentNode,
   AddDescendent,
@@ -13,7 +12,6 @@ import {
 type DocumentNode = Text | Element | Node | HTMLElement;
 type NodeFunctor = <A>(params: A) => DocumentNode[];
 type AttributeKinds = boolean | string | undefined | NodeFunctor;
-type NodeParams = ParseResults<AttributeKinds>;
 
 const createNode: CreateNode<DocumentNode, AttributeKinds> = (parseResults) => {
   return document.createElement(parseResults.tag);

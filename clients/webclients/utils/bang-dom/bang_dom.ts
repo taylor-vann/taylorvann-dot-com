@@ -4,4 +4,6 @@ import { hooks } from "./hooks/hooks";
 
 // import bang factory
 
-// bang factory with hooks
+// new bang with hooks
+
+// export bang
