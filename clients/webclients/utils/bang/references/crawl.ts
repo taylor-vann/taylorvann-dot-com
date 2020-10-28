@@ -24,3 +24,5 @@ interface CrawlResults {
   nodeType: CrawlStatus;
   target: BrokenTextVector;
 }
+
+export { BrokenTextPostition, BrokenTextVector, CrawlResults, CrawlStatus };

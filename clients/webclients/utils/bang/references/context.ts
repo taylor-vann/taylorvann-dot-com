@@ -3,43 +3,40 @@
 // N Node
 // A Attributables
 
-type Timestamp = number;
-type DescendantRecord = Record<number, Timestamp>;
+// actual "render function" for users
 
-interface RenderResults<A> {
-  templateArray: TemplateStringsArray;
-  injections: A[];
-}
+import { RenderResults } from "./render";
 
 type BangFunc = () => void;
-type OnConnectedFunc<R> = () => R;
+type OnConnectedFunc<R> = (bang: BangFunc) => R;
 type OnDisconnectedFunc<R> = (params: R) => void;
-type RenderFunc<A, P> = (params: P, bang: BangFunc) => RenderResults<A>;
-
+type RenderFunc<A, P> = (params: P) => RenderResults<A>;
 interface ContextParams<A, P, R> {
   onConnected: OnConnectedFunc<R>;
   onDisconnected: OnDisconnectedFunc<R>;
   render: RenderFunc<A, P>;
 }
 
+type Timestamp = number;
+type DescendantRecord = Record<number, Timestamp>;
 interface Context<A, P, R> {
-  onConnected: () => R;
-  onDisconnected: (params: R) => void;
-  renderStructure: (params: P) => void;
   id: number;
-  connectedResults: P;
-  descendants: DescendantRecord;
-  params: P;
+  structureID: number;
+  timestamp: number;
   renderResults: RenderResults<A>;
+  connectedResults: R;
+  params: P;
+  descendants: DescendantRecord;
 }
 
 interface Structure {
   id: number;
+  timestamp: number;
 }
-type CreateContext<A, P, R> = (params: P) => Context<A, P, R>;
+type CreateContext<P> = (params: P) => Structure;
 type ContextFactory<A> = <P, R>(
   params: ContextParams<A, P, R>
-) => CreateContext<A, P, R>;
+) => CreateContext<P>;
 
 export {
   Context,
@@ -47,7 +44,6 @@ export {
   CreateContext,
   ContextFactory,
   DescendantRecord,
-  RenderResults,
   Structure,
   Timestamp,
 };

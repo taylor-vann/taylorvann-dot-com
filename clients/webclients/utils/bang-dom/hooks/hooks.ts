@@ -20,7 +20,7 @@ type NodeFunctor = <A>(params: A) => DocumentNode[];
 type AttributeKinds = boolean | string | undefined | NodeFunctor;
 type NodeParams = ParseResults<AttributeKinds>;
 
-const createNode: CreateNode<NodeParams, DocumentNode> = (parseResults) => {
+const createNode: CreateNode<DocumentNode, AttributeKinds> = (parseResults) => {
   return document.createElement(parseResults.tag);
 };
 
@@ -43,7 +43,7 @@ const parseNode: ParseNode<AttributeKinds> = (params) => {
   return {
     tag: "div",
     kind: "OPEN_NODE",
-    attributes: [],
+    attributes: {},
   };
 };
 
