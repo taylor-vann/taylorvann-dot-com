@@ -10,11 +10,6 @@ import {
   InterfaceHooks,
 } from "../../bang/interface_hooks/interface_hooks";
 
-// Structure
-// {
-//   id,
-// }
-
 type DocumentNode = Text | Element | Node | HTMLElement;
 type NodeFunctor = <A>(params: A) => DocumentNode[];
 type AttributeKinds = boolean | string | undefined | NodeFunctor;

@@ -3,8 +3,6 @@
 // N Node
 // A Attributables
 
-// actual "render function" for users
-
 import { RenderResults } from "./render";
 
 type BangFunc = () => void;

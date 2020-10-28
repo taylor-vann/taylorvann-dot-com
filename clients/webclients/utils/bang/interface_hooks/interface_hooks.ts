@@ -8,23 +8,11 @@
 
 import { RenderResults } from "../references/render";
 import { CrawlResults } from "../builders/build_skeleton/crawl/crawl";
-
-interface AttributeBase<A> {
-  name: string;
-  value: A;
-}
-type Attributes<A> = Record<string, AttributeBase<A>>;
-
-interface OpenParseResults<A> {
-  tag: string;
-  kind: "OPEN_NODE" | "INDEPENDENT_NODE" | "CONTENT_NODE";
-  attributes: Attributes<A>;
-}
-interface CloseParseResults {
-  tag: string;
-  kind: "CLOSE_NODE";
-}
-type ParseResults<A> = OpenParseResults<A> | CloseParseResults;
+import {
+  Attributes,
+  OpenParseResults,
+  ParseResults,
+} from "../references/parse";
 
 interface ParseNodeParams<A> {
   renderResults: RenderResults<A>;
