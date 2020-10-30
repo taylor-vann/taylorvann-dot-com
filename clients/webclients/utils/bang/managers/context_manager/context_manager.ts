@@ -13,13 +13,11 @@
 
 // P Params
 
-import { Context } from "../../references/context";
-
-interface ContextManagerBase {
+interface ContextManagerBase<N> {
   addContext: (structureID: number) => number;
   updateContext: <P>(contextID: number, params?: P) => {};
   removeContext: (stubID: number) => void;
-  getSiblings: <A, P, R>(stubID: number) => Context<A, P, R>;
+  getSiblings: (stubID: number) => N[];
 }
 
 // we can control max render

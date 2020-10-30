@@ -9,9 +9,9 @@
 
 import { Context, ContextParams } from "../../references/context";
 
-interface StructureManagerBase<A> {
+interface StructureManagerBase<N, A> {
   createStructure: <P, R>(structureID: ContextParams<A, P, R>) => number;
-  getStructure: <P, R>(stubID: number) => Context<A, P, R>;
+  getStructure: <P, R>(stubID: number) => Context<N, A, P, R>;
 }
 
 export { StructureManagerBase };

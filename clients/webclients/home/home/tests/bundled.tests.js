@@ -1156,35 +1156,35 @@ const runTestsAsynchronously$2 = true;
 const findNothingWhenThereIsPlainText$1 = () => {
     const testBlank = getTemplateArray `no nodes to be found!`;
     const testSkeleton = buildSkeleton(testBlank);
-    console.log(testSkeleton);
+    // console.log(testSkeleton);
     const assertions = [];
     return assertions;
 };
 const findParagraphInPlainText$1 = () => {
     const testOpenNode = getTemplateArray `<p>`;
     const testSkeleton = buildSkeleton(testOpenNode);
-    console.log(testOpenNode);
+    // console.log(testOpenNode);
     const assertions = [];
     return assertions;
 };
 const findComplexFromPlainText = () => {
     const testComplexNode = getTemplateArray `hello<p>world</p>`;
     const testSkeleton = buildSkeleton(testComplexNode);
-    console.log(testSkeleton);
+    // console.log(testSkeleton);
     const assertions = [];
     return assertions;
 };
 const findCompoundFromPlainText = () => {
     const testComplexNode = getTemplateArray `<h1>hello</h1><h2>world</h2><img/><p>howdy</p>`;
     const testSkeleton = buildSkeleton(testComplexNode);
-    console.log(testSkeleton);
+    // console.log(testSkeleton);
     const assertions = [];
     return assertions;
 };
 const findBrokenFromPlainText = () => {
     const testComplexNode = getTemplateArray `<h1>hello</h1><${"hello"}h2>world</h2><p>howdy</p>`;
     const testSkeleton = buildSkeleton(testComplexNode);
-    console.log(testSkeleton);
+    // console.log(testSkeleton);
     const assertions = [];
     return assertions;
 };

@@ -4,8 +4,8 @@ import {
   ParseNode,
   CreateNode,
   CreateContentNode,
-  AddDescendent,
-  RemoveDescendent,
+  AddSiblings,
+  RemoveSiblings,
   InterfaceHooks,
 } from "../../bang/interface_hooks/interface_hooks";
 
@@ -21,15 +21,22 @@ const createContentNode: CreateContentNode<DocumentNode> = (content) => {
   return document.createTextNode(content);
 };
 
-const addDescendent: AddDescendent<DocumentNode> = (element, descendent) => {
-  return element.appendChild(descendent);
+const addSiblings: AddSiblings<DocumentNode> = ({
+  siblings,
+  parent,
+  leftSibling,
+  rightSibling,
+}) => {
+  return [document.createTextNode("test")];
 };
 
-const removeDescendent: RemoveDescendent<DocumentNode> = (
-  element,
-  descendent
-) => {
-  return element.removeChild(descendent);
+const removeSiblings: RemoveSiblings<DocumentNode> = ({
+  siblings,
+  parent,
+  leftSibling,
+  rightSibling,
+}) => {
+  return;
 };
 
 const parseNode: ParseNode<AttributeKinds> = (params) => {
@@ -44,8 +51,8 @@ const hooks: InterfaceHooks<DocumentNode, AttributeKinds> = {
   parseNode,
   createNode,
   createContentNode,
-  addDescendent,
-  removeDescendent,
+  addSiblings,
+  removeSiblings,
 };
 
 export { hooks };

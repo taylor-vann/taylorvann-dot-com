@@ -3,7 +3,7 @@
 // N Node
 // A Attributables
 
-import { RenderResults } from "./render";
+import { RenderResults, StructureRender } from "./render";
 
 type BangFunc = () => void;
 type OnConnectedFunc<R> = (bang: BangFunc) => R;
@@ -17,14 +17,14 @@ interface ContextParams<A, P, R> {
 
 type Timestamp = number;
 type DescendantRecord = Record<number, Timestamp>;
-interface Context<A, P, R> {
+interface Context<N, A, P, R> {
   id: number;
   structureID: number;
   timestamp: number;
-  renderResults: RenderResults<A>;
   connectedResults: R;
   params: P;
-  descendants: DescendantRecord;
+  structureResults: StructureRender<N, A>;
+  renderResults: RenderResults<A>;
 }
 
 interface Structure {
