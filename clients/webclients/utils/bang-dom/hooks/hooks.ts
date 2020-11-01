@@ -1,10 +1,10 @@
 // brian taylor vann
 
 import {
-  ParseNode,
   CreateNode,
   CreateContentNode,
-  AddSiblings,
+  SetAttribute,
+  SetSiblings,
   RemoveSiblings,
   InterfaceHooks,
 } from "../../bang/interface_hooks/interface_hooks";
@@ -13,15 +13,15 @@ type DocumentNode = Text | Element | Node | HTMLElement;
 type NodeFunctor = <A>(params: A) => DocumentNode[];
 type AttributeKinds = boolean | string | undefined | NodeFunctor;
 
-const createNode: CreateNode<DocumentNode, AttributeKinds> = (parseResults) => {
-  return document.createElement(parseResults.tag);
+const createNode: CreateNode<DocumentNode> = (tag) => {
+  return document.createElement(tag);
 };
 
 const createContentNode: CreateContentNode<DocumentNode> = (content) => {
   return document.createTextNode(content);
 };
 
-const addSiblings: AddSiblings<DocumentNode> = ({
+const setSiblings: SetSiblings<DocumentNode> = ({
   siblings,
   parent,
   leftSibling,
@@ -39,19 +39,19 @@ const removeSiblings: RemoveSiblings<DocumentNode> = ({
   return;
 };
 
-const parseNode: ParseNode<AttributeKinds> = (params) => {
-  return {
-    tag: "div",
-    kind: "OPEN_NODE",
-    attributes: {},
-  };
+const setAttribute: SetAttribute<DocumentNode, AttributeKinds> = ({
+  node,
+  attribute,
+  value,
+}) => {
+  return node;
 };
 
 const hooks: InterfaceHooks<DocumentNode, AttributeKinds> = {
-  parseNode,
+  setAttribute,
   createNode,
   createContentNode,
-  addSiblings,
+  setSiblings,
   removeSiblings,
 };
 

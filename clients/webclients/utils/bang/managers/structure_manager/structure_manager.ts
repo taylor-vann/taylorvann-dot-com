@@ -10,7 +10,7 @@
 import { Context, ContextParams } from "../../references/context";
 
 interface StructureManagerBase<N, A> {
-  createStructure: <P, R>(structureID: ContextParams<A, P, R>) => number;
+  createStructure: <P, R>(structureID: ContextParams<N, A, P, R>) => number;
   getStructure: <P, R>(stubID: number) => Context<N, A, P, R>;
 }
 

@@ -13,11 +13,11 @@
 
 // P Params
 
+// updateContext returns siblings
 interface ContextManagerBase<N> {
   addContext: (structureID: number) => number;
-  updateContext: <P>(contextID: number, params?: P) => {};
+  updateContext: <P>(contextID: number, params?: P) => N[];
   removeContext: (stubID: number) => void;
-  getSiblings: (stubID: number) => N[];
 }
 
 // we can control max render
@@ -25,5 +25,19 @@ interface ContextManagerBase<N> {
 // recycle stubIDs, object never grows larger than N defined references
 
 // create class for this
+
+// addContext does what you think, references strucutre, return context ID
+
+// updateContext starts a render chain hopefully
+//   give contextID and params, returns structurerender, compare previous.
+//   if previous strings are different, remove all and render new siblings
+//   if injections are not the same,
+//     update through previous injection map
+//     depending on attribute
+//   return previous renderResults
+
+// removeContext
+//
+//   recursively get render chain, call "onDisconnected" on every substructure
 
 export { ContextManagerBase };

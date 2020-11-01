@@ -3,47 +3,39 @@
 // N Node
 // A Attributables
 
-import { RenderResults } from "../references/render";
-import { CrawlResults } from "../builders/build_skeleton/crawl/crawl";
-import {
-  Attributes,
-  OpenParseResults,
-  ParseResults,
-} from "../references/parse";
-
-interface ParseNodeParams<A> {
-  renderResults: RenderResults<A>;
-  crawlResults: CrawlResults;
+interface SetAttributeParams<N, A> {
+  node: N;
+  attribute: string;
+  value: A;
 }
-type ParseNode<A> = (params: ParseNodeParams<A>) => ParseResults<A>;
-type CreateNode<N, A> = (params: OpenParseResults<A>) => N;
+type SetAttribute<N, A> = (params: SetAttributeParams<N, A>) => void;
+type CreateNode<N> = (tag: string) => N;
 type CreateContentNode<N> = (content: string) => N;
-interface AddSiblingsParams<N> {
+interface SetSiblingsParams<N> {
   siblings: N[];
   parent: N;
   leftSibling?: N;
   rightSibling?: N;
 }
-type AddSiblings<N> = (params: AddSiblingsParams<N>) => N[];
-type RemoveSiblingsParams<N> = AddSiblingsParams<N>;
+type SetSiblings<N> = (params: SetSiblingsParams<N>) => N[];
+type RemoveSiblingsParams<N> = SetSiblingsParams<N>;
 type RemoveSiblings<N> = (params: RemoveSiblingsParams<N>) => void;
 
+// set attribute is a problem
 // Use this to create new Bang Interfaces
 interface InterfaceHooks<N, A> {
-  parseNode: ParseNode<A>;
-  createNode: CreateNode<N, A>;
+  setAttribute: SetAttribute<N, A>;
+  createNode: CreateNode<N>;
   createContentNode: CreateContentNode<N>;
-  addSiblings: AddSiblings<N>;
+  setSiblings: SetSiblings<N>;
   removeSiblings: RemoveSiblings<N>;
 }
 
 export {
-  AddSiblings,
-  Attributes,
+  SetAttribute,
+  SetSiblings,
   CreateContentNode,
   CreateNode,
   InterfaceHooks,
-  ParseNode,
-  ParseResults,
   RemoveSiblings,
 };

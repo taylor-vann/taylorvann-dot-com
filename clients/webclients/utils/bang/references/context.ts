@@ -8,12 +8,7 @@ import { RenderResults, StructureRender } from "./render";
 type BangFunc = () => void;
 type OnConnectedFunc<R> = (bang: BangFunc) => R;
 type OnDisconnectedFunc<R> = (params: R) => void;
-type RenderFunc<A, P> = (params: P) => RenderResults<A>;
-interface ContextParams<A, P, R> {
-  onConnected: OnConnectedFunc<R>;
-  onDisconnected: OnDisconnectedFunc<R>;
-  render: RenderFunc<A, P>;
-}
+type RenderFunc<N, A, P> = (params: P) => RenderResults<N, A>;
 
 type Timestamp = number;
 type DescendantRecord = Record<number, Timestamp>;
@@ -23,8 +18,8 @@ interface Context<N, A, P, R> {
   timestamp: number;
   connectedResults: R;
   params: P;
-  structureResults: StructureRender<N, A>;
-  renderResults: RenderResults<A>;
+  structureResults: StructureRender<A>;
+  renderResults: RenderResults<N, A>;
 }
 
 interface Structure {
@@ -32,8 +27,13 @@ interface Structure {
   timestamp: number;
 }
 type CreateContext<P> = (params: P) => Structure;
-type ContextFactory<A> = <P, R>(
-  params: ContextParams<A, P, R>
+interface ContextParams<N, A, P, R> {
+  onConnected: OnConnectedFunc<R>;
+  onDisconnected: OnDisconnectedFunc<R>;
+  render: RenderFunc<N, A, P>;
+}
+type ContextFactory<N, A> = <P, R>(
+  params: ContextParams<N, A, P, R>
 ) => CreateContext<P>;
 
 export {
