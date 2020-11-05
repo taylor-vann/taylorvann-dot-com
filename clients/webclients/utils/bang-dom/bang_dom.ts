@@ -1,9 +1,13 @@
 // brian taylor vann
 
-import { hooks } from "./hooks/hooks";
+import { Structure } from "../bang/references/context";
+import { Bang } from "../bang/bang";
+import { DocumentNode, AttributeKinds, hooks } from "./hooks/hooks";
 
-// import bang factory
+const bang = new Bang(hooks);
 
-// new bang with hooks
+const createStructure = <P, R>(
+  structure: Structure<DocumentNode, AttributeKinds, P, R>
+) => bang.createContextFactory(structure);
 
-// export bang
+export { createStructure, bang };
