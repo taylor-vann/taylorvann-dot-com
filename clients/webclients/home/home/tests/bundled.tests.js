@@ -16,7 +16,7 @@ const copycopy = (atomToCopy) => {
     return entries;
 };
 
-const buildResultsState = ({ startTime, testCollection, }) => {
+const buildResultsState = ({ testCollection, startTime, stub, }) => {
     const nextState = {
         status: "submitted",
         results: [],
@@ -316,13 +316,13 @@ const endTestRun$1 = (params) => {
 };
 
 // brian taylor vann
-let currentTestTimestamp = performance.now();
-const getTimestamp = () => {
-    return currentTestTimestamp;
+let stub = 0;
+const getStub = () => {
+    return stub;
 };
-const updateTimestamp = () => {
-    currentTestTimestamp = performance.now();
-    return currentTestTimestamp;
+const updateStub = () => {
+    stub += 1;
+    return stub;
 };
 
 // little test runner
@@ -355,7 +355,7 @@ const createTestTimeout = (timeoutInterval) => __awaiter(void 0, void 0, void 0,
 const buildTest = (params) => {
     const { issuedAt, testID, collectionID, timeoutInterval } = params;
     return () => __awaiter(void 0, void 0, void 0, function* () {
-        if (issuedAt < getTimestamp()) {
+        if (issuedAt < getStub()) {
             return;
         }
         const startTime = performance.now();
@@ -368,7 +368,7 @@ const buildTest = (params) => {
             params.testFunc(),
             createTestTimeout(timeoutInterval),
         ]);
-        if (issuedAt < getTimestamp()) {
+        if (issuedAt < getStub()) {
             return;
         }
         const endTime = performance.now();
@@ -394,7 +394,7 @@ const runTestsAllAtOnce = ({ startTime, collectionID, tests, timeoutInterval, })
         );
         testID += 1;
     }
-    if (startTime < getTimestamp()) {
+    if (startTime < getStub()) {
         return;
     }
     yield Promise.all(builtAsyncTests);
@@ -402,7 +402,7 @@ const runTestsAllAtOnce = ({ startTime, collectionID, tests, timeoutInterval, })
 const runTestsInOrder = ({ startTime, collectionID, tests, timeoutInterval, }) => __awaiter(void 0, void 0, void 0, function* () {
     let testID = 0;
     for (const testFunc of tests) {
-        if (startTime < getTimestamp()) {
+        if (startTime < getStub()) {
             return;
         }
         const builtTest = buildTest({
@@ -429,11 +429,11 @@ var __awaiter$1 = (undefined && undefined.__awaiter) || function (thisArg, _argu
     });
 };
 // create a test collection
-const startLtrTestCollectionRun = ({ testCollection, startTime, }) => __awaiter$1(void 0, void 0, void 0, function* () {
-    startTestRun({ testCollection, startTime });
+const startLtrTestCollectionRun = ({ testCollection, startTime, stub, }) => __awaiter$1(void 0, void 0, void 0, function* () {
+    startTestRun({ testCollection, startTime, stub });
     let collectionID = 0;
     for (const collection of testCollection) {
-        if (startTime < getTimestamp()) {
+        if (stub < getStub()) {
             return;
         }
         const { tests, runTestsAsynchronously, timeoutInterval } = collection;
@@ -453,7 +453,7 @@ const startLtrTestCollectionRun = ({ testCollection, startTime, }) => __awaiter$
         else {
             yield runTestsInOrder(runParams);
         }
-        if (startTime < getTimestamp()) {
+        if (stub < getStub()) {
             return;
         }
         const endTime = performance.now();
@@ -463,7 +463,7 @@ const startLtrTestCollectionRun = ({ testCollection, startTime, }) => __awaiter$
         });
         collectionID += 1;
     }
-    if (startTime < getTimestamp()) {
+    if (stub < getStub()) {
         return;
     }
     const endTime = performance.now();
@@ -471,9 +471,10 @@ const startLtrTestCollectionRun = ({ testCollection, startTime, }) => __awaiter$
 });
 // iterate through tests synchronously
 const runTests = (params) => __awaiter$1(void 0, void 0, void 0, function* () {
-    const startTime = updateTimestamp();
-    yield startLtrTestCollectionRun(Object.assign(Object.assign({}, params), { startTime }));
-    if (startTime < getTimestamp()) {
+    const startTime = performance.now();
+    const stub = updateStub();
+    yield startLtrTestCollectionRun(Object.assign(Object.assign({}, params), { startTime, stub }));
+    if (startTime < getStub()) {
         return;
     }
     return getResults();

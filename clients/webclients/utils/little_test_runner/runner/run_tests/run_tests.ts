@@ -3,7 +3,7 @@
 
 import { Assertions, Test } from "../../results_store/results_store";
 import { startTest, sendTestResult } from "../relay_results/relay_results";
-import { getTimestamp } from "../timestamp_sieve/timestamp_sieve";
+import { getStub } from "../timestamp_sieve/timestamp_sieve";
 
 type CreateTestTimeout = (requestedInterval?: number) => Promise<Assertions>;
 type LtrTest = () => Promise<void>;
@@ -47,7 +47,7 @@ const createTestTimeout: CreateTestTimeout = async (
 const buildTest: BuildLtrTest = (params) => {
   const { issuedAt, testID, collectionID, timeoutInterval } = params;
   return async () => {
-    if (issuedAt < getTimestamp()) {
+    if (issuedAt < getStub()) {
       return;
     }
 
@@ -63,7 +63,7 @@ const buildTest: BuildLtrTest = (params) => {
       createTestTimeout(timeoutInterval),
     ]);
 
-    if (issuedAt < getTimestamp()) {
+    if (issuedAt < getStub()) {
       return;
     }
     const endTime = performance.now();
@@ -98,7 +98,7 @@ const runTestsAllAtOnce: RunTests = async ({
     testID += 1;
   }
 
-  if (startTime < getTimestamp()) {
+  if (startTime < getStub()) {
     return;
   }
 
@@ -113,7 +113,7 @@ const runTestsInOrder: RunTests = async ({
 }) => {
   let testID = 0;
   for (const testFunc of tests) {
-    if (startTime < getTimestamp()) {
+    if (startTime < getStub()) {
       return;
     }
     const builtTest = buildTest({

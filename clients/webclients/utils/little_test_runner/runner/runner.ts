@@ -16,15 +16,13 @@ import {
   endTestCollection,
   endTestRun,
 } from "./relay_results/relay_results";
-import {
-  getTimestamp,
-  updateTimestamp,
-} from "./timestamp_sieve/timestamp_sieve";
+import { getStub, updateStub } from "./timestamp_sieve/timestamp_sieve";
 import { runTestsInOrder, runTestsAllAtOnce } from "./run_tests/run_tests";
 
 interface StartLtrTestCollectionRunParams {
   testCollection: TestCollection;
   startTime: number;
+  stub: number;
 }
 type StartLtrTestCollectionRun = (
   params: StartLtrTestCollectionRunParams
@@ -42,12 +40,13 @@ type StartLtrTestRun = (
 const startLtrTestCollectionRun: StartLtrTestCollectionRun = async ({
   testCollection,
   startTime,
+  stub,
 }) => {
-  startTestRun({ testCollection, startTime });
+  startTestRun({ testCollection, startTime, stub });
 
   let collectionID = 0;
   for (const collection of testCollection) {
-    if (startTime < getTimestamp()) {
+    if (stub < getStub()) {
       return;
     }
 
@@ -69,7 +68,7 @@ const startLtrTestCollectionRun: StartLtrTestCollectionRun = async ({
       await runTestsInOrder(runParams);
     }
 
-    if (startTime < getTimestamp()) {
+    if (stub < getStub()) {
       return;
     }
 
@@ -82,7 +81,7 @@ const startLtrTestCollectionRun: StartLtrTestCollectionRun = async ({
     collectionID += 1;
   }
 
-  if (startTime < getTimestamp()) {
+  if (stub < getStub()) {
     return;
   }
   const endTime = performance.now();
@@ -91,10 +90,11 @@ const startLtrTestCollectionRun: StartLtrTestCollectionRun = async ({
 
 // iterate through tests synchronously
 const runTests: StartLtrTestRun = async (params) => {
-  const startTime = updateTimestamp();
+  const startTime = performance.now();
+  const stub = updateStub();
 
-  await startLtrTestCollectionRun({ ...params, ...{ startTime } });
-  if (startTime < getTimestamp()) {
+  await startLtrTestCollectionRun({ ...params, ...{ startTime, stub } });
+  if (startTime < getStub()) {
     return;
   }
 

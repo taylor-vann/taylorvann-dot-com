@@ -1,16 +1,18 @@
 // brian taylor vann
 
-type GetTimestamp = () => number;
-type UpdateTimestamp = GetTimestamp;
+type GetStub = () => number;
+type UpdateStub = GetStub;
 
-let currentTestTimestamp = performance.now();
+let stub = 0;
 
-const getTimestamp: GetTimestamp = () => {
-  return currentTestTimestamp;
-};
-const updateTimestamp: UpdateTimestamp = () => {
-  currentTestTimestamp = performance.now();
-  return currentTestTimestamp;
+const getStub: GetStub = () => {
+  return stub;
 };
 
-export { getTimestamp, updateTimestamp };
+const updateStub: UpdateStub = () => {
+  stub += 1;
+
+  return stub;
+};
+
+export { getStub, updateStub };

@@ -3,8 +3,9 @@
 import { TestCollection } from "../test_types/test_types";
 
 type StartTestRunActionParams = {
-  startTime: number;
   testCollection: TestCollection;
+  startTime: number;
+  stub: number;
 };
 type StartTestRunAction = {
   action: "START_TEST_RUN";
