@@ -1,38 +1,48 @@
-// brian talor vann
+// brian taylor vann
 
-// Bang context manager
-// logic_structures return contexts
-
-// we don't want direct access to contexts
-// key value storage meets graph storage
-
-// we can simplify things, it's a tree. no cycles.
-
+// U Unique Tag names
 // N Node
 // A Attributables
-
 // P Params
 
 import { InterfaceHooks } from "../interface_hooks/interface_hooks";
-import { BangFunc, ContextBase, Structure } from "../references/context";
-import { RenderResults, StructureRender } from "../references/render";
+import { ContextBase, Structure } from "../references/context";
+
+type Timestamp = number;
+type DescendantRecord = Record<number, Timestamp>;
+
+interface RenderResults<A> {
+  templateArray: TemplateStringsArray;
+  injections: A[];
+}
+
+// interface Context<N, A, P, R> {
+//   id: number;
+//   connectedResults: P;
+//   descendants: DescendantRecord;
+//   params: P;
+//   renderResults: RenderResults<A>;
+//   onConnected: () => R;
+//   onDisconnected: (params: R) => void;
+//   renderStructure: (params: P) => void;
+// }
+
+type CreateContext<N, A, P, R> = (params: P) => Context<N, A, P, R>;
+type ContextFactory<N, A> = <P, R>(
+  params: Structure<N, A, P, R>
+) => CreateContext<N, A, P, R>;
 
 class Context<N, A, P, R> implements ContextBase<N, A, P, R> {
-  // across class
-  readonly id = -1;
-  readonly timestamp = -1;
-
   private hooksRef: InterfaceHooks<N, A>;
   private structureRef: Structure<N, A, P, R>;
-  // deltas
-  // private params: P;
-  // private structureRef: Structure<N, A, P, R>;
-  // private structureResults: StructureRender<A>;
-  // private renderResults: RenderResults<N, A>;
+
+  readonly id: number = -1;
+  readonly timestamp: Timestamp = -1;
 
   constructor(hooks: InterfaceHooks<N, A>, structure: Structure<N, A, P, R>) {
     this.hooksRef = hooks;
     this.structureRef = structure;
+    this.timestamp = performance.now();
   }
 
   update(params?: P) {
@@ -46,4 +56,11 @@ class Context<N, A, P, R> implements ContextBase<N, A, P, R> {
   disconnect() {}
 }
 
-export { Context };
+export {
+  Context,
+  CreateContext,
+  ContextFactory,
+  DescendantRecord,
+  RenderResults,
+  Timestamp,
+};
