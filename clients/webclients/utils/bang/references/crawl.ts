@@ -1,7 +1,5 @@
 // brian taylor vann
-
-// N Node
-// A Attributables
+// crawl
 
 type CrawlStatus =
   | "CONTENT_NODE"

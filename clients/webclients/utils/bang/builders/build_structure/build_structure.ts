@@ -17,7 +17,8 @@ type BuildStructure = <N, A, P, R>(
 ) => RenderResults<N, A>;
 
 const buildStructure: BuildStructure = ({ hooks, structureRef, params }) => {
-  // hooks
+  // lets start building stuff
+
   return {
     injections: [],
     siblings: [],

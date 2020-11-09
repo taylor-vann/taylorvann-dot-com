@@ -1,27 +1,32 @@
 // brian taylor vann
 // structure manager
 
+// U Unique Tag names
+// N Node
+// A Attributables
+// P Params
+
 import { Context } from "../context/context";
-import { InterfaceHooks } from "../interface_hooks/interface_hooks";
-import { Structure } from "../references/context";
+import { contextManager } from "../context/context_manager";
+import {
+  InterfaceBase,
+  ContextInterface,
+  ContextFactoryBase,
+} from "../references/context";
 
-class ContextFactory<N, A, P, R> {
-  private hooks: InterfaceHooks<N, A>;
-  private structure: Structure<N, A, P, R>;
+class ContextFactory<N, A, P, R> implements ContextFactoryBase<N, A, P, R> {
+  private base: InterfaceBase<N, A, P, R>;
 
-  constructor(
-    interfaceHooks: InterfaceHooks<N, A>,
-    structure: Structure<N, A, P, R>
-  ) {
-    this.hooks = interfaceHooks;
-    this.structure = structure;
+  constructor(params: InterfaceBase<N, A, P, R>) {
+    this.base = params;
   }
 
   createContext(params: P) {
-    const ctx = new Context(this.hooks, this.structure);
-    ctx.update(params);
+    const ctx = new Context<N, A, P, R>();
+    const xcontext: ContextInterface<N, A, P, R> = { ctx, base: this.base };
+    contextManager.connect({ xcontext, params });
 
-    return ctx;
+    return xcontext;
   }
 }
 

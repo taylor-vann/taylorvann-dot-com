@@ -1,9 +1,14 @@
 // brian taylor vann
+// context
 
+// U Unique Tag names
 // N Node
 // A Attributables
+// P Params
 
-import { RenderResults, StructureRender } from "./render";
+import { Context } from "../context/context";
+import { InterfaceHooks } from "../interface_hooks/interface_hooks";
+import { RenderResults } from "./render";
 
 type Timestamp = number;
 type DescendantRecord = Record<number, Timestamp>;
@@ -11,27 +16,49 @@ type DescendantRecord = Record<number, Timestamp>;
 // we need descendants and we need to remove them
 
 type BangFunc = () => void;
-type OnConnectedFunc<R> = (bang: BangFunc) => R;
+interface OnConnectedParams<P> {
+  params: P;
+  bang: BangFunc;
+}
+type OnConnectedFunc<P, R> = (params: OnConnectedParams<P>) => R;
 type OnDisconnectedFunc<R> = (params: R) => void;
 type RenderFunc<N, A, P> = (params: P) => RenderResults<N, A>;
 interface Structure<N, A, P, R> {
-  onConnected: OnConnectedFunc<R>;
+  onConnected: OnConnectedFunc<P, R>;
   onDisconnected: OnDisconnectedFunc<R>;
   render: RenderFunc<N, A, P>;
 }
 type StructureFactory<N, A> = <P, R>() => Structure<N, A, P, R>;
 
+interface ContextParams<N, A, P, R> {
+  hooks: InterfaceHooks<N, A>;
+  structure: Structure<N, A, P, R>;
+}
 interface ContextBase<N, A, P, R> {
-  readonly id: number;
-  readonly timestamp: Timestamp;
-  update(params?: P): N[];
-  disconnect(): void;
-  getBang(): BangFunc;
+  id: number;
+  timestamp: Timestamp;
+}
+interface InterfaceBase<N, A, P, R> {
+  hooks: InterfaceHooks<N, A>;
+  structure: Structure<N, A, P, R>;
+}
+
+interface ContextInterface<N, A, P, R> {
+  ctx: ContextBase<N, A, P, R>;
+  base: InterfaceBase<N, A, P, R>;
+}
+
+interface ContextFactoryBase<N, A, P, R> {
+  createContext(params: P): ContextInterface<N, A, P, R>;
 }
 
 export {
   BangFunc,
   ContextBase,
+  ContextFactoryBase,
+  ContextInterface,
+  ContextParams,
+  InterfaceBase,
   Structure,
   StructureFactory,
   DescendantRecord,
