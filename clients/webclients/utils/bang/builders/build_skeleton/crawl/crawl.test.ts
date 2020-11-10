@@ -22,7 +22,7 @@ const testDebugTextInterpolator: TextTextInterpolator = (
   return brokenText;
 };
 
-const title = "Crawl";
+const title = "crawl";
 const runTestsAsynchronously = true;
 
 const findNothingWhenThereIsPlainText = () => {

@@ -1209,24 +1209,106 @@ const findParagraphInPlainText$1 = () => {
     return assertions;
 };
 const findComplexFromPlainText = () => {
+    const assertions = [];
+    const sourceSkeleton = [
+        {
+            nodeType: "OPEN_NODE_CONFIRMED",
+            target: {
+                end: { arrayIndex: 0, stringIndex: 7 },
+                start: { arrayIndex: 0, stringIndex: 5 },
+            },
+        },
+        {
+            nodeType: "CONTENT_NODE",
+            target: {
+                end: { arrayIndex: 0, stringIndex: 12 },
+                start: { arrayIndex: 0, stringIndex: 8 },
+            },
+        },
+        {
+            nodeType: "CLOSE_NODE_CONFIRMED",
+            target: {
+                end: { arrayIndex: 0, stringIndex: 16 },
+                start: { arrayIndex: 0, stringIndex: 13 },
+            },
+        },
+    ];
     const testComplexNode = getTemplateArray `hello<p>world</p>`;
     const testSkeleton = buildSkeleton(testComplexNode);
-    console.log(testSkeleton);
-    const assertions = ["fail automatically"];
+    if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
+        assertions.push("skeletons are not equal");
+    }
     return assertions;
 };
 const findCompoundFromPlainText = () => {
-    const testComplexNode = getTemplateArray `<h1>hello</h1><p>howdy</p>`;
+    const assertions = [];
+    const sourceSkeleton = [
+        {
+            nodeType: "OPEN_NODE_CONFIRMED",
+            target: {
+                end: { arrayIndex: 0, stringIndex: 3 },
+                start: { arrayIndex: 0, stringIndex: 0 },
+            },
+        },
+        {
+            nodeType: "CONTENT_NODE",
+            target: {
+                end: { arrayIndex: 0, stringIndex: 8 },
+                start: { arrayIndex: 0, stringIndex: 4 },
+            },
+        },
+        {
+            nodeType: "CLOSE_NODE_CONFIRMED",
+            target: {
+                end: { arrayIndex: 0, stringIndex: 13 },
+                start: { arrayIndex: 0, stringIndex: 9 },
+            },
+        },
+    ];
+    const testComplexNode = getTemplateArray `<h1>hello</h1>`;
     const testSkeleton = buildSkeleton(testComplexNode);
-    console.log(testSkeleton);
-    const assertions = ["fail automatically"];
+    if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
+        assertions.push("skeletons are not equal");
+    }
     return assertions;
 };
 const findBrokenFromPlainText = () => {
+    const assertions = [];
+    const sourceSkeleton = [
+        {
+            nodeType: "CLOSE_NODE_CONFIRMED",
+            target: {
+                end: { arrayIndex: 1, stringIndex: 10 },
+                start: { arrayIndex: 1, stringIndex: 6 },
+            },
+        },
+        {
+            nodeType: "OPEN_NODE_CONFIRMED",
+            target: {
+                end: { arrayIndex: 1, stringIndex: 13 },
+                start: { arrayIndex: 1, stringIndex: 11 },
+            },
+        },
+        {
+            nodeType: "CONTENT_NODE",
+            target: {
+                end: { arrayIndex: 1, stringIndex: 18 },
+                start: { arrayIndex: 1, stringIndex: 14 },
+            },
+        },
+        {
+            nodeType: "CLOSE_NODE_CONFIRMED",
+            target: {
+                end: { arrayIndex: 1, stringIndex: 22 },
+                start: { arrayIndex: 1, stringIndex: 19 },
+            },
+        },
+    ];
     const testComplexNode = getTemplateArray `<${"hello"}h2>hey</h2><p>howdy</p>`;
     const testSkeleton = buildSkeleton(testComplexNode);
-    console.log(testSkeleton);
-    const assertions = ["fail automatically"];
+    if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
+        assertions.push("skeletons are not equal");
+    }
     return assertions;
 };
 const tests$2 = [

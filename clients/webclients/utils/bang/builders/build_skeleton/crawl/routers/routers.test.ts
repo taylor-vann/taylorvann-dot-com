@@ -1,6 +1,6 @@
 import { routers } from "./routers";
 
-const title = "Routers | Detect node state";
+const title = "routers";
 const runTestsAsynchronously = true;
 
 const notFoundReducesCorrectState = () => {
