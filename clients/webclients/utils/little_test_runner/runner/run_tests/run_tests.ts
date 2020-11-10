@@ -3,7 +3,7 @@
 
 import { Assertions, Test } from "../../results_store/results_store";
 import { startTest, sendTestResult } from "../relay_results/relay_results";
-import { getStub } from "../timestamp_sieve/timestamp_sieve";
+import { getStub } from "../receipt/receipt";
 
 type CreateTestTimeout = (requestedInterval?: number) => Promise<Assertions>;
 type LtrTest = () => Promise<void>;

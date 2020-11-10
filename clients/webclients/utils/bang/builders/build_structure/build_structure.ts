@@ -2,7 +2,7 @@
 // build structure
 
 import { InterfaceHooks } from "../../interface_hooks/interface_hooks";
-import { Structure } from "../../references/context";
+import { ContextInterface, Structure } from "../../references/context";
 import { StructureRender, RenderResults } from "../../references/render";
 
 // structure render and crawl results

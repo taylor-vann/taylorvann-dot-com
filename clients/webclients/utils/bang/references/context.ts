@@ -8,7 +8,7 @@
 
 import { Context } from "../context/context";
 import { InterfaceHooks } from "../interface_hooks/interface_hooks";
-import { RenderResults } from "./render";
+import { RenderResults, StructureRender } from "./render";
 
 type Timestamp = number;
 type DescendantRecord = Record<number, Timestamp>;
@@ -30,19 +30,18 @@ interface Structure<N, A, P, R> {
 }
 type StructureFactory<N, A> = <P, R>() => Structure<N, A, P, R>;
 
-interface ContextParams<N, A, P, R> {
+interface InterfaceBase<N, A, P, R> {
   hooks: InterfaceHooks<N, A>;
   structure: Structure<N, A, P, R>;
 }
 interface ContextBase<N, A, P, R> {
   id: number;
   timestamp: Timestamp;
+  params?: P;
+  gambit?: R;
+  structureResults?: StructureRender<A>;
+  renderResults?: RenderResults<N, A>;
 }
-interface InterfaceBase<N, A, P, R> {
-  hooks: InterfaceHooks<N, A>;
-  structure: Structure<N, A, P, R>;
-}
-
 interface ContextInterface<N, A, P, R> {
   ctx: ContextBase<N, A, P, R>;
   base: InterfaceBase<N, A, P, R>;
@@ -57,7 +56,6 @@ export {
   ContextBase,
   ContextFactoryBase,
   ContextInterface,
-  ContextParams,
   InterfaceBase,
   Structure,
   StructureFactory,

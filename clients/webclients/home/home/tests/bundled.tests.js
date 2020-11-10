@@ -1148,45 +1148,85 @@ const buildSkeleton = (brokenText) => {
 };
 
 // brian taylor vann
+const title$2 = "build_skeleton";
+const runTestsAsynchronously$2 = true;
 const getTemplateArray = (brokenText, ...injections) => {
     return brokenText;
 };
-// order of start, end aren't being respected
-const title$2 = "Bang XML Crawl";
-const runTestsAsynchronously$2 = true;
+const compareSkeletons = (source, target) => {
+    for (const sourceKey in source) {
+        const node = source[sourceKey];
+        const targetNode = target[sourceKey];
+        if (targetNode === undefined) {
+            return false;
+        }
+        if (node.nodeType !== targetNode.nodeType) {
+            return false;
+        }
+        if (node.target.start.arrayIndex !== targetNode.target.start.arrayIndex ||
+            node.target.start.stringIndex !== targetNode.target.start.stringIndex ||
+            node.target.end.arrayIndex !== targetNode.target.end.arrayIndex ||
+            node.target.end.stringIndex !== targetNode.target.end.stringIndex) {
+            return false;
+        }
+    }
+    return true;
+};
 const findNothingWhenThereIsPlainText$1 = () => {
+    const assertions = [];
+    const sourceSkeleton = [
+        {
+            nodeType: "CONTENT_NODE",
+            target: {
+                end: { arrayIndex: 0, stringIndex: 20 },
+                start: { arrayIndex: 0, stringIndex: 0 },
+            },
+        },
+    ];
     const testBlank = getTemplateArray `no nodes to be found!`;
     const testSkeleton = buildSkeleton(testBlank);
-    // console.log(testSkeleton);
-    const assertions = [];
+    if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
+        assertions.push("skeletons are not equal");
+    }
     return assertions;
 };
 const findParagraphInPlainText$1 = () => {
+    const assertions = [];
+    const sourceSkeleton = [
+        {
+            nodeType: "OPEN_NODE_CONFIRMED",
+            target: {
+                end: { arrayIndex: 0, stringIndex: 2 },
+                start: { arrayIndex: 0, stringIndex: 0 },
+            },
+        },
+    ];
     const testOpenNode = getTemplateArray `<p>`;
     const testSkeleton = buildSkeleton(testOpenNode);
-    // console.log(testOpenNode);
-    const assertions = [];
+    if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
+        assertions.push("skeletons are not equal");
+    }
     return assertions;
 };
 const findComplexFromPlainText = () => {
     const testComplexNode = getTemplateArray `hello<p>world</p>`;
     const testSkeleton = buildSkeleton(testComplexNode);
-    // console.log(testSkeleton);
-    const assertions = [];
+    console.log(testSkeleton);
+    const assertions = ["fail automatically"];
     return assertions;
 };
 const findCompoundFromPlainText = () => {
-    const testComplexNode = getTemplateArray `<h1>hello</h1><h2>world</h2><img/><p>howdy</p>`;
+    const testComplexNode = getTemplateArray `<h1>hello</h1><p>howdy</p>`;
     const testSkeleton = buildSkeleton(testComplexNode);
-    // console.log(testSkeleton);
-    const assertions = [];
+    console.log(testSkeleton);
+    const assertions = ["fail automatically"];
     return assertions;
 };
 const findBrokenFromPlainText = () => {
-    const testComplexNode = getTemplateArray `<h1>hello</h1><${"hello"}h2>world</h2><p>howdy</p>`;
+    const testComplexNode = getTemplateArray `<${"hello"}h2>hey</h2><p>howdy</p>`;
     const testSkeleton = buildSkeleton(testComplexNode);
-    // console.log(testSkeleton);
-    const assertions = [];
+    console.log(testSkeleton);
+    const assertions = ["fail automatically"];
     return assertions;
 };
 const tests$2 = [

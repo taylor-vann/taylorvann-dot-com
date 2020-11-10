@@ -16,7 +16,7 @@ import {
   endTestCollection,
   endTestRun,
 } from "./relay_results/relay_results";
-import { getStub, updateStub } from "./timestamp_sieve/timestamp_sieve";
+import { getStub, updateStub } from "./receipt/receipt";
 import { runTestsInOrder, runTestsAllAtOnce } from "./run_tests/run_tests";
 
 interface StartLtrTestCollectionRunParams {

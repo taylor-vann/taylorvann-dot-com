@@ -6,7 +6,7 @@
 // P Params
 
 import { ContextBase } from "../references/context";
-import { RenderResults } from "../references/render";
+import { RenderResults, StructureRender } from "../references/render";
 
 type Timestamp = number;
 type DescendantRecord = Record<number, Timestamp>;
@@ -15,6 +15,11 @@ type CreateContext = <N, A, P, R>() => ContextBase<N, A, P, R>;
 class Context<N, A, P, R> implements ContextBase<N, A, P, R> {
   readonly id: number;
   timestamp: number;
+
+  params?: P;
+  gambit?: R;
+  structureResults?: StructureRender<A>;
+  renderResults?: RenderResults<N, A>;
 
   constructor() {
     this.id = -1;

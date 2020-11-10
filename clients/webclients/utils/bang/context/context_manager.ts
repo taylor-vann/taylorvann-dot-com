@@ -28,10 +28,16 @@ interface ContextManagerBase {
 class ContextManager implements ContextManagerBase {
   connect<N, A, P, R>(action: ConnectAction<N, A, P, R>) {
     // connect stuff
+    // call onConnected
+    // call update below()
+    // call render with params
+    // put structure render
   }
 
   update<N, A, P, R>(params: UpdateAction<N, A, P, R>) {
     // update stuff
+    // call render with params
+    // compare render results
   }
 
   disconnect<N, A, P, R>(params: DisconnectAction<N, A, P, R>) {
