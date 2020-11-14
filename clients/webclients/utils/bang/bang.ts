@@ -4,7 +4,7 @@
 // N Node
 // A Attributables
 
-import { Structure } from "./references/context";
+import { Structure } from "./references/structure";
 import { InterfaceHooks } from "./interface_hooks/interface_hooks";
 import { ContextFactory } from "./context_factory/context_factory";
 

@@ -1,20 +1,9 @@
 // brian taylor vann
 
-import { CrawlStatus, routers } from "./routers/routers";
+import { routers } from "./routers/routers";
+import { CrawlResults, CrawlStatus, Position } from "../../../references/crawl";
 
 type Sieve = Partial<Record<CrawlStatus, CrawlStatus>>;
-interface BrokenTextPostition {
-  arrayIndex: number;
-  stringIndex: number;
-}
-interface BrokenTextVector {
-  start: BrokenTextPostition;
-  end: BrokenTextPostition;
-}
-interface CrawlResults {
-  nodeType: CrawlStatus;
-  target: BrokenTextVector;
-}
 
 type SetPosition = (
   results: CrawlResults,
@@ -128,7 +117,7 @@ const crawl: Crawl = (brokenText, previousCrawl) => {
 
   let { stringIndex, arrayIndex } = cState.target.start;
   // retain most recent postition
-  const suspect: BrokenTextPostition = {
+  const suspect: Position = {
     arrayIndex,
     stringIndex,
   };
@@ -170,4 +159,4 @@ const crawl: Crawl = (brokenText, previousCrawl) => {
   return cState;
 };
 
-export { BrokenTextVector, BrokenTextPostition, CrawlResults, crawl };
+export { crawl };

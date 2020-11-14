@@ -1,6 +1,7 @@
 // brian taylor vann
 
-import { BrokenTextPostition, CrawlResults, crawl } from "./crawl/crawl";
+import { crawl } from "./crawl/crawl";
+import { CrawlResults, Position } from "../../references/crawl";
 
 type NodeType =
   | "OPEN_NODE"
@@ -13,7 +14,7 @@ type SkeletonNodes = CrawlResults[];
 type GetStringBonePosition = (
   brokenText: TemplateStringsArray,
   crawlResult: CrawlResults
-) => BrokenTextPostition | void;
+) => Position | void;
 
 interface BuildSkeletonStringBoneParams {
   brokenText: TemplateStringsArray;

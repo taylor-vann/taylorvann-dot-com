@@ -13,17 +13,17 @@ type CrawlStatus =
   | "INDEPENDENT_NODE_VALID"
   | "INDEPENDENT_NODE_CONFIRMED";
 
-interface BrokenTextPostition {
+interface Position {
   arrayIndex: number;
   stringIndex: number;
 }
-interface BrokenTextVector {
-  start: BrokenTextPostition;
-  end: BrokenTextPostition;
+interface Vector {
+  start: Position;
+  end: Position;
 }
 interface CrawlResults {
   nodeType: CrawlStatus;
-  target: BrokenTextVector;
+  target: Vector;
 }
 
-export { BrokenTextPostition, BrokenTextVector, CrawlResults, CrawlStatus };
+export { CrawlResults, CrawlStatus, Position, Vector };

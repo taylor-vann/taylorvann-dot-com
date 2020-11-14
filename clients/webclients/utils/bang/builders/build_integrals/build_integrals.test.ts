@@ -10,10 +10,10 @@ const defaultFunc = () => {
 
 const tests = [defaultFunc];
 
-const unitTestBuildStructure = {
+const unitTestBuildIntegrals = {
   title,
   tests,
   runTestsAsynchronously,
 };
 
-export { unitTestBuildStructure };
+export { unitTestBuildIntegrals };

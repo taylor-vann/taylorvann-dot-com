@@ -631,7 +631,7 @@ const crawl = (brokenText, previousCrawl) => {
 const testTextInterpolator = (brokenText, ...injections) => {
     return brokenText;
 };
-const title = "Crawl";
+const title = "crawl";
 const runTestsAsynchronously = true;
 const findNothingWhenThereIsPlainText = () => {
     const testBlank = testTextInterpolator `no nodes to be found!`;
@@ -967,7 +967,7 @@ const unitTestCrawl = {
     runTestsAsynchronously,
 };
 
-const title$1 = "Routers | Detect node state";
+const title$1 = "routers";
 const runTestsAsynchronously$1 = true;
 const notFoundReducesCorrectState = () => {
     var _a, _b;
@@ -1325,10 +1325,29 @@ const unitTestBuildSkeleton = {
 };
 
 // brian taylor vann
-const tests$3 = [unitTestRouters, unitTestCrawl, unitTestBuildSkeleton];
+// build structure
+const title$3 = "build_structure";
+const runTestsAsynchronously$3 = true;
+const defaultFunc = () => {
+    return ["fail automatically"];
+};
+const tests$3 = [defaultFunc];
+const unitTestBuildIntegrals = {
+    title: title$3,
+    tests: tests$3,
+    runTestsAsynchronously: runTestsAsynchronously$3,
+};
 
 // brian taylor vann
-const testCollection = [...tests$3];
+const tests$4 = [
+    unitTestRouters,
+    unitTestCrawl,
+    unitTestBuildSkeleton,
+    unitTestBuildIntegrals,
+];
+
+// brian taylor vann
+const testCollection = [...tests$4];
 runTests({ testCollection })
     .then((results) => console.log("results: ", results))
     .catch((errors) => console.log("errors: ", errors));

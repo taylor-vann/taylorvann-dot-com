@@ -2,8 +2,8 @@
 // build structure
 
 import { InterfaceHooks } from "../../interface_hooks/interface_hooks";
-import { ContextInterface, Structure } from "../../references/context";
-import { StructureRender, RenderResults } from "../../references/render";
+import { Structure } from "../../references/structure";
+import { RenderResults } from "../../references/render";
 
 // structure render and crawl results
 
@@ -19,6 +19,9 @@ type BuildStructure = <N, A, P, R>(
 const buildStructure: BuildStructure = ({ hooks, structureRef, params }) => {
   // lets start building stuff
 
+  const siblings = [];
+
+  // see if there's a starting content node
   return {
     injections: [],
     siblings: [],

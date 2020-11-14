@@ -1,6 +1,6 @@
 // brian taylor vann
 
-import { Structure } from "../bang/references/context";
+import { Structure } from "../bang/references/structure";
 import { Bang } from "../bang/bang";
 import { DocumentNode, AttributeKinds, hooks } from "./hooks/hooks";
 

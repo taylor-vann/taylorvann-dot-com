@@ -22,7 +22,6 @@ interface StructureInjection<N> {
   left?: N;
   right?: N;
 }
-
 // maybe ?? // not needed?
 interface ContentInjection<N> {
   kind: "CONTENT";
