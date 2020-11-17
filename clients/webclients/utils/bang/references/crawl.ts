@@ -26,4 +26,6 @@ interface CrawlResults {
   target: Vector;
 }
 
-export { CrawlResults, CrawlStatus, Position, Vector };
+type SkeletonNodes = CrawlResults[];
+
+export { CrawlResults, CrawlStatus, Position, SkeletonNodes, Vector };

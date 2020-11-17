@@ -14,14 +14,6 @@ const testTextInterpolator: TextTextInterpolator = (
   return brokenText;
 };
 
-const testDebugTextInterpolator: TextTextInterpolator = (
-  brokenText,
-  ...injections
-) => {
-  console.log(brokenText);
-  return brokenText;
-};
-
 const title = "crawl";
 const runTestsAsynchronously = true;
 

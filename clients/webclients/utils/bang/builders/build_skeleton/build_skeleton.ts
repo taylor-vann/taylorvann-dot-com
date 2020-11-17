@@ -1,15 +1,13 @@
 // brian taylor vann
 
 import { crawl } from "./crawl/crawl";
-import { CrawlResults, Position } from "../../references/crawl";
+import { CrawlResults, Position, SkeletonNodes } from "../../references/crawl";
 
 type NodeType =
   | "OPEN_NODE"
   | "INDEPENDENT_NODE"
   | "CLOSE_NODE"
   | "CONTENT_NODE";
-
-type SkeletonNodes = CrawlResults[];
 
 type GetStringBonePosition = (
   brokenText: TemplateStringsArray,
@@ -27,9 +25,9 @@ type BuildSkeletonStringBone = (
 
 type BuildSkeletonSieve = Record<string, NodeType>;
 
-type BuildSkeleton = (
+type BuildSkeleton = <A>(
   brokenText: TemplateStringsArray,
-  ...injections: string[]
+  ...injections: A[]
 ) => SkeletonNodes;
 
 const MAX_DEPTH = 128;

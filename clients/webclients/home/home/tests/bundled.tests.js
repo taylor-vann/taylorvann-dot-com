@@ -1325,11 +1325,17 @@ const unitTestBuildSkeleton = {
 };
 
 // brian taylor vann
-// build structure
-const title$3 = "build_structure";
+const testTextInterpolator$1 = (templateArray, ...injections) => {
+    return {
+        template: { templateArray, injections },
+        skeleton: buildSkeleton(templateArray, ...injections),
+    };
+};
+const title$3 = "build_integrals";
 const runTestsAsynchronously$3 = true;
 const defaultFunc = () => {
-    return ["fail automatically"];
+    const params = testTextInterpolator$1 `<p>`;
+    return [];
 };
 const tests$3 = [defaultFunc];
 const unitTestBuildIntegrals = {

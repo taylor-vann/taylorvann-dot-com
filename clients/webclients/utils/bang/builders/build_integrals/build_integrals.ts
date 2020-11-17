@@ -1,15 +1,15 @@
 // brian taylor vann
-// build structure
+// build integrals
 
 import { StructureRender } from "../../references/structure";
-import { CrawlResults } from "../../references/crawl";
+import { SkeletonNodes } from "../../references/crawl";
 import { IntegralRender } from "../../references/integrals";
 
-interface ParseSkeletonParams<A> {
+interface BuildIntegralsParams<A> {
   template: StructureRender<A>;
-  crawl: CrawlResults;
+  skeleton: SkeletonNodes;
 }
-type ParseSkeleton = <A>(params: ParseSkeletonParams<A>) => IntegralRender<A>;
+type BuildIntegrals = <A>(params: BuildIntegralsParams<A>) => IntegralRender<A>;
 
 // we want to build something that outputs exact instructions
 
@@ -24,8 +24,8 @@ type ParseSkeleton = <A>(params: ParseSkeletonParams<A>) => IntegralRender<A>;
 
 // so we are iterating up till the context
 
-const parseSkeleton: ParseSkeleton = ({}) => {
+const buildIntegrals: BuildIntegrals = ({ template, skeleton }) => {
   return [];
 };
 
-export { parseSkeleton };
+export { BuildIntegralsParams, buildIntegrals };

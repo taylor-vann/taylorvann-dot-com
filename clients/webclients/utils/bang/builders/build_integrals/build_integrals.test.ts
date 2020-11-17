@@ -1,11 +1,38 @@
 // brian taylor vann
-// build structure
+// build integrals
 
-const title = "build_structure";
+import { BuildIntegralsParams } from "./build_integrals";
+import { buildSkeleton } from "../build_skeleton/build_skeleton";
+import { buildIntegrals } from "../build_integrals/build_integrals";
+
+type TextTextInterpolator = <A>(
+  templateArray: TemplateStringsArray,
+  ...injections: A[]
+) => BuildIntegralsParams<A>;
+
+const testTextInterpolator: TextTextInterpolator = (
+  templateArray,
+  ...injections
+) => {
+  return {
+    template: { templateArray, injections },
+    skeleton: buildSkeleton(templateArray, ...injections),
+  };
+};
+
+const title = "build_integrals";
 const runTestsAsynchronously = true;
 
 const defaultFunc = () => {
-  return ["fail automatically"];
+  const assertions = [];
+  const params = testTextInterpolator`<p>`;
+  const results = buildIntegrals(params);
+
+  if (results.length !== 1) {
+    assertions.push("there should be at least one instruction set");
+  }
+
+  return [];
 };
 
 const tests = [defaultFunc];
