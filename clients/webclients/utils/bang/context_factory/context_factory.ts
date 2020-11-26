@@ -12,7 +12,7 @@ import {
   InterfaceBase,
   ContextInterface,
   ContextFactoryBase,
-} from "../references/context";
+} from "../type_flyweight/context";
 
 class ContextFactory<N, A, P, R> implements ContextFactoryBase<N, A, P, R> {
   private base: InterfaceBase<N, A, P, R>;

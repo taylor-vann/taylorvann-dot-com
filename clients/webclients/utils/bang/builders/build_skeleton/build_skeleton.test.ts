@@ -32,10 +32,10 @@ const compareSkeletons: CompareSkeletons = (source, target) => {
       return false;
     }
     if (
-      node.target.start.arrayIndex !== targetNode.target.start.arrayIndex ||
-      node.target.start.stringIndex !== targetNode.target.start.stringIndex ||
-      node.target.end.arrayIndex !== targetNode.target.end.arrayIndex ||
-      node.target.end.stringIndex !== targetNode.target.end.stringIndex
+      node.vector.origin.arrayIndex !== targetNode.vector.origin.arrayIndex ||
+      node.vector.origin.stringIndex !== targetNode.vector.origin.stringIndex ||
+      node.vector.target.arrayIndex !== targetNode.vector.target.arrayIndex ||
+      node.vector.target.stringIndex !== targetNode.vector.target.stringIndex
     ) {
       return false;
     }
@@ -49,9 +49,9 @@ const findNothingWhenThereIsPlainText = () => {
   const sourceSkeleton: SkeletonNodes = [
     {
       nodeType: "CONTENT_NODE",
-      target: {
-        end: { arrayIndex: 0, stringIndex: 20 },
-        start: { arrayIndex: 0, stringIndex: 0 },
+      vector: {
+        target: { arrayIndex: 0, stringIndex: 20 },
+        origin: { arrayIndex: 0, stringIndex: 0 },
       },
     },
   ];
@@ -70,9 +70,9 @@ const findParagraphInPlainText = () => {
   const sourceSkeleton: SkeletonNodes = [
     {
       nodeType: "OPEN_NODE_CONFIRMED",
-      target: {
-        end: { arrayIndex: 0, stringIndex: 2 },
-        start: { arrayIndex: 0, stringIndex: 0 },
+      vector: {
+        target: { arrayIndex: 0, stringIndex: 2 },
+        origin: { arrayIndex: 0, stringIndex: 0 },
       },
     },
   ];
@@ -90,23 +90,23 @@ const findComplexFromPlainText = () => {
   const sourceSkeleton: SkeletonNodes = [
     {
       nodeType: "OPEN_NODE_CONFIRMED",
-      target: {
-        end: { arrayIndex: 0, stringIndex: 7 },
-        start: { arrayIndex: 0, stringIndex: 5 },
+      vector: {
+        target: { arrayIndex: 0, stringIndex: 7 },
+        origin: { arrayIndex: 0, stringIndex: 5 },
       },
     },
     {
       nodeType: "CONTENT_NODE",
-      target: {
-        end: { arrayIndex: 0, stringIndex: 12 },
-        start: { arrayIndex: 0, stringIndex: 8 },
+      vector: {
+        target: { arrayIndex: 0, stringIndex: 12 },
+        origin: { arrayIndex: 0, stringIndex: 8 },
       },
     },
     {
       nodeType: "CLOSE_NODE_CONFIRMED",
-      target: {
-        end: { arrayIndex: 0, stringIndex: 16 },
-        start: { arrayIndex: 0, stringIndex: 13 },
+      vector: {
+        target: { arrayIndex: 0, stringIndex: 16 },
+        origin: { arrayIndex: 0, stringIndex: 13 },
       },
     },
   ];
@@ -124,23 +124,23 @@ const findCompoundFromPlainText = () => {
   const sourceSkeleton: SkeletonNodes = [
     {
       nodeType: "OPEN_NODE_CONFIRMED",
-      target: {
-        end: { arrayIndex: 0, stringIndex: 3 },
-        start: { arrayIndex: 0, stringIndex: 0 },
+      vector: {
+        target: { arrayIndex: 0, stringIndex: 3 },
+        origin: { arrayIndex: 0, stringIndex: 0 },
       },
     },
     {
       nodeType: "CONTENT_NODE",
-      target: {
-        end: { arrayIndex: 0, stringIndex: 8 },
-        start: { arrayIndex: 0, stringIndex: 4 },
+      vector: {
+        target: { arrayIndex: 0, stringIndex: 8 },
+        origin: { arrayIndex: 0, stringIndex: 4 },
       },
     },
     {
       nodeType: "CLOSE_NODE_CONFIRMED",
-      target: {
-        end: { arrayIndex: 0, stringIndex: 13 },
-        start: { arrayIndex: 0, stringIndex: 9 },
+      vector: {
+        target: { arrayIndex: 0, stringIndex: 13 },
+        origin: { arrayIndex: 0, stringIndex: 9 },
       },
     },
   ];
@@ -158,30 +158,30 @@ const findBrokenFromPlainText = () => {
   const sourceSkeleton: SkeletonNodes = [
     {
       nodeType: "CLOSE_NODE_CONFIRMED",
-      target: {
-        end: { arrayIndex: 1, stringIndex: 10 },
-        start: { arrayIndex: 1, stringIndex: 6 },
+      vector: {
+        target: { arrayIndex: 1, stringIndex: 10 },
+        origin: { arrayIndex: 1, stringIndex: 6 },
       },
     },
     {
       nodeType: "OPEN_NODE_CONFIRMED",
-      target: {
-        end: { arrayIndex: 1, stringIndex: 13 },
-        start: { arrayIndex: 1, stringIndex: 11 },
+      vector: {
+        target: { arrayIndex: 1, stringIndex: 13 },
+        origin: { arrayIndex: 1, stringIndex: 11 },
       },
     },
     {
       nodeType: "CONTENT_NODE",
-      target: {
-        end: { arrayIndex: 1, stringIndex: 18 },
-        start: { arrayIndex: 1, stringIndex: 14 },
+      vector: {
+        target: { arrayIndex: 1, stringIndex: 18 },
+        origin: { arrayIndex: 1, stringIndex: 14 },
       },
     },
     {
       nodeType: "CLOSE_NODE_CONFIRMED",
-      target: {
-        end: { arrayIndex: 1, stringIndex: 22 },
-        start: { arrayIndex: 1, stringIndex: 19 },
+      vector: {
+        target: { arrayIndex: 1, stringIndex: 22 },
+        origin: { arrayIndex: 1, stringIndex: 19 },
       },
     },
   ];

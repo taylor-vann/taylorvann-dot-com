@@ -538,12 +538,12 @@ const confirmedSieve = {
 const createNotFoundCrawlState = () => {
     return {
         nodeType: "CONTENT_NODE",
-        target: {
-            start: {
+        vector: {
+            origin: {
                 arrayIndex: 0,
                 stringIndex: 0,
             },
-            end: {
+            target: {
                 arrayIndex: 0,
                 stringIndex: 0,
             },
@@ -555,7 +555,7 @@ const setStartStateProperties = (brokenText, previousCrawl) => {
     if (previousCrawl === undefined) {
         return cState;
     }
-    let { arrayIndex, stringIndex } = previousCrawl.target.end;
+    let { arrayIndex, stringIndex } = previousCrawl.vector.target;
     stringIndex += 1;
     stringIndex %= brokenText[arrayIndex].length;
     if (stringIndex === 0) {
@@ -564,10 +564,10 @@ const setStartStateProperties = (brokenText, previousCrawl) => {
     if (arrayIndex >= brokenText.length) {
         return;
     }
-    cState.target.start.arrayIndex = arrayIndex;
-    cState.target.start.stringIndex = stringIndex;
-    cState.target.end.arrayIndex = arrayIndex;
-    cState.target.end.stringIndex = stringIndex;
+    cState.vector.origin.arrayIndex = arrayIndex;
+    cState.vector.origin.stringIndex = stringIndex;
+    cState.vector.target.arrayIndex = arrayIndex;
+    cState.vector.target.stringIndex = stringIndex;
     return cState;
 };
 const setNodeType = (cState, char) => {
@@ -577,21 +577,21 @@ const setNodeType = (cState, char) => {
     return cState;
 };
 const setStart = (results, arrayIndex, stringIndex) => {
-    results.target.start.arrayIndex = arrayIndex;
-    results.target.start.stringIndex = stringIndex;
-    results.target.end.arrayIndex = arrayIndex;
-    results.target.end.stringIndex = stringIndex;
+    results.vector.origin.arrayIndex = arrayIndex;
+    results.vector.origin.stringIndex = stringIndex;
+    results.vector.target.arrayIndex = arrayIndex;
+    results.vector.target.stringIndex = stringIndex;
 };
 const setEnd = (results, arrayIndex, stringIndex) => {
-    results.target.end.arrayIndex = arrayIndex;
-    results.target.end.stringIndex = stringIndex;
+    results.vector.target.arrayIndex = arrayIndex;
+    results.vector.target.stringIndex = stringIndex;
 };
 const crawl = (brokenText, previousCrawl) => {
     const cState = setStartStateProperties(brokenText, previousCrawl);
     if (cState === undefined) {
         return;
     }
-    let { stringIndex, arrayIndex } = cState.target.start;
+    let { stringIndex, arrayIndex } = cState.vector.origin;
     // retain most recent postition
     const suspect = {
         arrayIndex,
@@ -643,16 +643,16 @@ const findNothingWhenThereIsPlainText = () => {
     if (result && result.nodeType !== "CONTENT_NODE") {
         assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
     }
-    if (result && result.target.start.arrayIndex !== 0) {
+    if (result && result.vector.origin.arrayIndex !== 0) {
         assertions.push(`should return start arrayIndex as 0`);
     }
-    if (result && result.target.start.stringIndex !== 0) {
+    if (result && result.vector.origin.stringIndex !== 0) {
         assertions.push(`should return start stringIndex as 0`);
     }
-    if (result && result.target.end.arrayIndex !== 0) {
+    if (result && result.vector.target.arrayIndex !== 0) {
         assertions.push(`should return end arrayIndex as 0`);
     }
-    if (result && result.target.end.stringIndex !== 20) {
+    if (result && result.vector.target.stringIndex !== 20) {
         assertions.push(`should return end stringIndex as 20`);
     }
     return assertions;
@@ -667,16 +667,16 @@ const findParagraphInPlainText = () => {
     if (result && result.nodeType !== "OPEN_NODE_CONFIRMED") {
         assertions.push(`should return OPEN_NODE_CONFIRMED instead of ${result.nodeType}`);
     }
-    if (result && result.target.start.arrayIndex !== 0) {
+    if (result && result.vector.origin.arrayIndex !== 0) {
         assertions.push(`should return start arrayIndex as 0`);
     }
-    if (result && result.target.start.stringIndex !== 0) {
+    if (result && result.vector.origin.stringIndex !== 0) {
         assertions.push(`should return start stringIndex as 0`);
     }
-    if (result && result.target.end.arrayIndex !== 0) {
+    if (result && result.vector.target.arrayIndex !== 0) {
         assertions.push(`should return end arrayIndex as 0`);
     }
-    if (result && result.target.end.stringIndex !== 2) {
+    if (result && result.vector.target.stringIndex !== 2) {
         assertions.push(`should return end stringIndex as 2`);
     }
     return assertions;
@@ -691,16 +691,16 @@ const findCloseParagraphInPlainText = () => {
     if (result && result.nodeType !== "CLOSE_NODE_CONFIRMED") {
         assertions.push(`should return CLOSE_NODE_CONFIRMED instead of ${result.nodeType}`);
     }
-    if (result && result.target.start.arrayIndex !== 0) {
+    if (result && result.vector.origin.arrayIndex !== 0) {
         assertions.push(`should return start arrayIndex as 0`);
     }
-    if (result && result.target.start.stringIndex !== 0) {
+    if (result && result.vector.origin.stringIndex !== 0) {
         assertions.push(`should return start stringIndex as 2`);
     }
-    if (result && result.target.end.arrayIndex !== 0) {
+    if (result && result.vector.target.arrayIndex !== 0) {
         assertions.push(`should return end arrayIndex as 0`);
     }
-    if (result && result.target.end.stringIndex !== 3) {
+    if (result && result.vector.target.stringIndex !== 3) {
         assertions.push(`should return end stringIndex as 3`);
     }
     return assertions;
@@ -715,16 +715,16 @@ const findIndependentParagraphInPlainText = () => {
     if (result && result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
         assertions.push(`should return INDEPENDENT_NODE_CONFIRMED instead of ${result.nodeType}`);
     }
-    if (result && result.target.start.arrayIndex !== 0) {
+    if (result && result.vector.origin.arrayIndex !== 0) {
         assertions.push(`should return start arrayIndex as 0`);
     }
-    if (result && result.target.start.stringIndex !== 0) {
+    if (result && result.vector.origin.stringIndex !== 0) {
         assertions.push(`should return start stringIndex as 0`);
     }
-    if (result && result.target.end.arrayIndex !== 0) {
+    if (result && result.vector.target.arrayIndex !== 0) {
         assertions.push(`should return end arrayIndex as 0`);
     }
-    if (result && result.target.end.stringIndex !== 3) {
+    if (result && result.vector.target.stringIndex !== 3) {
         assertions.push(`should return end stringIndex as 3`);
     }
     return assertions;
@@ -739,16 +739,16 @@ const findOpenParagraphInTextWithArgs = () => {
     if (result && result.nodeType !== "OPEN_NODE_CONFIRMED") {
         assertions.push(`should return OPEN_NODE_CONFIRMED instead of ${result.nodeType}`);
     }
-    if (result && result.target.start.arrayIndex !== 1) {
+    if (result && result.vector.origin.arrayIndex !== 1) {
         assertions.push(`should return start arrayIndex as 1`);
     }
-    if (result && result.target.start.stringIndex !== 1) {
+    if (result && result.vector.origin.stringIndex !== 1) {
         assertions.push(`should return start stringIndex as 1`);
     }
-    if (result && result.target.end.arrayIndex !== 1) {
+    if (result && result.vector.target.arrayIndex !== 1) {
         assertions.push(`should return end arrayIndex as 1`);
     }
-    if (result && result.target.end.stringIndex !== 3) {
+    if (result && result.vector.target.stringIndex !== 3) {
         assertions.push(`should return end stringIndex as 3`);
     }
     return assertions;
@@ -763,16 +763,16 @@ const notFoundInUgglyMessText = () => {
     if (result && result.nodeType !== "CONTENT_NODE") {
         assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
     }
-    if (result && result.target.start.arrayIndex !== 0) {
+    if (result && result.vector.origin.arrayIndex !== 0) {
         assertions.push(`should return start arrayIndex as 0`);
     }
-    if (result && result.target.start.stringIndex !== 0) {
+    if (result && result.vector.origin.stringIndex !== 0) {
         assertions.push(`should return start stringIndex as 0`);
     }
-    if (result && result.target.end.arrayIndex !== 2) {
+    if (result && result.vector.target.arrayIndex !== 2) {
         assertions.push(`should return end arrayIndex as 2`);
     }
-    if (result && result.target.end.stringIndex !== -1) {
+    if (result && result.vector.target.stringIndex !== -1) {
         assertions.push(`should return end stringIndex as -1`);
     }
     return assertions;
@@ -787,16 +787,16 @@ const invalidCloseNodeWithArgs = () => {
     if (result && result.nodeType !== "CONTENT_NODE") {
         assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
     }
-    if (result && result.target.start.arrayIndex !== 0) {
+    if (result && result.vector.origin.arrayIndex !== 0) {
         assertions.push(`should return start arrayIndex as 0`);
     }
-    if (result && result.target.start.stringIndex !== 0) {
+    if (result && result.vector.origin.stringIndex !== 0) {
         assertions.push(`should return start stringIndex as 0`);
     }
-    if (result && result.target.end.arrayIndex !== 1) {
+    if (result && result.vector.target.arrayIndex !== 1) {
         assertions.push(`should return end arrayIndex as 1`);
     }
-    if (result && result.target.end.stringIndex !== 1) {
+    if (result && result.vector.target.stringIndex !== 1) {
         assertions.push(`should return end stringIndex as 1`);
     }
     return assertions;
@@ -811,16 +811,16 @@ const validCloseNodeWithArgs = () => {
     if (result && result.nodeType !== "CLOSE_NODE_CONFIRMED") {
         assertions.push(`should return CLOSE_NODE_CONFIRMED instead of ${result.nodeType}`);
     }
-    if (result && result.target.start.arrayIndex !== 0) {
+    if (result && result.vector.origin.arrayIndex !== 0) {
         assertions.push(`should return start arrayIndex as 0`);
     }
-    if (result && result.target.start.stringIndex !== 7) {
+    if (result && result.vector.origin.stringIndex !== 7) {
         assertions.push(`should return start stringIndex as 7`);
     }
-    if (result && result.target.end.arrayIndex !== 1) {
+    if (result && result.vector.target.arrayIndex !== 1) {
         assertions.push(`should return end arrayIndex as 1`);
     }
-    if (result && result.target.end.stringIndex !== 0) {
+    if (result && result.vector.target.stringIndex !== 0) {
         assertions.push(`should return end stringIndex as 0`);
     }
     return assertions;
@@ -835,16 +835,16 @@ const invalidIndependentNodeWithArgs = () => {
     if (result && result.nodeType !== "CONTENT_NODE") {
         assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
     }
-    if (result && result.target.start.arrayIndex !== 0) {
+    if (result && result.vector.origin.arrayIndex !== 0) {
         assertions.push(`should return start arrayIndex as 0`);
     }
-    if (result && result.target.start.stringIndex !== 0) {
+    if (result && result.vector.origin.stringIndex !== 0) {
         assertions.push(`should return start stringIndex as 0`);
     }
-    if (result && result.target.end.arrayIndex !== 1) {
+    if (result && result.vector.target.arrayIndex !== 1) {
         assertions.push(`should return end arrayIndex as 1`);
     }
-    if (result && result.target.end.stringIndex !== 2) {
+    if (result && result.vector.target.stringIndex !== 2) {
         assertions.push(`should return end stringIndex as 2`);
     }
     return assertions;
@@ -859,16 +859,16 @@ const validIndependentNodeWithArgs = () => {
     if (result && result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
         assertions.push(`should return INDEPENDENT_NODE_CONFIRMED instead of ${result.nodeType}`);
     }
-    if (result && result.target.start.arrayIndex !== 0) {
+    if (result && result.vector.origin.arrayIndex !== 0) {
         assertions.push(`should return start arrayIndex as 0`);
     }
-    if (result && result.target.start.stringIndex !== 12) {
+    if (result && result.vector.origin.stringIndex !== 12) {
         assertions.push(`should return start stringIndex as 12`);
     }
-    if (result && result.target.end.arrayIndex !== 1) {
+    if (result && result.vector.target.arrayIndex !== 1) {
         assertions.push(`should return end arrayIndex as 1`);
     }
-    if (result && result.target.end.stringIndex !== 3) {
+    if (result && result.vector.target.stringIndex !== 3) {
         assertions.push(`should return end stringIndex as 3`);
     }
     return assertions;
@@ -883,16 +883,16 @@ const invalidOpenNodeWithArgs = () => {
     if (result && result.nodeType !== "CONTENT_NODE") {
         assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
     }
-    if (result && result.target.start.arrayIndex !== 0) {
+    if (result && result.vector.origin.arrayIndex !== 0) {
         assertions.push(`should return start arrayIndex as 0`);
     }
-    if (result && result.target.start.stringIndex !== 0) {
+    if (result && result.vector.origin.stringIndex !== 0) {
         assertions.push(`should return start stringIndex as 0`);
     }
-    if (result && result.target.end.arrayIndex !== 1) {
+    if (result && result.vector.target.arrayIndex !== 1) {
         assertions.push(`should return end arrayIndex as 1`);
     }
-    if (result && result.target.end.stringIndex !== 1) {
+    if (result && result.vector.target.stringIndex !== 1) {
         assertions.push(`should return end stringIndex as 1`);
     }
     return assertions;
@@ -907,16 +907,16 @@ const validOpenNodeWithArgs = () => {
     if (result && result.nodeType !== "OPEN_NODE_CONFIRMED") {
         assertions.push(`should return OPEN_NODE_CONFIRMED instead of ${result.nodeType}`);
     }
-    if (result && result.target.start.arrayIndex !== 0) {
+    if (result && result.vector.origin.arrayIndex !== 0) {
         assertions.push(`should return start arrayIndex as 0`);
     }
-    if (result && result.target.start.stringIndex !== 5) {
+    if (result && result.vector.origin.stringIndex !== 5) {
         assertions.push(`should return start stringIndex as 5`);
     }
-    if (result && result.target.end.arrayIndex !== 1) {
+    if (result && result.vector.target.arrayIndex !== 1) {
         assertions.push(`should return end arrayIndex as 1`);
     }
-    if (result && result.target.end.stringIndex !== 0) {
+    if (result && result.vector.target.stringIndex !== 0) {
         assertions.push(`should return end stringIndex as 0`);
     }
     return assertions;
@@ -932,16 +932,16 @@ const validSecondaryIndependentNodeWithArgs = () => {
     if (result && result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
         assertions.push(`should return INDEPENDENT_NODE_CONFIRMED instead of ${result.nodeType}`);
     }
-    if (result && result.target.start.arrayIndex !== 2) {
+    if (result && result.vector.origin.arrayIndex !== 2) {
         assertions.push(`should return start arrayIndex as 2`);
     }
-    if (result && result.target.start.stringIndex !== 0) {
+    if (result && result.vector.origin.stringIndex !== 0) {
         assertions.push(`should return start stringIndex as 0`);
     }
-    if (result && result.target.end.arrayIndex !== 2) {
+    if (result && result.vector.target.arrayIndex !== 2) {
         assertions.push(`should return end arrayIndex as 1`);
     }
-    if (result && result.target.end.stringIndex !== 3) {
+    if (result && result.vector.target.stringIndex !== 3) {
         assertions.push(`should return end stringIndex as 3`);
     }
     return assertions;
@@ -1076,7 +1076,7 @@ const SKELETON_SIEVE = {
     ["CONTENT_NODE"]: "CONTENT_NODE",
 };
 const getStringBoneStart = (brokenText, previousCrawl) => {
-    let { arrayIndex, stringIndex } = previousCrawl.target.end;
+    let { arrayIndex, stringIndex } = previousCrawl.vector.target;
     stringIndex += 1;
     stringIndex %= brokenText[arrayIndex].length;
     if (stringIndex === 0) {
@@ -1088,7 +1088,7 @@ const getStringBoneStart = (brokenText, previousCrawl) => {
     };
 };
 const getStringBoneEnd = (brokenText, currentCrawl) => {
-    let { arrayIndex, stringIndex } = currentCrawl.target.start;
+    let { arrayIndex, stringIndex } = currentCrawl.vector.origin;
     stringIndex -= 1;
     if (stringIndex === -1) {
         arrayIndex -= 1;
@@ -1103,10 +1103,10 @@ const buildSkeletonStringBone = ({ brokenText, currentCrawl, previousCrawl, }) =
     if (previousCrawl === undefined) {
         return;
     }
-    const { end } = previousCrawl.target;
-    const { start } = currentCrawl.target;
-    const stringDistance = Math.abs(start.stringIndex - end.stringIndex);
-    const stringArrayDistance = start.arrayIndex - end.arrayIndex;
+    const { target } = previousCrawl.vector;
+    const { origin } = currentCrawl.vector;
+    const stringDistance = Math.abs(origin.stringIndex - target.stringIndex);
+    const stringArrayDistance = origin.arrayIndex - target.arrayIndex;
     if (2 > stringArrayDistance + stringDistance) {
         return;
     }
@@ -1115,9 +1115,9 @@ const buildSkeletonStringBone = ({ brokenText, currentCrawl, previousCrawl, }) =
     if (contentStart && contentEnd) {
         return {
             nodeType: "CONTENT_NODE",
-            target: {
-                start: contentStart,
-                end: contentEnd,
+            vector: {
+                origin: contentStart,
+                target: contentEnd,
             },
         };
     }
@@ -1163,10 +1163,10 @@ const compareSkeletons = (source, target) => {
         if (node.nodeType !== targetNode.nodeType) {
             return false;
         }
-        if (node.target.start.arrayIndex !== targetNode.target.start.arrayIndex ||
-            node.target.start.stringIndex !== targetNode.target.start.stringIndex ||
-            node.target.end.arrayIndex !== targetNode.target.end.arrayIndex ||
-            node.target.end.stringIndex !== targetNode.target.end.stringIndex) {
+        if (node.vector.origin.arrayIndex !== targetNode.vector.origin.arrayIndex ||
+            node.vector.origin.stringIndex !== targetNode.vector.origin.stringIndex ||
+            node.vector.target.arrayIndex !== targetNode.vector.target.arrayIndex ||
+            node.vector.target.stringIndex !== targetNode.vector.target.stringIndex) {
             return false;
         }
     }
@@ -1177,9 +1177,9 @@ const findNothingWhenThereIsPlainText$1 = () => {
     const sourceSkeleton = [
         {
             nodeType: "CONTENT_NODE",
-            target: {
-                end: { arrayIndex: 0, stringIndex: 20 },
-                start: { arrayIndex: 0, stringIndex: 0 },
+            vector: {
+                target: { arrayIndex: 0, stringIndex: 20 },
+                origin: { arrayIndex: 0, stringIndex: 0 },
             },
         },
     ];
@@ -1195,9 +1195,9 @@ const findParagraphInPlainText$1 = () => {
     const sourceSkeleton = [
         {
             nodeType: "OPEN_NODE_CONFIRMED",
-            target: {
-                end: { arrayIndex: 0, stringIndex: 2 },
-                start: { arrayIndex: 0, stringIndex: 0 },
+            vector: {
+                target: { arrayIndex: 0, stringIndex: 2 },
+                origin: { arrayIndex: 0, stringIndex: 0 },
             },
         },
     ];
@@ -1213,23 +1213,23 @@ const findComplexFromPlainText = () => {
     const sourceSkeleton = [
         {
             nodeType: "OPEN_NODE_CONFIRMED",
-            target: {
-                end: { arrayIndex: 0, stringIndex: 7 },
-                start: { arrayIndex: 0, stringIndex: 5 },
+            vector: {
+                target: { arrayIndex: 0, stringIndex: 7 },
+                origin: { arrayIndex: 0, stringIndex: 5 },
             },
         },
         {
             nodeType: "CONTENT_NODE",
-            target: {
-                end: { arrayIndex: 0, stringIndex: 12 },
-                start: { arrayIndex: 0, stringIndex: 8 },
+            vector: {
+                target: { arrayIndex: 0, stringIndex: 12 },
+                origin: { arrayIndex: 0, stringIndex: 8 },
             },
         },
         {
             nodeType: "CLOSE_NODE_CONFIRMED",
-            target: {
-                end: { arrayIndex: 0, stringIndex: 16 },
-                start: { arrayIndex: 0, stringIndex: 13 },
+            vector: {
+                target: { arrayIndex: 0, stringIndex: 16 },
+                origin: { arrayIndex: 0, stringIndex: 13 },
             },
         },
     ];
@@ -1245,23 +1245,23 @@ const findCompoundFromPlainText = () => {
     const sourceSkeleton = [
         {
             nodeType: "OPEN_NODE_CONFIRMED",
-            target: {
-                end: { arrayIndex: 0, stringIndex: 3 },
-                start: { arrayIndex: 0, stringIndex: 0 },
+            vector: {
+                target: { arrayIndex: 0, stringIndex: 3 },
+                origin: { arrayIndex: 0, stringIndex: 0 },
             },
         },
         {
             nodeType: "CONTENT_NODE",
-            target: {
-                end: { arrayIndex: 0, stringIndex: 8 },
-                start: { arrayIndex: 0, stringIndex: 4 },
+            vector: {
+                target: { arrayIndex: 0, stringIndex: 8 },
+                origin: { arrayIndex: 0, stringIndex: 4 },
             },
         },
         {
             nodeType: "CLOSE_NODE_CONFIRMED",
-            target: {
-                end: { arrayIndex: 0, stringIndex: 13 },
-                start: { arrayIndex: 0, stringIndex: 9 },
+            vector: {
+                target: { arrayIndex: 0, stringIndex: 13 },
+                origin: { arrayIndex: 0, stringIndex: 9 },
             },
         },
     ];
@@ -1277,30 +1277,30 @@ const findBrokenFromPlainText = () => {
     const sourceSkeleton = [
         {
             nodeType: "CLOSE_NODE_CONFIRMED",
-            target: {
-                end: { arrayIndex: 1, stringIndex: 10 },
-                start: { arrayIndex: 1, stringIndex: 6 },
+            vector: {
+                target: { arrayIndex: 1, stringIndex: 10 },
+                origin: { arrayIndex: 1, stringIndex: 6 },
             },
         },
         {
             nodeType: "OPEN_NODE_CONFIRMED",
-            target: {
-                end: { arrayIndex: 1, stringIndex: 13 },
-                start: { arrayIndex: 1, stringIndex: 11 },
+            vector: {
+                target: { arrayIndex: 1, stringIndex: 13 },
+                origin: { arrayIndex: 1, stringIndex: 11 },
             },
         },
         {
             nodeType: "CONTENT_NODE",
-            target: {
-                end: { arrayIndex: 1, stringIndex: 18 },
-                start: { arrayIndex: 1, stringIndex: 14 },
+            vector: {
+                target: { arrayIndex: 1, stringIndex: 18 },
+                origin: { arrayIndex: 1, stringIndex: 14 },
             },
         },
         {
             nodeType: "CLOSE_NODE_CONFIRMED",
-            target: {
-                end: { arrayIndex: 1, stringIndex: 22 },
-                start: { arrayIndex: 1, stringIndex: 19 },
+            vector: {
+                target: { arrayIndex: 1, stringIndex: 22 },
+                origin: { arrayIndex: 1, stringIndex: 19 },
             },
         },
     ];

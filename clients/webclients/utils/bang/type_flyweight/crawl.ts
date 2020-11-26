@@ -1,6 +1,8 @@
 // brian taylor vann
 // crawl
 
+import { Position, Vector } from "./text_vector";
+
 type CrawlStatus =
   | "CONTENT_NODE"
   | "OPEN_NODE"
@@ -13,19 +15,11 @@ type CrawlStatus =
   | "INDEPENDENT_NODE_VALID"
   | "INDEPENDENT_NODE_CONFIRMED";
 
-interface Position {
-  arrayIndex: number;
-  stringIndex: number;
-}
-interface Vector {
-  start: Position;
-  end: Position;
-}
 interface CrawlResults {
   nodeType: CrawlStatus;
-  target: Vector;
+  vector: Vector;
 }
 
 type SkeletonNodes = CrawlResults[];
 
-export { CrawlResults, CrawlStatus, Position, SkeletonNodes, Vector };
+export { CrawlResults, CrawlStatus, SkeletonNodes };

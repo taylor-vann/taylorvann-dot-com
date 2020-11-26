@@ -1,7 +1,8 @@
 // brian taylor vann
 
 import { routers } from "./routers/routers";
-import { CrawlResults, CrawlStatus, Position } from "../../../references/crawl";
+import { CrawlResults, CrawlStatus } from "../../../type_flyweight/crawl";
+import { Position } from "../../../type_flyweight/text_vector";
 
 type Sieve = Partial<Record<CrawlStatus, CrawlStatus>>;
 
@@ -41,12 +42,12 @@ const confirmedSieve: Sieve = {
 const createNotFoundCrawlState: CreateCrawlState = () => {
   return {
     nodeType: "CONTENT_NODE",
-    target: {
-      start: {
+    vector: {
+      origin: {
         arrayIndex: 0,
         stringIndex: 0,
       },
-      end: {
+      target: {
         arrayIndex: 0,
         stringIndex: 0,
       },
@@ -63,7 +64,7 @@ const setStartStateProperties: SetStartStateProperties = (
     return cState;
   }
 
-  let { arrayIndex, stringIndex } = previousCrawl.target.end;
+  let { arrayIndex, stringIndex } = previousCrawl.vector.target;
 
   stringIndex += 1;
   stringIndex %= brokenText[arrayIndex].length;
@@ -74,10 +75,10 @@ const setStartStateProperties: SetStartStateProperties = (
     return;
   }
 
-  cState.target.start.arrayIndex = arrayIndex;
-  cState.target.start.stringIndex = stringIndex;
-  cState.target.end.arrayIndex = arrayIndex;
-  cState.target.end.stringIndex = stringIndex;
+  cState.vector.origin.arrayIndex = arrayIndex;
+  cState.vector.origin.stringIndex = stringIndex;
+  cState.vector.target.arrayIndex = arrayIndex;
+  cState.vector.target.stringIndex = stringIndex;
 
   return cState;
 };
@@ -94,10 +95,10 @@ const setStart: SetPosition = (
   arrayIndex: number,
   stringIndex: number
 ) => {
-  results.target.start.arrayIndex = arrayIndex;
-  results.target.start.stringIndex = stringIndex;
-  results.target.end.arrayIndex = arrayIndex;
-  results.target.end.stringIndex = stringIndex;
+  results.vector.origin.arrayIndex = arrayIndex;
+  results.vector.origin.stringIndex = stringIndex;
+  results.vector.target.arrayIndex = arrayIndex;
+  results.vector.target.stringIndex = stringIndex;
 };
 
 const setEnd: SetPosition = (
@@ -105,8 +106,8 @@ const setEnd: SetPosition = (
   arrayIndex: number,
   stringIndex: number
 ) => {
-  results.target.end.arrayIndex = arrayIndex;
-  results.target.end.stringIndex = stringIndex;
+  results.vector.target.arrayIndex = arrayIndex;
+  results.vector.target.stringIndex = stringIndex;
 };
 
 const crawl: Crawl = (brokenText, previousCrawl) => {
@@ -115,7 +116,7 @@ const crawl: Crawl = (brokenText, previousCrawl) => {
     return;
   }
 
-  let { stringIndex, arrayIndex } = cState.target.start;
+  let { stringIndex, arrayIndex } = cState.vector.origin;
   // retain most recent postition
   const suspect: Position = {
     arrayIndex,

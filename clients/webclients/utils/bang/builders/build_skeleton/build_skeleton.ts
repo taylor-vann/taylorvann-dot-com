@@ -1,7 +1,8 @@
 // brian taylor vann
 
 import { crawl } from "./crawl/crawl";
-import { CrawlResults, Position, SkeletonNodes } from "../../references/crawl";
+import { CrawlResults, SkeletonNodes } from "../../type_flyweight/crawl";
+import { Position } from "../../type_flyweight/text_vector";
 
 type NodeType =
   | "OPEN_NODE"
@@ -43,7 +44,7 @@ const getStringBoneStart: GetStringBonePosition = (
   brokenText,
   previousCrawl
 ) => {
-  let { arrayIndex, stringIndex } = previousCrawl.target.end;
+  let { arrayIndex, stringIndex } = previousCrawl.vector.target;
   stringIndex += 1;
   stringIndex %= brokenText[arrayIndex].length;
   if (stringIndex === 0) {
@@ -57,7 +58,7 @@ const getStringBoneStart: GetStringBonePosition = (
 };
 
 const getStringBoneEnd: GetStringBonePosition = (brokenText, currentCrawl) => {
-  let { arrayIndex, stringIndex } = currentCrawl.target.start;
+  let { arrayIndex, stringIndex } = currentCrawl.vector.origin;
   stringIndex -= 1;
   if (stringIndex === -1) {
     arrayIndex -= 1;
@@ -78,11 +79,11 @@ const buildSkeletonStringBone: BuildSkeletonStringBone = ({
   if (previousCrawl === undefined) {
     return;
   }
-  const { end } = previousCrawl.target;
-  const { start } = currentCrawl.target;
+  const { target } = previousCrawl.vector;
+  const { origin } = currentCrawl.vector;
 
-  const stringDistance = Math.abs(start.stringIndex - end.stringIndex);
-  const stringArrayDistance = start.arrayIndex - end.arrayIndex;
+  const stringDistance = Math.abs(origin.stringIndex - target.stringIndex);
+  const stringArrayDistance = origin.arrayIndex - target.arrayIndex;
   if (2 > stringArrayDistance + stringDistance) {
     return;
   }
@@ -92,9 +93,9 @@ const buildSkeletonStringBone: BuildSkeletonStringBone = ({
   if (contentStart && contentEnd) {
     return {
       nodeType: "CONTENT_NODE",
-      target: {
-        start: contentStart,
-        end: contentEnd,
+      vector: {
+        origin: contentStart,
+        target: contentEnd,
       },
     };
   }

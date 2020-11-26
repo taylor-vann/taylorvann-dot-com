@@ -1,9 +1,9 @@
 // brian taylor vann
 // build integrals
 
-import { StructureRender } from "../../references/structure";
-import { SkeletonNodes } from "../../references/crawl";
-import { IntegralRender } from "../../references/integrals";
+import { StructureRender } from "../../type_flyweight/structure";
+import { SkeletonNodes } from "../../type_flyweight/crawl";
+import { IntegralRender } from "../../type_flyweight/integrals";
 
 interface BuildIntegralsParams<A> {
   template: StructureRender<A>;

@@ -30,19 +30,19 @@ const findNothingWhenThereIsPlainText = () => {
     assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
   }
 
-  if (result && result.target.start.arrayIndex !== 0) {
+  if (result && result.vector.origin.arrayIndex !== 0) {
     assertions.push(`should return start arrayIndex as 0`);
   }
 
-  if (result && result.target.start.stringIndex !== 0) {
+  if (result && result.vector.origin.stringIndex !== 0) {
     assertions.push(`should return start stringIndex as 0`);
   }
 
-  if (result && result.target.end.arrayIndex !== 0) {
+  if (result && result.vector.target.arrayIndex !== 0) {
     assertions.push(`should return end arrayIndex as 0`);
   }
 
-  if (result && result.target.end.stringIndex !== 20) {
+  if (result && result.vector.target.stringIndex !== 20) {
     assertions.push(`should return end stringIndex as 20`);
   }
 
@@ -63,19 +63,19 @@ const findParagraphInPlainText = () => {
     );
   }
 
-  if (result && result.target.start.arrayIndex !== 0) {
+  if (result && result.vector.origin.arrayIndex !== 0) {
     assertions.push(`should return start arrayIndex as 0`);
   }
 
-  if (result && result.target.start.stringIndex !== 0) {
+  if (result && result.vector.origin.stringIndex !== 0) {
     assertions.push(`should return start stringIndex as 0`);
   }
 
-  if (result && result.target.end.arrayIndex !== 0) {
+  if (result && result.vector.target.arrayIndex !== 0) {
     assertions.push(`should return end arrayIndex as 0`);
   }
 
-  if (result && result.target.end.stringIndex !== 2) {
+  if (result && result.vector.target.stringIndex !== 2) {
     assertions.push(`should return end stringIndex as 2`);
   }
 
@@ -96,19 +96,19 @@ const findCloseParagraphInPlainText = () => {
     );
   }
 
-  if (result && result.target.start.arrayIndex !== 0) {
+  if (result && result.vector.origin.arrayIndex !== 0) {
     assertions.push(`should return start arrayIndex as 0`);
   }
 
-  if (result && result.target.start.stringIndex !== 0) {
+  if (result && result.vector.origin.stringIndex !== 0) {
     assertions.push(`should return start stringIndex as 2`);
   }
 
-  if (result && result.target.end.arrayIndex !== 0) {
+  if (result && result.vector.target.arrayIndex !== 0) {
     assertions.push(`should return end arrayIndex as 0`);
   }
 
-  if (result && result.target.end.stringIndex !== 3) {
+  if (result && result.vector.target.stringIndex !== 3) {
     assertions.push(`should return end stringIndex as 3`);
   }
 
@@ -129,19 +129,19 @@ const findIndependentParagraphInPlainText = () => {
     );
   }
 
-  if (result && result.target.start.arrayIndex !== 0) {
+  if (result && result.vector.origin.arrayIndex !== 0) {
     assertions.push(`should return start arrayIndex as 0`);
   }
 
-  if (result && result.target.start.stringIndex !== 0) {
+  if (result && result.vector.origin.stringIndex !== 0) {
     assertions.push(`should return start stringIndex as 0`);
   }
 
-  if (result && result.target.end.arrayIndex !== 0) {
+  if (result && result.vector.target.arrayIndex !== 0) {
     assertions.push(`should return end arrayIndex as 0`);
   }
 
-  if (result && result.target.end.stringIndex !== 3) {
+  if (result && result.vector.target.stringIndex !== 3) {
     assertions.push(`should return end stringIndex as 3`);
   }
 
@@ -162,19 +162,19 @@ const findOpenParagraphInTextWithArgs = () => {
     );
   }
 
-  if (result && result.target.start.arrayIndex !== 1) {
+  if (result && result.vector.origin.arrayIndex !== 1) {
     assertions.push(`should return start arrayIndex as 1`);
   }
 
-  if (result && result.target.start.stringIndex !== 1) {
+  if (result && result.vector.origin.stringIndex !== 1) {
     assertions.push(`should return start stringIndex as 1`);
   }
 
-  if (result && result.target.end.arrayIndex !== 1) {
+  if (result && result.vector.target.arrayIndex !== 1) {
     assertions.push(`should return end arrayIndex as 1`);
   }
 
-  if (result && result.target.end.stringIndex !== 3) {
+  if (result && result.vector.target.stringIndex !== 3) {
     assertions.push(`should return end stringIndex as 3`);
   }
 
@@ -193,19 +193,19 @@ const notFoundInUgglyMessText = () => {
     assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
   }
 
-  if (result && result.target.start.arrayIndex !== 0) {
+  if (result && result.vector.origin.arrayIndex !== 0) {
     assertions.push(`should return start arrayIndex as 0`);
   }
 
-  if (result && result.target.start.stringIndex !== 0) {
+  if (result && result.vector.origin.stringIndex !== 0) {
     assertions.push(`should return start stringIndex as 0`);
   }
 
-  if (result && result.target.end.arrayIndex !== 2) {
+  if (result && result.vector.target.arrayIndex !== 2) {
     assertions.push(`should return end arrayIndex as 2`);
   }
 
-  if (result && result.target.end.stringIndex !== -1) {
+  if (result && result.vector.target.stringIndex !== -1) {
     assertions.push(`should return end stringIndex as -1`);
   }
 
@@ -224,19 +224,19 @@ const invalidCloseNodeWithArgs = () => {
     assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
   }
 
-  if (result && result.target.start.arrayIndex !== 0) {
+  if (result && result.vector.origin.arrayIndex !== 0) {
     assertions.push(`should return start arrayIndex as 0`);
   }
 
-  if (result && result.target.start.stringIndex !== 0) {
+  if (result && result.vector.origin.stringIndex !== 0) {
     assertions.push(`should return start stringIndex as 0`);
   }
 
-  if (result && result.target.end.arrayIndex !== 1) {
+  if (result && result.vector.target.arrayIndex !== 1) {
     assertions.push(`should return end arrayIndex as 1`);
   }
 
-  if (result && result.target.end.stringIndex !== 1) {
+  if (result && result.vector.target.stringIndex !== 1) {
     assertions.push(`should return end stringIndex as 1`);
   }
 
@@ -258,19 +258,19 @@ const validCloseNodeWithArgs = () => {
     );
   }
 
-  if (result && result.target.start.arrayIndex !== 0) {
+  if (result && result.vector.origin.arrayIndex !== 0) {
     assertions.push(`should return start arrayIndex as 0`);
   }
 
-  if (result && result.target.start.stringIndex !== 7) {
+  if (result && result.vector.origin.stringIndex !== 7) {
     assertions.push(`should return start stringIndex as 7`);
   }
 
-  if (result && result.target.end.arrayIndex !== 1) {
+  if (result && result.vector.target.arrayIndex !== 1) {
     assertions.push(`should return end arrayIndex as 1`);
   }
 
-  if (result && result.target.end.stringIndex !== 0) {
+  if (result && result.vector.target.stringIndex !== 0) {
     assertions.push(`should return end stringIndex as 0`);
   }
 
@@ -289,19 +289,19 @@ const invalidIndependentNodeWithArgs = () => {
     assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
   }
 
-  if (result && result.target.start.arrayIndex !== 0) {
+  if (result && result.vector.origin.arrayIndex !== 0) {
     assertions.push(`should return start arrayIndex as 0`);
   }
 
-  if (result && result.target.start.stringIndex !== 0) {
+  if (result && result.vector.origin.stringIndex !== 0) {
     assertions.push(`should return start stringIndex as 0`);
   }
 
-  if (result && result.target.end.arrayIndex !== 1) {
+  if (result && result.vector.target.arrayIndex !== 1) {
     assertions.push(`should return end arrayIndex as 1`);
   }
 
-  if (result && result.target.end.stringIndex !== 2) {
+  if (result && result.vector.target.stringIndex !== 2) {
     assertions.push(`should return end stringIndex as 2`);
   }
 
@@ -322,19 +322,19 @@ const validIndependentNodeWithArgs = () => {
     );
   }
 
-  if (result && result.target.start.arrayIndex !== 0) {
+  if (result && result.vector.origin.arrayIndex !== 0) {
     assertions.push(`should return start arrayIndex as 0`);
   }
 
-  if (result && result.target.start.stringIndex !== 12) {
+  if (result && result.vector.origin.stringIndex !== 12) {
     assertions.push(`should return start stringIndex as 12`);
   }
 
-  if (result && result.target.end.arrayIndex !== 1) {
+  if (result && result.vector.target.arrayIndex !== 1) {
     assertions.push(`should return end arrayIndex as 1`);
   }
 
-  if (result && result.target.end.stringIndex !== 3) {
+  if (result && result.vector.target.stringIndex !== 3) {
     assertions.push(`should return end stringIndex as 3`);
   }
 
@@ -353,19 +353,19 @@ const invalidOpenNodeWithArgs = () => {
     assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
   }
 
-  if (result && result.target.start.arrayIndex !== 0) {
+  if (result && result.vector.origin.arrayIndex !== 0) {
     assertions.push(`should return start arrayIndex as 0`);
   }
 
-  if (result && result.target.start.stringIndex !== 0) {
+  if (result && result.vector.origin.stringIndex !== 0) {
     assertions.push(`should return start stringIndex as 0`);
   }
 
-  if (result && result.target.end.arrayIndex !== 1) {
+  if (result && result.vector.target.arrayIndex !== 1) {
     assertions.push(`should return end arrayIndex as 1`);
   }
 
-  if (result && result.target.end.stringIndex !== 1) {
+  if (result && result.vector.target.stringIndex !== 1) {
     assertions.push(`should return end stringIndex as 1`);
   }
 
@@ -386,19 +386,19 @@ const validOpenNodeWithArgs = () => {
     );
   }
 
-  if (result && result.target.start.arrayIndex !== 0) {
+  if (result && result.vector.origin.arrayIndex !== 0) {
     assertions.push(`should return start arrayIndex as 0`);
   }
 
-  if (result && result.target.start.stringIndex !== 5) {
+  if (result && result.vector.origin.stringIndex !== 5) {
     assertions.push(`should return start stringIndex as 5`);
   }
 
-  if (result && result.target.end.arrayIndex !== 1) {
+  if (result && result.vector.target.arrayIndex !== 1) {
     assertions.push(`should return end arrayIndex as 1`);
   }
 
-  if (result && result.target.end.stringIndex !== 0) {
+  if (result && result.vector.target.stringIndex !== 0) {
     assertions.push(`should return end stringIndex as 0`);
   }
   return assertions;
@@ -420,19 +420,19 @@ const validSecondaryIndependentNodeWithArgs = () => {
     );
   }
 
-  if (result && result.target.start.arrayIndex !== 2) {
+  if (result && result.vector.origin.arrayIndex !== 2) {
     assertions.push(`should return start arrayIndex as 2`);
   }
 
-  if (result && result.target.start.stringIndex !== 0) {
+  if (result && result.vector.origin.stringIndex !== 0) {
     assertions.push(`should return start stringIndex as 0`);
   }
 
-  if (result && result.target.end.arrayIndex !== 2) {
+  if (result && result.vector.target.arrayIndex !== 2) {
     assertions.push(`should return end arrayIndex as 1`);
   }
 
-  if (result && result.target.end.stringIndex !== 3) {
+  if (result && result.vector.target.stringIndex !== 3) {
     assertions.push(`should return end stringIndex as 3`);
   }
   return assertions;

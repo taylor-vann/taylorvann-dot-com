@@ -2,8 +2,8 @@
 // build structure
 
 import { InterfaceHooks } from "../../interface_hooks/interface_hooks";
-import { Structure } from "../../references/structure";
-import { RenderResults } from "../../references/render";
+import { Structure } from "../../type_flyweight/structure";
+import { RenderResults } from "../../type_flyweight/render";
 
 // structure render and crawl results
 

@@ -5,8 +5,8 @@
 // A Attributables
 // P Params
 
-import { ContextBase } from "../references/context";
-import { RenderResults, StructureRender } from "../references/render";
+import { ContextBase } from "../type_flyweight/context";
+import { RenderResults, StructureRender } from "../type_flyweight/render";
 
 type Timestamp = number;
 type DescendantRecord = Record<number, Timestamp>;

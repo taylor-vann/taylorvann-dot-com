@@ -8,7 +8,7 @@
 // A Attributables
 // P Params
 
-import { ContextInterface, InterfaceBase } from "../references/context";
+import { ContextInterface, InterfaceBase } from "../type_flyweight/context";
 
 interface ConnectAction<N, A, P, R> {
   xcontext: ContextInterface<N, A, P, R>;

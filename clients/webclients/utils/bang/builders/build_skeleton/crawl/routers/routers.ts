@@ -1,6 +1,6 @@
 // brian taylor vann
 
-import { CrawlStatus } from "../../../../references/crawl";
+import { CrawlStatus } from "../../../../type_flyweight/crawl";
 
 type Routes = Record<string, CrawlStatus>;
 type Routers = Partial<Record<CrawlStatus, Routes>>;
