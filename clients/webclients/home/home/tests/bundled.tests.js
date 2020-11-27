@@ -1344,16 +1344,104 @@ const unitTestBuildIntegrals = {
     runTestsAsynchronously: runTestsAsynchronously$3,
 };
 
+const copy = (original) => {
+    return {
+        origin: Object.assign({}, original.origin),
+        target: Object.assign({}, original.target),
+    };
+};
+const increment = (vector, template) => {
+    console.log("called increment!");
+    const target = vector.target;
+    const arrayLength = template.templateArray[target.arrayIndex].length;
+    const templateLength = template.templateArray.length;
+    if (target.arrayIndex >= templateLength - 1 &&
+        target.stringIndex >= arrayLength - 1) {
+        return;
+    }
+    target.stringIndex += 1;
+    target.stringIndex %= arrayLength;
+    if (target.stringIndex === 0 && target.arrayIndex < templateLength - 1) {
+        target.arrayIndex += 1;
+    }
+};
+
+const testTextInterpolator$2 = (templateArray, ...injections) => {
+    return { templateArray, injections };
+};
+const title$4 = "text_vector";
+const runTestsAsynchronously$4 = true;
+const copyTextVector = () => {
+    const assertions = [];
+    const vector = {
+        origin: { arrayIndex: 0, stringIndex: 1 },
+        target: { arrayIndex: 2, stringIndex: 3 },
+    };
+    const copiedVector = copy(vector);
+    if (vector.origin.stringIndex !== copiedVector.origin.stringIndex) {
+        assertions.push("text vector string index does not match");
+    }
+    if (vector.origin.arrayIndex !== copiedVector.origin.arrayIndex) {
+        assertions.push("text vector array index does not match");
+    }
+    return assertions;
+};
+const incrementTextVector = () => {
+    const assertions = [];
+    const structureRender = testTextInterpolator$2 `hello`;
+    const vector = {
+        origin: { arrayIndex: 0, stringIndex: 0 },
+        target: { arrayIndex: 0, stringIndex: 0 },
+    };
+    increment(vector, structureRender);
+    if (vector.target.stringIndex !== 1) {
+        assertions.push("text vector string index does not match");
+    }
+    if (vector.target.arrayIndex !== 0) {
+        assertions.push("text vector array index does not match");
+    }
+    return assertions;
+};
+const incrementTextVectorTooFar = () => {
+    const assertions = [];
+    const structureRender = testTextInterpolator$2 `hello`;
+    const vector = {
+        origin: { arrayIndex: 0, stringIndex: 0 },
+        target: { arrayIndex: 0, stringIndex: 0 },
+    };
+    increment(vector, structureRender);
+    increment(vector, structureRender);
+    increment(vector, structureRender);
+    increment(vector, structureRender);
+    increment(vector, structureRender);
+    increment(vector, structureRender);
+    console.log(vector);
+    if (vector.target.stringIndex !== 4) {
+        assertions.push("text vector string index does not match");
+    }
+    if (vector.target.arrayIndex !== 0) {
+        assertions.push("text vector array index does not match");
+    }
+    return assertions;
+};
+const tests$4 = [copyTextVector, incrementTextVector, incrementTextVectorTooFar];
+const unitTestTextVector = {
+    title: title$4,
+    tests: tests$4,
+    runTestsAsynchronously: runTestsAsynchronously$4,
+};
+
 // brian taylor vann
-const tests$4 = [
+const tests$5 = [
     unitTestRouters,
     unitTestCrawl,
     unitTestBuildSkeleton,
     unitTestBuildIntegrals,
+    unitTestTextVector,
 ];
 
 // brian taylor vann
-const testCollection = [...tests$4];
+const testCollection = [...tests$5];
 runTests({ testCollection })
     .then((results) => console.log("results: ", results))
     .catch((errors) => console.log("errors: ", errors));
