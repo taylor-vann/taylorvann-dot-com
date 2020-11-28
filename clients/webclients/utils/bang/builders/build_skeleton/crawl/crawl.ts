@@ -6,6 +6,7 @@ import { CrawlResults, CrawlStatus } from "../../../type_flyweight/crawl";
 import { Position } from "../../../type_flyweight/text_vector";
 import {
   copy,
+  create,
   increment,
   getCharFromTarget,
 } from "../../../text_vector/text_vector";
@@ -49,16 +50,7 @@ const confirmedSieve: Sieve = {
 const createDefaultCrawlState: CreateCrawlState = () => {
   return {
     nodeType: "CONTENT_NODE",
-    vector: {
-      origin: {
-        arrayIndex: 0,
-        stringIndex: 0,
-      },
-      target: {
-        arrayIndex: 0,
-        stringIndex: 0,
-      },
-    },
+    vector: create(),
   };
 };
 

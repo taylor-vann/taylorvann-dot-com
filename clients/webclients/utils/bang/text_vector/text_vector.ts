@@ -1,13 +1,27 @@
 import { StructureRender } from "../type_flyweight/structure";
-import { Vector } from "../type_flyweight/text_vector";
+import { Position, Vector } from "../type_flyweight/text_vector";
 
+type Create = (position?: Position) => Vector;
 type Copy = (vector: Vector) => Vector;
 type GetTagetChar = <A>(
   vector: Vector,
   tempalte: StructureRender<A>
 ) => string | void;
 
-type Increment = <A>(vector: Vector, tempalte: StructureRender<A>) => void;
+type Increment = <A>(
+  vector: Vector,
+  tempalte: StructureRender<A>
+) => Vector | void;
+
+const DEFAULT_POSITION: Position = {
+  arrayIndex: 0,
+  stringIndex: 0,
+};
+
+const create: Create = (position = DEFAULT_POSITION) => ({
+  origin: Object.assign({}, position),
+  target: Object.assign({}, position),
+});
 
 const copy: Copy = (vector) => {
   return {
@@ -36,6 +50,8 @@ const increment: Increment = <A>(
   if (target.stringIndex === 0 && target.arrayIndex < templateLength - 1) {
     target.arrayIndex += 1;
   }
+
+  return vector;
 };
 
 const getCharFromTarget: GetTagetChar = (vector, template) => {
@@ -54,4 +70,4 @@ const getCharFromTarget: GetTagetChar = (vector, template) => {
   return templateArray[arrayIndex][stringIndex];
 };
 
-export { copy, increment, getCharFromTarget };
+export { copy, create, increment, getCharFromTarget };

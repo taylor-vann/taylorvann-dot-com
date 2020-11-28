@@ -1,4 +1,4 @@
-import { copy, increment, getCharFromTarget } from "./text_vector";
+import { copy, create, increment, getCharFromTarget } from "./text_vector";
 import { Vector } from "../type_flyweight/text_vector";
 import { StructureRender } from "../type_flyweight/structure";
 
@@ -16,6 +16,39 @@ const testTextInterpolator: TextTextInterpolator = (
 
 const title = "text_vector";
 const runTestsAsynchronously = true;
+
+const createTextVector = () => {
+  const assertions = [];
+
+  const vector = create();
+
+  if (vector.origin.stringIndex !== 0) {
+    assertions.push("text vector string index does not match");
+  }
+  if (vector.origin.arrayIndex !== 0) {
+    assertions.push("text vector array index does not match");
+  }
+
+  return assertions;
+};
+
+const createTextVectorFromPosition = () => {
+  const assertions = [];
+  const prevPosition = {
+    stringIndex: 3,
+    arrayIndex: 4,
+  };
+  const vector = create(prevPosition);
+
+  if (vector.origin.stringIndex !== 3) {
+    assertions.push("text vector string index does not match");
+  }
+  if (vector.origin.arrayIndex !== 4) {
+    assertions.push("text vector array index does not match");
+  }
+
+  return assertions;
+};
 
 const copyTextVector = () => {
   const assertions = [];
@@ -38,10 +71,7 @@ const copyTextVector = () => {
 const incrementTextVector = () => {
   const assertions = [];
   const structureRender = testTextInterpolator`hello`;
-  const vector: Vector = {
-    origin: { arrayIndex: 0, stringIndex: 0 },
-    target: { arrayIndex: 0, stringIndex: 0 },
-  };
+  const vector: Vector = create();
   increment(vector, structureRender);
 
   if (vector.target.stringIndex !== 1) {
@@ -57,10 +87,7 @@ const incrementTextVector = () => {
 const incrementMultiTextVector = () => {
   const assertions = [];
   const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
-  const vector: Vector = {
-    origin: { arrayIndex: 0, stringIndex: 0 },
-    target: { arrayIndex: 0, stringIndex: 0 },
-  };
+  const vector: Vector = create();
   increment(vector, structureRender);
   increment(vector, structureRender);
   increment(vector, structureRender);
@@ -79,23 +106,21 @@ const incrementMultiTextVector = () => {
 
 const incrementTextVectorTooFar = () => {
   const assertions = [];
-  const structureRender = testTextInterpolator`hello`;
-  const vector: Vector = {
-    origin: { arrayIndex: 0, stringIndex: 0 },
-    target: { arrayIndex: 0, stringIndex: 0 },
-  };
+  const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
+  const vector: Vector = create();
 
-  increment(vector, structureRender);
-  increment(vector, structureRender);
-  increment(vector, structureRender);
-  increment(vector, structureRender);
-  increment(vector, structureRender);
-  increment(vector, structureRender);
-
-  if (vector.target.stringIndex !== 4) {
+  const MAX_DEPTH = 20;
+  let safety = 0;
+  while (increment(vector, structureRender) && safety < MAX_DEPTH) {
+    // iterate across structure
+    safety += 1;
+  }
+  console.log("increment text vector too far");
+  console.log(vector);
+  if (vector.target.stringIndex !== 13) {
     assertions.push("text vector string index does not match");
   }
-  if (vector.target.arrayIndex !== 0) {
+  if (vector.target.arrayIndex !== 1) {
     assertions.push("text vector array index does not match");
   }
 
@@ -120,6 +145,8 @@ const getCharFromTemplate = () => {
 };
 
 const tests = [
+  createTextVector,
+  createTextVectorFromPosition,
   copyTextVector,
   incrementTextVector,
   incrementMultiTextVector,

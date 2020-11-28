@@ -522,6 +522,14 @@ const routers = {
     },
 };
 
+const DEFAULT_POSITION = {
+    arrayIndex: 0,
+    stringIndex: 0,
+};
+const create = (position = DEFAULT_POSITION) => ({
+    origin: Object.assign({}, position),
+    target: Object.assign({}, position),
+});
 const copy = (vector) => {
     return {
         origin: Object.assign({}, vector.origin),
@@ -541,6 +549,7 @@ const increment = (vector, template) => {
     if (target.stringIndex === 0 && target.arrayIndex < templateLength - 1) {
         target.arrayIndex += 1;
     }
+    return vector;
 };
 const getCharFromTarget = (vector, template) => {
     const templateArray = template.templateArray;
@@ -571,16 +580,7 @@ const confirmedSieve = {
 const createDefaultCrawlState = () => {
     return {
         nodeType: "CONTENT_NODE",
-        vector: {
-            origin: {
-                arrayIndex: 0,
-                stringIndex: 0,
-            },
-            target: {
-                arrayIndex: 0,
-                stringIndex: 0,
-            },
-        },
+        vector: create(),
     };
 };
 const setStartStateProperties = (template, previousCrawl) => {
@@ -1104,6 +1104,32 @@ const testTextInterpolator$1 = (templateArray, ...injections) => {
 };
 const title$2 = "text_vector";
 const runTestsAsynchronously$2 = true;
+const createTextVector = () => {
+    const assertions = [];
+    const vector = create();
+    if (vector.origin.stringIndex !== 0) {
+        assertions.push("text vector string index does not match");
+    }
+    if (vector.origin.arrayIndex !== 0) {
+        assertions.push("text vector array index does not match");
+    }
+    return assertions;
+};
+const createTextVectorFromPosition = () => {
+    const assertions = [];
+    const prevPosition = {
+        stringIndex: 3,
+        arrayIndex: 4,
+    };
+    const vector = create(prevPosition);
+    if (vector.origin.stringIndex !== 3) {
+        assertions.push("text vector string index does not match");
+    }
+    if (vector.origin.arrayIndex !== 4) {
+        assertions.push("text vector array index does not match");
+    }
+    return assertions;
+};
 const copyTextVector = () => {
     const assertions = [];
     const vector = {
@@ -1122,10 +1148,7 @@ const copyTextVector = () => {
 const incrementTextVector = () => {
     const assertions = [];
     const structureRender = testTextInterpolator$1 `hello`;
-    const vector = {
-        origin: { arrayIndex: 0, stringIndex: 0 },
-        target: { arrayIndex: 0, stringIndex: 0 },
-    };
+    const vector = create();
     increment(vector, structureRender);
     if (vector.target.stringIndex !== 1) {
         assertions.push("text vector string index does not match");
@@ -1138,10 +1161,7 @@ const incrementTextVector = () => {
 const incrementMultiTextVector = () => {
     const assertions = [];
     const structureRender = testTextInterpolator$1 `hey${"world"}, how are you?`;
-    const vector = {
-        origin: { arrayIndex: 0, stringIndex: 0 },
-        target: { arrayIndex: 0, stringIndex: 0 },
-    };
+    const vector = create();
     increment(vector, structureRender);
     increment(vector, structureRender);
     increment(vector, structureRender);
@@ -1157,21 +1177,20 @@ const incrementMultiTextVector = () => {
 };
 const incrementTextVectorTooFar = () => {
     const assertions = [];
-    const structureRender = testTextInterpolator$1 `hello`;
-    const vector = {
-        origin: { arrayIndex: 0, stringIndex: 0 },
-        target: { arrayIndex: 0, stringIndex: 0 },
-    };
-    increment(vector, structureRender);
-    increment(vector, structureRender);
-    increment(vector, structureRender);
-    increment(vector, structureRender);
-    increment(vector, structureRender);
-    increment(vector, structureRender);
-    if (vector.target.stringIndex !== 4) {
+    const structureRender = testTextInterpolator$1 `hey${"world"}, how are you?`;
+    const vector = create();
+    const MAX_DEPTH = 20;
+    let safety = 0;
+    while (increment(vector, structureRender) && safety < MAX_DEPTH) {
+        // iterate across structure
+        safety += 1;
+    }
+    console.log("increment text vector too far");
+    console.log(vector);
+    if (vector.target.stringIndex !== 13) {
         assertions.push("text vector string index does not match");
     }
-    if (vector.target.arrayIndex !== 0) {
+    if (vector.target.arrayIndex !== 1) {
         assertions.push("text vector array index does not match");
     }
     return assertions;
@@ -1190,6 +1209,8 @@ const getCharFromTemplate = () => {
     return assertions;
 };
 const tests$2 = [
+    createTextVector,
+    createTextVectorFromPosition,
     copyTextVector,
     incrementTextVector,
     incrementMultiTextVector,
