@@ -1,8 +1,14 @@
 // brian taylor vann
 
 import { routers } from "./routers/routers";
+import { StructureRender } from "../../../type_flyweight/structure";
 import { CrawlResults, CrawlStatus } from "../../../type_flyweight/crawl";
 import { Position } from "../../../type_flyweight/text_vector";
+import {
+  copy,
+  increment,
+  getCharFromTarget,
+} from "../../../text_vector/text_vector";
 
 type Sieve = Partial<Record<CrawlStatus, CrawlStatus>>;
 
@@ -15,13 +21,13 @@ type SetPosition = (
 type CreateCrawlState = () => CrawlResults;
 type SetNodeType = (results: CrawlResults, character: string) => void;
 
-type SetStartStateProperties = (
-  brokenText: TemplateStringsArray,
+type SetStartStateProperties = <A>(
+  template: StructureRender<A>,
   previousCrawl?: CrawlResults
 ) => CrawlResults | undefined;
 
-type Crawl = (
-  brokenText: TemplateStringsArray,
+type Crawl = <A>(
+  template: StructureRender<A>,
   previousCrawl?: CrawlResults
 ) => CrawlResults | undefined;
 
@@ -33,13 +39,14 @@ const validSieve: Sieve = {
   ["CLOSE_NODE_VALID"]: "CLOSE_NODE_VALID",
   ["INDEPENDENT_NODE_VALID"]: "INDEPENDENT_NODE_VALID",
 };
+
 const confirmedSieve: Sieve = {
   ["OPEN_NODE_CONFIRMED"]: "OPEN_NODE_CONFIRMED",
   ["CLOSE_NODE_CONFIRMED"]: "CLOSE_NODE_CONFIRMED",
   ["INDEPENDENT_NODE_CONFIRMED"]: "INDEPENDENT_NODE_CONFIRMED",
 };
 
-const createNotFoundCrawlState: CreateCrawlState = () => {
+const createDefaultCrawlState: CreateCrawlState = () => {
   return {
     nodeType: "CONTENT_NODE",
     vector: {
@@ -56,36 +63,29 @@ const createNotFoundCrawlState: CreateCrawlState = () => {
 };
 
 const setStartStateProperties: SetStartStateProperties = (
-  brokenText,
+  template,
   previousCrawl
 ) => {
-  const cState = createNotFoundCrawlState();
+  const cState = createDefaultCrawlState();
   if (previousCrawl === undefined) {
     return cState;
   }
 
-  let { arrayIndex, stringIndex } = previousCrawl.vector.target;
-
-  stringIndex += 1;
-  stringIndex %= brokenText[arrayIndex].length;
-  if (stringIndex === 0) {
-    arrayIndex += 1;
-  }
-  if (arrayIndex >= brokenText.length) {
-    return;
-  }
-
-  cState.vector.origin.arrayIndex = arrayIndex;
-  cState.vector.origin.stringIndex = stringIndex;
-  cState.vector.target.arrayIndex = arrayIndex;
-  cState.vector.target.stringIndex = stringIndex;
+  console.log("set start state properties");
+  console.log(previousCrawl.vector);
+  increment(previousCrawl.vector, template);
+  console.log(previousCrawl.vector);
+  cState.vector = previousCrawl.vector;
 
   return cState;
 };
 
 const setNodeType: SetNodeType = (cState, char) => {
-  const defaultNodeType = routers[cState.nodeType]?.["DEFAULT"] ?? CONTENT_NODE;
-  cState.nodeType = routers[cState.nodeType]?.[char] ?? defaultNodeType;
+  const nodeStates = routers[cState.nodeType];
+  if (nodeStates) {
+    const defaultNodeType = nodeStates["DEFAULT"] ?? CONTENT_NODE;
+    cState.nodeType = nodeStates[char] ?? defaultNodeType;
+  }
 
   return cState;
 };
@@ -110,8 +110,8 @@ const setEnd: SetPosition = (
   results.vector.target.stringIndex = stringIndex;
 };
 
-const crawl: Crawl = (brokenText, previousCrawl) => {
-  const cState = setStartStateProperties(brokenText, previousCrawl);
+const crawl: Crawl = (template, previousCrawl) => {
+  const cState = setStartStateProperties(template, previousCrawl);
   if (cState === undefined) {
     return;
   }
@@ -123,12 +123,12 @@ const crawl: Crawl = (brokenText, previousCrawl) => {
     stringIndex,
   };
 
-  while (arrayIndex < brokenText.length) {
+  while (arrayIndex < template.templateArray.length) {
     if (validSieve[cState.nodeType] === undefined) {
       cState.nodeType = CONTENT_NODE;
     }
 
-    const chunk = brokenText[arrayIndex];
+    const chunk = template.templateArray[arrayIndex];
     while (stringIndex < chunk.length) {
       setNodeType(cState, chunk.charAt(stringIndex));
 
@@ -153,8 +153,8 @@ const crawl: Crawl = (brokenText, previousCrawl) => {
   }
 
   // finished walk without results
-  arrayIndex = brokenText.length - 1;
-  stringIndex = brokenText[arrayIndex].length - 1;
+  arrayIndex = template.templateArray.length - 1;
+  stringIndex = template.templateArray[arrayIndex].length - 1;
   setEnd(cState, arrayIndex, stringIndex);
 
   return cState;

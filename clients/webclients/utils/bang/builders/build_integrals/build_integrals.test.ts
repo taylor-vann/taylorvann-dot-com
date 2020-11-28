@@ -14,9 +14,10 @@ const testTextInterpolator: TextTextInterpolator = (
   templateArray,
   ...injections
 ) => {
+  const template = { templateArray, injections };
   return {
-    template: { templateArray, injections },
-    skeleton: buildSkeleton(templateArray, ...injections),
+    template: template,
+    skeleton: buildSkeleton(template),
   };
 };
 

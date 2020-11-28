@@ -1,17 +1,18 @@
 // brian taylor vann
 
+import { StructureRender } from "../../../type_flyweight/structure";
 import { crawl } from "./crawl";
 
-type TextTextInterpolator = (
-  brokenText: TemplateStringsArray,
-  ...injections: string[]
-) => TemplateStringsArray;
+type TextTextInterpolator = <A>(
+  templateArray: TemplateStringsArray,
+  ...injections: A[]
+) => StructureRender<A>;
 
 const testTextInterpolator: TextTextInterpolator = (
-  brokenText,
+  templateArray,
   ...injections
 ) => {
-  return brokenText;
+  return { templateArray, injections };
 };
 
 const title = "crawl";
@@ -408,8 +409,12 @@ const validSecondaryIndependentNodeWithArgs = () => {
   const testValidOpenNode = testTextInterpolator`<p ${"small"}/>${"example"}<p/>`;
   const assertions: string[] = [];
 
+  console.log("we found");
+  console.log(testValidOpenNode);
   const previousCrawl = crawl(testValidOpenNode);
+  console.log(previousCrawl);
   const result = crawl(testValidOpenNode, previousCrawl);
+  console.log(result);
   if (result === undefined) {
     assertions.push("undefined result");
   }

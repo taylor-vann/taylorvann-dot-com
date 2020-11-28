@@ -3,6 +3,7 @@
 import { crawl } from "./crawl/crawl";
 import { CrawlResults, SkeletonNodes } from "../../type_flyweight/crawl";
 import { Position } from "../../type_flyweight/text_vector";
+import { StructureRender } from "../../type_flyweight/render";
 
 type NodeType =
   | "OPEN_NODE"
@@ -10,26 +11,23 @@ type NodeType =
   | "CLOSE_NODE"
   | "CONTENT_NODE";
 
-type GetStringBonePosition = (
-  brokenText: TemplateStringsArray,
+type GetStringBonePosition = <A>(
+  template: StructureRender<A>,
   crawlResult: CrawlResults
 ) => Position | void;
 
-interface BuildSkeletonStringBoneParams {
-  brokenText: TemplateStringsArray;
+interface BuildSkeletonStringBoneParams<A> {
+  template: StructureRender<A>;
   currentCrawl: CrawlResults;
   previousCrawl?: CrawlResults;
 }
-type BuildSkeletonStringBone = (
-  params: BuildSkeletonStringBoneParams
+type BuildSkeletonStringBone = <A>(
+  params: BuildSkeletonStringBoneParams<A>
 ) => CrawlResults | void;
 
 type BuildSkeletonSieve = Record<string, NodeType>;
 
-type BuildSkeleton = <A>(
-  brokenText: TemplateStringsArray,
-  ...injections: A[]
-) => SkeletonNodes;
+type BuildSkeleton = <A>(template: StructureRender<A>) => SkeletonNodes;
 
 const MAX_DEPTH = 128;
 
@@ -40,13 +38,10 @@ const SKELETON_SIEVE: BuildSkeletonSieve = {
   ["CONTENT_NODE"]: "CONTENT_NODE",
 };
 
-const getStringBoneStart: GetStringBonePosition = (
-  brokenText,
-  previousCrawl
-) => {
+const getStringBoneStart: GetStringBonePosition = (template, previousCrawl) => {
   let { arrayIndex, stringIndex } = previousCrawl.vector.target;
   stringIndex += 1;
-  stringIndex %= brokenText[arrayIndex].length;
+  stringIndex %= template.templateArray[arrayIndex].length;
   if (stringIndex === 0) {
     arrayIndex += 1;
   }
@@ -57,12 +52,12 @@ const getStringBoneStart: GetStringBonePosition = (
   };
 };
 
-const getStringBoneEnd: GetStringBonePosition = (brokenText, currentCrawl) => {
+const getStringBoneEnd: GetStringBonePosition = (template, currentCrawl) => {
   let { arrayIndex, stringIndex } = currentCrawl.vector.origin;
   stringIndex -= 1;
   if (stringIndex === -1) {
     arrayIndex -= 1;
-    stringIndex += brokenText[arrayIndex].length;
+    stringIndex += template.templateArray[arrayIndex].length;
   }
 
   return {
@@ -72,7 +67,7 @@ const getStringBoneEnd: GetStringBonePosition = (brokenText, currentCrawl) => {
 };
 
 const buildSkeletonStringBone: BuildSkeletonStringBone = ({
-  brokenText,
+  template,
   currentCrawl,
   previousCrawl,
 }) => {
@@ -88,8 +83,8 @@ const buildSkeletonStringBone: BuildSkeletonStringBone = ({
     return;
   }
 
-  const contentStart = getStringBoneStart(brokenText, previousCrawl);
-  const contentEnd = getStringBoneEnd(brokenText, currentCrawl);
+  const contentStart = getStringBoneStart(template, previousCrawl);
+  const contentEnd = getStringBoneEnd(template, currentCrawl);
   if (contentStart && contentEnd) {
     return {
       nodeType: "CONTENT_NODE",
@@ -101,17 +96,17 @@ const buildSkeletonStringBone: BuildSkeletonStringBone = ({
   }
 };
 
-const buildSkeleton: BuildSkeleton = (brokenText) => {
+const buildSkeleton: BuildSkeleton = (template) => {
   let depth = 0;
   const skeleton: SkeletonNodes = [];
 
   let previousCrawl: CrawlResults | undefined;
-  let currentCrawl = crawl(brokenText, previousCrawl);
+  let currentCrawl = crawl(template, previousCrawl);
 
   while (currentCrawl && depth < MAX_DEPTH) {
     // get string in between crawls
     const stringBone = buildSkeletonStringBone({
-      brokenText,
+      template,
       previousCrawl,
       currentCrawl,
     });
@@ -123,7 +118,7 @@ const buildSkeleton: BuildSkeleton = (brokenText) => {
       skeleton.push(currentCrawl);
     }
     previousCrawl = currentCrawl;
-    currentCrawl = crawl(brokenText, previousCrawl);
+    currentCrawl = crawl(template, previousCrawl);
 
     depth += 1;
   }

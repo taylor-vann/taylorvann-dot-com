@@ -1,11 +1,12 @@
 // brian taylor vann
 
+import { StructureRender } from "../../type_flyweight/render";
 import { SkeletonNodes, buildSkeleton } from "./build_skeleton";
 
-type TextTextInterpolator = (
-  brokenText: TemplateStringsArray,
-  ...injections: string[]
-) => TemplateStringsArray;
+type TextTextInterpolator = <A>(
+  templateArray: TemplateStringsArray,
+  ...injections: A[]
+) => StructureRender<A>;
 
 type CompareSkeletons = (
   source: SkeletonNodes,
@@ -15,8 +16,11 @@ type CompareSkeletons = (
 const title = "build_skeleton";
 const runTestsAsynchronously = true;
 
-const getTemplateArray: TextTextInterpolator = (brokenText, ...injections) => {
-  return brokenText;
+const testTextInterpolator: TextTextInterpolator = (
+  templateArray,
+  ...injections
+) => {
+  return { templateArray, injections };
 };
 
 const compareSkeletons: CompareSkeletons = (source, target) => {
@@ -56,7 +60,7 @@ const findNothingWhenThereIsPlainText = () => {
     },
   ];
 
-  const testBlank = getTemplateArray`no nodes to be found!`;
+  const testBlank = testTextInterpolator`no nodes to be found!`;
   const testSkeleton = buildSkeleton(testBlank);
   if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
     assertions.push("skeletons are not equal");
@@ -76,7 +80,7 @@ const findParagraphInPlainText = () => {
       },
     },
   ];
-  const testOpenNode = getTemplateArray`<p>`;
+  const testOpenNode = testTextInterpolator`<p>`;
   const testSkeleton = buildSkeleton(testOpenNode);
   if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
     assertions.push("skeletons are not equal");
@@ -110,7 +114,7 @@ const findComplexFromPlainText = () => {
       },
     },
   ];
-  const testComplexNode = getTemplateArray`hello<p>world</p>`;
+  const testComplexNode = testTextInterpolator`hello<p>world</p>`;
   const testSkeleton = buildSkeleton(testComplexNode);
   if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
     assertions.push("skeletons are not equal");
@@ -144,7 +148,7 @@ const findCompoundFromPlainText = () => {
       },
     },
   ];
-  const testComplexNode = getTemplateArray`<h1>hello</h1>`;
+  const testComplexNode = testTextInterpolator`<h1>hello</h1>`;
   const testSkeleton = buildSkeleton(testComplexNode);
   if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
     assertions.push("skeletons are not equal");
@@ -185,7 +189,7 @@ const findBrokenFromPlainText = () => {
       },
     },
   ];
-  const testComplexNode = getTemplateArray`<${"hello"}h2>hey</h2><p>howdy</p>`;
+  const testComplexNode = testTextInterpolator`<${"hello"}h2>hey</h2><p>howdy</p>`;
   const testSkeleton = buildSkeleton(testComplexNode);
   if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
     assertions.push("skeletons are not equal");

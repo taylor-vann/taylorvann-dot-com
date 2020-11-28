@@ -1,4 +1,4 @@
-import { copy, increment } from "./text_vector";
+import { copy, increment, getCharFromTarget } from "./text_vector";
 import { Vector } from "../type_flyweight/text_vector";
 import { StructureRender } from "../type_flyweight/structure";
 
@@ -54,6 +54,29 @@ const incrementTextVector = () => {
   return assertions;
 };
 
+const incrementMultiTextVector = () => {
+  const assertions = [];
+  const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
+  const vector: Vector = {
+    origin: { arrayIndex: 0, stringIndex: 0 },
+    target: { arrayIndex: 0, stringIndex: 0 },
+  };
+  increment(vector, structureRender);
+  increment(vector, structureRender);
+  increment(vector, structureRender);
+  increment(vector, structureRender);
+  increment(vector, structureRender);
+
+  if (vector.target.stringIndex !== 2) {
+    assertions.push("text vector string index does not match");
+  }
+  if (vector.target.arrayIndex !== 1) {
+    assertions.push("text vector array index does not match");
+  }
+
+  return assertions;
+};
+
 const incrementTextVectorTooFar = () => {
   const assertions = [];
   const structureRender = testTextInterpolator`hello`;
@@ -79,7 +102,30 @@ const incrementTextVectorTooFar = () => {
   return assertions;
 };
 
-const tests = [copyTextVector, incrementTextVector, incrementTextVectorTooFar];
+const getCharFromTemplate = () => {
+  const assertions = [];
+  const structureRender = testTextInterpolator`hello`;
+  const vector: Vector = {
+    origin: { arrayIndex: 0, stringIndex: 0 },
+    target: { arrayIndex: 0, stringIndex: 2 },
+  };
+
+  const char = getCharFromTarget(vector, structureRender);
+
+  if (char !== "l") {
+    assertions.push("textVector target is not 'l'");
+  }
+
+  return assertions;
+};
+
+const tests = [
+  copyTextVector,
+  incrementTextVector,
+  incrementMultiTextVector,
+  incrementTextVectorTooFar,
+  getCharFromTemplate,
+];
 
 const unitTestTextVector = {
   title,
