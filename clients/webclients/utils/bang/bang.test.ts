@@ -8,11 +8,11 @@ import { unitTestTextVector } from "./text_vector/text_vector.test";
 import { unitTestBuildStructure } from "./builders/build_structure/build_structure.test";
 
 const tests = [
-  unitTestRouters,
+  // unitTestRouters,
   unitTestCrawl,
   // unitTestBuildSkeleton,
   // unitTestBuildIntegrals,
-  unitTestTextVector,
+  // unitTestTextVector,
 ];
 
 export { tests };

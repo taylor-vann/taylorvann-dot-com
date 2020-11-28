@@ -405,7 +405,7 @@ const validOpenNodeWithArgs = () => {
   return assertions;
 };
 
-const validSecondaryIndependentNodeWithArgs = () => {
+const findNextCrawlWithPreviousCrawl = () => {
   const testValidOpenNode = testTextInterpolator`<p ${"small"}/>${"example"}<p/>`;
   const assertions: string[] = [];
 
@@ -444,19 +444,19 @@ const validSecondaryIndependentNodeWithArgs = () => {
 };
 
 const tests = [
-  findNothingWhenThereIsPlainText,
-  findParagraphInPlainText,
-  findCloseParagraphInPlainText,
-  findIndependentParagraphInPlainText,
-  findOpenParagraphInTextWithArgs,
-  notFoundInUgglyMessText,
-  invalidCloseNodeWithArgs,
-  validCloseNodeWithArgs,
-  invalidIndependentNodeWithArgs,
-  validIndependentNodeWithArgs,
-  invalidOpenNodeWithArgs,
-  validOpenNodeWithArgs,
-  validSecondaryIndependentNodeWithArgs,
+  // findNothingWhenThereIsPlainText,
+  // findParagraphInPlainText,
+  // findCloseParagraphInPlainText,
+  // findIndependentParagraphInPlainText,
+  // findOpenParagraphInTextWithArgs,
+  // notFoundInUgglyMessText,
+  // invalidCloseNodeWithArgs,
+  // validCloseNodeWithArgs,
+  // invalidIndependentNodeWithArgs,
+  // validIndependentNodeWithArgs,
+  // invalidOpenNodeWithArgs,
+  // validOpenNodeWithArgs,
+  findNextCrawlWithPreviousCrawl,
 ];
 
 const unitTestCrawl = {

@@ -530,38 +530,31 @@ const create = (position = DEFAULT_POSITION) => ({
     origin: Object.assign({}, position),
     target: Object.assign({}, position),
 });
+const createFollowingVector = (vector, template) => {
+    const followingVector = copy(vector);
+    increment(followingVector.target, template);
+    followingVector.origin = Object.assign({}, followingVector.target);
+    return followingVector;
+};
 const copy = (vector) => {
     return {
         origin: Object.assign({}, vector.origin),
         target: Object.assign({}, vector.target),
     };
 };
-const increment = (vector, template) => {
-    const target = vector.target;
-    const arrayLength = template.templateArray[target.arrayIndex].length;
+const increment = (position, template) => {
+    const arrayLength = template.templateArray[position.arrayIndex].length;
     const templateLength = template.templateArray.length;
-    if (target.arrayIndex >= templateLength - 1 &&
-        target.stringIndex >= arrayLength - 1) {
+    if (position.arrayIndex >= templateLength - 1 &&
+        position.stringIndex >= arrayLength - 1) {
         return;
     }
-    target.stringIndex += 1;
-    target.stringIndex %= arrayLength;
-    if (target.stringIndex === 0 && target.arrayIndex < templateLength - 1) {
-        target.arrayIndex += 1;
+    position.stringIndex += 1;
+    position.stringIndex %= arrayLength;
+    if (position.stringIndex === 0 && position.arrayIndex < templateLength - 1) {
+        position.arrayIndex += 1;
     }
-    return vector;
-};
-const getCharFromTarget = (vector, template) => {
-    const templateArray = template.templateArray;
-    const arrayIndex = vector.target.arrayIndex;
-    const stringIndex = vector.target.stringIndex;
-    if (arrayIndex > templateArray.length - 1) {
-        return;
-    }
-    if (stringIndex > templateArray[arrayIndex].length - 1) {
-        return;
-    }
-    return templateArray[arrayIndex][stringIndex];
+    return position;
 };
 
 // brian taylor vann
@@ -584,14 +577,14 @@ const createDefaultCrawlState = () => {
     };
 };
 const setStartStateProperties = (template, previousCrawl) => {
+    console.log("set start state with properties");
+    console.log("previous crawl: ");
+    console.log(previousCrawl);
     const cState = createDefaultCrawlState();
     if (previousCrawl === undefined) {
         return cState;
     }
-    console.log("set start state properties");
-    console.log(previousCrawl.vector);
-    increment(previousCrawl.vector, template);
-    console.log(previousCrawl.vector);
+    increment(previousCrawl.vector.target, template);
     cState.vector = previousCrawl.vector;
     return cState;
 };
@@ -661,295 +654,7 @@ const testTextInterpolator = (templateArray, ...injections) => {
 };
 const title = "crawl";
 const runTestsAsynchronously = true;
-const findNothingWhenThereIsPlainText = () => {
-    const testBlank = testTextInterpolator `no nodes to be found!`;
-    const assertions = [];
-    const result = crawl(testBlank);
-    if (result === undefined) {
-        assertions.push("undefined result");
-    }
-    if (result && result.nodeType !== "CONTENT_NODE") {
-        assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
-    }
-    if (result && result.vector.origin.arrayIndex !== 0) {
-        assertions.push(`should return start arrayIndex as 0`);
-    }
-    if (result && result.vector.origin.stringIndex !== 0) {
-        assertions.push(`should return start stringIndex as 0`);
-    }
-    if (result && result.vector.target.arrayIndex !== 0) {
-        assertions.push(`should return end arrayIndex as 0`);
-    }
-    if (result && result.vector.target.stringIndex !== 20) {
-        assertions.push(`should return end stringIndex as 20`);
-    }
-    return assertions;
-};
-const findParagraphInPlainText = () => {
-    const testOpenNode = testTextInterpolator `<p>`;
-    const assertions = [];
-    const result = crawl(testOpenNode);
-    if (result === undefined) {
-        assertions.push("undefined result");
-    }
-    if (result && result.nodeType !== "OPEN_NODE_CONFIRMED") {
-        assertions.push(`should return OPEN_NODE_CONFIRMED instead of ${result.nodeType}`);
-    }
-    if (result && result.vector.origin.arrayIndex !== 0) {
-        assertions.push(`should return start arrayIndex as 0`);
-    }
-    if (result && result.vector.origin.stringIndex !== 0) {
-        assertions.push(`should return start stringIndex as 0`);
-    }
-    if (result && result.vector.target.arrayIndex !== 0) {
-        assertions.push(`should return end arrayIndex as 0`);
-    }
-    if (result && result.vector.target.stringIndex !== 2) {
-        assertions.push(`should return end stringIndex as 2`);
-    }
-    return assertions;
-};
-const findCloseParagraphInPlainText = () => {
-    const testTextCloseNode = testTextInterpolator `</p>`;
-    const assertions = [];
-    const result = crawl(testTextCloseNode);
-    if (result === undefined) {
-        assertions.push("undefined result");
-    }
-    if (result && result.nodeType !== "CLOSE_NODE_CONFIRMED") {
-        assertions.push(`should return CLOSE_NODE_CONFIRMED instead of ${result.nodeType}`);
-    }
-    if (result && result.vector.origin.arrayIndex !== 0) {
-        assertions.push(`should return start arrayIndex as 0`);
-    }
-    if (result && result.vector.origin.stringIndex !== 0) {
-        assertions.push(`should return start stringIndex as 2`);
-    }
-    if (result && result.vector.target.arrayIndex !== 0) {
-        assertions.push(`should return end arrayIndex as 0`);
-    }
-    if (result && result.vector.target.stringIndex !== 3) {
-        assertions.push(`should return end stringIndex as 3`);
-    }
-    return assertions;
-};
-const findIndependentParagraphInPlainText = () => {
-    const testTextIndependentNode = testTextInterpolator `<p/>`;
-    const assertions = [];
-    const result = crawl(testTextIndependentNode);
-    if (result === undefined) {
-        assertions.push("undefined result");
-    }
-    if (result && result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
-        assertions.push(`should return INDEPENDENT_NODE_CONFIRMED instead of ${result.nodeType}`);
-    }
-    if (result && result.vector.origin.arrayIndex !== 0) {
-        assertions.push(`should return start arrayIndex as 0`);
-    }
-    if (result && result.vector.origin.stringIndex !== 0) {
-        assertions.push(`should return start stringIndex as 0`);
-    }
-    if (result && result.vector.target.arrayIndex !== 0) {
-        assertions.push(`should return end arrayIndex as 0`);
-    }
-    if (result && result.vector.target.stringIndex !== 3) {
-        assertions.push(`should return end stringIndex as 3`);
-    }
-    return assertions;
-};
-const findOpenParagraphInTextWithArgs = () => {
-    const testTextWithArgs = testTextInterpolator `an ${"example"} <p>${"!"}</p>`;
-    const assertions = [];
-    const result = crawl(testTextWithArgs);
-    if (result === undefined) {
-        assertions.push("undefined result");
-    }
-    if (result && result.nodeType !== "OPEN_NODE_CONFIRMED") {
-        assertions.push(`should return OPEN_NODE_CONFIRMED instead of ${result.nodeType}`);
-    }
-    if (result && result.vector.origin.arrayIndex !== 1) {
-        assertions.push(`should return start arrayIndex as 1`);
-    }
-    if (result && result.vector.origin.stringIndex !== 1) {
-        assertions.push(`should return start stringIndex as 1`);
-    }
-    if (result && result.vector.target.arrayIndex !== 1) {
-        assertions.push(`should return end arrayIndex as 1`);
-    }
-    if (result && result.vector.target.stringIndex !== 3) {
-        assertions.push(`should return end stringIndex as 3`);
-    }
-    return assertions;
-};
-const notFoundInUgglyMessText = () => {
-    const testInvalidUgglyMess = testTextInterpolator `an <${"invalid"}p> example${"!"}`;
-    const assertions = [];
-    const result = crawl(testInvalidUgglyMess);
-    if (result === undefined) {
-        assertions.push("undefined result");
-    }
-    if (result && result.nodeType !== "CONTENT_NODE") {
-        assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
-    }
-    if (result && result.vector.origin.arrayIndex !== 0) {
-        assertions.push(`should return start arrayIndex as 0`);
-    }
-    if (result && result.vector.origin.stringIndex !== 0) {
-        assertions.push(`should return start stringIndex as 0`);
-    }
-    if (result && result.vector.target.arrayIndex !== 2) {
-        assertions.push(`should return end arrayIndex as 2`);
-    }
-    if (result && result.vector.target.stringIndex !== -1) {
-        assertions.push(`should return end stringIndex as -1`);
-    }
-    return assertions;
-};
-const invalidCloseNodeWithArgs = () => {
-    const testInvlaidCloseNodeWithArgs = testTextInterpolator `closed </${"example"}p>`;
-    const assertions = [];
-    const result = crawl(testInvlaidCloseNodeWithArgs);
-    if (result === undefined) {
-        assertions.push("undefined result");
-    }
-    if (result && result.nodeType !== "CONTENT_NODE") {
-        assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
-    }
-    if (result && result.vector.origin.arrayIndex !== 0) {
-        assertions.push(`should return start arrayIndex as 0`);
-    }
-    if (result && result.vector.origin.stringIndex !== 0) {
-        assertions.push(`should return start stringIndex as 0`);
-    }
-    if (result && result.vector.target.arrayIndex !== 1) {
-        assertions.push(`should return end arrayIndex as 1`);
-    }
-    if (result && result.vector.target.stringIndex !== 1) {
-        assertions.push(`should return end stringIndex as 1`);
-    }
-    return assertions;
-};
-const validCloseNodeWithArgs = () => {
-    const testValidCloseNodeWithArgs = testTextInterpolator `closed </p ${"example"}>`;
-    const assertions = [];
-    const result = crawl(testValidCloseNodeWithArgs);
-    if (result === undefined) {
-        assertions.push("undefined result");
-    }
-    if (result && result.nodeType !== "CLOSE_NODE_CONFIRMED") {
-        assertions.push(`should return CLOSE_NODE_CONFIRMED instead of ${result.nodeType}`);
-    }
-    if (result && result.vector.origin.arrayIndex !== 0) {
-        assertions.push(`should return start arrayIndex as 0`);
-    }
-    if (result && result.vector.origin.stringIndex !== 7) {
-        assertions.push(`should return start stringIndex as 7`);
-    }
-    if (result && result.vector.target.arrayIndex !== 1) {
-        assertions.push(`should return end arrayIndex as 1`);
-    }
-    if (result && result.vector.target.stringIndex !== 0) {
-        assertions.push(`should return end stringIndex as 0`);
-    }
-    return assertions;
-};
-const invalidIndependentNodeWithArgs = () => {
-    const testInvalidIndependentNode = testTextInterpolator `independent <${"example"}p/>`;
-    const assertions = [];
-    const result = crawl(testInvalidIndependentNode);
-    if (result === undefined) {
-        assertions.push("undefined result");
-    }
-    if (result && result.nodeType !== "CONTENT_NODE") {
-        assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
-    }
-    if (result && result.vector.origin.arrayIndex !== 0) {
-        assertions.push(`should return start arrayIndex as 0`);
-    }
-    if (result && result.vector.origin.stringIndex !== 0) {
-        assertions.push(`should return start stringIndex as 0`);
-    }
-    if (result && result.vector.target.arrayIndex !== 1) {
-        assertions.push(`should return end arrayIndex as 1`);
-    }
-    if (result && result.vector.target.stringIndex !== 2) {
-        assertions.push(`should return end stringIndex as 2`);
-    }
-    return assertions;
-};
-const validIndependentNodeWithArgs = () => {
-    const testValidIndependentNode = testTextInterpolator `independent <p ${"example"} / >`;
-    const assertions = [];
-    const result = crawl(testValidIndependentNode);
-    if (result === undefined) {
-        assertions.push("undefined result");
-    }
-    if (result && result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
-        assertions.push(`should return INDEPENDENT_NODE_CONFIRMED instead of ${result.nodeType}`);
-    }
-    if (result && result.vector.origin.arrayIndex !== 0) {
-        assertions.push(`should return start arrayIndex as 0`);
-    }
-    if (result && result.vector.origin.stringIndex !== 12) {
-        assertions.push(`should return start stringIndex as 12`);
-    }
-    if (result && result.vector.target.arrayIndex !== 1) {
-        assertions.push(`should return end arrayIndex as 1`);
-    }
-    if (result && result.vector.target.stringIndex !== 3) {
-        assertions.push(`should return end stringIndex as 3`);
-    }
-    return assertions;
-};
-const invalidOpenNodeWithArgs = () => {
-    const testInvalidOpenNode = testTextInterpolator `open <${"example"}p>`;
-    const assertions = [];
-    const result = crawl(testInvalidOpenNode);
-    if (result === undefined) {
-        assertions.push("undefined result");
-    }
-    if (result && result.nodeType !== "CONTENT_NODE") {
-        assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
-    }
-    if (result && result.vector.origin.arrayIndex !== 0) {
-        assertions.push(`should return start arrayIndex as 0`);
-    }
-    if (result && result.vector.origin.stringIndex !== 0) {
-        assertions.push(`should return start stringIndex as 0`);
-    }
-    if (result && result.vector.target.arrayIndex !== 1) {
-        assertions.push(`should return end arrayIndex as 1`);
-    }
-    if (result && result.vector.target.stringIndex !== 1) {
-        assertions.push(`should return end stringIndex as 1`);
-    }
-    return assertions;
-};
-const validOpenNodeWithArgs = () => {
-    const testValidOpenNode = testTextInterpolator `open <p ${"example"}>`;
-    const assertions = [];
-    const result = crawl(testValidOpenNode);
-    if (result === undefined) {
-        assertions.push("undefined result");
-    }
-    if (result && result.nodeType !== "OPEN_NODE_CONFIRMED") {
-        assertions.push(`should return OPEN_NODE_CONFIRMED instead of ${result.nodeType}`);
-    }
-    if (result && result.vector.origin.arrayIndex !== 0) {
-        assertions.push(`should return start arrayIndex as 0`);
-    }
-    if (result && result.vector.origin.stringIndex !== 5) {
-        assertions.push(`should return start stringIndex as 5`);
-    }
-    if (result && result.vector.target.arrayIndex !== 1) {
-        assertions.push(`should return end arrayIndex as 1`);
-    }
-    if (result && result.vector.target.stringIndex !== 0) {
-        assertions.push(`should return end stringIndex as 0`);
-    }
-    return assertions;
-};
-const validSecondaryIndependentNodeWithArgs = () => {
+const findNextCrawlWithPreviousCrawl = () => {
     const testValidOpenNode = testTextInterpolator `<p ${"small"}/>${"example"}<p/>`;
     const assertions = [];
     console.log("we found");
@@ -979,19 +684,19 @@ const validSecondaryIndependentNodeWithArgs = () => {
     return assertions;
 };
 const tests = [
-    findNothingWhenThereIsPlainText,
-    findParagraphInPlainText,
-    findCloseParagraphInPlainText,
-    findIndependentParagraphInPlainText,
-    findOpenParagraphInTextWithArgs,
-    notFoundInUgglyMessText,
-    invalidCloseNodeWithArgs,
-    validCloseNodeWithArgs,
-    invalidIndependentNodeWithArgs,
-    validIndependentNodeWithArgs,
-    invalidOpenNodeWithArgs,
-    validOpenNodeWithArgs,
-    validSecondaryIndependentNodeWithArgs,
+    // findNothingWhenThereIsPlainText,
+    // findParagraphInPlainText,
+    // findCloseParagraphInPlainText,
+    // findIndependentParagraphInPlainText,
+    // findOpenParagraphInTextWithArgs,
+    // notFoundInUgglyMessText,
+    // invalidCloseNodeWithArgs,
+    // validCloseNodeWithArgs,
+    // invalidIndependentNodeWithArgs,
+    // validIndependentNodeWithArgs,
+    // invalidOpenNodeWithArgs,
+    // validOpenNodeWithArgs,
+    findNextCrawlWithPreviousCrawl,
 ];
 const unitTestCrawl = {
     title,
@@ -1104,118 +809,29 @@ const testTextInterpolator$1 = (templateArray, ...injections) => {
 };
 const title$2 = "text_vector";
 const runTestsAsynchronously$2 = true;
-const createTextVector = () => {
+const createFollowingTextVector = () => {
     const assertions = [];
+    const structureRender = testTextInterpolator$1 `supercool`;
     const vector = create();
-    if (vector.origin.stringIndex !== 0) {
+    increment(vector.target, structureRender);
+    increment(vector.target, structureRender);
+    increment(vector.target, structureRender);
+    increment(vector.target, structureRender);
+    const followingVector = createFollowingVector(vector, structureRender);
+    console.log("create following text vector");
+    console.log(followingVector);
+    if (followingVector.target.stringIndex !== 5) {
         assertions.push("text vector string index does not match");
     }
-    if (vector.origin.arrayIndex !== 0) {
+    if (followingVector.target.arrayIndex !== 0) {
         assertions.push("text vector array index does not match");
-    }
-    return assertions;
-};
-const createTextVectorFromPosition = () => {
-    const assertions = [];
-    const prevPosition = {
-        stringIndex: 3,
-        arrayIndex: 4,
-    };
-    const vector = create(prevPosition);
-    if (vector.origin.stringIndex !== 3) {
-        assertions.push("text vector string index does not match");
-    }
-    if (vector.origin.arrayIndex !== 4) {
-        assertions.push("text vector array index does not match");
-    }
-    return assertions;
-};
-const copyTextVector = () => {
-    const assertions = [];
-    const vector = {
-        origin: { arrayIndex: 0, stringIndex: 1 },
-        target: { arrayIndex: 2, stringIndex: 3 },
-    };
-    const copiedVector = copy(vector);
-    if (vector.origin.stringIndex !== copiedVector.origin.stringIndex) {
-        assertions.push("text vector string index does not match");
-    }
-    if (vector.origin.arrayIndex !== copiedVector.origin.arrayIndex) {
-        assertions.push("text vector array index does not match");
-    }
-    return assertions;
-};
-const incrementTextVector = () => {
-    const assertions = [];
-    const structureRender = testTextInterpolator$1 `hello`;
-    const vector = create();
-    increment(vector, structureRender);
-    if (vector.target.stringIndex !== 1) {
-        assertions.push("text vector string index does not match");
-    }
-    if (vector.target.arrayIndex !== 0) {
-        assertions.push("text vector array index does not match");
-    }
-    return assertions;
-};
-const incrementMultiTextVector = () => {
-    const assertions = [];
-    const structureRender = testTextInterpolator$1 `hey${"world"}, how are you?`;
-    const vector = create();
-    increment(vector, structureRender);
-    increment(vector, structureRender);
-    increment(vector, structureRender);
-    increment(vector, structureRender);
-    increment(vector, structureRender);
-    if (vector.target.stringIndex !== 2) {
-        assertions.push("text vector string index does not match");
-    }
-    if (vector.target.arrayIndex !== 1) {
-        assertions.push("text vector array index does not match");
-    }
-    return assertions;
-};
-const incrementTextVectorTooFar = () => {
-    const assertions = [];
-    const structureRender = testTextInterpolator$1 `hey${"world"}, how are you?`;
-    const vector = create();
-    const MAX_DEPTH = 20;
-    let safety = 0;
-    while (increment(vector, structureRender) && safety < MAX_DEPTH) {
-        // iterate across structure
-        safety += 1;
-    }
-    console.log("increment text vector too far");
-    console.log(vector);
-    if (vector.target.stringIndex !== 13) {
-        assertions.push("text vector string index does not match");
-    }
-    if (vector.target.arrayIndex !== 1) {
-        assertions.push("text vector array index does not match");
-    }
-    return assertions;
-};
-const getCharFromTemplate = () => {
-    const assertions = [];
-    const structureRender = testTextInterpolator$1 `hello`;
-    const vector = {
-        origin: { arrayIndex: 0, stringIndex: 0 },
-        target: { arrayIndex: 0, stringIndex: 2 },
-    };
-    const char = getCharFromTarget(vector, structureRender);
-    if (char !== "l") {
-        assertions.push("textVector target is not 'l'");
     }
     return assertions;
 };
 const tests$2 = [
-    createTextVector,
-    createTextVectorFromPosition,
-    copyTextVector,
-    incrementTextVector,
-    incrementMultiTextVector,
-    incrementTextVectorTooFar,
-    getCharFromTemplate,
+    // createTextVector,
+    // createTextVectorFromPosition,
+    createFollowingTextVector,
 ];
 const unitTestTextVector = {
     title: title$2,

@@ -58,15 +58,17 @@ const setStartStateProperties: SetStartStateProperties = (
   template,
   previousCrawl
 ) => {
+  console.log("set start state with properties");
+  console.log("previous crawl: ");
+  console.log(previousCrawl);
+
   const cState = createDefaultCrawlState();
   if (previousCrawl === undefined) {
     return cState;
   }
 
-  console.log("set start state properties");
-  console.log(previousCrawl.vector);
-  increment(previousCrawl.vector, template);
-  console.log(previousCrawl.vector);
+  increment(previousCrawl.vector.target, template);
+
   cState.vector = previousCrawl.vector;
 
   return cState;

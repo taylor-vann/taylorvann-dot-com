@@ -2,6 +2,11 @@ import { StructureRender } from "../type_flyweight/structure";
 import { Position, Vector } from "../type_flyweight/text_vector";
 
 type Create = (position?: Position) => Vector;
+type CreateFollowingVector = <A>(
+  vector: Vector,
+  tempalte: StructureRender<A>
+) => Vector;
+
 type Copy = (vector: Vector) => Vector;
 type GetTagetChar = <A>(
   vector: Vector,
@@ -9,9 +14,9 @@ type GetTagetChar = <A>(
 ) => string | void;
 
 type Increment = <A>(
-  vector: Vector,
+  position: Position,
   tempalte: StructureRender<A>
-) => Vector | void;
+) => Position | void;
 
 const DEFAULT_POSITION: Position = {
   arrayIndex: 0,
@@ -19,9 +24,17 @@ const DEFAULT_POSITION: Position = {
 };
 
 const create: Create = (position = DEFAULT_POSITION) => ({
-  origin: Object.assign({}, position),
-  target: Object.assign({}, position),
+  origin: { ...position },
+  target: { ...position },
 });
+
+const createFollowingVector: CreateFollowingVector = (vector, template) => {
+  const followingVector = copy(vector);
+  increment(followingVector.target, template);
+  followingVector.origin = { ...followingVector.target };
+
+  return followingVector;
+};
 
 const copy: Copy = (vector) => {
   return {
@@ -31,27 +44,26 @@ const copy: Copy = (vector) => {
 };
 
 const increment: Increment = <A>(
-  vector: Vector,
+  position: Position,
   template: StructureRender<A>
 ) => {
-  const target = vector.target;
-  const arrayLength = template.templateArray[target.arrayIndex].length;
+  const arrayLength = template.templateArray[position.arrayIndex].length;
   const templateLength = template.templateArray.length;
 
   if (
-    target.arrayIndex >= templateLength - 1 &&
-    target.stringIndex >= arrayLength - 1
+    position.arrayIndex >= templateLength - 1 &&
+    position.stringIndex >= arrayLength - 1
   ) {
     return;
   }
 
-  target.stringIndex += 1;
-  target.stringIndex %= arrayLength;
-  if (target.stringIndex === 0 && target.arrayIndex < templateLength - 1) {
-    target.arrayIndex += 1;
+  position.stringIndex += 1;
+  position.stringIndex %= arrayLength;
+  if (position.stringIndex === 0 && position.arrayIndex < templateLength - 1) {
+    position.arrayIndex += 1;
   }
 
-  return vector;
+  return position;
 };
 
 const getCharFromTarget: GetTagetChar = (vector, template) => {
@@ -70,4 +82,4 @@ const getCharFromTarget: GetTagetChar = (vector, template) => {
   return templateArray[arrayIndex][stringIndex];
 };
 
-export { copy, create, increment, getCharFromTarget };
+export { copy, create, createFollowingVector, increment, getCharFromTarget };
