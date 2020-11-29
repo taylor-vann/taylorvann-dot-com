@@ -187,6 +187,9 @@ const notFoundInUgglyMessText = () => {
   const assertions: string[] = [];
 
   const result = crawl(testInvalidUgglyMess);
+  console.log("notFoundInUgglyMessText");
+  console.log(testInvalidUgglyMess);
+  console.log(result);
   if (result === undefined) {
     assertions.push("undefined result");
   }
@@ -409,12 +412,8 @@ const findNextCrawlWithPreviousCrawl = () => {
   const testValidOpenNode = testTextInterpolator`<p ${"small"}/>${"example"}<p/>`;
   const assertions: string[] = [];
 
-  console.log("we found");
-  console.log(testValidOpenNode);
   const previousCrawl = crawl(testValidOpenNode);
-  console.log(previousCrawl);
   const result = crawl(testValidOpenNode, previousCrawl);
-  console.log(result);
   if (result === undefined) {
     assertions.push("undefined result");
   }
@@ -444,18 +443,18 @@ const findNextCrawlWithPreviousCrawl = () => {
 };
 
 const tests = [
-  // findNothingWhenThereIsPlainText,
-  // findParagraphInPlainText,
-  // findCloseParagraphInPlainText,
-  // findIndependentParagraphInPlainText,
-  // findOpenParagraphInTextWithArgs,
-  // notFoundInUgglyMessText,
-  // invalidCloseNodeWithArgs,
-  // validCloseNodeWithArgs,
-  // invalidIndependentNodeWithArgs,
-  // validIndependentNodeWithArgs,
-  // invalidOpenNodeWithArgs,
-  // validOpenNodeWithArgs,
+  findNothingWhenThereIsPlainText,
+  findParagraphInPlainText,
+  findCloseParagraphInPlainText,
+  findIndependentParagraphInPlainText,
+  findOpenParagraphInTextWithArgs,
+  notFoundInUgglyMessText,
+  invalidCloseNodeWithArgs,
+  validCloseNodeWithArgs,
+  invalidIndependentNodeWithArgs,
+  validIndependentNodeWithArgs,
+  invalidOpenNodeWithArgs,
+  validOpenNodeWithArgs,
   findNextCrawlWithPreviousCrawl,
 ];
 

@@ -5,33 +5,29 @@ import { StructureRender } from "../../../type_flyweight/structure";
 import { CrawlResults, CrawlStatus } from "../../../type_flyweight/crawl";
 import { Position } from "../../../type_flyweight/text_vector";
 import {
-  copy,
   create,
+  createFollowingVector,
   increment,
   getCharFromTarget,
 } from "../../../text_vector/text_vector";
 
 type Sieve = Partial<Record<CrawlStatus, CrawlStatus>>;
-
-type SetPosition = (
-  results: CrawlResults,
-  arrayIndex: number,
-  stringIndex: number
-) => void;
-
 type CreateCrawlState = () => CrawlResults;
-type SetNodeType = (results: CrawlResults, character: string) => void;
-
+type SetNodeType = <A>(
+  template: StructureRender<A>,
+  results: CrawlResults
+) => void;
+type SetLastPosition = SetNodeType;
 type SetStartStateProperties = <A>(
   template: StructureRender<A>,
   previousCrawl?: CrawlResults
-) => CrawlResults | undefined;
-
+) => CrawlResults;
 type Crawl = <A>(
   template: StructureRender<A>,
   previousCrawl?: CrawlResults
 ) => CrawlResults | undefined;
 
+const DEFAULT = "DEFAULT";
 const CONTENT_NODE = "CONTENT_NODE";
 const OPEN_NODE = "OPEN_NODE";
 
@@ -47,109 +43,75 @@ const confirmedSieve: Sieve = {
   ["INDEPENDENT_NODE_CONFIRMED"]: "INDEPENDENT_NODE_CONFIRMED",
 };
 
-const createDefaultCrawlState: CreateCrawlState = () => {
-  return {
-    nodeType: "CONTENT_NODE",
-    vector: create(),
-  };
-};
+const createDefaultCrawlState: CreateCrawlState = () => ({
+  nodeType: CONTENT_NODE,
+  vector: create(),
+});
 
 const setStartStateProperties: SetStartStateProperties = (
   template,
   previousCrawl
 ) => {
-  console.log("set start state with properties");
-  console.log("previous crawl: ");
-  console.log(previousCrawl);
-
-  const cState = createDefaultCrawlState();
+  const cState: CrawlResults = createDefaultCrawlState();
   if (previousCrawl === undefined) {
     return cState;
   }
 
-  increment(previousCrawl.vector.target, template);
-
-  cState.vector = previousCrawl.vector;
+  cState.vector = createFollowingVector(previousCrawl.vector, template);
 
   return cState;
 };
 
-const setNodeType: SetNodeType = (cState, char) => {
+const setNodeType: SetNodeType = (template, cState) => {
   const nodeStates = routers[cState.nodeType];
-  if (nodeStates) {
-    const defaultNodeType = nodeStates["DEFAULT"] ?? CONTENT_NODE;
+  const char = getCharFromTarget(cState.vector, template);
+  if (nodeStates !== undefined && char !== undefined) {
+    const defaultNodeType = nodeStates[DEFAULT] ?? CONTENT_NODE;
     cState.nodeType = nodeStates[char] ?? defaultNodeType;
   }
 
   return cState;
 };
 
-const setStart: SetPosition = (
-  results: CrawlResults,
-  arrayIndex: number,
-  stringIndex: number
-) => {
-  results.vector.origin.arrayIndex = arrayIndex;
-  results.vector.origin.stringIndex = stringIndex;
-  results.vector.target.arrayIndex = arrayIndex;
-  results.vector.target.stringIndex = stringIndex;
-};
+const setLastPosition: SetLastPosition = (template, cState) => {
+  const arrayIndex = template.templateArray.length - 1;
+  const stringIndex = template.templateArray[arrayIndex].length - 1;
 
-const setEnd: SetPosition = (
-  results: CrawlResults,
-  arrayIndex: number,
-  stringIndex: number
-) => {
-  results.vector.target.arrayIndex = arrayIndex;
-  results.vector.target.stringIndex = stringIndex;
+  cState.vector.target.arrayIndex = arrayIndex;
+  cState.vector.target.stringIndex = stringIndex;
 };
 
 const crawl: Crawl = (template, previousCrawl) => {
+  let openPosition: Position | undefined;
   const cState = setStartStateProperties(template, previousCrawl);
-  if (cState === undefined) {
-    return;
-  }
+  setNodeType(template, cState);
 
-  let { stringIndex, arrayIndex } = cState.vector.origin;
-  // retain most recent postition
-  const suspect: Position = {
-    arrayIndex,
-    stringIndex,
-  };
-
-  while (arrayIndex < template.templateArray.length) {
-    if (validSieve[cState.nodeType] === undefined) {
+  while (increment(cState.vector.target, template)) {
+    if (
+      validSieve[cState.nodeType] === undefined &&
+      cState.vector.target.stringIndex === 0
+    ) {
       cState.nodeType = CONTENT_NODE;
     }
 
-    const chunk = template.templateArray[arrayIndex];
-    while (stringIndex < chunk.length) {
-      setNodeType(cState, chunk.charAt(stringIndex));
-
-      if (confirmedSieve[cState.nodeType]) {
-        // if confirmed, suspected target is verified
-        setStart(cState, suspect.arrayIndex, suspect.stringIndex);
-        setEnd(cState, arrayIndex, stringIndex);
-        return cState;
+    setNodeType(template, cState);
+    if (confirmedSieve[cState.nodeType]) {
+      if (openPosition !== undefined) {
+        cState.vector.origin = { ...openPosition };
       }
-
-      if (cState.nodeType === OPEN_NODE) {
-        suspect.arrayIndex = arrayIndex;
-        suspect.stringIndex = stringIndex;
-      }
-
-      stringIndex += 1;
+      break;
     }
 
-    // skip to next chunk
-    stringIndex = 0;
-    arrayIndex += 1;
+    if (cState.nodeType === OPEN_NODE) {
+      openPosition = { ...cState.vector.target };
+    }
   }
 
-  // finished walk without results
-  arrayIndex = template.templateArray.length - 1;
-  stringIndex = template.templateArray[arrayIndex].length - 1;
-  setEnd(cState, arrayIndex, stringIndex);
+  // if nothing was found, return the last node
+  // covers empty string edge case as -1
+  if (cState.nodeType === CONTENT_NODE) {
+    setLastPosition(template, cState);
+  }
 
   return cState;
 };

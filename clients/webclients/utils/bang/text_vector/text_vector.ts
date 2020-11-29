@@ -11,12 +11,12 @@ type Copy = (vector: Vector) => Vector;
 type GetTagetChar = <A>(
   vector: Vector,
   tempalte: StructureRender<A>
-) => string | void;
+) => string | undefined;
 
 type Increment = <A>(
   position: Position,
   tempalte: StructureRender<A>
-) => Position | void;
+) => Position | undefined;
 
 const DEFAULT_POSITION: Position = {
   arrayIndex: 0,

@@ -556,8 +556,21 @@ const increment = (position, template) => {
     }
     return position;
 };
+const getCharFromTarget = (vector, template) => {
+    const templateArray = template.templateArray;
+    const arrayIndex = vector.target.arrayIndex;
+    const stringIndex = vector.target.stringIndex;
+    if (arrayIndex > templateArray.length - 1) {
+        return;
+    }
+    if (stringIndex > templateArray[arrayIndex].length - 1) {
+        return;
+    }
+    return templateArray[arrayIndex][stringIndex];
+};
 
 // brian taylor vann
+const DEFAULT = "DEFAULT";
 const CONTENT_NODE = "CONTENT_NODE";
 const OPEN_NODE = "OPEN_NODE";
 const validSieve = {
@@ -570,286 +583,328 @@ const confirmedSieve = {
     ["CLOSE_NODE_CONFIRMED"]: "CLOSE_NODE_CONFIRMED",
     ["INDEPENDENT_NODE_CONFIRMED"]: "INDEPENDENT_NODE_CONFIRMED",
 };
-const createDefaultCrawlState = () => {
-    return {
-        nodeType: "CONTENT_NODE",
-        vector: create(),
-    };
-};
+const createDefaultCrawlState = () => ({
+    nodeType: CONTENT_NODE,
+    vector: create(),
+});
 const setStartStateProperties = (template, previousCrawl) => {
-    console.log("set start state with properties");
-    console.log("previous crawl: ");
-    console.log(previousCrawl);
     const cState = createDefaultCrawlState();
     if (previousCrawl === undefined) {
         return cState;
     }
-    increment(previousCrawl.vector.target, template);
-    cState.vector = previousCrawl.vector;
+    cState.vector = createFollowingVector(previousCrawl.vector, template);
     return cState;
 };
-const setNodeType = (cState, char) => {
+const setNodeType = (template, cState) => {
     var _a, _b;
     const nodeStates = routers[cState.nodeType];
-    if (nodeStates) {
-        const defaultNodeType = (_a = nodeStates["DEFAULT"]) !== null && _a !== void 0 ? _a : CONTENT_NODE;
+    const char = getCharFromTarget(cState.vector, template);
+    if (nodeStates !== undefined && char !== undefined) {
+        const defaultNodeType = (_a = nodeStates[DEFAULT]) !== null && _a !== void 0 ? _a : CONTENT_NODE;
         cState.nodeType = (_b = nodeStates[char]) !== null && _b !== void 0 ? _b : defaultNodeType;
     }
     return cState;
 };
-const setStart = (results, arrayIndex, stringIndex) => {
-    results.vector.origin.arrayIndex = arrayIndex;
-    results.vector.origin.stringIndex = stringIndex;
-    results.vector.target.arrayIndex = arrayIndex;
-    results.vector.target.stringIndex = stringIndex;
-};
-const setEnd = (results, arrayIndex, stringIndex) => {
-    results.vector.target.arrayIndex = arrayIndex;
-    results.vector.target.stringIndex = stringIndex;
+const setLastPosition = (template, cState) => {
+    const arrayIndex = template.templateArray.length - 1;
+    const stringIndex = template.templateArray[arrayIndex].length - 1;
+    cState.vector.target.arrayIndex = arrayIndex;
+    cState.vector.target.stringIndex = stringIndex;
 };
 const crawl = (template, previousCrawl) => {
+    let openPosition;
     const cState = setStartStateProperties(template, previousCrawl);
-    if (cState === undefined) {
-        return;
-    }
-    let { stringIndex, arrayIndex } = cState.vector.origin;
-    // retain most recent postition
-    const suspect = {
-        arrayIndex,
-        stringIndex,
-    };
-    while (arrayIndex < template.templateArray.length) {
-        if (validSieve[cState.nodeType] === undefined) {
+    setNodeType(template, cState);
+    while (increment(cState.vector.target, template)) {
+        if (validSieve[cState.nodeType] === undefined &&
+            cState.vector.target.stringIndex === 0) {
             cState.nodeType = CONTENT_NODE;
         }
-        const chunk = template.templateArray[arrayIndex];
-        while (stringIndex < chunk.length) {
-            setNodeType(cState, chunk.charAt(stringIndex));
-            if (confirmedSieve[cState.nodeType]) {
-                // if confirmed, suspected target is verified
-                setStart(cState, suspect.arrayIndex, suspect.stringIndex);
-                setEnd(cState, arrayIndex, stringIndex);
-                return cState;
+        setNodeType(template, cState);
+        if (confirmedSieve[cState.nodeType]) {
+            if (openPosition !== undefined) {
+                cState.vector.origin = Object.assign({}, openPosition);
             }
-            if (cState.nodeType === OPEN_NODE) {
-                suspect.arrayIndex = arrayIndex;
-                suspect.stringIndex = stringIndex;
-            }
-            stringIndex += 1;
+            break;
         }
-        // skip to next chunk
-        stringIndex = 0;
-        arrayIndex += 1;
+        if (cState.nodeType === OPEN_NODE) {
+            openPosition = Object.assign({}, cState.vector.target);
+        }
     }
-    // finished walk without results
-    arrayIndex = template.templateArray.length - 1;
-    stringIndex = template.templateArray[arrayIndex].length - 1;
-    setEnd(cState, arrayIndex, stringIndex);
+    // if nothing was found, return the last node
+    // covers empty string edge case as -1
+    if (cState.nodeType === CONTENT_NODE) {
+        setLastPosition(template, cState);
+    }
     return cState;
 };
 
 // brian taylor vann
+const MAX_DEPTH = 128;
+const SKELETON_SIEVE = {
+    ["OPEN_NODE_CONFIRMED"]: "OPEN_NODE",
+    ["INDEPENDENT_NODE_CONFIRMED"]: "INDEPENDENT_NODE",
+    ["CLOSE_NODE_CONFIRMED"]: "CLOSE_NODE",
+    ["CONTENT_NODE"]: "CONTENT_NODE",
+};
+const getStringBoneStart = (template, previousCrawl) => {
+    let { arrayIndex, stringIndex } = previousCrawl.vector.target;
+    stringIndex += 1;
+    stringIndex %= template.templateArray[arrayIndex].length;
+    if (stringIndex === 0) {
+        arrayIndex += 1;
+    }
+    return {
+        arrayIndex,
+        stringIndex,
+    };
+};
+const getStringBoneEnd = (template, currentCrawl) => {
+    let { arrayIndex, stringIndex } = currentCrawl.vector.origin;
+    stringIndex -= 1;
+    if (stringIndex === -1) {
+        arrayIndex -= 1;
+        stringIndex += template.templateArray[arrayIndex].length;
+    }
+    return {
+        arrayIndex,
+        stringIndex,
+    };
+};
+const buildSkeletonStringBone = ({ template, currentCrawl, previousCrawl, }) => {
+    if (previousCrawl === undefined) {
+        return;
+    }
+    const { target } = previousCrawl.vector;
+    const { origin } = currentCrawl.vector;
+    const stringDistance = Math.abs(origin.stringIndex - target.stringIndex);
+    const stringArrayDistance = origin.arrayIndex - target.arrayIndex;
+    if (2 > stringArrayDistance + stringDistance) {
+        return;
+    }
+    const contentStart = getStringBoneStart(template, previousCrawl);
+    const contentEnd = getStringBoneEnd(template, currentCrawl);
+    if (contentStart && contentEnd) {
+        return {
+            nodeType: "CONTENT_NODE",
+            vector: {
+                origin: contentStart,
+                target: contentEnd,
+            },
+        };
+    }
+};
+const buildSkeleton = (template) => {
+    let depth = 0;
+    const skeleton = [];
+    let previousCrawl;
+    let currentCrawl = crawl(template, previousCrawl);
+    while (currentCrawl && depth < MAX_DEPTH) {
+        // get string in between crawls
+        const stringBone = buildSkeletonStringBone({
+            template,
+            previousCrawl,
+            currentCrawl,
+        });
+        if (stringBone) {
+            skeleton.push(stringBone);
+        }
+        if (SKELETON_SIEVE[currentCrawl.nodeType]) {
+            skeleton.push(currentCrawl);
+        }
+        previousCrawl = currentCrawl;
+        currentCrawl = crawl(template, previousCrawl);
+        depth += 1;
+    }
+    return skeleton;
+};
+
+// brian taylor vann
+const title = "build_skeleton";
+const runTestsAsynchronously = true;
 const testTextInterpolator = (templateArray, ...injections) => {
     return { templateArray, injections };
 };
-const title = "crawl";
-const runTestsAsynchronously = true;
-const findNextCrawlWithPreviousCrawl = () => {
-    const testValidOpenNode = testTextInterpolator `<p ${"small"}/>${"example"}<p/>`;
+const compareSkeletons = (source, target) => {
+    for (const sourceKey in source) {
+        const node = source[sourceKey];
+        const targetNode = target[sourceKey];
+        if (targetNode === undefined) {
+            return false;
+        }
+        if (node.nodeType !== targetNode.nodeType) {
+            return false;
+        }
+        if (node.vector.origin.arrayIndex !== targetNode.vector.origin.arrayIndex ||
+            node.vector.origin.stringIndex !== targetNode.vector.origin.stringIndex ||
+            node.vector.target.arrayIndex !== targetNode.vector.target.arrayIndex ||
+            node.vector.target.stringIndex !== targetNode.vector.target.stringIndex) {
+            return false;
+        }
+    }
+    return true;
+};
+const findNothingWhenThereIsPlainText = () => {
     const assertions = [];
-    console.log("we found");
-    console.log(testValidOpenNode);
-    const previousCrawl = crawl(testValidOpenNode);
-    console.log(previousCrawl);
-    const result = crawl(testValidOpenNode, previousCrawl);
-    console.log(result);
-    if (result === undefined) {
-        assertions.push("undefined result");
+    const sourceSkeleton = [
+        {
+            nodeType: "CONTENT_NODE",
+            vector: {
+                target: { arrayIndex: 0, stringIndex: 20 },
+                origin: { arrayIndex: 0, stringIndex: 0 },
+            },
+        },
+    ];
+    const testBlank = testTextInterpolator `no nodes to be found!`;
+    const testSkeleton = buildSkeleton(testBlank);
+    if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
+        assertions.push("skeletons are not equal");
     }
-    if (result && result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
-        assertions.push(`should return INDEPENDENT_NODE_CONFIRMED instead of ${result.nodeType}`);
+    return assertions;
+};
+const findParagraphInPlainText = () => {
+    const assertions = [];
+    const sourceSkeleton = [
+        {
+            nodeType: "OPEN_NODE_CONFIRMED",
+            vector: {
+                target: { arrayIndex: 0, stringIndex: 2 },
+                origin: { arrayIndex: 0, stringIndex: 0 },
+            },
+        },
+    ];
+    const testOpenNode = testTextInterpolator `<p>`;
+    const testSkeleton = buildSkeleton(testOpenNode);
+    if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
+        assertions.push("skeletons are not equal");
     }
-    if (result && result.vector.origin.arrayIndex !== 2) {
-        assertions.push(`should return start arrayIndex as 2`);
+    return assertions;
+};
+const findComplexFromPlainText = () => {
+    const assertions = [];
+    const sourceSkeleton = [
+        {
+            nodeType: "OPEN_NODE_CONFIRMED",
+            vector: {
+                target: { arrayIndex: 0, stringIndex: 7 },
+                origin: { arrayIndex: 0, stringIndex: 5 },
+            },
+        },
+        {
+            nodeType: "CONTENT_NODE",
+            vector: {
+                target: { arrayIndex: 0, stringIndex: 12 },
+                origin: { arrayIndex: 0, stringIndex: 8 },
+            },
+        },
+        {
+            nodeType: "CLOSE_NODE_CONFIRMED",
+            vector: {
+                target: { arrayIndex: 0, stringIndex: 16 },
+                origin: { arrayIndex: 0, stringIndex: 13 },
+            },
+        },
+    ];
+    const testComplexNode = testTextInterpolator `hello<p>world</p>`;
+    const testSkeleton = buildSkeleton(testComplexNode);
+    if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
+        assertions.push("skeletons are not equal");
     }
-    if (result && result.vector.origin.stringIndex !== 0) {
-        assertions.push(`should return start stringIndex as 0`);
+    return assertions;
+};
+const findCompoundFromPlainText = () => {
+    const assertions = [];
+    const sourceSkeleton = [
+        {
+            nodeType: "OPEN_NODE_CONFIRMED",
+            vector: {
+                target: { arrayIndex: 0, stringIndex: 3 },
+                origin: { arrayIndex: 0, stringIndex: 0 },
+            },
+        },
+        {
+            nodeType: "CONTENT_NODE",
+            vector: {
+                target: { arrayIndex: 0, stringIndex: 8 },
+                origin: { arrayIndex: 0, stringIndex: 4 },
+            },
+        },
+        {
+            nodeType: "CLOSE_NODE_CONFIRMED",
+            vector: {
+                target: { arrayIndex: 0, stringIndex: 13 },
+                origin: { arrayIndex: 0, stringIndex: 9 },
+            },
+        },
+    ];
+    const testComplexNode = testTextInterpolator `<h1>hello</h1>`;
+    const testSkeleton = buildSkeleton(testComplexNode);
+    if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
+        assertions.push("skeletons are not equal");
     }
-    if (result && result.vector.target.arrayIndex !== 2) {
-        assertions.push(`should return end arrayIndex as 1`);
-    }
-    if (result && result.vector.target.stringIndex !== 3) {
-        assertions.push(`should return end stringIndex as 3`);
+    return assertions;
+};
+const findBrokenFromPlainText = () => {
+    const assertions = [];
+    const sourceSkeleton = [
+        {
+            nodeType: "CLOSE_NODE_CONFIRMED",
+            vector: {
+                target: { arrayIndex: 1, stringIndex: 10 },
+                origin: { arrayIndex: 1, stringIndex: 6 },
+            },
+        },
+        {
+            nodeType: "OPEN_NODE_CONFIRMED",
+            vector: {
+                target: { arrayIndex: 1, stringIndex: 13 },
+                origin: { arrayIndex: 1, stringIndex: 11 },
+            },
+        },
+        {
+            nodeType: "CONTENT_NODE",
+            vector: {
+                target: { arrayIndex: 1, stringIndex: 18 },
+                origin: { arrayIndex: 1, stringIndex: 14 },
+            },
+        },
+        {
+            nodeType: "CLOSE_NODE_CONFIRMED",
+            vector: {
+                target: { arrayIndex: 1, stringIndex: 22 },
+                origin: { arrayIndex: 1, stringIndex: 19 },
+            },
+        },
+    ];
+    const testComplexNode = testTextInterpolator `<${"hello"}h2>hey</h2><p>howdy</p>`;
+    const testSkeleton = buildSkeleton(testComplexNode);
+    if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
+        assertions.push("skeletons are not equal");
     }
     return assertions;
 };
 const tests = [
-    // findNothingWhenThereIsPlainText,
-    // findParagraphInPlainText,
-    // findCloseParagraphInPlainText,
-    // findIndependentParagraphInPlainText,
-    // findOpenParagraphInTextWithArgs,
-    // notFoundInUgglyMessText,
-    // invalidCloseNodeWithArgs,
-    // validCloseNodeWithArgs,
-    // invalidIndependentNodeWithArgs,
-    // validIndependentNodeWithArgs,
-    // invalidOpenNodeWithArgs,
-    // validOpenNodeWithArgs,
-    findNextCrawlWithPreviousCrawl,
+    findNothingWhenThereIsPlainText,
+    findParagraphInPlainText,
+    findComplexFromPlainText,
+    findCompoundFromPlainText,
+    findBrokenFromPlainText,
 ];
-const unitTestCrawl = {
+const unitTestBuildSkeleton = {
     title,
     tests,
     runTestsAsynchronously,
 };
 
-const title$1 = "routers";
-const runTestsAsynchronously$1 = true;
-const notFoundReducesCorrectState = () => {
-    var _a, _b;
-    const assertions = [];
-    if (((_a = routers["CONTENT_NODE"]) === null || _a === void 0 ? void 0 : _a["<"]) !== "OPEN_NODE") {
-        assertions.push("< should return OPEN_NODE");
-    }
-    if (((_b = routers["CONTENT_NODE"]) === null || _b === void 0 ? void 0 : _b["DEFAULT"]) !== "CONTENT_NODE") {
-        assertions.push("space should return CONTENT_NODE");
-    }
-    return assertions;
-};
-const openNodeReducesCorrectState = () => {
-    var _a, _b, _c, _d;
-    const assertions = [];
-    if (((_a = routers["OPEN_NODE"]) === null || _a === void 0 ? void 0 : _a["<"]) !== "OPEN_NODE") {
-        assertions.push("< should return OPEN_NODE");
-    }
-    if (((_b = routers["OPEN_NODE"]) === null || _b === void 0 ? void 0 : _b["/"]) !== "CLOSE_NODE") {
-        assertions.push("/ should return CLOSE_NODE");
-    }
-    if (((_c = routers["OPEN_NODE"]) === null || _c === void 0 ? void 0 : _c["b"]) !== "OPEN_NODE_VALID") {
-        assertions.push("b should return OPEN_NODE_VALID");
-    }
-    if (((_d = routers["OPEN_NODE"]) === null || _d === void 0 ? void 0 : _d["DEFAULT"]) !== "CONTENT_NODE") {
-        assertions.push("space should return CONTENT_NODE");
-    }
-    return assertions;
-};
-const openNodeValidReducesCorrectState = () => {
-    var _a, _b, _c, _d;
-    const assertions = [];
-    if (((_a = routers["OPEN_NODE_VALID"]) === null || _a === void 0 ? void 0 : _a["<"]) !== "OPEN_NODE") {
-        assertions.push("< should return OPEN_NODE");
-    }
-    if (((_b = routers["OPEN_NODE_VALID"]) === null || _b === void 0 ? void 0 : _b["/"]) !== "INDEPENDENT_NODE_VALID") {
-        assertions.push("/ should return INDEPENDENT_NODE_VALID");
-    }
-    if (((_c = routers["OPEN_NODE_VALID"]) === null || _c === void 0 ? void 0 : _c[">"]) !== "OPEN_NODE_CONFIRMED") {
-        assertions.push("> should return OPEN_NODE_CONFIRMED");
-    }
-    if (((_d = routers["OPEN_NODE_VALID"]) === null || _d === void 0 ? void 0 : _d["DEFAULT"]) !== "OPEN_NODE_VALID") {
-        assertions.push("space should return OPEN_NODE_VALID");
-    }
-    return assertions;
-};
-const independentNodeValidReducesCorrectState = () => {
-    var _a, _b;
-    const assertions = [];
-    if (((_a = routers["INDEPENDENT_NODE_VALID"]) === null || _a === void 0 ? void 0 : _a["<"]) !== "OPEN_NODE") {
-        assertions.push("< should return OPEN_NODE");
-    }
-    if (((_b = routers["INDEPENDENT_NODE_VALID"]) === null || _b === void 0 ? void 0 : _b["DEFAULT"]) !== "INDEPENDENT_NODE_VALID") {
-        assertions.push("space should return INDEPENDENT_NODE_VALID");
-    }
-    return assertions;
-};
-const closeNodeReducesCorrectState = () => {
-    var _a, _b, _c;
-    const assertions = [];
-    if (((_a = routers["CLOSE_NODE"]) === null || _a === void 0 ? void 0 : _a["<"]) !== "OPEN_NODE") {
-        assertions.push("< should return OPEN_NODE");
-    }
-    if (((_b = routers["CLOSE_NODE"]) === null || _b === void 0 ? void 0 : _b["a"]) !== "CLOSE_NODE_VALID") {
-        assertions.push("'a' should return CLOSE_NODE_VALID");
-    }
-    if (((_c = routers["CLOSE_NODE"]) === null || _c === void 0 ? void 0 : _c["DEFAULT"]) !== "CONTENT_NODE") {
-        assertions.push("space should return CLOSE_NODE_VALID");
-    }
-    return assertions;
-};
-const closeNodeValidReducesCorrectState = () => {
-    var _a, _b, _c;
-    const assertions = [];
-    if (((_a = routers["CLOSE_NODE_VALID"]) === null || _a === void 0 ? void 0 : _a["<"]) !== "OPEN_NODE") {
-        assertions.push("< should return OPEN_NODE");
-    }
-    if (((_b = routers["CLOSE_NODE_VALID"]) === null || _b === void 0 ? void 0 : _b[">"]) !== "CLOSE_NODE_CONFIRMED") {
-        assertions.push("> should return CLOSE_NODE_CONFIRMED");
-    }
-    if (((_c = routers["CLOSE_NODE_VALID"]) === null || _c === void 0 ? void 0 : _c["DEFAULT"]) !== "CLOSE_NODE_VALID") {
-        assertions.push("space should return CLOSE_NODE_VALID");
-    }
-    return assertions;
-};
+// brian taylor vann
 const tests$1 = [
-    notFoundReducesCorrectState,
-    openNodeReducesCorrectState,
-    openNodeValidReducesCorrectState,
-    independentNodeValidReducesCorrectState,
-    closeNodeReducesCorrectState,
-    closeNodeValidReducesCorrectState,
-];
-const unitTestRouters = {
-    title: title$1,
-    tests: tests$1,
-    runTestsAsynchronously: runTestsAsynchronously$1,
-};
-
-const testTextInterpolator$1 = (templateArray, ...injections) => {
-    return { templateArray, injections };
-};
-const title$2 = "text_vector";
-const runTestsAsynchronously$2 = true;
-const createFollowingTextVector = () => {
-    const assertions = [];
-    const structureRender = testTextInterpolator$1 `supercool`;
-    const vector = create();
-    increment(vector.target, structureRender);
-    increment(vector.target, structureRender);
-    increment(vector.target, structureRender);
-    increment(vector.target, structureRender);
-    const followingVector = createFollowingVector(vector, structureRender);
-    console.log("create following text vector");
-    console.log(followingVector);
-    if (followingVector.target.stringIndex !== 5) {
-        assertions.push("text vector string index does not match");
-    }
-    if (followingVector.target.arrayIndex !== 0) {
-        assertions.push("text vector array index does not match");
-    }
-    return assertions;
-};
-const tests$2 = [
-    // createTextVector,
-    // createTextVectorFromPosition,
-    createFollowingTextVector,
-];
-const unitTestTextVector = {
-    title: title$2,
-    tests: tests$2,
-    runTestsAsynchronously: runTestsAsynchronously$2,
-};
-
-// brian taylor vann
-const tests$3 = [
-    unitTestRouters,
-    unitTestCrawl,
-    // unitTestBuildSkeleton,
-    // unitTestBuildIntegrals,
-    unitTestTextVector,
+    // unitTestRouters,
+    // unitTestCrawl,
+    unitTestBuildSkeleton,
 ];
 
 // brian taylor vann
-const testCollection = [...tests$3];
+const testCollection = [...tests$1];
 runTests({ testCollection })
     .then((results) => console.log("results: ", results))
     .catch((errors) => console.log("errors: ", errors));
