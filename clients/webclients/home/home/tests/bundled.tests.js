@@ -556,6 +556,20 @@ const increment = (position, template) => {
     }
     return position;
 };
+const decrement = (position, template) => {
+    const arrayLength = template.templateArray[position.arrayIndex].length;
+    const templateLength = template.templateArray.length;
+    if (position.arrayIndex < 1 && position.stringIndex < 1) {
+        return;
+    }
+    position.stringIndex -= 1;
+    if (position.stringIndex < 0) {
+        position.arrayIndex -= 1;
+        position.stringIndex =
+            template.templateArray[position.arrayIndex].length - 1;
+    }
+    return position;
+};
 const getCharFromTarget = (vector, template) => {
     const templateArray = template.templateArray;
     const arrayIndex = vector.target.arrayIndex;
@@ -647,43 +661,22 @@ const SKELETON_SIEVE = {
     ["CLOSE_NODE_CONFIRMED"]: "CLOSE_NODE",
     ["CONTENT_NODE"]: "CONTENT_NODE",
 };
-const getStringBoneStart = (template, previousCrawl) => {
-    let { arrayIndex, stringIndex } = previousCrawl.vector.target;
-    stringIndex += 1;
-    stringIndex %= template.templateArray[arrayIndex].length;
-    if (stringIndex === 0) {
-        arrayIndex += 1;
-    }
-    return {
-        arrayIndex,
-        stringIndex,
-    };
-};
-const getStringBoneEnd = (template, currentCrawl) => {
-    let { arrayIndex, stringIndex } = currentCrawl.vector.origin;
-    stringIndex -= 1;
-    if (stringIndex === -1) {
-        arrayIndex -= 1;
-        stringIndex += template.templateArray[arrayIndex].length;
-    }
-    return {
-        arrayIndex,
-        stringIndex,
-    };
-};
-const buildSkeletonStringBone = ({ template, currentCrawl, previousCrawl, }) => {
+const buildMissingStringNode = ({ template, currentCrawl, previousCrawl, }) => {
     if (previousCrawl === undefined) {
         return;
     }
-    const { target } = previousCrawl.vector;
-    const { origin } = currentCrawl.vector;
+    const target = previousCrawl.vector.target;
+    const origin = currentCrawl.vector.origin;
     const stringDistance = Math.abs(origin.stringIndex - target.stringIndex);
     const stringArrayDistance = origin.arrayIndex - target.arrayIndex;
     if (2 > stringArrayDistance + stringDistance) {
         return;
     }
-    const contentStart = getStringBoneStart(template, previousCrawl);
-    const contentEnd = getStringBoneEnd(template, currentCrawl);
+    // copy
+    const previousVectorCopy = copy(previousCrawl.vector);
+    const currentVectorCopy = copy(currentCrawl.vector);
+    const contentStart = increment(previousVectorCopy.target, template);
+    const contentEnd = decrement(currentVectorCopy.origin, template);
     if (contentStart && contentEnd) {
         return {
             nodeType: "CONTENT_NODE",
@@ -701,7 +694,7 @@ const buildSkeleton = (template) => {
     let currentCrawl = crawl(template, previousCrawl);
     while (currentCrawl && depth < MAX_DEPTH) {
         // get string in between crawls
-        const stringBone = buildSkeletonStringBone({
+        const stringBone = buildMissingStringNode({
             template,
             previousCrawl,
             currentCrawl,

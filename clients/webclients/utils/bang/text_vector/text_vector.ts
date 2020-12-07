@@ -66,6 +66,27 @@ const increment: Increment = <A>(
   return position;
 };
 
+const decrement: Increment = <A>(
+  position: Position,
+  template: StructureRender<A>
+) => {
+  const arrayLength = template.templateArray[position.arrayIndex].length;
+  const templateLength = template.templateArray.length;
+
+  if (position.arrayIndex < 1 && position.stringIndex < 1) {
+    return;
+  }
+
+  position.stringIndex -= 1;
+  if (position.stringIndex < 0) {
+    position.arrayIndex -= 1;
+    position.stringIndex =
+      template.templateArray[position.arrayIndex].length - 1;
+  }
+
+  return position;
+};
+
 const getCharFromTarget: GetTagetChar = (vector, template) => {
   const templateArray = template.templateArray;
   const arrayIndex = vector.target.arrayIndex;
@@ -82,4 +103,11 @@ const getCharFromTarget: GetTagetChar = (vector, template) => {
   return templateArray[arrayIndex][stringIndex];
 };
 
-export { copy, create, createFollowingVector, increment, getCharFromTarget };
+export {
+  copy,
+  create,
+  createFollowingVector,
+  decrement,
+  increment,
+  getCharFromTarget,
+};
