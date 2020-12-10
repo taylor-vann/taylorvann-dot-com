@@ -9,15 +9,14 @@ import {
   createFollowingVector,
   increment,
   getCharFromTarget,
+  decrement,
 } from "../../../text_vector/text_vector";
 
 type Sieve = Partial<Record<CrawlStatus, CrawlStatus>>;
-type CreateCrawlState = () => CrawlResults;
 type SetNodeType = <A>(
   template: StructureRender<A>,
   results: CrawlResults
 ) => void;
-type SetLastPosition = SetNodeType;
 type SetStartStateProperties = <A>(
   template: StructureRender<A>,
   previousCrawl?: CrawlResults
@@ -43,22 +42,20 @@ const confirmedSieve: Sieve = {
   ["INDEPENDENT_NODE_CONFIRMED"]: "INDEPENDENT_NODE_CONFIRMED",
 };
 
-const createDefaultCrawlState: CreateCrawlState = () => ({
-  nodeType: CONTENT_NODE,
-  vector: create(),
-});
-
 const setStartStateProperties: SetStartStateProperties = (
   template,
   previousCrawl
 ) => {
-  const cState: CrawlResults = createDefaultCrawlState();
-  if (previousCrawl === undefined) {
-    return cState;
+  const cState: CrawlResults = {
+    nodeType: CONTENT_NODE,
+    vector: create(),
+  };
+
+  if (previousCrawl !== undefined) {
+    cState.vector = createFollowingVector(previousCrawl.vector, template);
   }
 
-  cState.vector = createFollowingVector(previousCrawl.vector, template);
-
+  setNodeType(template, cState);
   return cState;
 };
 
@@ -73,20 +70,15 @@ const setNodeType: SetNodeType = (template, cState) => {
   return cState;
 };
 
-const setLastPosition: SetLastPosition = (template, cState) => {
-  const arrayIndex = template.templateArray.length - 1;
-  const stringIndex = template.templateArray[arrayIndex].length - 1;
-
-  cState.vector.target.arrayIndex = arrayIndex;
-  cState.vector.target.stringIndex = stringIndex;
-};
-
 const crawl: Crawl = (template, previousCrawl) => {
   let openPosition: Position | undefined;
   const cState = setStartStateProperties(template, previousCrawl);
-  setNodeType(template, cState);
 
   while (increment(cState.vector.target, template)) {
+    if (cState.vector.target.stringIndex === 0) {
+      console.log(template.templateArray[cState.vector.target.arrayIndex]);
+    }
+
     if (
       validSieve[cState.nodeType] === undefined &&
       cState.vector.target.stringIndex === 0
@@ -105,12 +97,6 @@ const crawl: Crawl = (template, previousCrawl) => {
     if (cState.nodeType === OPEN_NODE) {
       openPosition = { ...cState.vector.target };
     }
-  }
-
-  // if nothing was found, return the last node
-  // covers empty string edge case as -1
-  if (cState.nodeType === CONTENT_NODE) {
-    setLastPosition(template, cState);
   }
 
   return cState;

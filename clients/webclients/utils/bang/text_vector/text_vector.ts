@@ -47,38 +47,54 @@ const increment: Increment = <A>(
   position: Position,
   template: StructureRender<A>
 ) => {
-  const arrayLength = template.templateArray[position.arrayIndex].length;
+  // template boundaries
   const templateLength = template.templateArray.length;
+  const chunkLength = template.templateArray[position.arrayIndex].length;
+  if (chunkLength === undefined) {
+    return;
+  }
 
+  // determine if finished
+  if (position.arrayIndex >= templateLength - 1 && chunkLength === 0) {
+    return;
+  }
   if (
     position.arrayIndex >= templateLength - 1 &&
-    position.stringIndex >= arrayLength - 1
+    position.stringIndex >= chunkLength - 1
   ) {
     return;
   }
 
-  position.stringIndex += 1;
-  position.stringIndex %= arrayLength;
-  if (position.stringIndex === 0 && position.arrayIndex < templateLength - 1) {
+  // cannot % modulo by 0
+  if (chunkLength > 0) {
+    position.stringIndex += 1;
+    position.stringIndex %= chunkLength;
+  }
+
+  if (position.stringIndex === 0) {
     position.arrayIndex += 1;
   }
 
   return position;
 };
 
+// needs to be tested
 const decrement: Increment = <A>(
   position: Position,
   template: StructureRender<A>
 ) => {
-  const arrayLength = template.templateArray[position.arrayIndex].length;
   const templateLength = template.templateArray.length;
+  if (position.arrayIndex < 0 || position.arrayIndex >= templateLength - 1) {
+    return;
+  }
+  const chunkLength = template.templateArray[position.arrayIndex].length;
 
-  if (position.arrayIndex < 1 && position.stringIndex < 1) {
+  if (position.arrayIndex < 0) {
     return;
   }
 
   position.stringIndex -= 1;
-  if (position.stringIndex < 0) {
+  if (position.stringIndex < 0 && position.arrayIndex > 0) {
     position.arrayIndex -= 1;
     position.stringIndex =
       template.templateArray[position.arrayIndex].length - 1;

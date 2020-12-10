@@ -26,6 +26,14 @@ type BuildSkeleton = <A>(template: StructureRender<A>) => SkeletonNodes;
 
 const MAX_DEPTH = 128;
 
+const DEFAULT_VECTOR: CrawlResults = {
+  nodeType: "CONTENT_NODE",
+  vector: {
+    origin: { arrayIndex: 0, stringIndex: -1 },
+    target: { arrayIndex: 0, stringIndex: -1 },
+  },
+};
+
 const SKELETON_SIEVE: BuildSkeletonSieve = {
   ["OPEN_NODE_CONFIRMED"]: "OPEN_NODE",
   ["INDEPENDENT_NODE_CONFIRMED"]: "INDEPENDENT_NODE",
@@ -36,11 +44,8 @@ const SKELETON_SIEVE: BuildSkeletonSieve = {
 const buildMissingStringNode: BuildMissingStringNode = ({
   template,
   currentCrawl,
-  previousCrawl,
+  previousCrawl = DEFAULT_VECTOR,
 }) => {
-  if (previousCrawl === undefined) {
-    return;
-  }
   const target = previousCrawl.vector.target;
   const origin = currentCrawl.vector.origin;
 
@@ -51,11 +56,10 @@ const buildMissingStringNode: BuildMissingStringNode = ({
   }
 
   // copy
-  const previousVectorCopy = copy(previousCrawl.vector);
-  const currentVectorCopy = copy(currentCrawl.vector);
-
-  const contentStart = increment(previousVectorCopy.target, template);
-  const contentEnd = decrement(currentVectorCopy.origin, template);
+  const previousVector = copy(previousCrawl.vector);
+  const currentVector = copy(currentCrawl.vector);
+  const contentStart = increment(previousVector.target, template);
+  const contentEnd = decrement(currentVector.origin, template);
   if (contentStart && contentEnd) {
     return {
       nodeType: "CONTENT_NODE",

@@ -9,8 +9,8 @@ import { unitTestBuildStructure } from "./builders/build_structure/build_structu
 
 const tests = [
   // unitTestRouters,
-  // unitTestCrawl,
-  unitTestBuildSkeleton,
+  unitTestCrawl,
+  // unitTestBuildSkeleton,
   // unitTestBuildIntegrals,
   // unitTestTextVector,
 ];

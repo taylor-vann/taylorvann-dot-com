@@ -110,6 +110,28 @@ const incrementMultiTextVector = () => {
   return assertions;
 };
 
+const incrementEmptyTextVector = () => {
+  const assertions = [];
+  const structureRender = testTextInterpolator`${"hey"}${"world"}${"!!"}`;
+  const vector: Vector = create();
+  increment(vector.target, structureRender);
+  increment(vector.target, structureRender);
+  increment(vector.target, structureRender);
+
+  if (increment(vector.target, structureRender) !== undefined) {
+    assertions.push("should not return after traversed");
+  }
+
+  if (vector.target.stringIndex !== 0) {
+    assertions.push("text vector string index does not match");
+  }
+  if (vector.target.arrayIndex !== 3) {
+    assertions.push("text vector array index does not match");
+  }
+
+  return assertions;
+};
+
 const createFollowingTextVector = () => {
   const assertions = [];
   const structureRender = testTextInterpolator`supercool`;
@@ -178,6 +200,7 @@ const tests = [
   copyTextVector,
   incrementTextVector,
   incrementMultiTextVector,
+  incrementEmptyTextVector,
   incrementTextVectorTooFar,
   getCharFromTemplate,
 ];

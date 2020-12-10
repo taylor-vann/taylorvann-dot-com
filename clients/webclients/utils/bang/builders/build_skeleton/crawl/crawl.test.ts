@@ -187,9 +187,6 @@ const notFoundInUgglyMessText = () => {
   const assertions: string[] = [];
 
   const result = crawl(testInvalidUgglyMess);
-  console.log("notFoundInUgglyMessText");
-  console.log(testInvalidUgglyMess);
-  console.log(result);
   if (result === undefined) {
     assertions.push("undefined result");
   }
@@ -209,9 +206,42 @@ const notFoundInUgglyMessText = () => {
     assertions.push(`should return end arrayIndex as 2`);
   }
 
-  if (result && result.vector.target.stringIndex !== -1) {
-    assertions.push(`should return end stringIndex as -1`);
+  if (result && result.vector.target.stringIndex !== 0) {
+    assertions.push(`should return end stringIndex as 0`);
   }
+
+  return assertions;
+};
+
+const notFoundInReallyUgglyMessText = () => {
+  const testInvalidUgglyMess = testTextInterpolator`an example${"!"}${"?"}`;
+  const assertions: string[] = [];
+  console.log("really ugly mess");
+  console.log(testInvalidUgglyMess);
+  const result = crawl(testInvalidUgglyMess);
+  console.log(result);
+  // if (result === undefined) {
+  //   assertions.push("undefined result");
+  // }
+  // if (result && result.nodeType !== "CONTENT_NODE") {
+  //   assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
+  // }
+
+  // if (result && result.vector.origin.arrayIndex !== 0) {
+  //   assertions.push(`should return start arrayIndex as 0`);
+  // }
+
+  // if (result && result.vector.origin.stringIndex !== 0) {
+  //   assertions.push(`should return start stringIndex as 0`);
+  // }
+
+  // if (result && result.vector.target.arrayIndex !== 2) {
+  //   assertions.push(`should return end arrayIndex as 2`);
+  // }
+
+  // if (result && result.vector.target.stringIndex !== -1) {
+  //   assertions.push(`should return end stringIndex as -1`);
+  // }
 
   return assertions;
 };
@@ -221,6 +251,8 @@ const invalidCloseNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const result = crawl(testInvlaidCloseNodeWithArgs);
+  console.log(result);
+
   if (result === undefined) {
     assertions.push("undefined result");
   }
@@ -252,6 +284,8 @@ const validCloseNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const result = crawl(testValidCloseNodeWithArgs);
+  console.log(result);
+
   if (result === undefined) {
     assertions.push("undefined result");
   }
@@ -286,6 +320,8 @@ const invalidIndependentNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const result = crawl(testInvalidIndependentNode);
+  console.log(result);
+
   if (result === undefined) {
     assertions.push("undefined result");
   }
@@ -317,6 +353,8 @@ const validIndependentNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const result = crawl(testValidIndependentNode);
+  console.log(result);
+
   if (result === undefined) {
     assertions.push("undefined result");
   }
@@ -350,6 +388,8 @@ const invalidOpenNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const result = crawl(testInvalidOpenNode);
+  console.log(result);
+
   if (result === undefined) {
     assertions.push("undefined result");
   }
@@ -381,6 +421,8 @@ const validOpenNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const result = crawl(testValidOpenNode);
+  console.log(result);
+
   if (result === undefined) {
     assertions.push("undefined result");
   }
@@ -414,6 +456,8 @@ const findNextCrawlWithPreviousCrawl = () => {
 
   const previousCrawl = crawl(testValidOpenNode);
   const result = crawl(testValidOpenNode, previousCrawl);
+  console.log(result);
+
   if (result === undefined) {
     assertions.push("undefined result");
   }
@@ -449,6 +493,7 @@ const tests = [
   findIndependentParagraphInPlainText,
   findOpenParagraphInTextWithArgs,
   notFoundInUgglyMessText,
+  notFoundInReallyUgglyMessText,
   invalidCloseNodeWithArgs,
   validCloseNodeWithArgs,
   invalidIndependentNodeWithArgs,
