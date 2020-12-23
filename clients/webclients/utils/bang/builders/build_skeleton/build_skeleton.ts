@@ -29,8 +29,8 @@ const MAX_DEPTH = 128;
 const DEFAULT_VECTOR: CrawlResults = {
   nodeType: "CONTENT_NODE",
   vector: {
-    origin: { arrayIndex: 0, stringIndex: -1 },
-    target: { arrayIndex: 0, stringIndex: -1 },
+    origin: { arrayIndex: 0, stringIndex: 0 },
+    target: { arrayIndex: 0, stringIndex: 0 },
   },
 };
 
@@ -49,18 +49,29 @@ const buildMissingStringNode: BuildMissingStringNode = ({
   const target = previousCrawl.vector.target;
   const origin = currentCrawl.vector.origin;
 
-  const stringDistance = Math.abs(origin.stringIndex - target.stringIndex);
-  const stringArrayDistance = origin.arrayIndex - target.arrayIndex;
-  if (2 > stringArrayDistance + stringDistance) {
+  console.log("build missing string node");
+  const stringDistance = Math.abs(target.stringIndex - origin.stringIndex);
+  const stringArrayDistance = Math.abs(target.arrayIndex - origin.arrayIndex);
+  if (stringDistance + stringArrayDistance < 2) {
+    console.log("not enough distance to build node");
     return;
   }
 
+  // we need to assess values here
   // copy
   const previousVector = copy(previousCrawl.vector);
   const currentVector = copy(currentCrawl.vector);
   const contentStart = increment(previousVector.target, template);
   const contentEnd = decrement(currentVector.origin, template);
+
+  console.log("do we got content?");
+  console.log("build missing string node");
+  console.log("start", contentStart);
+  console.log("end", contentEnd);
+
   if (contentStart && contentEnd) {
+    console.log("we got content");
+
     return {
       nodeType: "CONTENT_NODE",
       vector: {

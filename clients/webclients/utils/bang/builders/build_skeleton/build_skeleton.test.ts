@@ -62,7 +62,6 @@ const findNothingWhenThereIsPlainText = () => {
 
   const testBlank = testTextInterpolator`no nodes to be found!`;
   const testSkeleton = buildSkeleton(testBlank);
-  console.log(testSkeleton);
 
   if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
     assertions.push("skeletons are not equal");
@@ -94,6 +93,13 @@ const findParagraphInPlainText = () => {
 const findComplexFromPlainText = () => {
   const assertions: string[] = [];
   const sourceSkeleton: SkeletonNodes = [
+    {
+      nodeType: "CONTENT_NODE",
+      vector: {
+        target: { arrayIndex: 0, stringIndex: 4 },
+        origin: { arrayIndex: 0, stringIndex: 0 },
+      },
+    },
     {
       nodeType: "OPEN_NODE_CONFIRMED",
       vector: {
@@ -154,6 +160,8 @@ const findCompoundFromPlainText = () => {
   ];
   const testComplexNode = testTextInterpolator`<h1>hello</h1>`;
   const testSkeleton = buildSkeleton(testComplexNode);
+  console.log(testSkeleton);
+
   if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
     assertions.push("skeletons are not equal");
   }
@@ -164,6 +172,13 @@ const findCompoundFromPlainText = () => {
 const findBrokenFromPlainText = () => {
   const assertions: string[] = [];
   const sourceSkeleton: SkeletonNodes = [
+    {
+      nodeType: "CONTENT_NODE",
+      vector: {
+        target: { arrayIndex: 1, stringIndex: 5 },
+        origin: { arrayIndex: 0, stringIndex: 0 },
+      },
+    },
     {
       nodeType: "CLOSE_NODE_CONFIRMED",
       vector: {

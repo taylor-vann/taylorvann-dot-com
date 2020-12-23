@@ -216,10 +216,7 @@ const notFoundInUgglyMessText = () => {
 const notFoundInReallyUgglyMessText = () => {
   const testInvalidUgglyMess = testTextInterpolator`an example${"!"}${"?"}`;
   const assertions: string[] = [];
-  console.log("really ugly mess");
-  console.log(testInvalidUgglyMess);
   const result = crawl(testInvalidUgglyMess);
-  console.log(result);
   // if (result === undefined) {
   //   assertions.push("undefined result");
   // }
@@ -251,7 +248,6 @@ const invalidCloseNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const result = crawl(testInvlaidCloseNodeWithArgs);
-  console.log(result);
 
   if (result === undefined) {
     assertions.push("undefined result");
@@ -284,7 +280,6 @@ const validCloseNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const result = crawl(testValidCloseNodeWithArgs);
-  console.log(result);
 
   if (result === undefined) {
     assertions.push("undefined result");
@@ -320,7 +315,6 @@ const invalidIndependentNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const result = crawl(testInvalidIndependentNode);
-  console.log(result);
 
   if (result === undefined) {
     assertions.push("undefined result");
@@ -353,7 +347,6 @@ const validIndependentNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const result = crawl(testValidIndependentNode);
-  console.log(result);
 
   if (result === undefined) {
     assertions.push("undefined result");
@@ -388,7 +381,6 @@ const invalidOpenNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const result = crawl(testInvalidOpenNode);
-  console.log(result);
 
   if (result === undefined) {
     assertions.push("undefined result");
@@ -421,7 +413,6 @@ const validOpenNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const result = crawl(testValidOpenNode);
-  console.log(result);
 
   if (result === undefined) {
     assertions.push("undefined result");
@@ -456,7 +447,6 @@ const findNextCrawlWithPreviousCrawl = () => {
 
   const previousCrawl = crawl(testValidOpenNode);
   const result = crawl(testValidOpenNode, previousCrawl);
-  console.log(result);
 
   if (result === undefined) {
     assertions.push("undefined result");

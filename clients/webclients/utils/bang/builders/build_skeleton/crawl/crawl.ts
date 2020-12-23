@@ -9,7 +9,6 @@ import {
   createFollowingVector,
   increment,
   getCharFromTarget,
-  decrement,
 } from "../../../text_vector/text_vector";
 
 type Sieve = Partial<Record<CrawlStatus, CrawlStatus>>;
@@ -17,6 +16,10 @@ type SetNodeType = <A>(
   template: StructureRender<A>,
   results: CrawlResults
 ) => void;
+type CrawlHasEnded = <A>(
+  template: StructureRender<A>,
+  previousCrawl?: CrawlResults
+) => boolean;
 type SetStartStateProperties = <A>(
   template: StructureRender<A>,
   previousCrawl?: CrawlResults
@@ -40,6 +43,25 @@ const confirmedSieve: Sieve = {
   ["OPEN_NODE_CONFIRMED"]: "OPEN_NODE_CONFIRMED",
   ["CLOSE_NODE_CONFIRMED"]: "CLOSE_NODE_CONFIRMED",
   ["INDEPENDENT_NODE_CONFIRMED"]: "INDEPENDENT_NODE_CONFIRMED",
+};
+
+const crawlHasEnded: CrawlHasEnded = (template, previousCrawl) => {
+  if (previousCrawl === undefined) {
+    return false;
+  }
+
+  const templateLength = template.templateArray.length;
+  const chunkLength =
+    template.templateArray[previousCrawl.vector.target.arrayIndex].length;
+
+  if (
+    previousCrawl.vector.target.arrayIndex >= templateLength - 1 &&
+    previousCrawl.vector.target.stringIndex >= chunkLength - 1
+  ) {
+    return true;
+  }
+
+  return false;
 };
 
 const setStartStateProperties: SetStartStateProperties = (
@@ -71,14 +93,14 @@ const setNodeType: SetNodeType = (template, cState) => {
 };
 
 const crawl: Crawl = (template, previousCrawl) => {
+  if (crawlHasEnded(template, previousCrawl)) {
+    return;
+  }
+
   let openPosition: Position | undefined;
   const cState = setStartStateProperties(template, previousCrawl);
 
   while (increment(cState.vector.target, template)) {
-    if (cState.vector.target.stringIndex === 0) {
-      console.log(template.templateArray[cState.vector.target.arrayIndex]);
-    }
-
     if (
       validSieve[cState.nodeType] === undefined &&
       cState.vector.target.stringIndex === 0
