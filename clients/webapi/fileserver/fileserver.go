@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"os"
 
+	"fmt"
+
 	"github.com/taylor-vann/weblog/toolbox/golang/infraclientx/sessionx"
 	"github.com/taylor-vann/weblog/toolbox/golang/infraclientx/verifyx"
 )
@@ -139,9 +141,17 @@ func ServeSignInFiles(w http.ResponseWriter, r *http.Request) {
 }
 
 func ServeHomeFiles(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("serve home files")
+	fmt.Println(r.URL.Path)
+	fmt.Println(homeResourcesDirectory + r.URL.Path)
+	
 	serveStaticFiles(w, r, homeResourcesDirectory + r.URL.Path)
 }
 
 func ServeHomeApp(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("serve home app")
+	fmt.Println(r.URL.Path)
+	fmt.Println(homeResourcesDirectory + r.URL.Path)
+
 	http.ServeFile(w, r, homeFilename)
 }

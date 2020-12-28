@@ -480,81 +480,25 @@ const runTests = (params) => __awaiter$1(void 0, void 0, void 0, function* () {
     return getResults();
 });
 
-// brian taylor vann
-const createAlphabetKeys = (route) => {
-    const alphabetSet = {};
-    let lowercaseIndex = "a".charCodeAt(0);
-    const lowercaseLimit = "z".charCodeAt(0);
-    let uppercaseIndex = "A".charCodeAt(0);
-    const uppercaseLimit = "Z".charCodeAt(0);
-    while (lowercaseIndex <= lowercaseLimit) {
-        alphabetSet[String.fromCharCode(lowercaseIndex)] = route;
-        lowercaseIndex += 1;
-    }
-    while (uppercaseIndex <= uppercaseLimit) {
-        alphabetSet[String.fromCharCode(uppercaseIndex)] = route;
-        uppercaseIndex += 1;
-    }
-    return alphabetSet;
-};
-const routers = {
-    CONTENT_NODE: {
-        "<": "OPEN_NODE",
-        DEFAULT: "CONTENT_NODE",
-    },
-    OPEN_NODE: Object.assign(Object.assign({}, createAlphabetKeys("OPEN_NODE_VALID")), { "<": "OPEN_NODE", "/": "CLOSE_NODE", DEFAULT: "CONTENT_NODE" }),
-    OPEN_NODE_VALID: {
-        "<": "OPEN_NODE",
-        "/": "INDEPENDENT_NODE_VALID",
-        ">": "OPEN_NODE_CONFIRMED",
-        DEFAULT: "OPEN_NODE_VALID",
-    },
-    CLOSE_NODE: Object.assign(Object.assign({}, createAlphabetKeys("CLOSE_NODE_VALID")), { "<": "OPEN_NODE", DEFAULT: "CONTENT_NODE" }),
-    CLOSE_NODE_VALID: {
-        "<": "OPEN_NODE",
-        ">": "CLOSE_NODE_CONFIRMED",
-        DEFAULT: "CLOSE_NODE_VALID",
-    },
-    INDEPENDENT_NODE_VALID: {
-        "<": "OPEN_NODE",
-        ">": "INDEPENDENT_NODE_CONFIRMED",
-        DEFAULT: "INDEPENDENT_NODE_VALID",
-    },
-};
-
 const DEFAULT_POSITION = {
     arrayIndex: 0,
     stringIndex: 0,
 };
-const create = (position = DEFAULT_POSITION) => ({
-    origin: Object.assign({}, position),
-    target: Object.assign({}, position),
-});
-const createFollowingVector = (vector, template) => {
-    const followingVector = copy(vector);
-    increment(followingVector.target, template);
-    followingVector.origin = Object.assign({}, followingVector.target);
-    return followingVector;
-};
-const copy = (vector) => {
-    return {
-        origin: Object.assign({}, vector.origin),
-        target: Object.assign({}, vector.target),
-    };
-};
-const increment = (position, template) => {
+const create = (position = DEFAULT_POSITION) => (Object.assign({}, position));
+const copy = create;
+const increment = (template, position) => {
     // template boundaries
     const templateLength = template.templateArray.length;
     const chunkLength = template.templateArray[position.arrayIndex].length;
     if (chunkLength === undefined) {
         return;
     }
-    // determine if finished
-    if (position.arrayIndex >= templateLength - 1 && chunkLength === 0) {
+    const arrayIndex = position.arrayIndex;
+    const stringIndex = position.stringIndex;
+    if (arrayIndex >= templateLength - 1 && chunkLength === 0) {
         return;
     }
-    if (position.arrayIndex >= templateLength - 1 &&
-        position.stringIndex >= chunkLength - 1) {
+    if (arrayIndex >= templateLength - 1 && stringIndex >= chunkLength - 1) {
         return;
     }
     // cannot % modulo by 0
@@ -568,368 +512,259 @@ const increment = (position, template) => {
     return position;
 };
 // needs to be tested
-const decrement = (position, template) => {
-    const templateLength = template.templateArray.length;
-    if (position.arrayIndex < 0 || position.arrayIndex >= templateLength - 1) {
+const decrement = (template, position) => {
+    const templateLength = template.templateArray.length - 1;
+    if (position.arrayIndex > templateLength) {
         return;
     }
-    const chunkLength = template.templateArray[position.arrayIndex].length;
-    if (position.arrayIndex < 0) {
+    if (position.arrayIndex <= 0 && position.stringIndex <= 0) {
         return;
     }
     position.stringIndex -= 1;
-    if (position.stringIndex < 0 && position.arrayIndex > 0) {
+    if (position.arrayIndex >= 0 && position.stringIndex < 0) {
         position.arrayIndex -= 1;
-        position.stringIndex =
-            template.templateArray[position.arrayIndex].length - 1;
+        const chunk = template.templateArray[position.arrayIndex];
+        position.stringIndex = chunk.length - 1;
+        // base case akin to divide by zero
+        if (chunk === "") {
+            position.stringIndex = chunk.length;
+        }
     }
     return position;
 };
-const getCharFromTarget = (vector, template) => {
+const getCharFromTarget = (template, position) => {
     const templateArray = template.templateArray;
-    const arrayIndex = vector.target.arrayIndex;
-    const stringIndex = vector.target.stringIndex;
-    if (arrayIndex > templateArray.length - 1) {
+    const arrayIndex = position.arrayIndex;
+    const stringIndex = position.stringIndex;
+    if (0 <= arrayIndex && arrayIndex > templateArray.length - 1) {
         return;
     }
-    if (stringIndex > templateArray[arrayIndex].length - 1) {
+    if (0 <= stringIndex && stringIndex > templateArray[arrayIndex].length - 1) {
         return;
     }
     return templateArray[arrayIndex][stringIndex];
 };
 
-// brian taylor vann
-const DEFAULT = "DEFAULT";
-const CONTENT_NODE = "CONTENT_NODE";
-const OPEN_NODE = "OPEN_NODE";
-const validSieve = {
-    ["OPEN_NODE_VALID"]: "OPEN_NODE_VALID",
-    ["CLOSE_NODE_VALID"]: "CLOSE_NODE_VALID",
-    ["INDEPENDENT_NODE_VALID"]: "INDEPENDENT_NODE_VALID",
-};
-const confirmedSieve = {
-    ["OPEN_NODE_CONFIRMED"]: "OPEN_NODE_CONFIRMED",
-    ["CLOSE_NODE_CONFIRMED"]: "CLOSE_NODE_CONFIRMED",
-    ["INDEPENDENT_NODE_CONFIRMED"]: "INDEPENDENT_NODE_CONFIRMED",
-};
-const crawlHasEnded = (template, previousCrawl) => {
-    if (previousCrawl === undefined) {
-        return false;
-    }
-    const templateLength = template.templateArray.length;
-    const chunkLength = template.templateArray[previousCrawl.vector.target.arrayIndex].length;
-    if (previousCrawl.vector.target.arrayIndex >= templateLength - 1 &&
-        previousCrawl.vector.target.stringIndex >= chunkLength - 1) {
-        return true;
-    }
-    return false;
-};
-const setStartStateProperties = (template, previousCrawl) => {
-    const cState = {
-        nodeType: CONTENT_NODE,
-        vector: create(),
-    };
-    if (previousCrawl !== undefined) {
-        cState.vector = createFollowingVector(previousCrawl.vector, template);
-    }
-    setNodeType(template, cState);
-    return cState;
-};
-const setNodeType = (template, cState) => {
-    var _a, _b;
-    const nodeStates = routers[cState.nodeType];
-    const char = getCharFromTarget(cState.vector, template);
-    if (nodeStates !== undefined && char !== undefined) {
-        const defaultNodeType = (_a = nodeStates[DEFAULT]) !== null && _a !== void 0 ? _a : CONTENT_NODE;
-        cState.nodeType = (_b = nodeStates[char]) !== null && _b !== void 0 ? _b : defaultNodeType;
-    }
-    return cState;
-};
-const crawl = (template, previousCrawl) => {
-    if (crawlHasEnded(template, previousCrawl)) {
-        return;
-    }
-    let openPosition;
-    const cState = setStartStateProperties(template, previousCrawl);
-    while (increment(cState.vector.target, template)) {
-        if (validSieve[cState.nodeType] === undefined &&
-            cState.vector.target.stringIndex === 0) {
-            cState.nodeType = CONTENT_NODE;
-        }
-        setNodeType(template, cState);
-        if (confirmedSieve[cState.nodeType]) {
-            if (openPosition !== undefined) {
-                cState.vector.origin = Object.assign({}, openPosition);
-            }
-            break;
-        }
-        if (cState.nodeType === OPEN_NODE) {
-            openPosition = Object.assign({}, cState.vector.target);
-        }
-    }
-    return cState;
-};
-
-// brian taylor vann
-const MAX_DEPTH = 128;
-const DEFAULT_VECTOR = {
-    nodeType: "CONTENT_NODE",
-    vector: {
-        origin: { arrayIndex: 0, stringIndex: 0 },
-        target: { arrayIndex: 0, stringIndex: 0 },
-    },
-};
-const SKELETON_SIEVE = {
-    ["OPEN_NODE_CONFIRMED"]: "OPEN_NODE",
-    ["INDEPENDENT_NODE_CONFIRMED"]: "INDEPENDENT_NODE",
-    ["CLOSE_NODE_CONFIRMED"]: "CLOSE_NODE",
-    ["CONTENT_NODE"]: "CONTENT_NODE",
-};
-const buildMissingStringNode = ({ template, currentCrawl, previousCrawl = DEFAULT_VECTOR, }) => {
-    const target = previousCrawl.vector.target;
-    const origin = currentCrawl.vector.origin;
-    console.log("build missing string node");
-    const stringDistance = Math.abs(target.stringIndex - origin.stringIndex);
-    const stringArrayDistance = Math.abs(target.arrayIndex - origin.arrayIndex);
-    if (stringDistance + stringArrayDistance < 2) {
-        console.log("not enough distance to build node");
-        return;
-    }
-    // we need to assess values here
-    // copy
-    const previousVector = copy(previousCrawl.vector);
-    const currentVector = copy(currentCrawl.vector);
-    const contentStart = increment(previousVector.target, template);
-    const contentEnd = decrement(currentVector.origin, template);
-    console.log("do we got content?");
-    console.log("build missing string node");
-    console.log("start", contentStart);
-    console.log("end", contentEnd);
-    if (contentStart && contentEnd) {
-        console.log("we got content");
-        return {
-            nodeType: "CONTENT_NODE",
-            vector: {
-                origin: contentStart,
-                target: contentEnd,
-            },
-        };
-    }
-};
-const buildSkeleton = (template) => {
-    let depth = 0;
-    const skeleton = [];
-    let previousCrawl;
-    let currentCrawl = crawl(template, previousCrawl);
-    while (currentCrawl && depth < MAX_DEPTH) {
-        // get string in between crawls
-        const stringBone = buildMissingStringNode({
-            template,
-            previousCrawl,
-            currentCrawl,
-        });
-        if (stringBone) {
-            skeleton.push(stringBone);
-        }
-        if (SKELETON_SIEVE[currentCrawl.nodeType]) {
-            skeleton.push(currentCrawl);
-        }
-        previousCrawl = currentCrawl;
-        currentCrawl = crawl(template, previousCrawl);
-        depth += 1;
-    }
-    return skeleton;
-};
-
-// brian taylor vann
-const title = "build_skeleton";
-const runTestsAsynchronously = true;
 const testTextInterpolator = (templateArray, ...injections) => {
     return { templateArray, injections };
 };
-const compareSkeletons = (source, target) => {
-    for (const sourceKey in source) {
-        const node = source[sourceKey];
-        const targetNode = target[sourceKey];
-        if (targetNode === undefined) {
-            return false;
-        }
-        if (node.nodeType !== targetNode.nodeType) {
-            return false;
-        }
-        if (node.vector.origin.arrayIndex !== targetNode.vector.origin.arrayIndex ||
-            node.vector.origin.stringIndex !== targetNode.vector.origin.stringIndex ||
-            node.vector.target.arrayIndex !== targetNode.vector.target.arrayIndex ||
-            node.vector.target.stringIndex !== targetNode.vector.target.stringIndex) {
-            return false;
-        }
-    }
-    return true;
-};
-const findNothingWhenThereIsPlainText = () => {
+const title = "text_position";
+const runTestsAsynchronously = true;
+const createTextPosition = () => {
     const assertions = [];
-    const sourceSkeleton = [
-        {
-            nodeType: "CONTENT_NODE",
-            vector: {
-                target: { arrayIndex: 0, stringIndex: 20 },
-                origin: { arrayIndex: 0, stringIndex: 0 },
-            },
-        },
-    ];
-    const testBlank = testTextInterpolator `no nodes to be found!`;
-    const testSkeleton = buildSkeleton(testBlank);
-    if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
-        assertions.push("skeletons are not equal");
+    const vector = create();
+    if (vector.stringIndex !== 0) {
+        assertions.push("text position string index does not match");
+    }
+    if (vector.arrayIndex !== 0) {
+        assertions.push("text position array index does not match");
     }
     return assertions;
 };
-const findParagraphInPlainText = () => {
+const createTextPositionFromPosition = () => {
     const assertions = [];
-    const sourceSkeleton = [
-        {
-            nodeType: "OPEN_NODE_CONFIRMED",
-            vector: {
-                target: { arrayIndex: 0, stringIndex: 2 },
-                origin: { arrayIndex: 0, stringIndex: 0 },
-            },
-        },
-    ];
-    const testOpenNode = testTextInterpolator `<p>`;
-    const testSkeleton = buildSkeleton(testOpenNode);
-    if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
-        assertions.push("skeletons are not equal");
+    const prevPosition = {
+        stringIndex: 3,
+        arrayIndex: 4,
+    };
+    const vector = create(prevPosition);
+    if (vector.stringIndex !== 3) {
+        assertions.push("text position string index does not match");
+    }
+    if (vector.arrayIndex !== 4) {
+        assertions.push("text position array index does not match");
     }
     return assertions;
 };
-const findComplexFromPlainText = () => {
+const copyTextPosition = () => {
     const assertions = [];
-    const sourceSkeleton = [
-        {
-            nodeType: "CONTENT_NODE",
-            vector: {
-                target: { arrayIndex: 0, stringIndex: 4 },
-                origin: { arrayIndex: 0, stringIndex: 0 },
-            },
-        },
-        {
-            nodeType: "OPEN_NODE_CONFIRMED",
-            vector: {
-                target: { arrayIndex: 0, stringIndex: 7 },
-                origin: { arrayIndex: 0, stringIndex: 5 },
-            },
-        },
-        {
-            nodeType: "CONTENT_NODE",
-            vector: {
-                target: { arrayIndex: 0, stringIndex: 12 },
-                origin: { arrayIndex: 0, stringIndex: 8 },
-            },
-        },
-        {
-            nodeType: "CLOSE_NODE_CONFIRMED",
-            vector: {
-                target: { arrayIndex: 0, stringIndex: 16 },
-                origin: { arrayIndex: 0, stringIndex: 13 },
-            },
-        },
-    ];
-    const testComplexNode = testTextInterpolator `hello<p>world</p>`;
-    const testSkeleton = buildSkeleton(testComplexNode);
-    console.log(testSkeleton);
-    if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
-        assertions.push("skeletons are not equal");
+    const position = { arrayIndex: 2, stringIndex: 3 };
+    const copiedPosition = copy(position);
+    if (position.stringIndex !== copiedPosition.stringIndex) {
+        assertions.push("text position string index does not match");
+    }
+    if (position.arrayIndex !== copiedPosition.arrayIndex) {
+        assertions.push("text position array index does not match");
     }
     return assertions;
 };
-const findCompoundFromPlainText = () => {
+const incrementTextPosition = () => {
     const assertions = [];
-    const sourceSkeleton = [
-        {
-            nodeType: "OPEN_NODE_CONFIRMED",
-            vector: {
-                target: { arrayIndex: 0, stringIndex: 3 },
-                origin: { arrayIndex: 0, stringIndex: 0 },
-            },
-        },
-        {
-            nodeType: "CONTENT_NODE",
-            vector: {
-                target: { arrayIndex: 0, stringIndex: 8 },
-                origin: { arrayIndex: 0, stringIndex: 4 },
-            },
-        },
-        {
-            nodeType: "CLOSE_NODE_CONFIRMED",
-            vector: {
-                target: { arrayIndex: 0, stringIndex: 13 },
-                origin: { arrayIndex: 0, stringIndex: 9 },
-            },
-        },
-    ];
-    const testComplexNode = testTextInterpolator `<h1>hello</h1>`;
-    const testSkeleton = buildSkeleton(testComplexNode);
-    console.log(testSkeleton);
-    if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
-        assertions.push("skeletons are not equal");
+    const structureRender = testTextInterpolator `hello`;
+    const position = create();
+    increment(structureRender, position);
+    if (position.stringIndex !== 1) {
+        assertions.push("text position string index does not match");
+    }
+    if (position.arrayIndex !== 0) {
+        assertions.push("text position array index does not match");
     }
     return assertions;
 };
-const findBrokenFromPlainText = () => {
+const incrementMultiTextPosition = () => {
     const assertions = [];
-    const sourceSkeleton = [
-        {
-            nodeType: "CONTENT_NODE",
-            vector: {
-                target: { arrayIndex: 1, stringIndex: 5 },
-                origin: { arrayIndex: 0, stringIndex: 0 },
-            },
-        },
-        {
-            nodeType: "CLOSE_NODE_CONFIRMED",
-            vector: {
-                target: { arrayIndex: 1, stringIndex: 10 },
-                origin: { arrayIndex: 1, stringIndex: 6 },
-            },
-        },
-        {
-            nodeType: "OPEN_NODE_CONFIRMED",
-            vector: {
-                target: { arrayIndex: 1, stringIndex: 13 },
-                origin: { arrayIndex: 1, stringIndex: 11 },
-            },
-        },
-        {
-            nodeType: "CONTENT_NODE",
-            vector: {
-                target: { arrayIndex: 1, stringIndex: 18 },
-                origin: { arrayIndex: 1, stringIndex: 14 },
-            },
-        },
-        {
-            nodeType: "CLOSE_NODE_CONFIRMED",
-            vector: {
-                target: { arrayIndex: 1, stringIndex: 22 },
-                origin: { arrayIndex: 1, stringIndex: 19 },
-            },
-        },
-    ];
-    const testComplexNode = testTextInterpolator `<${"hello"}h2>hey</h2><p>howdy</p>`;
-    const testSkeleton = buildSkeleton(testComplexNode);
-    console.log(testSkeleton);
-    if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
-        assertions.push("skeletons are not equal");
+    const structureRender = testTextInterpolator `hey${"world"}, how are you?`;
+    const position = create();
+    increment(structureRender, position);
+    increment(structureRender, position);
+    increment(structureRender, position);
+    increment(structureRender, position);
+    increment(structureRender, position);
+    if (position.stringIndex !== 2) {
+        assertions.push("text position string index does not match");
+    }
+    if (position.arrayIndex !== 1) {
+        assertions.push("text position array index does not match");
+    }
+    return assertions;
+};
+const incrementEmptyTextPosition = () => {
+    const assertions = [];
+    const structureRender = testTextInterpolator `${"hey"}${"world"}${"!!"}`;
+    const position = create();
+    increment(structureRender, position);
+    increment(structureRender, position);
+    increment(structureRender, position);
+    if (increment(structureRender, position) !== undefined) {
+        assertions.push("should not return after traversed");
+    }
+    if (position.stringIndex !== 0) {
+        assertions.push("text position string index does not match");
+    }
+    if (position.arrayIndex !== 3) {
+        assertions.push("text position array index does not match");
+    }
+    return assertions;
+};
+const incrementTextPositionTooFar = () => {
+    const assertions = [];
+    const structureRender = testTextInterpolator `hey${"world"}, how are you?`;
+    const arrayLength = structureRender.templateArray.length - 1;
+    const stringLength = structureRender.templateArray[arrayLength].length - 1;
+    const position = copy({
+        arrayIndex: arrayLength,
+        stringIndex: stringLength,
+    });
+    const MAX_DEPTH = 20;
+    let safety = 0;
+    while (increment(structureRender, position) && safety < MAX_DEPTH) {
+        // iterate across structure
+        safety += 1;
+    }
+    if (position.stringIndex !== 13) {
+        assertions.push("text position string index does not match");
+    }
+    if (position.arrayIndex !== 1) {
+        assertions.push("text position array index does not match");
+    }
+    return assertions;
+};
+const decrementTextPosition = () => {
+    const assertions = [];
+    const structureRender = testTextInterpolator `hello`;
+    const arrayLength = structureRender.templateArray.length - 1;
+    const stringLength = structureRender.templateArray[arrayLength].length - 1;
+    const position = copy({
+        arrayIndex: arrayLength,
+        stringIndex: stringLength,
+    });
+    decrement(structureRender, position);
+    if (position.stringIndex !== 3) {
+        assertions.push("text position string index does not match");
+    }
+    if (position.arrayIndex !== 0) {
+        assertions.push("text position array index does not match");
+    }
+    return assertions;
+};
+const decrementMultiTextPosition = () => {
+    const assertions = [];
+    const structureRender = testTextInterpolator `hey${"hello"}bro!`;
+    const arrayLength = structureRender.templateArray.length - 1;
+    const stringLength = structureRender.templateArray[arrayLength].length - 1;
+    const position = copy({
+        arrayIndex: arrayLength,
+        stringIndex: stringLength,
+    });
+    decrement(structureRender, position);
+    decrement(structureRender, position);
+    decrement(structureRender, position);
+    decrement(structureRender, position);
+    decrement(structureRender, position);
+    if (position.stringIndex !== 1) {
+        assertions.push("text position string index does not match");
+    }
+    if (position.arrayIndex !== 0) {
+        assertions.push("text position array index does not match");
+    }
+    return assertions;
+};
+const decrementEmptyTextPosition = () => {
+    const assertions = [];
+    const structureRender = testTextInterpolator `${"hey"}${"world"}${"!!"}`;
+    const arrayLength = structureRender.templateArray.length - 1;
+    const stringLength = structureRender.templateArray[arrayLength].length - 1;
+    const position = copy({
+        arrayIndex: arrayLength,
+        stringIndex: stringLength,
+    });
+    decrement(structureRender, position);
+    decrement(structureRender, position);
+    decrement(structureRender, position);
+    if (decrement(structureRender, position) !== undefined) {
+        assertions.push("should not return after traversed");
+    }
+    if (position.stringIndex !== 0) {
+        assertions.push("text position string index does not match");
+    }
+    if (position.arrayIndex !== 0) {
+        assertions.push("text position array index does not match");
+    }
+    return assertions;
+};
+const decrementTextPositionTooFar = () => {
+    const assertions = [];
+    const structureRender = testTextInterpolator `hey${"world"}, how are you?`;
+    const position = create();
+    const MAX_DEPTH = 20;
+    let safety = 0;
+    while (decrement(structureRender, position) && safety < MAX_DEPTH) {
+        // iterate across structure
+        safety += 1;
+    }
+    if (position.stringIndex !== 0) {
+        assertions.push("text position string index does not match");
+    }
+    if (position.arrayIndex !== 0) {
+        assertions.push("text position array index does not match");
+    }
+    return assertions;
+};
+const getCharFromTemplate = () => {
+    const assertions = [];
+    const structureRender = testTextInterpolator `hello`;
+    const position = { arrayIndex: 0, stringIndex: 2 };
+    const char = getCharFromTarget(structureRender, position);
+    if (char !== "l") {
+        assertions.push("textPosition target is not 'l'");
     }
     return assertions;
 };
 const tests = [
-    findNothingWhenThereIsPlainText,
-    findParagraphInPlainText,
-    findComplexFromPlainText,
-    findCompoundFromPlainText,
-    findBrokenFromPlainText,
+    createTextPosition,
+    createTextPositionFromPosition,
+    copyTextPosition,
+    incrementTextPosition,
+    incrementMultiTextPosition,
+    incrementEmptyTextPosition,
+    incrementTextPositionTooFar,
+    decrementTextPosition,
+    decrementMultiTextPosition,
+    decrementEmptyTextPosition,
+    decrementTextPositionTooFar,
+    getCharFromTemplate,
 ];
-const unitTestBuildSkeleton = {
+const unitTestTextPosition = {
     title,
     tests,
     runTestsAsynchronously,
@@ -937,9 +772,7 @@ const unitTestBuildSkeleton = {
 
 // brian taylor vann
 const tests$1 = [
-    // unitTestRouters,
-    // unitTestCrawl,
-    unitTestBuildSkeleton,
+    unitTestTextPosition,
 ];
 
 // brian taylor vann
