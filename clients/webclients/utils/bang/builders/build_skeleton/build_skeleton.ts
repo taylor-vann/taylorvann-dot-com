@@ -3,7 +3,8 @@
 import { crawl } from "./crawl/crawl";
 import { CrawlResults, SkeletonNodes } from "../../type_flyweight/crawl";
 import { StructureRender } from "../../type_flyweight/render";
-import { copy, decrement, increment } from "../../text_vector/text_vector";
+import { decrement, increment } from "../../text_position/text_position";
+import { copy } from "../../text_vector/text_vector";
 
 type NodeType =
   | "OPEN_NODE"
@@ -61,8 +62,8 @@ const buildMissingStringNode: BuildMissingStringNode = ({
   // copy
   const previousVector = copy(previousCrawl.vector);
   const currentVector = copy(currentCrawl.vector);
-  const contentStart = increment(previousVector.target, template);
-  const contentEnd = decrement(currentVector.origin, template);
+  const contentStart = increment(template, previousVector.target);
+  const contentEnd = decrement(template, currentVector.origin);
 
   console.log("do we got content?");
   console.log("build missing string node");

@@ -10,7 +10,7 @@ import { unitTestBuildStructure } from "./builders/build_structure/build_structu
 
 const tests = [
   unitTestTextPosition,
-  // unitTestTextVector,
+  unitTestTextVector,
   // unitTestRouters,
   // unitTestCrawl,
   // unitTestBuildSkeleton,

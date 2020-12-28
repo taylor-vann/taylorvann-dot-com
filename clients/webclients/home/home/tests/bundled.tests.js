@@ -511,7 +511,6 @@ const increment = (template, position) => {
     }
     return position;
 };
-// needs to be tested
 const decrement = (template, position) => {
     const templateLength = template.templateArray.length - 1;
     if (position.arrayIndex > templateLength) {
@@ -770,13 +769,191 @@ const unitTestTextPosition = {
     runTestsAsynchronously,
 };
 
-// brian taylor vann
+const DEFAULT_POSITION$1 = {
+    arrayIndex: 0,
+    stringIndex: 0,
+};
+const create$1 = (position = DEFAULT_POSITION$1) => ({
+    origin: Object.assign({}, position),
+    target: Object.assign({}, position),
+});
+const createFollowingVector = (template, vector) => {
+    const followingVector = copy$1(vector);
+    if (increment(template, followingVector.target)) {
+        followingVector.origin = Object.assign({}, followingVector.target);
+        return followingVector;
+    }
+    return;
+};
+const copy$1 = (vector) => {
+    return {
+        origin: Object.assign({}, vector.origin),
+        target: Object.assign({}, vector.target),
+    };
+};
+const incrementTarget = (template, vector) => {
+    if (increment(template, vector.origin)) {
+        return vector;
+    }
+    return;
+};
+
+const testTextInterpolator$1 = (templateArray, ...injections) => {
+    return { templateArray, injections };
+};
+const title$1 = "text_vector";
+const runTestsAsynchronously$1 = true;
+const createTextVector = () => {
+    const assertions = [];
+    const vector = create$1();
+    if (vector.origin.stringIndex !== 0) {
+        assertions.push("text vector string index does not match");
+    }
+    if (vector.origin.arrayIndex !== 0) {
+        assertions.push("text vector array index does not match");
+    }
+    return assertions;
+};
+const createTextVectorFromPosition = () => {
+    const assertions = [];
+    const prevPosition = {
+        stringIndex: 3,
+        arrayIndex: 4,
+    };
+    const vector = create$1(prevPosition);
+    if (vector.origin.stringIndex !== 3) {
+        assertions.push("text vector string index does not match");
+    }
+    if (vector.origin.arrayIndex !== 4) {
+        assertions.push("text vector array index does not match");
+    }
+    return assertions;
+};
+const copyTextVector = () => {
+    const assertions = [];
+    const vector = {
+        origin: { arrayIndex: 0, stringIndex: 1 },
+        target: { arrayIndex: 2, stringIndex: 3 },
+    };
+    const copiedVector = copy$1(vector);
+    if (vector.origin.stringIndex !== copiedVector.origin.stringIndex) {
+        assertions.push("text vector string index does not match");
+    }
+    if (vector.origin.arrayIndex !== copiedVector.origin.arrayIndex) {
+        assertions.push("text vector array index does not match");
+    }
+    return assertions;
+};
+const incrementTextVector = () => {
+    const assertions = [];
+    const structureRender = testTextInterpolator$1 `hello`;
+    const vector = create$1();
+    incrementTarget(structureRender, vector);
+    if (vector.target.stringIndex !== 1) {
+        assertions.push("text vector string index does not match");
+    }
+    if (vector.target.arrayIndex !== 0) {
+        assertions.push("text vector array index does not match");
+    }
+    return assertions;
+};
+const incrementMultiTextVector = () => {
+    const assertions = [];
+    const structureRender = testTextInterpolator$1 `hey${"world"}, how are you?`;
+    const vector = create$1();
+    incrementTarget(structureRender, vector);
+    incrementTarget(structureRender, vector);
+    incrementTarget(structureRender, vector);
+    incrementTarget(structureRender, vector);
+    incrementTarget(structureRender, vector);
+    if (vector.target.stringIndex !== 2) {
+        assertions.push("text vector string index does not match");
+    }
+    if (vector.target.arrayIndex !== 1) {
+        assertions.push("text vector array index does not match");
+    }
+    return assertions;
+};
+const incrementEmptyTextVector = () => {
+    const assertions = [];
+    const structureRender = testTextInterpolator$1 `${"hey"}${"world"}${"!!"}`;
+    const vector = create$1();
+    incrementTarget(structureRender, vector);
+    incrementTarget(structureRender, vector);
+    incrementTarget(structureRender, vector);
+    if (incrementTarget(structureRender, vector) !== undefined) {
+        assertions.push("should not return after traversed");
+    }
+    if (vector.target.stringIndex !== 0) {
+        assertions.push("text vector string index does not match");
+    }
+    if (vector.target.arrayIndex !== 3) {
+        assertions.push("text vector array index does not match");
+    }
+    return assertions;
+};
+const createFollowingTextVector = () => {
+    const assertions = [];
+    const structureRender = testTextInterpolator$1 `supercool`;
+    const vector = create$1();
+    incrementTarget(structureRender, vector);
+    incrementTarget(structureRender, vector);
+    incrementTarget(structureRender, vector);
+    incrementTarget(structureRender, vector);
+    const followingVector = createFollowingVector(structureRender, vector);
+    if (followingVector === undefined) {
+        assertions.push("next vector should not be undefined");
+    }
+    if (followingVector && followingVector.target.stringIndex !== 5) {
+        assertions.push("text vector string index does not match");
+    }
+    if (followingVector && followingVector.target.arrayIndex !== 0) {
+        assertions.push("text vector array index does not match");
+    }
+    return assertions;
+};
+const incrementTextVectorTooFar = () => {
+    const assertions = [];
+    const structureRender = testTextInterpolator$1 `hey${"world"}, how are you?`;
+    const vector = create$1();
+    const MAX_DEPTH = 20;
+    let safety = 0;
+    while (incrementTarget(structureRender, vector) && safety < MAX_DEPTH) {
+        // iterate across structure
+        safety += 1;
+    }
+    if (vector.target.stringIndex !== 13) {
+        assertions.push("text vector string index does not match");
+    }
+    if (vector.target.arrayIndex !== 1) {
+        assertions.push("text vector array index does not match");
+    }
+    return assertions;
+};
 const tests$1 = [
+    createTextVector,
+    createTextVectorFromPosition,
+    createFollowingTextVector,
+    copyTextVector,
+    incrementTextVector,
+    incrementMultiTextVector,
+    incrementEmptyTextVector,
+    incrementTextVectorTooFar,
+];
+const unitTestTextVector = {
+    title: title$1,
+    tests: tests$1,
+    runTestsAsynchronously: runTestsAsynchronously$1,
+};
+
+// brian taylor vann
+const tests$2 = [
     unitTestTextPosition,
+    unitTestTextVector,
 ];
 
 // brian taylor vann
-const testCollection = [...tests$1];
+const testCollection = [...tests$2];
 runTests({ testCollection })
     .then((results) => console.log("results: ", results))
     .catch((errors) => console.log("errors: ", errors));

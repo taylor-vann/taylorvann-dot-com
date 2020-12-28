@@ -1,22 +1,23 @@
 import { StructureRender } from "../type_flyweight/structure";
 import { Position, Vector } from "../type_flyweight/text_vector";
+import { increment, decrement } from "../text_position/text_position";
 
 type Create = (position?: Position) => Vector;
 type CreateFollowingVector = <A>(
-  vector: Vector,
-  tempalte: StructureRender<A>
-) => Vector;
+  template: StructureRender<A>,
+  vector: Vector
+) => Vector | undefined;
 
 type Copy = (vector: Vector) => Vector;
 type GetTagetChar = <A>(
-  vector: Vector,
-  tempalte: StructureRender<A>
+  template: StructureRender<A>,
+  vector: Vector
 ) => string | undefined;
 
 type Increment = <A>(
-  position: Position,
-  tempalte: StructureRender<A>
-) => Position | undefined;
+  template: StructureRender<A>,
+  vector: Vector
+) => Vector | undefined;
 
 const DEFAULT_POSITION: Position = {
   arrayIndex: 0,
@@ -28,12 +29,14 @@ const create: Create = (position = DEFAULT_POSITION) => ({
   target: { ...position },
 });
 
-const createFollowingVector: CreateFollowingVector = (vector, template) => {
+const createFollowingVector: CreateFollowingVector = (template, vector) => {
   const followingVector = copy(vector);
-  increment(followingVector.target, template);
-  followingVector.origin = { ...followingVector.target };
+  if (increment(template, followingVector.target)) {
+    followingVector.origin = { ...followingVector.target };
+    return followingVector;
+  }
 
-  return followingVector;
+  return;
 };
 
 const copy: Copy = (vector) => {
@@ -43,67 +46,35 @@ const copy: Copy = (vector) => {
   };
 };
 
-const increment: Increment = <A>(
-  position: Position,
-  template: StructureRender<A>
-) => {
-  // template boundaries
-  const templateLength = template.templateArray.length;
-  const chunkLength = template.templateArray[position.arrayIndex].length;
-  if (chunkLength === undefined) {
-    return;
+const incrementOrigin: Increment = (template, vector) => {
+  if (increment(template, vector.origin)) {
+    return vector;
   }
-
-  // determine if finished
-  if (position.arrayIndex >= templateLength - 1 && chunkLength === 0) {
-    return;
-  }
-  if (
-    position.arrayIndex >= templateLength - 1 &&
-    position.stringIndex >= chunkLength - 1
-  ) {
-    return;
-  }
-
-  // cannot % modulo by 0
-  if (chunkLength > 0) {
-    position.stringIndex += 1;
-    position.stringIndex %= chunkLength;
-  }
-
-  if (position.stringIndex === 0) {
-    position.arrayIndex += 1;
-  }
-
-  return position;
+  return;
 };
 
-// needs to be tested
-const decrement: Increment = <A>(
-  position: Position,
-  template: StructureRender<A>
-) => {
-  const templateLength = template.templateArray.length;
-  if (position.arrayIndex < 0 || position.arrayIndex >= templateLength - 1) {
-    return;
+const incrementTarget: Increment = (template, vector) => {
+  if (increment(template, vector.origin)) {
+    return vector;
   }
-  const chunkLength = template.templateArray[position.arrayIndex].length;
-
-  if (position.arrayIndex < 0) {
-    return;
-  }
-
-  position.stringIndex -= 1;
-  if (position.stringIndex < 0 && position.arrayIndex > 0) {
-    position.arrayIndex -= 1;
-    position.stringIndex =
-      template.templateArray[position.arrayIndex].length - 1;
-  }
-
-  return position;
+  return;
 };
 
-const getCharFromTarget: GetTagetChar = (vector, template) => {
+const decrementOrigin: Increment = (template, vector) => {
+  if (decrement(template, vector.origin)) {
+    return vector;
+  }
+  return;
+};
+
+const decrementTarget: Increment = (template, vector) => {
+  if (decrement(template, vector.origin)) {
+    return vector;
+  }
+  return;
+};
+
+const getTextFromTarget: GetTagetChar = (template, vector) => {
   const templateArray = template.templateArray;
   const arrayIndex = vector.target.arrayIndex;
   const stringIndex = vector.target.stringIndex;
@@ -123,7 +94,9 @@ export {
   copy,
   create,
   createFollowingVector,
-  decrement,
-  increment,
-  getCharFromTarget,
+  decrementOrigin,
+  decrementTarget,
+  incrementOrigin,
+  incrementTarget,
+  getTextFromTarget,
 };

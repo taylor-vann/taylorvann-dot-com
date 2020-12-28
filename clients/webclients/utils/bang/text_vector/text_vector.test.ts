@@ -2,8 +2,7 @@ import {
   copy,
   create,
   createFollowingVector,
-  increment,
-  getCharFromTarget,
+  incrementTarget,
 } from "./text_vector";
 import { Vector } from "../type_flyweight/text_vector";
 import { StructureRender } from "../type_flyweight/structure";
@@ -78,7 +77,8 @@ const incrementTextVector = () => {
   const assertions = [];
   const structureRender = testTextInterpolator`hello`;
   const vector: Vector = create();
-  increment(vector.target, structureRender);
+
+  incrementTarget(structureRender, vector);
 
   if (vector.target.stringIndex !== 1) {
     assertions.push("text vector string index does not match");
@@ -94,11 +94,12 @@ const incrementMultiTextVector = () => {
   const assertions = [];
   const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
   const vector: Vector = create();
-  increment(vector.target, structureRender);
-  increment(vector.target, structureRender);
-  increment(vector.target, structureRender);
-  increment(vector.target, structureRender);
-  increment(vector.target, structureRender);
+
+  incrementTarget(structureRender, vector);
+  incrementTarget(structureRender, vector);
+  incrementTarget(structureRender, vector);
+  incrementTarget(structureRender, vector);
+  incrementTarget(structureRender, vector);
 
   if (vector.target.stringIndex !== 2) {
     assertions.push("text vector string index does not match");
@@ -114,11 +115,12 @@ const incrementEmptyTextVector = () => {
   const assertions = [];
   const structureRender = testTextInterpolator`${"hey"}${"world"}${"!!"}`;
   const vector: Vector = create();
-  increment(vector.target, structureRender);
-  increment(vector.target, structureRender);
-  increment(vector.target, structureRender);
 
-  if (increment(vector.target, structureRender) !== undefined) {
+  incrementTarget(structureRender, vector);
+  incrementTarget(structureRender, vector);
+  incrementTarget(structureRender, vector);
+
+  if (incrementTarget(structureRender, vector) !== undefined) {
     assertions.push("should not return after traversed");
   }
 
@@ -137,17 +139,19 @@ const createFollowingTextVector = () => {
   const structureRender = testTextInterpolator`supercool`;
   const vector: Vector = create();
 
-  increment(vector.target, structureRender);
-  increment(vector.target, structureRender);
-  increment(vector.target, structureRender);
-  increment(vector.target, structureRender);
+  incrementTarget(structureRender, vector);
+  incrementTarget(structureRender, vector);
+  incrementTarget(structureRender, vector);
+  incrementTarget(structureRender, vector);
 
-  const followingVector = createFollowingVector(vector, structureRender);
-
-  if (followingVector.target.stringIndex !== 5) {
+  const followingVector = createFollowingVector(structureRender, vector);
+  if (followingVector === undefined) {
+    assertions.push("next vector should not be undefined");
+  }
+  if (followingVector && followingVector.target.stringIndex !== 5) {
     assertions.push("text vector string index does not match");
   }
-  if (followingVector.target.arrayIndex !== 0) {
+  if (followingVector && followingVector.target.arrayIndex !== 0) {
     assertions.push("text vector array index does not match");
   }
 
@@ -161,7 +165,7 @@ const incrementTextVectorTooFar = () => {
 
   const MAX_DEPTH = 20;
   let safety = 0;
-  while (increment(vector.target, structureRender) && safety < MAX_DEPTH) {
+  while (incrementTarget(structureRender, vector) && safety < MAX_DEPTH) {
     // iterate across structure
     safety += 1;
   }
@@ -176,23 +180,6 @@ const incrementTextVectorTooFar = () => {
   return assertions;
 };
 
-const getCharFromTemplate = () => {
-  const assertions = [];
-  const structureRender = testTextInterpolator`hello`;
-  const vector: Vector = {
-    origin: { arrayIndex: 0, stringIndex: 0 },
-    target: { arrayIndex: 0, stringIndex: 2 },
-  };
-
-  const char = getCharFromTarget(vector, structureRender);
-
-  if (char !== "l") {
-    assertions.push("textVector target is not 'l'");
-  }
-
-  return assertions;
-};
-
 const tests = [
   createTextVector,
   createTextVectorFromPosition,
@@ -202,7 +189,6 @@ const tests = [
   incrementMultiTextVector,
   incrementEmptyTextVector,
   incrementTextVectorTooFar,
-  getCharFromTemplate,
 ];
 
 const unitTestTextVector = {

@@ -53,7 +53,6 @@ const increment: Increment = (template, position) => {
   return position;
 };
 
-// needs to be tested
 const decrement: Increment = (template, position) => {
   const templateLength = template.templateArray.length - 1;
   if (position.arrayIndex > templateLength) {
