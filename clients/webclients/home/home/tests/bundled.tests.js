@@ -532,16 +532,9 @@ const decrement = (template, position) => {
     return position;
 };
 const getCharFromTarget = (template, position) => {
+    var _a;
     const templateArray = template.templateArray;
-    const arrayIndex = position.arrayIndex;
-    const stringIndex = position.stringIndex;
-    if (0 <= arrayIndex && arrayIndex > templateArray.length - 1) {
-        return;
-    }
-    if (0 <= stringIndex && stringIndex > templateArray[arrayIndex].length - 1) {
-        return;
-    }
-    return templateArray[arrayIndex][stringIndex];
+    return (_a = templateArray === null || templateArray === void 0 ? void 0 : templateArray[position.arrayIndex]) === null || _a === void 0 ? void 0 : _a[position.stringIndex];
 };
 
 const testTextInterpolator = (templateArray, ...injections) => {

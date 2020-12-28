@@ -70,7 +70,7 @@ const decrement: Increment = (template, position) => {
     const chunk = template.templateArray[position.arrayIndex];
     position.stringIndex = chunk.length - 1;
 
-    // base case akin to divide by zero
+    // undefined case akin to divide by zero
     if (chunk === "") {
       position.stringIndex = chunk.length;
     }
@@ -81,18 +81,8 @@ const decrement: Increment = (template, position) => {
 
 const getCharFromTarget: GetTargetChar = (template, position) => {
   const templateArray = template.templateArray;
-  const arrayIndex = position.arrayIndex;
-  const stringIndex = position.stringIndex;
 
-  if (0 <= arrayIndex && arrayIndex > templateArray.length - 1) {
-    return;
-  }
-
-  if (0 <= stringIndex && stringIndex > templateArray[arrayIndex].length - 1) {
-    return;
-  }
-
-  return templateArray[arrayIndex][stringIndex];
+  return templateArray?.[position.arrayIndex]?.[position.stringIndex];
 };
 
 export { copy, create, decrement, increment, getCharFromTarget };
