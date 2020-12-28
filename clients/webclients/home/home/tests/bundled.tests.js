@@ -488,23 +488,26 @@ const create = (position = DEFAULT_POSITION) => (Object.assign({}, position));
 const copy = create;
 const increment = (template, position) => {
     // template boundaries
-    const templateLength = template.templateArray.length;
-    const chunkLength = template.templateArray[position.arrayIndex].length;
-    if (chunkLength === undefined) {
-        return;
-    }
+    const templateLength = template.templateArray.length - 1;
     const arrayIndex = position.arrayIndex;
     const stringIndex = position.stringIndex;
-    if (arrayIndex >= templateLength - 1 && chunkLength === 0) {
+    const chunk = template.templateArray[position.arrayIndex];
+    if (chunk === undefined) {
         return;
     }
-    if (arrayIndex >= templateLength - 1 && stringIndex >= chunkLength - 1) {
+    // Oddity akin to divide by 0 needs to be included
+    if (chunk === "" &&
+        arrayIndex >= templateLength &&
+        stringIndex >= chunk.length) {
+        return;
+    }
+    if (arrayIndex >= templateLength && stringIndex >= chunk.length - 1) {
         return;
     }
     // cannot % modulo by 0
-    if (chunkLength > 0) {
+    if (chunk.length > 0) {
         position.stringIndex += 1;
-        position.stringIndex %= chunkLength;
+        position.stringIndex %= chunk.length;
     }
     if (position.stringIndex === 0) {
         position.arrayIndex += 1;
@@ -524,7 +527,7 @@ const decrement = (template, position) => {
         position.arrayIndex -= 1;
         const chunk = template.templateArray[position.arrayIndex];
         position.stringIndex = chunk.length - 1;
-        // base case akin to divide by zero
+        // undefined case akin to divide by zero
         if (chunk === "") {
             position.stringIndex = chunk.length;
         }

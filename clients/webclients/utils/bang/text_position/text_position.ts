@@ -25,25 +25,31 @@ const copy: Copy = create;
 
 const increment: Increment = (template, position) => {
   // template boundaries
-  const templateLength = template.templateArray.length;
-  const chunkLength = template.templateArray[position.arrayIndex].length;
-  if (chunkLength === undefined) {
+  const templateLength = template.templateArray.length - 1;
+  const arrayIndex = position.arrayIndex;
+  const stringIndex = position.stringIndex;
+  const chunk = template.templateArray[position.arrayIndex];
+  if (chunk === undefined) {
     return;
   }
 
-  const arrayIndex = position.arrayIndex;
-  const stringIndex = position.stringIndex;
-  if (arrayIndex >= templateLength - 1 && chunkLength === 0) {
+  // Oddity akin to divide by 0 needs to be included
+  if (
+    chunk === "" &&
+    arrayIndex >= templateLength &&
+    stringIndex >= chunk.length
+  ) {
     return;
   }
-  if (arrayIndex >= templateLength - 1 && stringIndex >= chunkLength - 1) {
+
+  if (arrayIndex >= templateLength && stringIndex >= chunk.length - 1) {
     return;
   }
 
   // cannot % modulo by 0
-  if (chunkLength > 0) {
+  if (chunk.length > 0) {
     position.stringIndex += 1;
-    position.stringIndex %= chunkLength;
+    position.stringIndex %= chunk.length;
   }
 
   if (position.stringIndex === 0) {
