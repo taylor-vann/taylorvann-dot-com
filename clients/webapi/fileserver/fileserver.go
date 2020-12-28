@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"os"
 
-	"fmt"
-
 	"github.com/taylor-vann/weblog/toolbox/golang/infraclientx/sessionx"
 	"github.com/taylor-vann/weblog/toolbox/golang/infraclientx/verifyx"
 )
