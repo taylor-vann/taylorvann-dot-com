@@ -480,6 +480,48 @@ const runTests = (params) => __awaiter$1(void 0, void 0, void 0, function* () {
     return getResults();
 });
 
+// brian taylor vann
+const createAlphabetKeys = (route) => {
+    const alphabetSet = {};
+    let lowercaseIndex = "a".charCodeAt(0);
+    const lowercaseLimit = "z".charCodeAt(0);
+    let uppercaseIndex = "A".charCodeAt(0);
+    const uppercaseLimit = "Z".charCodeAt(0);
+    while (lowercaseIndex <= lowercaseLimit) {
+        alphabetSet[String.fromCharCode(lowercaseIndex)] = route;
+        lowercaseIndex += 1;
+    }
+    while (uppercaseIndex <= uppercaseLimit) {
+        alphabetSet[String.fromCharCode(uppercaseIndex)] = route;
+        uppercaseIndex += 1;
+    }
+    return alphabetSet;
+};
+const routers = {
+    CONTENT_NODE: {
+        "<": "OPEN_NODE",
+        DEFAULT: "CONTENT_NODE",
+    },
+    OPEN_NODE: Object.assign(Object.assign({}, createAlphabetKeys("OPEN_NODE_VALID")), { "<": "OPEN_NODE", "/": "CLOSE_NODE", DEFAULT: "CONTENT_NODE" }),
+    OPEN_NODE_VALID: {
+        "<": "OPEN_NODE",
+        "/": "INDEPENDENT_NODE_VALID",
+        ">": "OPEN_NODE_CONFIRMED",
+        DEFAULT: "OPEN_NODE_VALID",
+    },
+    CLOSE_NODE: Object.assign(Object.assign({}, createAlphabetKeys("CLOSE_NODE_VALID")), { "<": "OPEN_NODE", DEFAULT: "CONTENT_NODE" }),
+    CLOSE_NODE_VALID: {
+        "<": "OPEN_NODE",
+        ">": "CLOSE_NODE_CONFIRMED",
+        DEFAULT: "CLOSE_NODE_VALID",
+    },
+    INDEPENDENT_NODE_VALID: {
+        "<": "OPEN_NODE",
+        ">": "INDEPENDENT_NODE_CONFIRMED",
+        DEFAULT: "INDEPENDENT_NODE_VALID",
+    },
+};
+
 const DEFAULT_POSITION = {
     arrayIndex: 0,
     stringIndex: 0,
@@ -533,11 +575,568 @@ const getCharFromTarget = (template, position) => {
     return (_a = templateArray === null || templateArray === void 0 ? void 0 : templateArray[position.arrayIndex]) === null || _a === void 0 ? void 0 : _a[position.stringIndex];
 };
 
+const DEFAULT_POSITION$1 = {
+    arrayIndex: 0,
+    stringIndex: 0,
+};
+const create$1 = (position = DEFAULT_POSITION$1) => ({
+    origin: Object.assign({}, position),
+    target: Object.assign({}, position),
+});
+const createFollowingVector = (template, vector) => {
+    const followingVector = copy$1(vector);
+    if (increment(template, followingVector.target)) {
+        followingVector.origin = Object.assign({}, followingVector.target);
+        return followingVector;
+    }
+    return;
+};
+const copy$1 = (vector) => {
+    return {
+        origin: Object.assign({}, vector.origin),
+        target: Object.assign({}, vector.target),
+    };
+};
+const incrementTarget = (template, vector) => {
+    if (increment(template, vector.target)) {
+        return vector;
+    }
+    return;
+};
+
+// brian taylor vann
+const DEFAULT = "DEFAULT";
+const CONTENT_NODE = "CONTENT_NODE";
+const OPEN_NODE = "OPEN_NODE";
+const validSieve = {
+    ["OPEN_NODE_VALID"]: "OPEN_NODE_VALID",
+    ["CLOSE_NODE_VALID"]: "CLOSE_NODE_VALID",
+    ["INDEPENDENT_NODE_VALID"]: "INDEPENDENT_NODE_VALID",
+};
+const confirmedSieve = {
+    ["OPEN_NODE_CONFIRMED"]: "OPEN_NODE_CONFIRMED",
+    ["CLOSE_NODE_CONFIRMED"]: "CLOSE_NODE_CONFIRMED",
+    ["INDEPENDENT_NODE_CONFIRMED"]: "INDEPENDENT_NODE_CONFIRMED",
+};
+const setStartStateProperties = (template, previousCrawl) => {
+    const cState = {
+        nodeType: CONTENT_NODE,
+        vector: create$1(),
+    };
+    if (previousCrawl !== undefined) {
+        const followingVector = createFollowingVector(template, previousCrawl.vector);
+        if (followingVector === undefined) {
+            return;
+        }
+    }
+    setNodeType(template, cState);
+    return cState;
+};
+const setNodeType = (template, cState) => {
+    var _a, _b;
+    const nodeStates = routers[cState.nodeType];
+    const char = getCharFromTarget(template, cState.vector.target);
+    if (nodeStates !== undefined && char !== undefined) {
+        const defaultNodeType = (_a = nodeStates[DEFAULT]) !== null && _a !== void 0 ? _a : CONTENT_NODE;
+        cState.nodeType = (_b = nodeStates[char]) !== null && _b !== void 0 ? _b : defaultNodeType;
+    }
+    return cState;
+};
+const crawl = (template, previousCrawl) => {
+    let openPosition;
+    const cState = setStartStateProperties(template, previousCrawl);
+    if (cState === undefined) {
+        return;
+    }
+    while (increment(template, cState.vector.target)) {
+        if (validSieve[cState.nodeType] === undefined &&
+            cState.vector.target.stringIndex === 0) {
+            cState.nodeType = CONTENT_NODE;
+        }
+        setNodeType(template, cState);
+        if (confirmedSieve[cState.nodeType]) {
+            if (openPosition !== undefined) {
+                cState.vector.origin = Object.assign({}, openPosition);
+            }
+            break;
+        }
+        if (cState.nodeType === OPEN_NODE) {
+            openPosition = Object.assign({}, cState.vector.target);
+        }
+    }
+    return cState;
+};
+
+// brian taylor vann
 const testTextInterpolator = (templateArray, ...injections) => {
     return { templateArray, injections };
 };
-const title = "text_position";
+const title = "crawl";
 const runTestsAsynchronously = true;
+const findNothingWhenThereIsPlainText = () => {
+    const testBlank = testTextInterpolator `no nodes to be found!`;
+    const assertions = [];
+    const result = crawl(testBlank);
+    if (result === undefined) {
+        assertions.push("undefined result");
+    }
+    if (result && result.nodeType !== "CONTENT_NODE") {
+        assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
+    }
+    if (result && result.vector.origin.arrayIndex !== 0) {
+        assertions.push(`should return start arrayIndex as 0`);
+    }
+    if (result && result.vector.origin.stringIndex !== 0) {
+        assertions.push(`should return start stringIndex as 0`);
+    }
+    if (result && result.vector.target.arrayIndex !== 0) {
+        assertions.push(`should return end arrayIndex as 0`);
+    }
+    if (result && result.vector.target.stringIndex !== 20) {
+        assertions.push(`should return end stringIndex as 20`);
+    }
+    return assertions;
+};
+const findParagraphInPlainText = () => {
+    const testOpenNode = testTextInterpolator `<p>`;
+    const assertions = [];
+    const result = crawl(testOpenNode);
+    if (result === undefined) {
+        assertions.push("undefined result");
+    }
+    if (result && result.nodeType !== "OPEN_NODE_CONFIRMED") {
+        assertions.push(`should return OPEN_NODE_CONFIRMED instead of ${result.nodeType}`);
+    }
+    if (result && result.vector.origin.arrayIndex !== 0) {
+        assertions.push(`should return start arrayIndex as 0`);
+    }
+    if (result && result.vector.origin.stringIndex !== 0) {
+        assertions.push(`should return start stringIndex as 0`);
+    }
+    if (result && result.vector.target.arrayIndex !== 0) {
+        assertions.push(`should return end arrayIndex as 0`);
+    }
+    if (result && result.vector.target.stringIndex !== 2) {
+        assertions.push(`should return end stringIndex as 2`);
+    }
+    return assertions;
+};
+const findCloseParagraphInPlainText = () => {
+    const testTextCloseNode = testTextInterpolator `</p>`;
+    const assertions = [];
+    const result = crawl(testTextCloseNode);
+    if (result === undefined) {
+        assertions.push("undefined result");
+    }
+    if (result && result.nodeType !== "CLOSE_NODE_CONFIRMED") {
+        assertions.push(`should return CLOSE_NODE_CONFIRMED instead of ${result.nodeType}`);
+    }
+    if (result && result.vector.origin.arrayIndex !== 0) {
+        assertions.push(`should return start arrayIndex as 0`);
+    }
+    if (result && result.vector.origin.stringIndex !== 0) {
+        assertions.push(`should return start stringIndex as 2`);
+    }
+    if (result && result.vector.target.arrayIndex !== 0) {
+        assertions.push(`should return end arrayIndex as 0`);
+    }
+    if (result && result.vector.target.stringIndex !== 3) {
+        assertions.push(`should return end stringIndex as 3`);
+    }
+    return assertions;
+};
+const findIndependentParagraphInPlainText = () => {
+    const testTextIndependentNode = testTextInterpolator `<p/>`;
+    const assertions = [];
+    const result = crawl(testTextIndependentNode);
+    if (result === undefined) {
+        assertions.push("undefined result");
+    }
+    if (result && result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
+        assertions.push(`should return INDEPENDENT_NODE_CONFIRMED instead of ${result.nodeType}`);
+    }
+    if (result && result.vector.origin.arrayIndex !== 0) {
+        assertions.push(`should return start arrayIndex as 0`);
+    }
+    if (result && result.vector.origin.stringIndex !== 0) {
+        assertions.push(`should return start stringIndex as 0`);
+    }
+    if (result && result.vector.target.arrayIndex !== 0) {
+        assertions.push(`should return end arrayIndex as 0`);
+    }
+    if (result && result.vector.target.stringIndex !== 3) {
+        assertions.push(`should return end stringIndex as 3`);
+    }
+    return assertions;
+};
+const findOpenParagraphInTextWithArgs = () => {
+    const testTextWithArgs = testTextInterpolator `an ${"example"} <p>${"!"}</p>`;
+    const assertions = [];
+    const result = crawl(testTextWithArgs);
+    if (result === undefined) {
+        assertions.push("undefined result");
+    }
+    if (result && result.nodeType !== "OPEN_NODE_CONFIRMED") {
+        assertions.push(`should return OPEN_NODE_CONFIRMED instead of ${result.nodeType}`);
+    }
+    if (result && result.vector.origin.arrayIndex !== 1) {
+        assertions.push(`should return start arrayIndex as 1`);
+    }
+    if (result && result.vector.origin.stringIndex !== 1) {
+        assertions.push(`should return start stringIndex as 1`);
+    }
+    if (result && result.vector.target.arrayIndex !== 1) {
+        assertions.push(`should return end arrayIndex as 1`);
+    }
+    if (result && result.vector.target.stringIndex !== 3) {
+        assertions.push(`should return end stringIndex as 3`);
+    }
+    return assertions;
+};
+const notFoundInUgglyMessText = () => {
+    const testInvalidUgglyMess = testTextInterpolator `an <${"invalid"}p> example${"!"}`;
+    const assertions = [];
+    const result = crawl(testInvalidUgglyMess);
+    if (result === undefined) {
+        assertions.push("undefined result");
+    }
+    if (result && result.nodeType !== "CONTENT_NODE") {
+        assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
+    }
+    if (result && result.vector.origin.arrayIndex !== 0) {
+        assertions.push(`should return start arrayIndex as 0`);
+    }
+    if (result && result.vector.origin.stringIndex !== 0) {
+        assertions.push(`should return start stringIndex as 0`);
+    }
+    if (result && result.vector.target.arrayIndex !== 2) {
+        assertions.push(`should return end arrayIndex as 2`);
+    }
+    if (result && result.vector.target.stringIndex !== 0) {
+        assertions.push(`should return end stringIndex as 0`);
+    }
+    return assertions;
+};
+const notFoundInReallyUgglyMessText = () => {
+    const testInvalidUgglyMess = testTextInterpolator `an example${"!"}${"?"}`;
+    const assertions = [];
+    const result = crawl(testInvalidUgglyMess);
+    // if (result === undefined) {
+    //   assertions.push("undefined result");
+    // }
+    // if (result && result.nodeType !== "CONTENT_NODE") {
+    //   assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
+    // }
+    // if (result && result.vector.origin.arrayIndex !== 0) {
+    //   assertions.push(`should return start arrayIndex as 0`);
+    // }
+    // if (result && result.vector.origin.stringIndex !== 0) {
+    //   assertions.push(`should return start stringIndex as 0`);
+    // }
+    // if (result && result.vector.target.arrayIndex !== 2) {
+    //   assertions.push(`should return end arrayIndex as 2`);
+    // }
+    // if (result && result.vector.target.stringIndex !== -1) {
+    //   assertions.push(`should return end stringIndex as -1`);
+    // }
+    return assertions;
+};
+const invalidCloseNodeWithArgs = () => {
+    const testInvlaidCloseNodeWithArgs = testTextInterpolator `closed </${"example"}p>`;
+    const assertions = [];
+    const result = crawl(testInvlaidCloseNodeWithArgs);
+    if (result === undefined) {
+        assertions.push("undefined result");
+    }
+    if (result && result.nodeType !== "CONTENT_NODE") {
+        assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
+    }
+    if (result && result.vector.origin.arrayIndex !== 0) {
+        assertions.push(`should return start arrayIndex as 0`);
+    }
+    if (result && result.vector.origin.stringIndex !== 0) {
+        assertions.push(`should return start stringIndex as 0`);
+    }
+    if (result && result.vector.target.arrayIndex !== 1) {
+        assertions.push(`should return end arrayIndex as 1`);
+    }
+    if (result && result.vector.target.stringIndex !== 1) {
+        assertions.push(`should return end stringIndex as 1`);
+    }
+    return assertions;
+};
+const validCloseNodeWithArgs = () => {
+    const testValidCloseNodeWithArgs = testTextInterpolator `closed </p ${"example"}>`;
+    const assertions = [];
+    const result = crawl(testValidCloseNodeWithArgs);
+    if (result === undefined) {
+        assertions.push("undefined result");
+    }
+    if (result && result.nodeType !== "CLOSE_NODE_CONFIRMED") {
+        assertions.push(`should return CLOSE_NODE_CONFIRMED instead of ${result.nodeType}`);
+    }
+    if (result && result.vector.origin.arrayIndex !== 0) {
+        assertions.push(`should return start arrayIndex as 0`);
+    }
+    if (result && result.vector.origin.stringIndex !== 7) {
+        assertions.push(`should return start stringIndex as 7`);
+    }
+    if (result && result.vector.target.arrayIndex !== 1) {
+        assertions.push(`should return end arrayIndex as 1`);
+    }
+    if (result && result.vector.target.stringIndex !== 0) {
+        assertions.push(`should return end stringIndex as 0`);
+    }
+    return assertions;
+};
+const invalidIndependentNodeWithArgs = () => {
+    const testInvalidIndependentNode = testTextInterpolator `independent <${"example"}p/>`;
+    const assertions = [];
+    const result = crawl(testInvalidIndependentNode);
+    if (result === undefined) {
+        assertions.push("undefined result");
+    }
+    if (result && result.nodeType !== "CONTENT_NODE") {
+        assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
+    }
+    if (result && result.vector.origin.arrayIndex !== 0) {
+        assertions.push(`should return start arrayIndex as 0`);
+    }
+    if (result && result.vector.origin.stringIndex !== 0) {
+        assertions.push(`should return start stringIndex as 0`);
+    }
+    if (result && result.vector.target.arrayIndex !== 1) {
+        assertions.push(`should return end arrayIndex as 1`);
+    }
+    if (result && result.vector.target.stringIndex !== 2) {
+        assertions.push(`should return end stringIndex as 2`);
+    }
+    return assertions;
+};
+const validIndependentNodeWithArgs = () => {
+    const testValidIndependentNode = testTextInterpolator `independent <p ${"example"} / >`;
+    const assertions = [];
+    const result = crawl(testValidIndependentNode);
+    if (result === undefined) {
+        assertions.push("undefined result");
+    }
+    if (result && result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
+        assertions.push(`should return INDEPENDENT_NODE_CONFIRMED instead of ${result.nodeType}`);
+    }
+    if (result && result.vector.origin.arrayIndex !== 0) {
+        assertions.push(`should return start arrayIndex as 0`);
+    }
+    if (result && result.vector.origin.stringIndex !== 12) {
+        assertions.push(`should return start stringIndex as 12`);
+    }
+    if (result && result.vector.target.arrayIndex !== 1) {
+        assertions.push(`should return end arrayIndex as 1`);
+    }
+    if (result && result.vector.target.stringIndex !== 3) {
+        assertions.push(`should return end stringIndex as 3`);
+    }
+    return assertions;
+};
+const invalidOpenNodeWithArgs = () => {
+    const testInvalidOpenNode = testTextInterpolator `open <${"example"}p>`;
+    const assertions = [];
+    const result = crawl(testInvalidOpenNode);
+    if (result === undefined) {
+        assertions.push("undefined result");
+    }
+    if (result && result.nodeType !== "CONTENT_NODE") {
+        assertions.push(`should return CONTENT_NODE instead of ${result.nodeType}`);
+    }
+    if (result && result.vector.origin.arrayIndex !== 0) {
+        assertions.push(`should return start arrayIndex as 0`);
+    }
+    if (result && result.vector.origin.stringIndex !== 0) {
+        assertions.push(`should return start stringIndex as 0`);
+    }
+    if (result && result.vector.target.arrayIndex !== 1) {
+        assertions.push(`should return end arrayIndex as 1`);
+    }
+    if (result && result.vector.target.stringIndex !== 1) {
+        assertions.push(`should return end stringIndex as 1`);
+    }
+    return assertions;
+};
+const validOpenNodeWithArgs = () => {
+    const testValidOpenNode = testTextInterpolator `open <p ${"example"}>`;
+    const assertions = [];
+    const result = crawl(testValidOpenNode);
+    if (result === undefined) {
+        assertions.push("undefined result");
+    }
+    if (result && result.nodeType !== "OPEN_NODE_CONFIRMED") {
+        assertions.push(`should return OPEN_NODE_CONFIRMED instead of ${result.nodeType}`);
+    }
+    if (result && result.vector.origin.arrayIndex !== 0) {
+        assertions.push(`should return start arrayIndex as 0`);
+    }
+    if (result && result.vector.origin.stringIndex !== 5) {
+        assertions.push(`should return start stringIndex as 5`);
+    }
+    if (result && result.vector.target.arrayIndex !== 1) {
+        assertions.push(`should return end arrayIndex as 1`);
+    }
+    if (result && result.vector.target.stringIndex !== 0) {
+        assertions.push(`should return end stringIndex as 0`);
+    }
+    return assertions;
+};
+const findNextCrawlWithPreviousCrawl = () => {
+    const testValidOpenNode = testTextInterpolator `<p ${"small"}/>${"example"}<p/>`;
+    const assertions = [];
+    const previousCrawl = crawl(testValidOpenNode);
+    const result = crawl(testValidOpenNode, previousCrawl);
+    if (result === undefined) {
+        assertions.push("undefined result");
+    }
+    if (result && result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
+        assertions.push(`should return INDEPENDENT_NODE_CONFIRMED instead of ${result.nodeType}`);
+    }
+    if (result && result.vector.origin.arrayIndex !== 2) {
+        assertions.push(`should return start arrayIndex as 2`);
+    }
+    if (result && result.vector.origin.stringIndex !== 0) {
+        assertions.push(`should return start stringIndex as 0`);
+    }
+    if (result && result.vector.target.arrayIndex !== 2) {
+        assertions.push(`should return end arrayIndex as 1`);
+    }
+    if (result && result.vector.target.stringIndex !== 3) {
+        assertions.push(`should return end stringIndex as 3`);
+    }
+    return assertions;
+};
+const tests = [
+    findNothingWhenThereIsPlainText,
+    findParagraphInPlainText,
+    findCloseParagraphInPlainText,
+    findIndependentParagraphInPlainText,
+    findOpenParagraphInTextWithArgs,
+    notFoundInUgglyMessText,
+    notFoundInReallyUgglyMessText,
+    invalidCloseNodeWithArgs,
+    validCloseNodeWithArgs,
+    invalidIndependentNodeWithArgs,
+    validIndependentNodeWithArgs,
+    invalidOpenNodeWithArgs,
+    validOpenNodeWithArgs,
+    findNextCrawlWithPreviousCrawl,
+];
+const unitTestCrawl = {
+    title,
+    tests,
+    runTestsAsynchronously,
+};
+
+const title$1 = "routers";
+const runTestsAsynchronously$1 = true;
+const notFoundReducesCorrectState = () => {
+    var _a, _b;
+    const assertions = [];
+    if (((_a = routers["CONTENT_NODE"]) === null || _a === void 0 ? void 0 : _a["<"]) !== "OPEN_NODE") {
+        assertions.push("< should return OPEN_NODE");
+    }
+    if (((_b = routers["CONTENT_NODE"]) === null || _b === void 0 ? void 0 : _b["DEFAULT"]) !== "CONTENT_NODE") {
+        assertions.push("space should return CONTENT_NODE");
+    }
+    return assertions;
+};
+const openNodeReducesCorrectState = () => {
+    var _a, _b, _c, _d;
+    const assertions = [];
+    if (((_a = routers["OPEN_NODE"]) === null || _a === void 0 ? void 0 : _a["<"]) !== "OPEN_NODE") {
+        assertions.push("< should return OPEN_NODE");
+    }
+    if (((_b = routers["OPEN_NODE"]) === null || _b === void 0 ? void 0 : _b["/"]) !== "CLOSE_NODE") {
+        assertions.push("/ should return CLOSE_NODE");
+    }
+    if (((_c = routers["OPEN_NODE"]) === null || _c === void 0 ? void 0 : _c["b"]) !== "OPEN_NODE_VALID") {
+        assertions.push("b should return OPEN_NODE_VALID");
+    }
+    if (((_d = routers["OPEN_NODE"]) === null || _d === void 0 ? void 0 : _d["DEFAULT"]) !== "CONTENT_NODE") {
+        assertions.push("space should return CONTENT_NODE");
+    }
+    return assertions;
+};
+const openNodeValidReducesCorrectState = () => {
+    var _a, _b, _c, _d;
+    const assertions = [];
+    if (((_a = routers["OPEN_NODE_VALID"]) === null || _a === void 0 ? void 0 : _a["<"]) !== "OPEN_NODE") {
+        assertions.push("< should return OPEN_NODE");
+    }
+    if (((_b = routers["OPEN_NODE_VALID"]) === null || _b === void 0 ? void 0 : _b["/"]) !== "INDEPENDENT_NODE_VALID") {
+        assertions.push("/ should return INDEPENDENT_NODE_VALID");
+    }
+    if (((_c = routers["OPEN_NODE_VALID"]) === null || _c === void 0 ? void 0 : _c[">"]) !== "OPEN_NODE_CONFIRMED") {
+        assertions.push("> should return OPEN_NODE_CONFIRMED");
+    }
+    if (((_d = routers["OPEN_NODE_VALID"]) === null || _d === void 0 ? void 0 : _d["DEFAULT"]) !== "OPEN_NODE_VALID") {
+        assertions.push("space should return OPEN_NODE_VALID");
+    }
+    return assertions;
+};
+const independentNodeValidReducesCorrectState = () => {
+    var _a, _b;
+    const assertions = [];
+    if (((_a = routers["INDEPENDENT_NODE_VALID"]) === null || _a === void 0 ? void 0 : _a["<"]) !== "OPEN_NODE") {
+        assertions.push("< should return OPEN_NODE");
+    }
+    if (((_b = routers["INDEPENDENT_NODE_VALID"]) === null || _b === void 0 ? void 0 : _b["DEFAULT"]) !== "INDEPENDENT_NODE_VALID") {
+        assertions.push("space should return INDEPENDENT_NODE_VALID");
+    }
+    return assertions;
+};
+const closeNodeReducesCorrectState = () => {
+    var _a, _b, _c;
+    const assertions = [];
+    if (((_a = routers["CLOSE_NODE"]) === null || _a === void 0 ? void 0 : _a["<"]) !== "OPEN_NODE") {
+        assertions.push("< should return OPEN_NODE");
+    }
+    if (((_b = routers["CLOSE_NODE"]) === null || _b === void 0 ? void 0 : _b["a"]) !== "CLOSE_NODE_VALID") {
+        assertions.push("'a' should return CLOSE_NODE_VALID");
+    }
+    if (((_c = routers["CLOSE_NODE"]) === null || _c === void 0 ? void 0 : _c["DEFAULT"]) !== "CONTENT_NODE") {
+        assertions.push("space should return CLOSE_NODE_VALID");
+    }
+    return assertions;
+};
+const closeNodeValidReducesCorrectState = () => {
+    var _a, _b, _c;
+    const assertions = [];
+    if (((_a = routers["CLOSE_NODE_VALID"]) === null || _a === void 0 ? void 0 : _a["<"]) !== "OPEN_NODE") {
+        assertions.push("< should return OPEN_NODE");
+    }
+    if (((_b = routers["CLOSE_NODE_VALID"]) === null || _b === void 0 ? void 0 : _b[">"]) !== "CLOSE_NODE_CONFIRMED") {
+        assertions.push("> should return CLOSE_NODE_CONFIRMED");
+    }
+    if (((_c = routers["CLOSE_NODE_VALID"]) === null || _c === void 0 ? void 0 : _c["DEFAULT"]) !== "CLOSE_NODE_VALID") {
+        assertions.push("space should return CLOSE_NODE_VALID");
+    }
+    return assertions;
+};
+const tests$1 = [
+    notFoundReducesCorrectState,
+    openNodeReducesCorrectState,
+    openNodeValidReducesCorrectState,
+    independentNodeValidReducesCorrectState,
+    closeNodeReducesCorrectState,
+    closeNodeValidReducesCorrectState,
+];
+const unitTestCrawlRouters = {
+    title: title$1,
+    tests: tests$1,
+    runTestsAsynchronously: runTestsAsynchronously$1,
+};
+
+const testTextInterpolator$1 = (templateArray, ...injections) => {
+    return { templateArray, injections };
+};
+const title$2 = "text_position";
+const runTestsAsynchronously$2 = true;
 const createTextPosition = () => {
     const assertions = [];
     const vector = create();
@@ -578,7 +1177,7 @@ const copyTextPosition = () => {
 };
 const incrementTextPosition = () => {
     const assertions = [];
-    const structureRender = testTextInterpolator `hello`;
+    const structureRender = testTextInterpolator$1 `hello`;
     const position = create();
     increment(structureRender, position);
     if (position.stringIndex !== 1) {
@@ -591,7 +1190,7 @@ const incrementTextPosition = () => {
 };
 const incrementMultiTextPosition = () => {
     const assertions = [];
-    const structureRender = testTextInterpolator `hey${"world"}, how are you?`;
+    const structureRender = testTextInterpolator$1 `hey${"world"}, how are you?`;
     const position = create();
     increment(structureRender, position);
     increment(structureRender, position);
@@ -608,7 +1207,7 @@ const incrementMultiTextPosition = () => {
 };
 const incrementEmptyTextPosition = () => {
     const assertions = [];
-    const structureRender = testTextInterpolator `${"hey"}${"world"}${"!!"}`;
+    const structureRender = testTextInterpolator$1 `${"hey"}${"world"}${"!!"}`;
     const position = create();
     increment(structureRender, position);
     increment(structureRender, position);
@@ -626,7 +1225,7 @@ const incrementEmptyTextPosition = () => {
 };
 const incrementTextPositionTooFar = () => {
     const assertions = [];
-    const structureRender = testTextInterpolator `hey${"world"}, how are you?`;
+    const structureRender = testTextInterpolator$1 `hey${"world"}, how are you?`;
     const arrayLength = structureRender.templateArray.length - 1;
     const stringLength = structureRender.templateArray[arrayLength].length - 1;
     const position = copy({
@@ -649,7 +1248,7 @@ const incrementTextPositionTooFar = () => {
 };
 const decrementTextPosition = () => {
     const assertions = [];
-    const structureRender = testTextInterpolator `hello`;
+    const structureRender = testTextInterpolator$1 `hello`;
     const arrayLength = structureRender.templateArray.length - 1;
     const stringLength = structureRender.templateArray[arrayLength].length - 1;
     const position = copy({
@@ -667,7 +1266,7 @@ const decrementTextPosition = () => {
 };
 const decrementMultiTextPosition = () => {
     const assertions = [];
-    const structureRender = testTextInterpolator `hey${"hello"}bro!`;
+    const structureRender = testTextInterpolator$1 `hey${"hello"}bro!`;
     const arrayLength = structureRender.templateArray.length - 1;
     const stringLength = structureRender.templateArray[arrayLength].length - 1;
     const position = copy({
@@ -689,7 +1288,7 @@ const decrementMultiTextPosition = () => {
 };
 const decrementEmptyTextPosition = () => {
     const assertions = [];
-    const structureRender = testTextInterpolator `${"hey"}${"world"}${"!!"}`;
+    const structureRender = testTextInterpolator$1 `${"hey"}${"world"}${"!!"}`;
     const arrayLength = structureRender.templateArray.length - 1;
     const stringLength = structureRender.templateArray[arrayLength].length - 1;
     const position = copy({
@@ -712,7 +1311,7 @@ const decrementEmptyTextPosition = () => {
 };
 const decrementTextPositionTooFar = () => {
     const assertions = [];
-    const structureRender = testTextInterpolator `hey${"world"}, how are you?`;
+    const structureRender = testTextInterpolator$1 `hey${"world"}, how are you?`;
     const position = create();
     const MAX_DEPTH = 20;
     let safety = 0;
@@ -730,7 +1329,7 @@ const decrementTextPositionTooFar = () => {
 };
 const getCharFromTemplate = () => {
     const assertions = [];
-    const structureRender = testTextInterpolator `hello`;
+    const structureRender = testTextInterpolator$1 `hello`;
     const position = { arrayIndex: 0, stringIndex: 2 };
     const char = getCharFromTarget(structureRender, position);
     if (char !== "l") {
@@ -738,7 +1337,7 @@ const getCharFromTemplate = () => {
     }
     return assertions;
 };
-const tests = [
+const tests$2 = [
     createTextPosition,
     createTextPositionFromPosition,
     copyTextPosition,
@@ -753,45 +1352,16 @@ const tests = [
     getCharFromTemplate,
 ];
 const unitTestTextPosition = {
-    title,
-    tests,
-    runTestsAsynchronously,
+    title: title$2,
+    tests: tests$2,
+    runTestsAsynchronously: runTestsAsynchronously$2,
 };
 
-const DEFAULT_POSITION$1 = {
-    arrayIndex: 0,
-    stringIndex: 0,
-};
-const create$1 = (position = DEFAULT_POSITION$1) => ({
-    origin: Object.assign({}, position),
-    target: Object.assign({}, position),
-});
-const createFollowingVector = (template, vector) => {
-    const followingVector = copy$1(vector);
-    if (increment(template, followingVector.target)) {
-        followingVector.origin = Object.assign({}, followingVector.target);
-        return followingVector;
-    }
-    return;
-};
-const copy$1 = (vector) => {
-    return {
-        origin: Object.assign({}, vector.origin),
-        target: Object.assign({}, vector.target),
-    };
-};
-const incrementTarget = (template, vector) => {
-    if (increment(template, vector.origin)) {
-        return vector;
-    }
-    return;
-};
-
-const testTextInterpolator$1 = (templateArray, ...injections) => {
+const testTextInterpolator$2 = (templateArray, ...injections) => {
     return { templateArray, injections };
 };
-const title$1 = "text_vector";
-const runTestsAsynchronously$1 = true;
+const title$3 = "text_vector";
+const runTestsAsynchronously$3 = true;
 const createTextVector = () => {
     const assertions = [];
     const vector = create$1();
@@ -835,7 +1405,7 @@ const copyTextVector = () => {
 };
 const incrementTextVector = () => {
     const assertions = [];
-    const structureRender = testTextInterpolator$1 `hello`;
+    const structureRender = testTextInterpolator$2 `hello`;
     const vector = create$1();
     incrementTarget(structureRender, vector);
     if (vector.target.stringIndex !== 1) {
@@ -848,7 +1418,7 @@ const incrementTextVector = () => {
 };
 const incrementMultiTextVector = () => {
     const assertions = [];
-    const structureRender = testTextInterpolator$1 `hey${"world"}, how are you?`;
+    const structureRender = testTextInterpolator$2 `hey${"world"}, how are you?`;
     const vector = create$1();
     incrementTarget(structureRender, vector);
     incrementTarget(structureRender, vector);
@@ -865,7 +1435,7 @@ const incrementMultiTextVector = () => {
 };
 const incrementEmptyTextVector = () => {
     const assertions = [];
-    const structureRender = testTextInterpolator$1 `${"hey"}${"world"}${"!!"}`;
+    const structureRender = testTextInterpolator$2 `${"hey"}${"world"}${"!!"}`;
     const vector = create$1();
     incrementTarget(structureRender, vector);
     incrementTarget(structureRender, vector);
@@ -883,7 +1453,7 @@ const incrementEmptyTextVector = () => {
 };
 const createFollowingTextVector = () => {
     const assertions = [];
-    const structureRender = testTextInterpolator$1 `supercool`;
+    const structureRender = testTextInterpolator$2 `supercool`;
     const vector = create$1();
     incrementTarget(structureRender, vector);
     incrementTarget(structureRender, vector);
@@ -903,7 +1473,7 @@ const createFollowingTextVector = () => {
 };
 const incrementTextVectorTooFar = () => {
     const assertions = [];
-    const structureRender = testTextInterpolator$1 `hey${"world"}, how are you?`;
+    const structureRender = testTextInterpolator$2 `hey${"world"}, how are you?`;
     const vector = create$1();
     const MAX_DEPTH = 20;
     let safety = 0;
@@ -919,7 +1489,7 @@ const incrementTextVectorTooFar = () => {
     }
     return assertions;
 };
-const tests$1 = [
+const tests$3 = [
     createTextVector,
     createTextVectorFromPosition,
     createFollowingTextVector,
@@ -930,19 +1500,21 @@ const tests$1 = [
     incrementTextVectorTooFar,
 ];
 const unitTestTextVector = {
-    title: title$1,
-    tests: tests$1,
-    runTestsAsynchronously: runTestsAsynchronously$1,
+    title: title$3,
+    tests: tests$3,
+    runTestsAsynchronously: runTestsAsynchronously$3,
 };
 
 // brian taylor vann
-const tests$2 = [
+const tests$4 = [
     unitTestTextPosition,
     unitTestTextVector,
+    unitTestCrawlRouters,
+    unitTestCrawl,
 ];
 
 // brian taylor vann
-const testCollection = [...tests$2];
+const testCollection = [...tests$4];
 runTests({ testCollection })
     .then((results) => console.log("results: ", results))
     .catch((errors) => console.log("errors: ", errors));

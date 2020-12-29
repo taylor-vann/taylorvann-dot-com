@@ -8,12 +8,11 @@ type CreateAlphabetKeys = (route: CrawlStatus) => Routes;
 
 const createAlphabetKeys: CreateAlphabetKeys = (route) => {
   const alphabetSet: Routes = {};
-
-  let lowercaseIndex = "a".charCodeAt(0);
   const lowercaseLimit = "z".charCodeAt(0);
-  let uppercaseIndex = "A".charCodeAt(0);
   const uppercaseLimit = "Z".charCodeAt(0);
 
+  let lowercaseIndex = "a".charCodeAt(0);
+  let uppercaseIndex = "A".charCodeAt(0);
   while (lowercaseIndex <= lowercaseLimit) {
     alphabetSet[String.fromCharCode(lowercaseIndex)] = route;
     lowercaseIndex += 1;
@@ -27,13 +26,14 @@ const createAlphabetKeys: CreateAlphabetKeys = (route) => {
   return alphabetSet;
 };
 
+const alphabetKeys = createAlphabetKeys("OPEN_NODE_VALID");
+
 const routers: Routers = {
   CONTENT_NODE: {
     "<": "OPEN_NODE",
     DEFAULT: "CONTENT_NODE",
   },
   OPEN_NODE: {
-    ...createAlphabetKeys("OPEN_NODE_VALID"),
     "<": "OPEN_NODE",
     "/": "CLOSE_NODE",
     DEFAULT: "CONTENT_NODE",
@@ -45,7 +45,7 @@ const routers: Routers = {
     DEFAULT: "OPEN_NODE_VALID",
   },
   CLOSE_NODE: {
-    ...createAlphabetKeys("CLOSE_NODE_VALID"),
+    ...alphabetKeys,
     "<": "OPEN_NODE",
     DEFAULT: "CONTENT_NODE",
   },

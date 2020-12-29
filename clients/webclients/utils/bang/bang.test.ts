@@ -11,8 +11,8 @@ import { unitTestBuildStructure } from "./builders/build_structure/build_structu
 const tests = [
   unitTestTextPosition,
   unitTestTextVector,
-  // unitTestRouters,
-  // unitTestCrawl,
+  unitTestCrawlRouters,
+  unitTestCrawl,
   // unitTestBuildSkeleton,
   // unitTestBuildIntegrals,
 ];

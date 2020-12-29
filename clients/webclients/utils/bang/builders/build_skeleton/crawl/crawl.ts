@@ -18,10 +18,6 @@ type SetNodeType = <A>(
   template: StructureRender<A>,
   results: CrawlResults
 ) => void;
-type CrawlHasEnded = <A>(
-  template: StructureRender<A>,
-  previousCrawl?: CrawlResults
-) => boolean;
 type SetStartStateProperties = <A>(
   template: StructureRender<A>,
   previousCrawl?: CrawlResults

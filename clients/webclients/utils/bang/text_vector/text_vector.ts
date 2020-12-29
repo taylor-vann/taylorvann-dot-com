@@ -31,6 +31,7 @@ const create: Create = (position = DEFAULT_POSITION) => ({
 
 const createFollowingVector: CreateFollowingVector = (template, vector) => {
   const followingVector = copy(vector);
+
   if (increment(template, followingVector.target)) {
     followingVector.origin = { ...followingVector.target };
     return followingVector;
@@ -53,13 +54,6 @@ const incrementOrigin: Increment = (template, vector) => {
   return;
 };
 
-const incrementTarget: Increment = (template, vector) => {
-  if (increment(template, vector.origin)) {
-    return vector;
-  }
-  return;
-};
-
 const decrementOrigin: Increment = (template, vector) => {
   if (decrement(template, vector.origin)) {
     return vector;
@@ -67,8 +61,15 @@ const decrementOrigin: Increment = (template, vector) => {
   return;
 };
 
+const incrementTarget: Increment = (template, vector) => {
+  if (increment(template, vector.target)) {
+    return vector;
+  }
+  return;
+};
+
 const decrementTarget: Increment = (template, vector) => {
-  if (decrement(template, vector.origin)) {
+  if (decrement(template, vector.target)) {
     return vector;
   }
   return;
