@@ -489,19 +489,12 @@ const copy = create;
 const increment = (template, position) => {
     // template boundaries
     const templateLength = template.templateArray.length - 1;
-    const arrayIndex = position.arrayIndex;
-    const stringIndex = position.stringIndex;
     const chunk = template.templateArray[position.arrayIndex];
     if (chunk === undefined) {
         return;
     }
-    // Oddity akin to divide by 0 needs to be included
-    if (chunk === "" &&
-        arrayIndex >= templateLength &&
-        stringIndex >= chunk.length) {
-        return;
-    }
-    if (arrayIndex >= templateLength && stringIndex >= chunk.length - 1) {
+    if (position.arrayIndex >= templateLength &&
+        position.stringIndex >= chunk.length - 1) {
         return;
     }
     // cannot % modulo by 0
