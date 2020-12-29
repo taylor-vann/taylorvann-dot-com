@@ -483,10 +483,10 @@ const runTests = (params) => __awaiter$1(void 0, void 0, void 0, function* () {
 // brian taylor vann
 const createAlphabetKeys = (route) => {
     const alphabetSet = {};
-    let lowercaseIndex = "a".charCodeAt(0);
     const lowercaseLimit = "z".charCodeAt(0);
-    let uppercaseIndex = "A".charCodeAt(0);
     const uppercaseLimit = "Z".charCodeAt(0);
+    let lowercaseIndex = "a".charCodeAt(0);
+    let uppercaseIndex = "A".charCodeAt(0);
     while (lowercaseIndex <= lowercaseLimit) {
         alphabetSet[String.fromCharCode(lowercaseIndex)] = route;
         lowercaseIndex += 1;
@@ -585,10 +585,14 @@ const create$1 = (position = DEFAULT_POSITION$1) => ({
 });
 const createFollowingVector = (template, vector) => {
     const followingVector = copy$1(vector);
+    console.log("createFollowingVector");
     if (increment(template, followingVector.target)) {
+        console.log("incremented following vector");
+        console.log(followingVector);
         followingVector.origin = Object.assign({}, followingVector.target);
         return followingVector;
     }
+    console.log("didn't make it");
     return;
 };
 const copy$1 = (vector) => {
@@ -619,52 +623,54 @@ const confirmedSieve = {
     ["INDEPENDENT_NODE_CONFIRMED"]: "INDEPENDENT_NODE_CONFIRMED",
 };
 const setStartStateProperties = (template, previousCrawl) => {
-    const cState = {
-        nodeType: CONTENT_NODE,
-        vector: create$1(),
-    };
+    let followingVector = create$1();
     if (previousCrawl !== undefined) {
-        const followingVector = createFollowingVector(template, previousCrawl.vector);
-        if (followingVector === undefined) {
-            return;
-        }
+        followingVector = createFollowingVector(template, previousCrawl.vector);
     }
-    setNodeType(template, cState);
-    return cState;
-};
-const setNodeType = (template, cState) => {
-    var _a, _b;
-    const nodeStates = routers[cState.nodeType];
-    const char = getCharFromTarget(template, cState.vector.target);
-    if (nodeStates !== undefined && char !== undefined) {
-        const defaultNodeType = (_a = nodeStates[DEFAULT]) !== null && _a !== void 0 ? _a : CONTENT_NODE;
-        cState.nodeType = (_b = nodeStates[char]) !== null && _b !== void 0 ? _b : defaultNodeType;
-    }
-    return cState;
-};
-const crawl = (template, previousCrawl) => {
-    let openPosition;
-    const cState = setStartStateProperties(template, previousCrawl);
-    if (cState === undefined) {
+    if (followingVector === undefined) {
         return;
     }
-    while (increment(template, cState.vector.target)) {
-        if (validSieve[cState.nodeType] === undefined &&
-            cState.vector.target.stringIndex === 0) {
-            cState.nodeType = CONTENT_NODE;
+    const crawlState = {
+        nodeType: CONTENT_NODE,
+        vector: followingVector,
+    };
+    setNodeType(template, crawlState);
+    return crawlState;
+};
+const setNodeType = (template, crawlState) => {
+    var _a, _b;
+    const nodeStates = routers[crawlState.nodeType];
+    const char = getCharFromTarget(template, crawlState.vector.target);
+    if (nodeStates !== undefined && char !== undefined) {
+        const defaultNodeType = (_a = nodeStates[DEFAULT]) !== null && _a !== void 0 ? _a : CONTENT_NODE;
+        crawlState.nodeType = (_b = nodeStates[char]) !== null && _b !== void 0 ? _b : defaultNodeType;
+    }
+    return crawlState;
+};
+const crawl = (template, previousCrawl) => {
+    const crawlState = setStartStateProperties(template, previousCrawl);
+    if (crawlState === undefined) {
+        return;
+    }
+    let openPosition;
+    while (incrementTarget(template, crawlState.vector)) {
+        // default to content_node on each cycle
+        if (validSieve[crawlState.nodeType] === undefined &&
+            crawlState.vector.target.stringIndex === 0) {
+            crawlState.nodeType = CONTENT_NODE;
         }
-        setNodeType(template, cState);
-        if (confirmedSieve[cState.nodeType]) {
+        setNodeType(template, crawlState);
+        if (crawlState.nodeType === OPEN_NODE) {
+            openPosition = copy(crawlState.vector.target);
+        }
+        if (confirmedSieve[crawlState.nodeType]) {
             if (openPosition !== undefined) {
-                cState.vector.origin = Object.assign({}, openPosition);
+                crawlState.vector.origin = openPosition;
             }
             break;
         }
-        if (cState.nodeType === OPEN_NODE) {
-            openPosition = Object.assign({}, cState.vector.target);
-        }
     }
-    return cState;
+    return crawlState;
 };
 
 // brian taylor vann

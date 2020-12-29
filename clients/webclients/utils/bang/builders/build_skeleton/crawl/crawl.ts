@@ -3,13 +3,14 @@
 import { routers } from "./routers/routers";
 import { StructureRender } from "../../../type_flyweight/structure";
 import { CrawlResults, CrawlStatus } from "../../../type_flyweight/crawl";
-import { Position } from "../../../type_flyweight/text_vector";
+import { Position, Vector } from "../../../type_flyweight/text_vector";
 import {
   create,
   createFollowingVector,
+  incrementTarget,
 } from "../../../text_vector/text_vector";
 import {
-  increment,
+  copy as copyPosition,
   getCharFromTarget,
 } from "../../../text_position/text_position";
 
@@ -47,65 +48,66 @@ const setStartStateProperties: SetStartStateProperties = (
   template,
   previousCrawl
 ) => {
-  const cState: CrawlResults = {
-    nodeType: CONTENT_NODE,
-    vector: create(),
-  };
-
+  let followingVector: Vector | undefined = create();
   if (previousCrawl !== undefined) {
-    const followingVector = createFollowingVector(
-      template,
-      previousCrawl.vector
-    );
-    if (followingVector === undefined) {
-      return;
-    }
+    followingVector = createFollowingVector(template, previousCrawl.vector);
   }
-
-  setNodeType(template, cState);
-  return cState;
-};
-
-const setNodeType: SetNodeType = (template, cState) => {
-  const nodeStates = routers[cState.nodeType];
-  const char = getCharFromTarget(template, cState.vector.target);
-  if (nodeStates !== undefined && char !== undefined) {
-    const defaultNodeType = nodeStates[DEFAULT] ?? CONTENT_NODE;
-    cState.nodeType = nodeStates[char] ?? defaultNodeType;
-  }
-
-  return cState;
-};
-
-const crawl: Crawl = (template, previousCrawl) => {
-  let openPosition: Position | undefined;
-  const cState = setStartStateProperties(template, previousCrawl);
-  if (cState === undefined) {
+  if (followingVector === undefined) {
     return;
   }
 
-  while (increment(template, cState.vector.target)) {
+  const crawlState: CrawlResults = {
+    nodeType: CONTENT_NODE,
+    vector: followingVector,
+  };
+  setNodeType(template, crawlState);
+
+  return crawlState;
+};
+
+const setNodeType: SetNodeType = (template, crawlState) => {
+  const nodeStates = routers[crawlState.nodeType];
+  const char = getCharFromTarget(template, crawlState.vector.target);
+
+  if (nodeStates !== undefined && char !== undefined) {
+    const defaultNodeType = nodeStates[DEFAULT] ?? CONTENT_NODE;
+    crawlState.nodeType = nodeStates[char] ?? defaultNodeType;
+  }
+
+  return crawlState;
+};
+
+const crawl: Crawl = (template, previousCrawl) => {
+  const crawlState = setStartStateProperties(template, previousCrawl);
+  if (crawlState === undefined) {
+    return;
+  }
+
+  let openPosition: Position | undefined;
+  while (incrementTarget(template, crawlState.vector)) {
+    // default to content_node on each cycle
     if (
-      validSieve[cState.nodeType] === undefined &&
-      cState.vector.target.stringIndex === 0
+      validSieve[crawlState.nodeType] === undefined &&
+      crawlState.vector.target.stringIndex === 0
     ) {
-      cState.nodeType = CONTENT_NODE;
+      crawlState.nodeType = CONTENT_NODE;
     }
 
-    setNodeType(template, cState);
-    if (confirmedSieve[cState.nodeType]) {
+    setNodeType(template, crawlState);
+
+    if (crawlState.nodeType === OPEN_NODE) {
+      openPosition = copyPosition(crawlState.vector.target);
+    }
+
+    if (confirmedSieve[crawlState.nodeType]) {
       if (openPosition !== undefined) {
-        cState.vector.origin = { ...openPosition };
+        crawlState.vector.origin = openPosition;
       }
       break;
     }
-
-    if (cState.nodeType === OPEN_NODE) {
-      openPosition = { ...cState.vector.target };
-    }
   }
 
-  return cState;
+  return crawlState;
 };
 
 export { crawl };

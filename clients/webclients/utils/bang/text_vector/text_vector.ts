@@ -1,6 +1,10 @@
 import { StructureRender } from "../type_flyweight/structure";
 import { Position, Vector } from "../type_flyweight/text_vector";
-import { increment, decrement } from "../text_position/text_position";
+import {
+  copy as copyPosition,
+  increment,
+  decrement,
+} from "../text_position/text_position";
 
 type Create = (position?: Position) => Vector;
 type CreateFollowingVector = <A>(
@@ -31,9 +35,8 @@ const create: Create = (position = DEFAULT_POSITION) => ({
 
 const createFollowingVector: CreateFollowingVector = (template, vector) => {
   const followingVector = copy(vector);
-
   if (increment(template, followingVector.target)) {
-    followingVector.origin = { ...followingVector.target };
+    followingVector.origin = copyPosition(followingVector.target);
     return followingVector;
   }
 
@@ -42,8 +45,8 @@ const createFollowingVector: CreateFollowingVector = (template, vector) => {
 
 const copy: Copy = (vector) => {
   return {
-    origin: { ...vector.origin },
-    target: { ...vector.target },
+    origin: copyPosition(vector.origin),
+    target: copyPosition(vector.target),
   };
 };
 

@@ -26,14 +26,13 @@ const createAlphabetKeys: CreateAlphabetKeys = (route) => {
   return alphabetSet;
 };
 
-const alphabetKeys = createAlphabetKeys("OPEN_NODE_VALID");
-
 const routers: Routers = {
   CONTENT_NODE: {
     "<": "OPEN_NODE",
     DEFAULT: "CONTENT_NODE",
   },
   OPEN_NODE: {
+    ...createAlphabetKeys("OPEN_NODE_VALID"),
     "<": "OPEN_NODE",
     "/": "CLOSE_NODE",
     DEFAULT: "CONTENT_NODE",
@@ -45,7 +44,7 @@ const routers: Routers = {
     DEFAULT: "OPEN_NODE_VALID",
   },
   CLOSE_NODE: {
-    ...alphabetKeys,
+    ...createAlphabetKeys("CLOSE_NODE_VALID"),
     "<": "OPEN_NODE",
     DEFAULT: "CONTENT_NODE",
   },
