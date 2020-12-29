@@ -585,20 +585,16 @@ const create$1 = (position = DEFAULT_POSITION$1) => ({
 });
 const createFollowingVector = (template, vector) => {
     const followingVector = copy$1(vector);
-    console.log("createFollowingVector");
     if (increment(template, followingVector.target)) {
-        console.log("incremented following vector");
-        console.log(followingVector);
-        followingVector.origin = Object.assign({}, followingVector.target);
+        followingVector.origin = copy(followingVector.target);
         return followingVector;
     }
-    console.log("didn't make it");
     return;
 };
 const copy$1 = (vector) => {
     return {
-        origin: Object.assign({}, vector.origin),
-        target: Object.assign({}, vector.target),
+        origin: copy(vector.origin),
+        target: copy(vector.target),
     };
 };
 const incrementTarget = (template, vector) => {

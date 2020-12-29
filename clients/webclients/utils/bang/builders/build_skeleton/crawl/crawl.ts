@@ -60,6 +60,7 @@ const setStartStateProperties: SetStartStateProperties = (
     nodeType: CONTENT_NODE,
     vector: followingVector,
   };
+
   setNodeType(template, crawlState);
 
   return crawlState;
