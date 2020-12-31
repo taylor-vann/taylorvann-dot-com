@@ -25,6 +25,26 @@ type BuildIntegrals = <A>(params: BuildIntegralsParams<A>) => IntegralRender<A>;
 // so we are iterating up till the context
 
 const buildIntegrals: BuildIntegrals = ({ template, skeleton }) => {
+  // for each sekelton step
+
+  // if content node
+  // create array []
+  // add injections as strings
+  // get injectionsID
+
+  // build_content_node {
+  //   content: ["hello", injected, "!"]
+  //   injectionIDs: {1: 1}
+  // }
+
+  // if open node / independent node
+  // get tag name
+  // get attributes
+  //
+
+  // if close node
+  // get tag name
+
   return [];
 };
 

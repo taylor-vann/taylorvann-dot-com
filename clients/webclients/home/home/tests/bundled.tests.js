@@ -1134,11 +1134,274 @@ const unitTestCrawlRouters = {
     runTestsAsynchronously: runTestsAsynchronously$1,
 };
 
+// brian taylor vann
+const MAX_DEPTH = 128;
+const DEFAULT_CRAWL_RESULTS = {
+    nodeType: "CONTENT_NODE",
+    vector: {
+        origin: { arrayIndex: 0, stringIndex: 0 },
+        target: { arrayIndex: 0, stringIndex: 0 },
+    },
+};
+const SKELETON_SIEVE = {
+    ["OPEN_NODE_CONFIRMED"]: "OPEN_NODE",
+    ["INDEPENDENT_NODE_CONFIRMED"]: "INDEPENDENT_NODE",
+    ["CLOSE_NODE_CONFIRMED"]: "CLOSE_NODE",
+    ["CONTENT_NODE"]: "CONTENT_NODE",
+};
+const buildMissingStringNode = ({ template, currentCrawl, previousCrawl, }) => {
+    // get position values
+    const originPos = previousCrawl !== undefined
+        ? previousCrawl.vector.target
+        : DEFAULT_CRAWL_RESULTS.vector.target;
+    const targetPos = currentCrawl.vector.origin;
+    // justify text vector distance
+    const stringDistance = Math.abs(targetPos.stringIndex - originPos.stringIndex);
+    const stringArrayDistance = Math.abs(targetPos.arrayIndex - originPos.arrayIndex);
+    if (stringDistance + stringArrayDistance < 2) {
+        return;
+    }
+    // copy and correlate position values
+    const origin = previousCrawl === undefined
+        ? copy(DEFAULT_CRAWL_RESULTS.vector.target)
+        : copy(previousCrawl.vector.target);
+    const target = copy(currentCrawl.vector.origin);
+    decrement(template, target);
+    if (previousCrawl !== undefined) {
+        increment(template, origin);
+    }
+    return {
+        nodeType: "CONTENT_NODE",
+        vector: {
+            origin,
+            target,
+        },
+    };
+};
+const buildSkeleton = (template) => {
+    let depth = 0;
+    const skeleton = [];
+    let previousCrawl;
+    let currentCrawl = crawl(template, previousCrawl);
+    while (currentCrawl && depth < MAX_DEPTH) {
+        // get string in between crawls
+        const stringBone = buildMissingStringNode({
+            template,
+            previousCrawl,
+            currentCrawl,
+        });
+        if (stringBone) {
+            skeleton.push(stringBone);
+        }
+        if (SKELETON_SIEVE[currentCrawl.nodeType]) {
+            skeleton.push(currentCrawl);
+        }
+        previousCrawl = currentCrawl;
+        currentCrawl = crawl(template, previousCrawl);
+        depth += 1;
+    }
+    return skeleton;
+};
+
+// brian taylor vann
+const title$2 = "build_skeleton";
+const runTestsAsynchronously$2 = true;
 const testTextInterpolator$1 = (templateArray, ...injections) => {
     return { templateArray, injections };
 };
-const title$2 = "text_position";
-const runTestsAsynchronously$2 = true;
+const compareSkeletons = (source, target) => {
+    for (const sourceKey in source) {
+        const node = source[sourceKey];
+        const targetNode = target[sourceKey];
+        if (targetNode === undefined) {
+            return false;
+        }
+        if (node.nodeType !== targetNode.nodeType) {
+            return false;
+        }
+        if (node.vector.origin.arrayIndex !== targetNode.vector.origin.arrayIndex ||
+            node.vector.origin.stringIndex !== targetNode.vector.origin.stringIndex ||
+            node.vector.target.arrayIndex !== targetNode.vector.target.arrayIndex ||
+            node.vector.target.stringIndex !== targetNode.vector.target.stringIndex) {
+            return false;
+        }
+    }
+    return true;
+};
+const findNothingWhenThereIsPlainText$1 = () => {
+    const assertions = [];
+    const sourceSkeleton = [
+        {
+            nodeType: "CONTENT_NODE",
+            vector: {
+                target: { arrayIndex: 0, stringIndex: 20 },
+                origin: { arrayIndex: 0, stringIndex: 0 },
+            },
+        },
+    ];
+    const testBlank = testTextInterpolator$1 `no nodes to be found!`;
+    const testSkeleton = buildSkeleton(testBlank);
+    if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
+        assertions.push("skeletons are not equal");
+    }
+    return assertions;
+};
+const findParagraphInPlainText$1 = () => {
+    const assertions = [];
+    const sourceSkeleton = [
+        {
+            nodeType: "OPEN_NODE_CONFIRMED",
+            vector: {
+                target: { arrayIndex: 0, stringIndex: 2 },
+                origin: { arrayIndex: 0, stringIndex: 0 },
+            },
+        },
+    ];
+    const testOpenNode = testTextInterpolator$1 `<p>`;
+    const testSkeleton = buildSkeleton(testOpenNode);
+    if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
+        assertions.push("skeletons are not equal");
+    }
+    return assertions;
+};
+const findComplexFromPlainText = () => {
+    const assertions = [];
+    const sourceSkeleton = [
+        {
+            nodeType: "CONTENT_NODE",
+            vector: {
+                target: { arrayIndex: 0, stringIndex: 4 },
+                origin: { arrayIndex: 0, stringIndex: 0 },
+            },
+        },
+        {
+            nodeType: "OPEN_NODE_CONFIRMED",
+            vector: {
+                target: { arrayIndex: 0, stringIndex: 7 },
+                origin: { arrayIndex: 0, stringIndex: 5 },
+            },
+        },
+        {
+            nodeType: "CONTENT_NODE",
+            vector: {
+                target: { arrayIndex: 0, stringIndex: 12 },
+                origin: { arrayIndex: 0, stringIndex: 8 },
+            },
+        },
+        {
+            nodeType: "CLOSE_NODE_CONFIRMED",
+            vector: {
+                target: { arrayIndex: 0, stringIndex: 16 },
+                origin: { arrayIndex: 0, stringIndex: 13 },
+            },
+        },
+    ];
+    const testComplexNode = testTextInterpolator$1 `hello<p>world</p>`;
+    const testSkeleton = buildSkeleton(testComplexNode);
+    console.log(testSkeleton);
+    if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
+        assertions.push("skeletons are not equal");
+    }
+    return assertions;
+};
+const findCompoundFromPlainText = () => {
+    const assertions = [];
+    const sourceSkeleton = [
+        {
+            nodeType: "OPEN_NODE_CONFIRMED",
+            vector: {
+                target: { arrayIndex: 0, stringIndex: 3 },
+                origin: { arrayIndex: 0, stringIndex: 0 },
+            },
+        },
+        {
+            nodeType: "CONTENT_NODE",
+            vector: {
+                target: { arrayIndex: 0, stringIndex: 8 },
+                origin: { arrayIndex: 0, stringIndex: 4 },
+            },
+        },
+        {
+            nodeType: "CLOSE_NODE_CONFIRMED",
+            vector: {
+                target: { arrayIndex: 0, stringIndex: 13 },
+                origin: { arrayIndex: 0, stringIndex: 9 },
+            },
+        },
+    ];
+    const testComplexNode = testTextInterpolator$1 `<h1>hello</h1>`;
+    const testSkeleton = buildSkeleton(testComplexNode);
+    console.log(testSkeleton);
+    if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
+        assertions.push("skeletons are not equal");
+    }
+    return assertions;
+};
+const findBrokenFromPlainText = () => {
+    const assertions = [];
+    const sourceSkeleton = [
+        {
+            nodeType: "CONTENT_NODE",
+            vector: {
+                target: { arrayIndex: 1, stringIndex: 5 },
+                origin: { arrayIndex: 0, stringIndex: 0 },
+            },
+        },
+        {
+            nodeType: "CLOSE_NODE_CONFIRMED",
+            vector: {
+                target: { arrayIndex: 1, stringIndex: 10 },
+                origin: { arrayIndex: 1, stringIndex: 6 },
+            },
+        },
+        {
+            nodeType: "OPEN_NODE_CONFIRMED",
+            vector: {
+                target: { arrayIndex: 1, stringIndex: 13 },
+                origin: { arrayIndex: 1, stringIndex: 11 },
+            },
+        },
+        {
+            nodeType: "CONTENT_NODE",
+            vector: {
+                target: { arrayIndex: 1, stringIndex: 18 },
+                origin: { arrayIndex: 1, stringIndex: 14 },
+            },
+        },
+        {
+            nodeType: "CLOSE_NODE_CONFIRMED",
+            vector: {
+                target: { arrayIndex: 1, stringIndex: 22 },
+                origin: { arrayIndex: 1, stringIndex: 19 },
+            },
+        },
+    ];
+    const testComplexNode = testTextInterpolator$1 `<${"hello"}h2>hey</h2><p>howdy</p>`;
+    const testSkeleton = buildSkeleton(testComplexNode);
+    console.log(testSkeleton);
+    if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
+        assertions.push("skeletons are not equal");
+    }
+    return assertions;
+};
+const tests$2 = [
+    findNothingWhenThereIsPlainText$1,
+    findParagraphInPlainText$1,
+    findComplexFromPlainText,
+    findCompoundFromPlainText,
+    findBrokenFromPlainText,
+];
+const unitTestBuildSkeleton = {
+    title: title$2,
+    tests: tests$2,
+    runTestsAsynchronously: runTestsAsynchronously$2,
+};
+
+const testTextInterpolator$2 = (templateArray, ...injections) => {
+    return { templateArray, injections };
+};
+const title$3 = "text_position";
+const runTestsAsynchronously$3 = true;
 const createTextPosition = () => {
     const assertions = [];
     const vector = create();
@@ -1179,7 +1442,7 @@ const copyTextPosition = () => {
 };
 const incrementTextPosition = () => {
     const assertions = [];
-    const structureRender = testTextInterpolator$1 `hello`;
+    const structureRender = testTextInterpolator$2 `hello`;
     const position = create();
     increment(structureRender, position);
     if (position.stringIndex !== 1) {
@@ -1192,7 +1455,7 @@ const incrementTextPosition = () => {
 };
 const incrementMultiTextPosition = () => {
     const assertions = [];
-    const structureRender = testTextInterpolator$1 `hey${"world"}, how are you?`;
+    const structureRender = testTextInterpolator$2 `hey${"world"}, how are you?`;
     const position = create();
     increment(structureRender, position);
     increment(structureRender, position);
@@ -1209,7 +1472,7 @@ const incrementMultiTextPosition = () => {
 };
 const incrementEmptyTextPosition = () => {
     const assertions = [];
-    const structureRender = testTextInterpolator$1 `${"hey"}${"world"}${"!!"}`;
+    const structureRender = testTextInterpolator$2 `${"hey"}${"world"}${"!!"}`;
     const position = create();
     increment(structureRender, position);
     increment(structureRender, position);
@@ -1227,7 +1490,7 @@ const incrementEmptyTextPosition = () => {
 };
 const incrementTextPositionTooFar = () => {
     const assertions = [];
-    const structureRender = testTextInterpolator$1 `hey${"world"}, how are you?`;
+    const structureRender = testTextInterpolator$2 `hey${"world"}, how are you?`;
     const arrayLength = structureRender.templateArray.length - 1;
     const stringLength = structureRender.templateArray[arrayLength].length - 1;
     const position = copy({
@@ -1250,7 +1513,7 @@ const incrementTextPositionTooFar = () => {
 };
 const decrementTextPosition = () => {
     const assertions = [];
-    const structureRender = testTextInterpolator$1 `hello`;
+    const structureRender = testTextInterpolator$2 `hello`;
     const arrayLength = structureRender.templateArray.length - 1;
     const stringLength = structureRender.templateArray[arrayLength].length - 1;
     const position = copy({
@@ -1268,7 +1531,7 @@ const decrementTextPosition = () => {
 };
 const decrementMultiTextPosition = () => {
     const assertions = [];
-    const structureRender = testTextInterpolator$1 `hey${"hello"}bro!`;
+    const structureRender = testTextInterpolator$2 `hey${"hello"}bro!`;
     const arrayLength = structureRender.templateArray.length - 1;
     const stringLength = structureRender.templateArray[arrayLength].length - 1;
     const position = copy({
@@ -1290,7 +1553,7 @@ const decrementMultiTextPosition = () => {
 };
 const decrementEmptyTextPosition = () => {
     const assertions = [];
-    const structureRender = testTextInterpolator$1 `${"hey"}${"world"}${"!!"}`;
+    const structureRender = testTextInterpolator$2 `${"hey"}${"world"}${"!!"}`;
     const arrayLength = structureRender.templateArray.length - 1;
     const stringLength = structureRender.templateArray[arrayLength].length - 1;
     const position = copy({
@@ -1313,7 +1576,7 @@ const decrementEmptyTextPosition = () => {
 };
 const decrementTextPositionTooFar = () => {
     const assertions = [];
-    const structureRender = testTextInterpolator$1 `hey${"world"}, how are you?`;
+    const structureRender = testTextInterpolator$2 `hey${"world"}, how are you?`;
     const position = create();
     const MAX_DEPTH = 20;
     let safety = 0;
@@ -1331,7 +1594,7 @@ const decrementTextPositionTooFar = () => {
 };
 const getCharFromTemplate = () => {
     const assertions = [];
-    const structureRender = testTextInterpolator$1 `hello`;
+    const structureRender = testTextInterpolator$2 `hello`;
     const position = { arrayIndex: 0, stringIndex: 2 };
     const char = getCharFromTarget(structureRender, position);
     if (char !== "l") {
@@ -1339,7 +1602,7 @@ const getCharFromTemplate = () => {
     }
     return assertions;
 };
-const tests$2 = [
+const tests$3 = [
     createTextPosition,
     createTextPositionFromPosition,
     copyTextPosition,
@@ -1354,16 +1617,16 @@ const tests$2 = [
     getCharFromTemplate,
 ];
 const unitTestTextPosition = {
-    title: title$2,
-    tests: tests$2,
-    runTestsAsynchronously: runTestsAsynchronously$2,
+    title: title$3,
+    tests: tests$3,
+    runTestsAsynchronously: runTestsAsynchronously$3,
 };
 
-const testTextInterpolator$2 = (templateArray, ...injections) => {
+const testTextInterpolator$3 = (templateArray, ...injections) => {
     return { templateArray, injections };
 };
-const title$3 = "text_vector";
-const runTestsAsynchronously$3 = true;
+const title$4 = "text_vector";
+const runTestsAsynchronously$4 = true;
 const createTextVector = () => {
     const assertions = [];
     const vector = create$1();
@@ -1407,7 +1670,7 @@ const copyTextVector = () => {
 };
 const incrementTextVector = () => {
     const assertions = [];
-    const structureRender = testTextInterpolator$2 `hello`;
+    const structureRender = testTextInterpolator$3 `hello`;
     const vector = create$1();
     incrementTarget(structureRender, vector);
     if (vector.target.stringIndex !== 1) {
@@ -1420,7 +1683,7 @@ const incrementTextVector = () => {
 };
 const incrementMultiTextVector = () => {
     const assertions = [];
-    const structureRender = testTextInterpolator$2 `hey${"world"}, how are you?`;
+    const structureRender = testTextInterpolator$3 `hey${"world"}, how are you?`;
     const vector = create$1();
     incrementTarget(structureRender, vector);
     incrementTarget(structureRender, vector);
@@ -1437,7 +1700,7 @@ const incrementMultiTextVector = () => {
 };
 const incrementEmptyTextVector = () => {
     const assertions = [];
-    const structureRender = testTextInterpolator$2 `${"hey"}${"world"}${"!!"}`;
+    const structureRender = testTextInterpolator$3 `${"hey"}${"world"}${"!!"}`;
     const vector = create$1();
     incrementTarget(structureRender, vector);
     incrementTarget(structureRender, vector);
@@ -1455,7 +1718,7 @@ const incrementEmptyTextVector = () => {
 };
 const createFollowingTextVector = () => {
     const assertions = [];
-    const structureRender = testTextInterpolator$2 `supercool`;
+    const structureRender = testTextInterpolator$3 `supercool`;
     const vector = create$1();
     incrementTarget(structureRender, vector);
     incrementTarget(structureRender, vector);
@@ -1475,7 +1738,7 @@ const createFollowingTextVector = () => {
 };
 const incrementTextVectorTooFar = () => {
     const assertions = [];
-    const structureRender = testTextInterpolator$2 `hey${"world"}, how are you?`;
+    const structureRender = testTextInterpolator$3 `hey${"world"}, how are you?`;
     const vector = create$1();
     const MAX_DEPTH = 20;
     let safety = 0;
@@ -1491,7 +1754,7 @@ const incrementTextVectorTooFar = () => {
     }
     return assertions;
 };
-const tests$3 = [
+const tests$4 = [
     createTextVector,
     createTextVectorFromPosition,
     createFollowingTextVector,
@@ -1502,21 +1765,22 @@ const tests$3 = [
     incrementTextVectorTooFar,
 ];
 const unitTestTextVector = {
-    title: title$3,
-    tests: tests$3,
-    runTestsAsynchronously: runTestsAsynchronously$3,
+    title: title$4,
+    tests: tests$4,
+    runTestsAsynchronously: runTestsAsynchronously$4,
 };
 
 // brian taylor vann
-const tests$4 = [
+const tests$5 = [
     unitTestTextPosition,
     unitTestTextVector,
     unitTestCrawlRouters,
     unitTestCrawl,
+    unitTestBuildSkeleton,
 ];
 
 // brian taylor vann
-const testCollection = [...tests$4];
+const testCollection = [...tests$5];
 runTests({ testCollection })
     .then((results) => console.log("results: ", results))
     .catch((errors) => console.log("errors: ", errors));

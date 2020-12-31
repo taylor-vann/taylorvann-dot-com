@@ -13,7 +13,7 @@ const tests = [
   unitTestTextVector,
   unitTestCrawlRouters,
   unitTestCrawl,
-  // unitTestBuildSkeleton,
+  unitTestBuildSkeleton,
   // unitTestBuildIntegrals,
 ];
 

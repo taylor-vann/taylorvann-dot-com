@@ -3,8 +3,11 @@
 import { crawl } from "./crawl/crawl";
 import { CrawlResults, SkeletonNodes } from "../../type_flyweight/crawl";
 import { StructureRender } from "../../type_flyweight/render";
-import { decrement, increment } from "../../text_position/text_position";
-import { copy } from "../../text_vector/text_vector";
+import { copy, decrement, increment } from "../../text_position/text_position";
+import {
+  incrementOrigin,
+  incrementTarget,
+} from "../../text_vector/text_vector";
 
 type NodeType =
   | "OPEN_NODE"
@@ -12,6 +15,7 @@ type NodeType =
   | "CLOSE_NODE"
   | "CONTENT_NODE";
 
+type CreateDefaultVector = () => CrawlResults;
 interface BuildMissingStringNodeParams<A> {
   template: StructureRender<A>;
   currentCrawl: CrawlResults;
@@ -27,7 +31,7 @@ type BuildSkeleton = <A>(template: StructureRender<A>) => SkeletonNodes;
 
 const MAX_DEPTH = 128;
 
-const DEFAULT_VECTOR: CrawlResults = {
+const DEFAULT_CRAWL_RESULTS: CrawlResults = {
   nodeType: "CONTENT_NODE",
   vector: {
     origin: { arrayIndex: 0, stringIndex: 0 },
@@ -45,47 +49,52 @@ const SKELETON_SIEVE: BuildSkeletonSieve = {
 const buildMissingStringNode: BuildMissingStringNode = ({
   template,
   currentCrawl,
-  previousCrawl = DEFAULT_VECTOR,
+  previousCrawl,
 }) => {
-  const target = previousCrawl.vector.target;
-  const origin = currentCrawl.vector.origin;
+  // get position values
+  const originPos =
+    previousCrawl !== undefined
+      ? previousCrawl.vector.target
+      : DEFAULT_CRAWL_RESULTS.vector.target;
 
-  console.log("build missing string node");
-  const stringDistance = Math.abs(target.stringIndex - origin.stringIndex);
-  const stringArrayDistance = Math.abs(target.arrayIndex - origin.arrayIndex);
+  const targetPos = currentCrawl.vector.origin;
+
+  // justify text vector distance
+  const stringDistance = Math.abs(
+    targetPos.stringIndex - originPos.stringIndex
+  );
+  const stringArrayDistance = Math.abs(
+    targetPos.arrayIndex - originPos.arrayIndex
+  );
   if (stringDistance + stringArrayDistance < 2) {
-    console.log("not enough distance to build node");
     return;
   }
 
-  // we need to assess values here
-  // copy
-  const previousVector = copy(previousCrawl.vector);
-  const currentVector = copy(currentCrawl.vector);
-  const contentStart = increment(template, previousVector.target);
-  const contentEnd = decrement(template, currentVector.origin);
+  // copy and correlate position values
+  const origin =
+    previousCrawl === undefined
+      ? copy(DEFAULT_CRAWL_RESULTS.vector.target)
+      : copy(previousCrawl.vector.target);
 
-  console.log("do we got content?");
-  console.log("build missing string node");
-  console.log("start", contentStart);
-  console.log("end", contentEnd);
+  const target = copy(currentCrawl.vector.origin);
 
-  if (contentStart && contentEnd) {
-    console.log("we got content");
-
-    return {
-      nodeType: "CONTENT_NODE",
-      vector: {
-        origin: contentStart,
-        target: contentEnd,
-      },
-    };
+  decrement(template, target);
+  if (previousCrawl !== undefined) {
+    increment(template, origin);
   }
+
+  return {
+    nodeType: "CONTENT_NODE",
+    vector: {
+      origin,
+      target,
+    },
+  };
 };
 
 const buildSkeleton: BuildSkeleton = (template) => {
-  let depth = 0;
   const skeleton: SkeletonNodes = [];
+  let depth = 0;
 
   let previousCrawl: CrawlResults | undefined;
   let currentCrawl = crawl(template, previousCrawl);
