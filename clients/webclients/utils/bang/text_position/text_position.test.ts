@@ -3,7 +3,7 @@ import {
   create,
   decrement,
   increment,
-  getCharFromTarget,
+  getCharAtPosition,
 } from "./text_position";
 import { Position } from "../type_flyweight/text_vector";
 import { StructureRender } from "../type_flyweight/structure";
@@ -258,7 +258,7 @@ const getCharFromTemplate = () => {
   const assertions = [];
   const structureRender = testTextInterpolator`hello`;
   const position: Position = { arrayIndex: 0, stringIndex: 2 };
-  const char = getCharFromTarget(structureRender, position);
+  const char = getCharAtPosition(structureRender, position);
 
   if (char !== "l") {
     assertions.push("textPosition target is not 'l'");

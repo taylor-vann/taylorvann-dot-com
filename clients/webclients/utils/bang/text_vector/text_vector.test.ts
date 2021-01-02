@@ -3,6 +3,7 @@ import {
   create,
   createFollowingVector,
   incrementTarget,
+  hasOriginEclipsedTaraget,
 } from "./text_vector";
 import { Vector } from "../type_flyweight/text_vector";
 import { StructureRender } from "../type_flyweight/structure";
@@ -180,6 +181,37 @@ const incrementTextVectorTooFar = () => {
   return assertions;
 };
 
+const testHasOriginEclipsedTaraget = () => {
+  const assertions = [];
+
+  const vector: Vector = create();
+  const results = hasOriginEclipsedTaraget(vector);
+
+  if (results !== true) {
+    assertions.push("orign eclipsed target");
+  }
+
+  return assertions;
+};
+
+const testHasOriginNotEclipsedTaraget = () => {
+  const assertions = [];
+
+  const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
+  const vector: Vector = create();
+  incrementTarget(structureRender, vector);
+  incrementTarget(structureRender, vector);
+  incrementTarget(structureRender, vector);
+  incrementTarget(structureRender, vector);
+
+  const results = hasOriginEclipsedTaraget(vector);
+  if (results !== false) {
+    assertions.push("orign has not eclipsed target");
+  }
+
+  return assertions;
+};
+
 const tests = [
   createTextVector,
   createTextVectorFromPosition,
@@ -189,6 +221,8 @@ const tests = [
   incrementMultiTextVector,
   incrementEmptyTextVector,
   incrementTextVectorTooFar,
+  testHasOriginEclipsedTaraget,
+  testHasOriginNotEclipsedTaraget,
 ];
 
 const unitTestTextVector = {

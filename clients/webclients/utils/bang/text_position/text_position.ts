@@ -9,7 +9,7 @@ type Increment = <A>(
   position: Position
 ) => Position | undefined;
 
-type GetTargetChar = <A>(
+type GetCharAtPosition = <A>(
   template: StructureRender<A>,
   position: Position
 ) => string | undefined;
@@ -77,10 +77,10 @@ const decrement: Increment = (template, position) => {
   return position;
 };
 
-const getCharFromTarget: GetTargetChar = (template, position) => {
+const getCharAtPosition: GetCharAtPosition = (template, position) => {
   const templateArray = template.templateArray;
 
   return templateArray?.[position.arrayIndex]?.[position.stringIndex];
 };
 
-export { copy, create, decrement, increment, getCharFromTarget };
+export { copy, create, decrement, increment, getCharAtPosition };

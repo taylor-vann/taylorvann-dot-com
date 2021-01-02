@@ -11,7 +11,7 @@ import {
 } from "../../../text_vector/text_vector";
 import {
   copy as copyPosition,
-  getCharFromTarget,
+  getCharAtPosition,
 } from "../../../text_position/text_position";
 
 type Sieve = Partial<Record<CrawlStatus, CrawlStatus>>;
@@ -68,7 +68,7 @@ const setStartStateProperties: SetStartStateProperties = (
 
 const setNodeType: SetNodeType = (template, crawlState) => {
   const nodeStates = routers[crawlState.nodeType];
-  const char = getCharFromTarget(template, crawlState.vector.target);
+  const char = getCharAtPosition(template, crawlState.vector.target);
 
   if (nodeStates !== undefined && char !== undefined) {
     const defaultNodeType = nodeStates[DEFAULT] ?? CONTENT_NODE;

@@ -23,6 +23,8 @@ type Increment = <A>(
   vector: Vector
 ) => Vector | undefined;
 
+type HasOriginEclipsedTaraget = (vector: Vector) => boolean;
+
 const DEFAULT_POSITION: Position = {
   arrayIndex: 0,
   stringIndex: 0,
@@ -94,7 +96,19 @@ const getTextFromTarget: GetTagetChar = (template, vector) => {
   return templateArray[arrayIndex][stringIndex];
 };
 
+const hasOriginEclipsedTaraget: HasOriginEclipsedTaraget = (vector) => {
+  if (
+    vector.origin.arrayIndex >= vector.target.arrayIndex &&
+    vector.origin.stringIndex >= vector.target.stringIndex
+  ) {
+    return true;
+  }
+
+  return false;
+};
+
 export {
+  Vector,
   copy,
   create,
   createFollowingVector,
@@ -103,4 +117,5 @@ export {
   incrementOrigin,
   incrementTarget,
   getTextFromTarget,
+  hasOriginEclipsedTaraget,
 };

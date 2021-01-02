@@ -481,10 +481,12 @@ const runTests = (params) => __awaiter$1(void 0, void 0, void 0, function* () {
 });
 
 // brian taylor vann
-const createAlphabetKeys = (route) => {
+const SPECIAL_CHARACTERS = ["_", "-", ".", ":"];
+const createAlphaNumericKeys = (route) => {
     const alphabetSet = {};
     const lowercaseLimit = "z".charCodeAt(0);
     const uppercaseLimit = "Z".charCodeAt(0);
+    // add letters to seive
     let lowercaseIndex = "a".charCodeAt(0);
     let uppercaseIndex = "A".charCodeAt(0);
     while (lowercaseIndex <= lowercaseLimit) {
@@ -495,6 +497,16 @@ const createAlphabetKeys = (route) => {
         alphabetSet[String.fromCharCode(uppercaseIndex)] = route;
         uppercaseIndex += 1;
     }
+    // add numbers
+    let numericKey = 0;
+    while (numericKey < 10) {
+        alphabetSet[numericKey] = route;
+        numericKey += 1;
+    }
+    // add special characters
+    for (const specialChar of SPECIAL_CHARACTERS) {
+        alphabetSet[specialChar] = route;
+    }
     return alphabetSet;
 };
 const routers = {
@@ -502,14 +514,14 @@ const routers = {
         "<": "OPEN_NODE",
         DEFAULT: "CONTENT_NODE",
     },
-    OPEN_NODE: Object.assign(Object.assign({}, createAlphabetKeys("OPEN_NODE_VALID")), { "<": "OPEN_NODE", "/": "CLOSE_NODE", DEFAULT: "CONTENT_NODE" }),
+    OPEN_NODE: Object.assign(Object.assign({}, createAlphaNumericKeys("OPEN_NODE_VALID")), { "<": "OPEN_NODE", "/": "CLOSE_NODE", DEFAULT: "CONTENT_NODE" }),
     OPEN_NODE_VALID: {
         "<": "OPEN_NODE",
         "/": "INDEPENDENT_NODE_VALID",
         ">": "OPEN_NODE_CONFIRMED",
         DEFAULT: "OPEN_NODE_VALID",
     },
-    CLOSE_NODE: Object.assign(Object.assign({}, createAlphabetKeys("CLOSE_NODE_VALID")), { "<": "OPEN_NODE", DEFAULT: "CONTENT_NODE" }),
+    CLOSE_NODE: Object.assign(Object.assign({}, createAlphaNumericKeys("CLOSE_NODE_VALID")), { "<": "OPEN_NODE", DEFAULT: "CONTENT_NODE" }),
     CLOSE_NODE_VALID: {
         "<": "OPEN_NODE",
         ">": "CLOSE_NODE_CONFIRMED",
@@ -569,7 +581,7 @@ const decrement = (template, position) => {
     }
     return position;
 };
-const getCharFromTarget = (template, position) => {
+const getCharAtPosition = (template, position) => {
     var _a;
     const templateArray = template.templateArray;
     return (_a = templateArray === null || templateArray === void 0 ? void 0 : templateArray[position.arrayIndex]) === null || _a === void 0 ? void 0 : _a[position.stringIndex];
@@ -602,6 +614,19 @@ const incrementTarget = (template, vector) => {
         return vector;
     }
     return;
+};
+const decrementTarget = (template, vector) => {
+    if (decrement(template, vector.target)) {
+        return vector;
+    }
+    return;
+};
+const hasOriginEclipsedTaraget = (vector) => {
+    if (vector.origin.arrayIndex >= vector.target.arrayIndex &&
+        vector.origin.stringIndex >= vector.target.stringIndex) {
+        return true;
+    }
+    return false;
 };
 
 // brian taylor vann
@@ -636,7 +661,7 @@ const setStartStateProperties = (template, previousCrawl) => {
 const setNodeType = (template, crawlState) => {
     var _a, _b;
     const nodeStates = routers[crawlState.nodeType];
-    const char = getCharFromTarget(template, crawlState.vector.target);
+    const char = getCharAtPosition(template, crawlState.vector.target);
     if (nodeStates !== undefined && char !== undefined) {
         const defaultNodeType = (_a = nodeStates[DEFAULT]) !== null && _a !== void 0 ? _a : CONTENT_NODE;
         crawlState.nodeType = (_b = nodeStates[char]) !== null && _b !== void 0 ? _b : defaultNodeType;
@@ -1179,8 +1204,8 @@ const buildMissingStringNode = ({ template, currentCrawl, previousCrawl, }) => {
     };
 };
 const buildSkeleton = (template) => {
-    let depth = 0;
     const skeleton = [];
+    let depth = 0;
     let previousCrawl;
     let currentCrawl = crawl(template, previousCrawl);
     while (currentCrawl && depth < MAX_DEPTH) {
@@ -1596,7 +1621,7 @@ const getCharFromTemplate = () => {
     const assertions = [];
     const structureRender = testTextInterpolator$2 `hello`;
     const position = { arrayIndex: 0, stringIndex: 2 };
-    const char = getCharFromTarget(structureRender, position);
+    const char = getCharAtPosition(structureRender, position);
     if (char !== "l") {
         assertions.push("textPosition target is not 'l'");
     }
@@ -1754,6 +1779,29 @@ const incrementTextVectorTooFar = () => {
     }
     return assertions;
 };
+const testHasOriginEclipsedTaraget = () => {
+    const assertions = [];
+    const vector = create$1();
+    const results = hasOriginEclipsedTaraget(vector);
+    if (results !== true) {
+        assertions.push("orign eclipsed target");
+    }
+    return assertions;
+};
+const testHasOriginNotEclipsedTaraget = () => {
+    const assertions = [];
+    const structureRender = testTextInterpolator$3 `hey${"world"}, how are you?`;
+    const vector = create$1();
+    incrementTarget(structureRender, vector);
+    incrementTarget(structureRender, vector);
+    incrementTarget(structureRender, vector);
+    incrementTarget(structureRender, vector);
+    const results = hasOriginEclipsedTaraget(vector);
+    if (results !== false) {
+        assertions.push("orign has not eclipsed target");
+    }
+    return assertions;
+};
 const tests$4 = [
     createTextVector,
     createTextVectorFromPosition,
@@ -1763,6 +1811,8 @@ const tests$4 = [
     incrementMultiTextVector,
     incrementEmptyTextVector,
     incrementTextVectorTooFar,
+    testHasOriginEclipsedTaraget,
+    testHasOriginNotEclipsedTaraget,
 ];
 const unitTestTextVector = {
     title: title$4,
@@ -1771,16 +1821,115 @@ const unitTestTextVector = {
 };
 
 // brian taylor vann
+const INITAL_TAG_NAME = "INITAL_TAG_NAME";
+const TAG_NAME_CONFIRMED = "TAG_NAME_CONFIRMED";
+const ROUTERS = {
+    [INITAL_TAG_NAME]: {
+        " ": TAG_NAME_CONFIRMED,
+    },
+};
+const crawlForTagName = (template, textVector) => {
+    var _a, _b, _c, _d;
+    // first character must not be a space
+    let positionChar = getCharAtPosition(template, textVector.target);
+    if (positionChar === undefined || positionChar === " ") {
+        return;
+    }
+    let tagNameCrawlState = (_b = (_a = ROUTERS === null || ROUTERS === void 0 ? void 0 : ROUTERS[INITAL_TAG_NAME]) === null || _a === void 0 ? void 0 : _a[positionChar]) !== null && _b !== void 0 ? _b : INITAL_TAG_NAME;
+    while (!hasOriginEclipsedTaraget(textVector) &&
+        tagNameCrawlState === INITAL_TAG_NAME) {
+        if (incrementTarget(template, textVector) === undefined) {
+            // this is a bad nil return
+            return;
+        }
+        positionChar = getCharAtPosition(template, textVector.target);
+        if (positionChar === undefined) {
+            // this is also a bad nil return
+            return;
+        }
+        tagNameCrawlState = (_d = (_c = ROUTERS === null || ROUTERS === void 0 ? void 0 : ROUTERS[tagNameCrawlState]) === null || _c === void 0 ? void 0 : _c[positionChar]) !== null && _d !== void 0 ? _d : INITAL_TAG_NAME;
+    }
+    // only return valid tags
+    if (tagNameCrawlState === TAG_NAME_CONFIRMED) {
+        decrementTarget(template, textVector);
+    }
+    return textVector;
+};
+
+const RECURSION_SAFETY = 256;
+const testTextInterpolator$4 = (templateArray, ...injections) => {
+    return { templateArray, injections };
+};
+const title$5 = "tag_name_crawl";
+const runTestsAsynchronously$5 = true;
+const testEmptyString = () => {
+    const assertions = [];
+    const template = testTextInterpolator$4 ``;
+    const vector = create$1();
+    const results = crawlForTagName(template, vector);
+    if (results !== undefined) {
+        assertions.push("this should have failed");
+    }
+    return assertions;
+};
+const testEmptySpaceString = () => {
+    const assertions = [];
+    const template = testTextInterpolator$4 ` `;
+    const vector = create$1();
+    const results = crawlForTagName(template, vector);
+    if (results !== undefined) {
+        assertions.push("this should have failed");
+    }
+    return assertions;
+};
+const testSingleCharacterString = () => {
+    const assertions = [];
+    const template = testTextInterpolator$4 `a`;
+    const vector = create$1();
+    const results = crawlForTagName(template, vector);
+    if (results === undefined) {
+        assertions.push("this should have returned a vector");
+    }
+    return assertions;
+};
+const testCharaceterString = () => {
+    const assertions = [];
+    const template = testTextInterpolator$4 `a `;
+    const vector = create$1();
+    let safety = 0;
+    while (incrementTarget(template, vector) && safety < RECURSION_SAFETY) {
+        safety += 1;
+    }
+    const results = crawlForTagName(template, vector);
+    if (results !== undefined) {
+        assertions.push("this should have returned a vector");
+    }
+    return assertions;
+};
 const tests$5 = [
+    testEmptyString,
+    testEmptySpaceString,
+    testSingleCharacterString,
+    testCharaceterString,
+];
+const unitTestTagNameCrawl = {
+    title: title$5,
+    tests: tests$5,
+    runTestsAsynchronously: runTestsAsynchronously$5,
+};
+
+// brian taylor vann
+const tests$6 = [
     unitTestTextPosition,
     unitTestTextVector,
     unitTestCrawlRouters,
     unitTestCrawl,
     unitTestBuildSkeleton,
+    unitTestTagNameCrawl,
 ];
 
 // brian taylor vann
-const testCollection = [...tests$5];
+const testCollection = [...tests$6];
 runTests({ testCollection })
     .then((results) => console.log("results: ", results))
     .catch((errors) => console.log("errors: ", errors));

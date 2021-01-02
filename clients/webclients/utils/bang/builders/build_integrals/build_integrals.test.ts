@@ -29,6 +29,8 @@ const defaultFunc = () => {
   const params = testTextInterpolator`<p>`;
   const results = buildIntegrals(params);
 
+  assertions.push("fail immediately");
+
   if (results.length !== 1) {
     assertions.push("there should be at least one instruction set");
   }

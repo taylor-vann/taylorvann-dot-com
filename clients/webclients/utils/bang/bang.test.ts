@@ -7,6 +7,7 @@ import { unitTestBuildIntegrals } from "./builders/build_integrals/build_integra
 import { unitTestTextPosition } from "./text_position/text_position.test";
 import { unitTestTextVector } from "./text_vector/text_vector.test";
 import { unitTestBuildStructure } from "./builders/build_structure/build_structure.test";
+import { unitTestTagNameCrawl } from "./builders/build_integrals/tag_name_crawl/tag_name_crawl.test";
 
 const tests = [
   unitTestTextPosition,
@@ -14,6 +15,7 @@ const tests = [
   unitTestCrawlRouters,
   unitTestCrawl,
   unitTestBuildSkeleton,
+  unitTestTagNameCrawl,
   // unitTestBuildIntegrals,
 ];
 
