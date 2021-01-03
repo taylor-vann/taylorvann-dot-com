@@ -1,69 +1,50 @@
 // brian taylor vann
-// build integrals
-
-// start super loose
-// we are taking a text_vector and returning the modification
+// tag name crawl
 
 import { StructureRender } from "../../../type_flyweight/structure";
 import { Vector } from "../../../type_flyweight/text_vector";
 
 import {
+  copy,
   decrementTarget,
-  incrementTarget,
   hasOriginEclipsedTaraget,
+  incrementOrigin,
 } from "../../../text_vector/text_vector";
+
 import { getCharAtPosition } from "../../../text_position/text_position";
-
-type Routes = Record<string, string>;
-type Routers = Partial<Record<string, Routes>>;
-
-const INITAL_TAG_NAME = "INITAL_TAG_NAME";
-const TAG_NAME_CONFIRMED = "TAG_NAME_CONFIRMED";
-
-const ROUTERS: Routers = {
-  [INITAL_TAG_NAME]: {
-    " ": TAG_NAME_CONFIRMED,
-  },
-};
 
 const crawlForTagName = <A>(
   template: StructureRender<A>,
-  textVector: Vector
+  innerXmlBounds: Vector
 ) => {
-  // first character must not be a space
-  let positionChar = getCharAtPosition(template, textVector.target);
+  const tagVector: Vector = copy(innerXmlBounds);
+  let positionChar = getCharAtPosition(template, tagVector.target);
   if (positionChar === undefined || positionChar === " ") {
     return;
   }
 
-  let tagNameCrawlState =
-    ROUTERS?.[INITAL_TAG_NAME]?.[positionChar] ?? INITAL_TAG_NAME;
-
-  while (
-    !hasOriginEclipsedTaraget(textVector) &&
-    tagNameCrawlState === INITAL_TAG_NAME
-  ) {
-    if (incrementTarget(template, textVector) === undefined) {
-      // this is a bad nil return
+  while (positionChar !== " " && !hasOriginEclipsedTaraget(tagVector)) {
+    if (incrementOrigin(template, tagVector) === undefined) {
       return;
     }
 
-    positionChar = getCharAtPosition(template, textVector.target);
+    positionChar = getCharAtPosition(template, tagVector.target);
     if (positionChar === undefined) {
-      // this is also a bad nil return
       return;
     }
-
-    tagNameCrawlState =
-      ROUTERS?.[tagNameCrawlState]?.[positionChar] ?? INITAL_TAG_NAME;
   }
 
-  // only return valid tags
-  if (tagNameCrawlState === TAG_NAME_CONFIRMED) {
-    decrementTarget(template, textVector);
+  const adjustedVector: Vector = {
+    origin: { ...innerXmlBounds.origin },
+    target: { ...tagVector.origin },
+  };
+
+  // walk back a step if successive space found
+  if (positionChar === " ") {
+    decrementTarget(template, adjustedVector);
   }
 
-  return textVector;
+  return tagVector;
 };
 
 export { crawlForTagName };

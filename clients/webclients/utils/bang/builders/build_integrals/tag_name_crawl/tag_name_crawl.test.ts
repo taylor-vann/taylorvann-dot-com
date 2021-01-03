@@ -1,5 +1,6 @@
 // brian taylor vann
-// build integrals
+// tag name crawl
+
 import { StructureRender } from "../../../type_flyweight/structure";
 import { create, incrementTarget } from "../../../text_vector/text_vector";
 
@@ -61,6 +62,19 @@ const testSingleCharacterString = () => {
     assertions.push("this should have returned a vector");
   }
 
+  if (results !== undefined && results.origin.arrayIndex !== 0) {
+    assertions.push("incorrect origin array index");
+  }
+  if (results !== undefined && results.origin.stringIndex !== 0) {
+    assertions.push("incorrect origin string index");
+  }
+  if (results !== undefined && results.target.arrayIndex !== 0) {
+    assertions.push("incorrect target array index");
+  }
+  if (results !== undefined && results.target.stringIndex !== 0) {
+    assertions.push("incorrect target string index");
+  }
+
   return assertions;
 };
 
@@ -81,6 +95,52 @@ const testCharaceterString = () => {
     assertions.push("this should have returned a vector");
   }
 
+  if (results !== undefined && results.origin.arrayIndex !== 0) {
+    assertions.push("incorrect origin array index");
+  }
+  if (results !== undefined && results.origin.stringIndex !== 0) {
+    assertions.push("incorrect origin string index");
+  }
+  if (results !== undefined && results.target.arrayIndex !== 0) {
+    assertions.push("incorrect target array index");
+  }
+  if (results !== undefined && results.target.stringIndex !== 0) {
+    assertions.push("incorrect target string index");
+  }
+
+  return assertions;
+};
+
+const testMultiCharaceterString = () => {
+  const assertions = [];
+
+  const template = testTextInterpolator`aaa `;
+  const vector = create();
+
+  let safety = 0;
+  while (incrementTarget(template, vector) && safety < RECURSION_SAFETY) {
+    safety += 1;
+  }
+
+  const results = crawlForTagName(template, vector);
+
+  if (results !== undefined) {
+    assertions.push("this should have returned a vector");
+  }
+
+  if (results !== undefined && results.origin.arrayIndex !== 0) {
+    assertions.push("incorrect origin array index");
+  }
+  if (results !== undefined && results.origin.stringIndex !== 0) {
+    assertions.push("incorrect origin string index");
+  }
+  if (results !== undefined && results.target.arrayIndex !== 0) {
+    assertions.push("incorrect target array index");
+  }
+  if (results !== undefined && results.target.stringIndex !== 2) {
+    assertions.push("incorrect target string index");
+  }
+
   return assertions;
 };
 
@@ -89,6 +149,7 @@ const tests = [
   testEmptySpaceString,
   testSingleCharacterString,
   testCharaceterString,
+  testMultiCharaceterString,
 ];
 
 const unitTestTagNameCrawl = {

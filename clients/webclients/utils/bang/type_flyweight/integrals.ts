@@ -1,6 +1,8 @@
 // brian taylor vann
 // integrals
 
+// this is definietly gonna change
+
 interface CreateTextNodeAction {
   action: "CREATE_TEXT_NODE";
   text: string[];

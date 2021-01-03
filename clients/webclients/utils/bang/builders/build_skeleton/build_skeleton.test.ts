@@ -124,7 +124,6 @@ const findComplexFromPlainText = () => {
   ];
   const testComplexNode = testTextInterpolator`hello<p>world</p>`;
   const testSkeleton = buildSkeleton(testComplexNode);
-  console.log(testSkeleton);
 
   if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
     assertions.push("skeletons are not equal");
@@ -160,7 +159,6 @@ const findCompoundFromPlainText = () => {
   ];
   const testComplexNode = testTextInterpolator`<h1>hello</h1>`;
   const testSkeleton = buildSkeleton(testComplexNode);
-  console.log(testSkeleton);
 
   if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
     assertions.push("skeletons are not equal");
@@ -210,7 +208,6 @@ const findBrokenFromPlainText = () => {
   ];
   const testComplexNode = testTextInterpolator`<${"hello"}h2>hey</h2><p>howdy</p>`;
   const testSkeleton = buildSkeleton(testComplexNode);
-  console.log(testSkeleton);
   if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
     assertions.push("skeletons are not equal");
   }
