@@ -4,7 +4,7 @@ interface ImplicitAttributeParams {
   attributeVector: Vector;
 }
 type ImplicitAttributeAction = {
-  action: "IMPLICIT_ATTRIBUTE_CONFIRMED";
+  action: "CREATE_IMPLICIT_ATTRIBUTE";
   params: ImplicitAttributeParams;
 };
 
@@ -13,7 +13,7 @@ interface ExplicitAttributeParams {
   valueVector: Vector;
 }
 type ExplicitAttributeAction = {
-  action: "EXPLICIT_ATTRIBUTE_CONFIRMED";
+  action: "CREATE_EXPLICIT_ATTRIBUTE";
   params: ExplicitAttributeParams;
 };
 
@@ -22,7 +22,7 @@ interface InjectedAttributeParams {
   injectionID: number;
 }
 type InjectedExplicitAttributeAction = {
-  action: "INJECTED_EXPLICIT_ATTRIBUTE_CONFIRMED";
+  action: "CREATE_INJECTED_EXPLICIT_ATTRIBUTE";
   params: InjectedAttributeParams;
 };
 

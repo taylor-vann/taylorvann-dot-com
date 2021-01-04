@@ -3,42 +3,41 @@
 
 // this is definietly gonna change
 
-interface CreateTextNodeAction {
-  action: "CREATE_TEXT_NODE";
-  text: string[];
-  injections: Record<number, number>;
+import {
+  ImplicitAttributeParams,
+  ImplicitAttributeAction,
+  ExplicitAttributeParams,
+  ExplicitAttributeAction,
+  InjectedAttributeParams,
+  InjectedExplicitAttributeAction,
+  AttributeAction,
+} from "./attribute_crawl";
+
+import { ContentCrawlAction } from "./content_crawl";
+
+interface CreateOpenNode {
+  action: "CREATE_OPEN_NODE";
+}
+interface CreateIndependentNode {
+  action: "CREATE_INDEPENDENT_NODE";
+}
+interface CreateAttribute {
+  action: "CREATE_ATTRIBUTE";
+}
+interface CreateClosedNode {
+  action: "CREATE_CLOSED_NODE";
+}
+interface CreateContentNode {
+  action: "CREATE_CONTENT_NODE";
 }
 
-type Attributes<A> = Record<string, A>;
-interface CreateNodeAction<A> {
-  action: "CREATE_NODE";
-  tag: string;
-  attributes: Attributes<A>;
-  injectionToAttributeAddress: Record<number, string>;
-}
-interface CloseNodeAction {
-  action: "CLOSE_NODE";
-  tag: string;
-}
-interface CreateSiblingsAction {
-  action: "CREATE_SIBLINGS";
-  injectionID: number;
-}
+type IntegralAction =
+  | CreateOpenNode
+  | CreateIndependentNode
+  | CreateAttribute
+  | CreateClosedNode
+  | CreateContentNode;
 
-type IntegralAction<A> =
-  | CreateTextNodeAction
-  | CreateNodeAction<A>
-  | CloseNodeAction
-  | CreateSiblingsAction;
+type IntegralRender = IntegralAction[];
 
-type IntegralRender<A> = IntegralAction<A>[];
-
-export {
-  Attributes,
-  CreateTextNodeAction,
-  CreateNodeAction,
-  CloseNodeAction,
-  CreateSiblingsAction,
-  IntegralAction,
-  IntegralRender,
-};
+export { IntegralAction, IntegralRender };

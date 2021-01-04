@@ -107,17 +107,11 @@ const testImplicitString = () => {
   if (results === undefined) {
     assertions.push("this should not have returned results");
   }
-  if (
-    results !== undefined &&
-    results.action !== "IMPLICIT_ATTRIBUTE_CONFIRMED"
-  ) {
-    assertions.push("should return IMPLICIT_ATTRIBUTE_CONFIRMED");
+  if (results !== undefined && results.action !== "CREATE_IMPLICIT_ATTRIBUTE") {
+    assertions.push("should return CREATE_IMPLICIT_ATTRIBUTE");
   }
 
-  if (
-    results !== undefined &&
-    results.action === "IMPLICIT_ATTRIBUTE_CONFIRMED"
-  ) {
+  if (results !== undefined && results.action === "CREATE_IMPLICIT_ATTRIBUTE") {
     if (results.params.attributeVector.origin.arrayIndex !== 0) {
       assertions.push("origin.arrayIndex should be 0.");
     }
@@ -152,17 +146,11 @@ const testImplicitStringWithTrailingSpaces = () => {
   if (results === undefined) {
     assertions.push("this should not have returned results");
   }
-  if (
-    results !== undefined &&
-    results.action !== "IMPLICIT_ATTRIBUTE_CONFIRMED"
-  ) {
-    assertions.push("should return IMPLICIT_ATTRIBUTE_CONFIRMED");
+  if (results !== undefined && results.action !== "CREATE_IMPLICIT_ATTRIBUTE") {
+    assertions.push("should return CREATE_IMPLICIT_ATTRIBUTE");
   }
 
-  if (
-    results !== undefined &&
-    results.action === "IMPLICIT_ATTRIBUTE_CONFIRMED"
-  ) {
+  if (results !== undefined && results.action === "CREATE_IMPLICIT_ATTRIBUTE") {
     if (results.params.attributeVector.origin.arrayIndex !== 0) {
       assertions.push("origin.arrayIndex should be 0.");
     }
@@ -236,10 +224,7 @@ const testEmptyExplicitString = () => {
     assertions.push("this should have returned results");
   }
 
-  if (
-    results !== undefined &&
-    results.action === "EXPLICIT_ATTRIBUTE_CONFIRMED"
-  ) {
+  if (results !== undefined && results.action === "CREATE_EXPLICIT_ATTRIBUTE") {
     if (results.params.attributeVector.origin.arrayIndex !== 0) {
       assertions.push("attributeVector origin.arrayIndex should be 0.");
     }
@@ -288,10 +273,7 @@ const testValidExplicitString = () => {
     assertions.push("this should have returned results");
   }
 
-  if (
-    results !== undefined &&
-    results.action === "EXPLICIT_ATTRIBUTE_CONFIRMED"
-  ) {
+  if (results !== undefined && results.action === "CREATE_EXPLICIT_ATTRIBUTE") {
     if (results.params.attributeVector.origin.arrayIndex !== 0) {
       assertions.push("attributeVector origin.arrayIndex should be 0.");
     }
@@ -340,10 +322,7 @@ const testValidExplicitStringWithTrailingSpaces = () => {
     assertions.push("this should have returned results");
   }
 
-  if (
-    results !== undefined &&
-    results.action === "EXPLICIT_ATTRIBUTE_CONFIRMED"
-  ) {
+  if (results !== undefined && results.action === "CREATE_EXPLICIT_ATTRIBUTE") {
     if (results.params.attributeVector.origin.arrayIndex !== 0) {
       assertions.push("attributeVector origin.arrayIndex should be 0.");
     }
@@ -392,10 +371,7 @@ const testInjectedString = () => {
     assertions.push("this should have returned results");
   }
 
-  if (
-    results !== undefined &&
-    results.action === "EXPLICIT_ATTRIBUTE_CONFIRMED"
-  ) {
+  if (results !== undefined && results.action === "CREATE_EXPLICIT_ATTRIBUTE") {
     if (results.params.attributeVector.origin.arrayIndex !== 0) {
       assertions.push("attributeVector origin.arrayIndex should be 0.");
     }

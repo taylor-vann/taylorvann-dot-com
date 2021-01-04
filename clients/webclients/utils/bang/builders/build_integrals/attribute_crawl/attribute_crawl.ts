@@ -24,11 +24,10 @@ type AttributeValueCrawl = <A>(
 ) => AttributeAction | undefined;
 
 const ATTRIBUTE_FOUND = "ATTRIBUTE_FOUND";
-const IMPLICIT_ATTRIBUTE_CONFIRMED = "IMPLICIT_ATTRIBUTE_CONFIRMED";
-const EXPLICIT_ATTRIBUTE_CONFIRMED = "EXPLICIT_ATTRIBUTE_CONFIRMED";
-const INJECTED_EXPLICIT_ATTRIBUTE_CONFIRMED =
-  "INJECTED_EXPLICIT_ATTRIBUTE_CONFIRMED";
 const ATTRIBUTE_ASSIGNMENT = "ATTRIBUTE_ASSIGNMENT";
+const CREATE_IMPLICIT_ATTRIBUTE = "CREATE_IMPLICIT_ATTRIBUTE";
+const CREATE_EXPLICIT_ATTRIBUTE = "CREATE_EXPLICIT_ATTRIBUTE";
+const CREATE_INJECTED_EXPLICIT_ATTRIBUTE = "CREATE_INJECTED_EXPLICIT_ATTRIBUTE";
 
 const getAttributeName: AttributeCrawl = (template, vectorBounds) => {
   const attributeVector: Vector = copy(vectorBounds);
@@ -40,7 +39,7 @@ const getAttributeName: AttributeCrawl = (template, vectorBounds) => {
 
   let tagNameCrawlState = ATTRIBUTE_FOUND;
   if (positionChar === " ") {
-    tagNameCrawlState = IMPLICIT_ATTRIBUTE_CONFIRMED;
+    tagNameCrawlState = CREATE_IMPLICIT_ATTRIBUTE;
   }
   if (positionChar === "=") {
     tagNameCrawlState = ATTRIBUTE_ASSIGNMENT;
@@ -60,7 +59,7 @@ const getAttributeName: AttributeCrawl = (template, vectorBounds) => {
     }
     tagNameCrawlState = ATTRIBUTE_FOUND;
     if (positionChar === " ") {
-      tagNameCrawlState = IMPLICIT_ATTRIBUTE_CONFIRMED;
+      tagNameCrawlState = CREATE_IMPLICIT_ATTRIBUTE;
     }
     if (positionChar === "=") {
       tagNameCrawlState = ATTRIBUTE_ASSIGNMENT;
@@ -75,17 +74,17 @@ const getAttributeName: AttributeCrawl = (template, vectorBounds) => {
 
   if (tagNameCrawlState === ATTRIBUTE_FOUND) {
     return {
-      action: IMPLICIT_ATTRIBUTE_CONFIRMED,
+      action: CREATE_IMPLICIT_ATTRIBUTE,
       params: { attributeVector: adjustedVector },
     };
   }
 
-  if (tagNameCrawlState === IMPLICIT_ATTRIBUTE_CONFIRMED) {
+  if (tagNameCrawlState === CREATE_IMPLICIT_ATTRIBUTE) {
     if (positionChar === " ") {
       decrementTarget(template, adjustedVector);
     }
     return {
-      action: IMPLICIT_ATTRIBUTE_CONFIRMED,
+      action: CREATE_IMPLICIT_ATTRIBUTE,
       params: { attributeVector: adjustedVector },
     };
   }
@@ -93,7 +92,7 @@ const getAttributeName: AttributeCrawl = (template, vectorBounds) => {
   if (tagNameCrawlState === ATTRIBUTE_ASSIGNMENT) {
     decrementTarget(template, adjustedVector);
     return {
-      action: EXPLICIT_ATTRIBUTE_CONFIRMED,
+      action: CREATE_EXPLICIT_ATTRIBUTE,
       params: { attributeVector: adjustedVector, valueVector: adjustedVector },
     };
   }
@@ -149,10 +148,11 @@ const getAttributeQuality: AttributeValueCrawl = (
       origin: { ...attributeVector.origin },
       target: { ...attributeQualityVector.origin },
     };
+
     const attributeVectorCopy = copy(attributeAction.params.attributeVector);
 
     return {
-      action: INJECTED_EXPLICIT_ATTRIBUTE_CONFIRMED,
+      action: CREATE_INJECTED_EXPLICIT_ATTRIBUTE,
       params: {
         attributeVector: attributeVectorCopy,
         valueVector: injectionVector,
@@ -189,7 +189,7 @@ const getAttributeQuality: AttributeValueCrawl = (
     const attributeVectorCopy = copy(attributeAction.params.attributeVector);
 
     return {
-      action: "EXPLICIT_ATTRIBUTE_CONFIRMED",
+      action: "CREATE_EXPLICIT_ATTRIBUTE",
       params: {
         attributeVector: attributeVectorCopy,
         valueVector: explicitVector,
@@ -204,7 +204,7 @@ const crawlForAttribute: AttributeCrawl = (template, vectorBounds) => {
   if (attributeNameResults === undefined) {
     return;
   }
-  if (attributeNameResults.action === "IMPLICIT_ATTRIBUTE_CONFIRMED") {
+  if (attributeNameResults.action === "CREATE_IMPLICIT_ATTRIBUTE") {
     return attributeNameResults;
   }
 

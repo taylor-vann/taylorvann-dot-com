@@ -19,7 +19,7 @@ interface BuildIntegralsParams<A> {
   template: StructureRender<A>;
   skeleton: SkeletonNodes;
 }
-type BuildIntegrals = <A>(params: BuildIntegralsParams<A>) => IntegralRender<A>;
+type BuildIntegrals = <A>(params: BuildIntegralsParams<A>) => IntegralRender;
 
 type VectorCrawl = <A>(
   template: StructureRender<A>,
@@ -27,6 +27,21 @@ type VectorCrawl = <A>(
 ) => Vector | undefined;
 
 const getFirstAttributeCharacter: VectorCrawl = (template, innerXmlBounds) => {
+  const attributeVector: Vector = copy(innerXmlBounds);
+
+  let positionChar = getCharAtPosition(template, attributeVector.target);
+  while (positionChar === " " && !hasOriginEclipsedTaraget(attributeVector)) {
+    incrementOrigin(template, attributeVector);
+  }
+
+  if (hasOriginEclipsedTaraget(attributeVector)) {
+    return;
+  }
+
+  return attributeVector;
+};
+
+const getNextAttributeCharacter: VectorCrawl = (template, innerXmlBounds) => {
   const attributeVector: Vector = copy(innerXmlBounds);
 
   let positionChar = getCharAtPosition(template, attributeVector.target);
@@ -55,12 +70,14 @@ const buildIntegrals: BuildIntegrals = ({ template, skeleton }) => {
   // for each skeleton step
 
   // content node steps
+  // build content steps
 
   // open node steps
-
   // independent node steps
+  // // iterate across content bounds
 
   // close node steps
+  // get tagname
 
   // the goal is to return a list of building instructions
 

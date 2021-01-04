@@ -10,15 +10,17 @@ import { unitTestBuildStructure } from "./builders/build_structure/build_structu
 import { unitTestTagNameCrawl } from "./builders/build_integrals/tag_name_crawl/tag_name_crawl.test";
 import { unitTestAttributeCrawl } from "./builders/build_integrals/attribute_crawl/attribute_crawl.test";
 
-const tests = [
-  // unitTestTextPosition,
-  // unitTestTextVector,
-  // unitTestCrawlRouters,
-  // unitTestCrawl,
-  // unitTestBuildSkeleton,
-  // unitTestTagNameCrawl,
-  unitTestAttributeCrawl,
+import { unitTestContentCrawl } from "./builders/build_integrals/content_crawl/content_crawl.test";
 
+const tests = [
+  unitTestTextPosition,
+  unitTestTextVector,
+  unitTestCrawlRouters,
+  unitTestCrawl,
+  unitTestBuildSkeleton,
+  unitTestTagNameCrawl,
+  unitTestAttributeCrawl,
+  unitTestContentCrawl,
   // unitTestBuildIntegrals,
 ];
 
