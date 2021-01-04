@@ -3,9 +3,6 @@
 .DS_Store
 ._.DS_Store
 
-# DeFacto gitkeep
-!.gitkeep
-
 ## Environment Variables
 #    never upload, but keep examples
 *.env
