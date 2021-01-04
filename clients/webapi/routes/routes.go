@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"os"
 
+	"fmt"
+
 	"webapi/fileserver"
 )
 
@@ -18,6 +20,7 @@ func CreateMux() *http.ServeMux {
 	mux := http.NewServeMux()
 
 	if Environment == "DEVELOPMENT" {
+		fmt.Println("dvelopment stuffs")
 		mux.HandleFunc("/tests/", fileserver.ServeHomeFiles)
 		mux.HandleFunc("/sign-in/tests/", fileserver.ServeSignInFiles)
 		mux.HandleFunc("/internal/tests/", fileserver.ServeInternalFiles)

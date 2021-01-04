@@ -1,0 +1,8 @@
+{
+  "users": {
+    "prettycool@email.com": {
+      "password": "superawesomepassword",
+      "roles": ["AUTHN_ADMIN", "INFRA_OVERLORD_ADMIN"]
+    }
+  }
+}

@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"os"
 
+	"fmt"
+
 	"github.com/taylor-vann/weblog/toolbox/golang/infraclientx/sessionx"
 	"github.com/taylor-vann/weblog/toolbox/golang/infraclientx/verifyx"
 )
@@ -20,7 +22,7 @@ const (
 
 var (
 	Environment = os.Getenv("STAGE")
-	webClientsDirectory    = os.Getenv("WEB_CLIENTS_DIRECTORY")
+	webClientsDirectory = os.Getenv("WEB_CLIENTS_DIRECTORY")
 
 	unauthorizedFilename = webClientsDirectory + "/unauthorized/unauthorized/index.html"
 	waywardFilename = webClientsDirectory + "/lost/lost/index.html"
@@ -30,7 +32,7 @@ var (
 	internalResourcesDirectory = webClientsDirectory + "/internal/"
 	internalFilename = webClientsDirectory + "/internal/internal/index.html"
 
-	relativeRune           = []byte(".")[0]
+	relativeRune = []byte(".")[0]
 )
 
 var (
@@ -139,9 +141,17 @@ func ServeSignInFiles(w http.ResponseWriter, r *http.Request) {
 }
 
 func ServeHomeFiles(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("serve home files")
+	fmt.Println(r.URL.Path)
+	fmt.Println(homeResourcesDirectory + r.URL.Path)
+	
 	serveStaticFiles(w, r, homeResourcesDirectory + r.URL.Path)
 }
 
 func ServeHomeApp(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("serve home app")
+	fmt.Println(r.URL.Path)
+	fmt.Println(homeResourcesDirectory + r.URL.Path)
+
 	http.ServeFile(w, r, homeFilename)
 }

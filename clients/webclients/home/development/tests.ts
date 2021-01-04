@@ -3,5 +3,10 @@
 
 import { runTests } from "../../utils/little_test_runner/little_test_runner";
 
-console.log("tests!");
-console.log("more tests!");
+import { tests } from "../../utils/bang/bang.test";
+
+const testCollection = [...tests];
+
+runTests({ testCollection })
+  .then((results) => console.log("results: ", results))
+  .catch((errors) => console.log("errors: ", errors));

@@ -9,8 +9,9 @@ import { StartTestRunActionParams } from "../../action_types/actions_types";
 type BuildResultsState = (params: StartTestRunActionParams) => TestRunResults;
 
 const buildResultsState: BuildResultsState = ({
-  startTime,
   testCollection,
+  startTime,
+  stub,
 }) => {
   const nextState: TestRunResults = {
     status: "submitted",
