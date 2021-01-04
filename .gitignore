@@ -24,6 +24,11 @@
 **/node_modules/
 **/build/
 
+#   ignore bundles
+bundled.js
+bundled.tests.js
+
+
 ## Redis
 #    ignore all redis data
 **/redis_data/
