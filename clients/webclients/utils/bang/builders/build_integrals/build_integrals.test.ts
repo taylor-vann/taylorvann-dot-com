@@ -24,21 +24,51 @@ const testTextInterpolator: TextTextInterpolator = (
 const title = "build_integrals";
 const runTestsAsynchronously = true;
 
-const defaultFunc = () => {
+const testFindCloseParagraph = () => {
   const assertions = [];
-  const params = testTextInterpolator`<p>`;
+  const params = testTextInterpolator`</p>`;
   const results = buildIntegrals(params);
 
   assertions.push("fail immediately");
-
   if (results.length !== 1) {
     assertions.push("there should be at least one instruction set");
   }
 
-  return [];
+  return assertions;
 };
 
-const tests = [defaultFunc];
+const testFindCloseH1 = () => {
+  const assertions = [];
+  const params = testTextInterpolator`</h1>`;
+  const results = buildIntegrals(params);
+
+  console.log(results);
+  assertions.push("fail immediately");
+  if (results.length !== 1) {
+    assertions.push("there should be at least one instruction set");
+  }
+
+  return assertions;
+};
+
+const testFindCloseParagraphWithTrailingSpaces = () => {
+  const assertions = [];
+  const params = testTextInterpolator`</h1        >`;
+  const results = buildIntegrals(params);
+
+  assertions.push("fail immediately");
+  if (results.length !== 1) {
+    assertions.push("there should be at least one instruction set");
+  }
+
+  return assertions;
+};
+
+const tests = [
+  testFindCloseParagraph,
+  testFindCloseH1,
+  testFindCloseParagraphWithTrailingSpaces,
+];
 
 const unitTestBuildIntegrals = {
   title,

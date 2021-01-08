@@ -14,30 +14,43 @@ import {
 } from "./attribute_crawl";
 
 import { ContentCrawlAction } from "./content_crawl";
+import { Vector } from "./text_vector";
 
-interface CreateOpenNode {
-  action: "CREATE_OPEN_NODE";
+interface ElementParams {
+  tagNameVector: Vector;
 }
-interface CreateIndependentNode {
-  action: "CREATE_INDEPENDENT_NODE";
+interface CreateElement {
+  action: "CREATE_ELEMENT";
+  params: ElementParams;
 }
-interface CreateAttribute {
-  action: "CREATE_ATTRIBUTE";
+interface CreateIndependentElement {
+  action: "CREATE_INDEPENDENT_ELEMENT";
+  params: ElementParams;
 }
-interface CreateClosedNode {
-  action: "CREATE_CLOSED_NODE";
-}
-interface CreateContentNode {
-  action: "CREATE_CONTENT_NODE";
+interface CloseElement {
+  action: "CLOSE_ELEMENT";
+  params: ElementParams;
 }
 
 type IntegralAction =
-  | CreateOpenNode
-  | CreateIndependentNode
-  | CreateAttribute
-  | CreateClosedNode
-  | CreateContentNode;
+  | CreateElement
+  | CreateIndependentElement
+  | ExplicitAttributeAction
+  | ImplicitAttributeParams
+  | InjectedAttributeParams
+  | CloseElement
+  | AttributeAction
+  | ContentCrawlAction;
 
-type IntegralRender = IntegralAction[];
+type Integrals = IntegralAction[];
 
-export { IntegralAction, IntegralRender };
+export {
+  IntegralAction,
+  Integrals,
+  CreateElement,
+  CreateIndependentElement,
+  ExplicitAttributeAction,
+  ImplicitAttributeParams,
+  InjectedAttributeParams,
+  CloseElement,
+};

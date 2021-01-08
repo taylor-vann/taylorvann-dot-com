@@ -25,6 +25,7 @@ const copy: Copy = create;
 
 const increment: Increment = (template, position) => {
   // template boundaries
+
   const templateLength = template.templateArray.length - 1;
   const chunk = template.templateArray[position.arrayIndex];
   if (chunk === undefined) {

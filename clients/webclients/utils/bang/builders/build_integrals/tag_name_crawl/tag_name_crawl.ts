@@ -18,7 +18,7 @@ const crawlForTagName = <A>(
   innerXmlBounds: Vector
 ) => {
   const tagVector: Vector = copy(innerXmlBounds);
-  let positionChar = getCharAtPosition(template, tagVector.target);
+  let positionChar = getCharAtPosition(template, tagVector.origin);
   if (positionChar === undefined || positionChar === " ") {
     return;
   }
@@ -28,7 +28,7 @@ const crawlForTagName = <A>(
       return;
     }
 
-    positionChar = getCharAtPosition(template, tagVector.target);
+    positionChar = getCharAtPosition(template, tagVector.origin);
     if (positionChar === undefined) {
       return;
     }
@@ -44,7 +44,7 @@ const crawlForTagName = <A>(
     decrementTarget(template, adjustedVector);
   }
 
-  return tagVector;
+  return adjustedVector;
 };
 
 export { crawlForTagName };

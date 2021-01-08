@@ -144,12 +144,46 @@ const testMultiCharaceterString = () => {
   return assertions;
 };
 
+const testMultiCharaceterStringWithTrailingSpaces = () => {
+  const assertions = [];
+
+  const template = testTextInterpolator`aaa     `;
+  const vector = create();
+
+  let safety = 0;
+  while (incrementTarget(template, vector) && safety < RECURSION_SAFETY) {
+    safety += 1;
+  }
+
+  const results = crawlForTagName(template, vector);
+
+  if (results !== undefined) {
+    assertions.push("this should have returned a vector");
+  }
+
+  if (results !== undefined && results.origin.arrayIndex !== 0) {
+    assertions.push("incorrect origin array index");
+  }
+  if (results !== undefined && results.origin.stringIndex !== 0) {
+    assertions.push("incorrect origin string index");
+  }
+  if (results !== undefined && results.target.arrayIndex !== 0) {
+    assertions.push("incorrect target array index");
+  }
+  if (results !== undefined && results.target.stringIndex !== 2) {
+    assertions.push("incorrect target string index");
+  }
+
+  return assertions;
+};
+
 const tests = [
   testEmptyString,
   testEmptySpaceString,
   testSingleCharacterString,
   testCharaceterString,
   testMultiCharaceterString,
+  testMultiCharaceterStringWithTrailingSpaces,
 ];
 
 const unitTestTagNameCrawl = {

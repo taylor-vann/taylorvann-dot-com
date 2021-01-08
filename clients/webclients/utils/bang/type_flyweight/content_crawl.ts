@@ -8,4 +8,4 @@ type ContentCrawlAction = {
   params: ContentCrawlParams;
 };
 
-export { ContentCrawlAction };
+export { ContentCrawlParams, ContentCrawlAction };
