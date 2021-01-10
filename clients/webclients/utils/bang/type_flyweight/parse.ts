@@ -15,8 +15,8 @@ interface ContentParseResults {
 }
 interface OpenParseResults<A> {
   tag: string;
-  kind: "OPEN_NODE" | "INDEPENDENT_NODE";
-  attributes: Attributes<A>;
+  kind: "OPEN_NODE" | "SELF_CLOSING_NODE_CONFIRMED";
+  attributes?: Attributes<A>;
 }
 interface CloseParseResults {
   tag: string;

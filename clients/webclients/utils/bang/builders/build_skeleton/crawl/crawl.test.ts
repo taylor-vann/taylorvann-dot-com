@@ -124,9 +124,9 @@ const findIndependentParagraphInPlainText = () => {
   if (result === undefined) {
     assertions.push("undefined result");
   }
-  if (result && result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
+  if (result && result.nodeType !== "SELF_CLOSING_NODE_CONFIRMED") {
     assertions.push(
-      `should return INDEPENDENT_NODE_CONFIRMED instead of ${result.nodeType}`
+      `should return SELF_CLOSING_NODE_CONFIRMED instead of ${result.nodeType}`
     );
   }
 
@@ -351,9 +351,9 @@ const validIndependentNodeWithArgs = () => {
   if (result === undefined) {
     assertions.push("undefined result");
   }
-  if (result && result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
+  if (result && result.nodeType !== "SELF_CLOSING_NODE_CONFIRMED") {
     assertions.push(
-      `should return INDEPENDENT_NODE_CONFIRMED instead of ${result.nodeType}`
+      `should return SELF_CLOSING_NODE_CONFIRMED instead of ${result.nodeType}`
     );
   }
 
@@ -452,9 +452,9 @@ const findNextCrawlWithPreviousCrawl = () => {
     assertions.push("undefined result");
   }
 
-  if (result && result.nodeType !== "INDEPENDENT_NODE_CONFIRMED") {
+  if (result && result.nodeType !== "SELF_CLOSING_NODE_CONFIRMED") {
     assertions.push(
-      `should return INDEPENDENT_NODE_CONFIRMED instead of ${result.nodeType}`
+      `should return SELF_CLOSING_NODE_CONFIRMED instead of ${result.nodeType}`
     );
   }
 

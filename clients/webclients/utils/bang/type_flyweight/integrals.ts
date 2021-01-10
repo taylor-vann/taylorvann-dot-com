@@ -16,29 +16,29 @@ import {
 import { ContentCrawlAction } from "./content_crawl";
 import { Vector } from "./text_vector";
 
-interface ElementParams {
+interface NodeParams {
   tagNameVector: Vector;
 }
-interface CreateElement {
-  action: "CREATE_ELEMENT";
-  params: ElementParams;
+interface CreateNode {
+  action: "CREATE_NODE";
+  params: NodeParams;
 }
-interface CreateIndependentElement {
-  action: "CREATE_INDEPENDENT_ELEMENT";
-  params: ElementParams;
+interface CreateSelfClosingNode {
+  action: "CREATE_SELF_CLOSING_NODE";
+  params: NodeParams;
 }
-interface CloseElement {
-  action: "CLOSE_ELEMENT";
-  params: ElementParams;
+interface CloseNode {
+  action: "CLOSE_NODE";
+  params: NodeParams;
 }
 
 type IntegralAction =
-  | CreateElement
-  | CreateIndependentElement
+  | CreateNode
+  | CreateSelfClosingNode
   | ExplicitAttributeAction
   | ImplicitAttributeParams
   | InjectedAttributeParams
-  | CloseElement
+  | CloseNode
   | AttributeAction
   | ContentCrawlAction;
 
@@ -47,10 +47,10 @@ type Integrals = IntegralAction[];
 export {
   IntegralAction,
   Integrals,
-  CreateElement,
-  CreateIndependentElement,
+  CreateNode,
+  CreateSelfClosingNode,
   ExplicitAttributeAction,
   ImplicitAttributeParams,
   InjectedAttributeParams,
-  CloseElement,
+  CloseNode,
 };

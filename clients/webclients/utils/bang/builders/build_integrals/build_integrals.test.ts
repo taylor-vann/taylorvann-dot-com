@@ -24,6 +24,81 @@ const testTextInterpolator: TextTextInterpolator = (
 const title = "build_integrals";
 const runTestsAsynchronously = true;
 
+const testFindOpenParagraph = () => {
+  const assertions = [];
+  const params = testTextInterpolator`<p>`;
+  const results = buildIntegrals(params);
+
+  console.log(results);
+
+  assertions.push("fail immediately");
+  if (results.length !== 1) {
+    assertions.push("there should be at least one instruction set");
+  }
+
+  return assertions;
+};
+
+const testFindOpenParagraphWithAttributes = () => {
+  const assertions = [];
+  const params = testTextInterpolator`<p message="hello, world!">`;
+  const results = buildIntegrals(params);
+
+  console.log(results);
+
+  assertions.push("fail immediately");
+  if (results.length !== 1) {
+    assertions.push("there should be at least one instruction set");
+  }
+
+  return assertions;
+};
+
+const testFindOpenParagraphWithTrailingImplicitAttribute = () => {
+  const assertions = [];
+  const params = testTextInterpolator`<p message="hello, world!" checked>`;
+  const results = buildIntegrals(params);
+
+  console.log(results);
+
+  assertions.push("fail immediately");
+  if (results.length !== 1) {
+    assertions.push("there should be at least one instruction set");
+  }
+
+  return assertions;
+};
+
+const testFindOpenParagraphWithInjectedAttribute = () => {
+  const assertions = [];
+  const params = testTextInterpolator`<p message="${"hello, world!"}">`;
+  const results = buildIntegrals(params);
+
+  console.log(results);
+
+  assertions.push("fail immediately");
+  if (results.length !== 1) {
+    assertions.push("there should be at least one instruction set");
+  }
+
+  return assertions;
+};
+
+const testFindOpenParagraphWithInjectedAndTrailingImplicitAttributes = () => {
+  const assertions = [];
+  const params = testTextInterpolator`<p message="${"hello, world!"}" checked>`;
+  const results = buildIntegrals(params);
+
+  console.log(results);
+
+  assertions.push("fail immediately");
+  if (results.length !== 1) {
+    assertions.push("there should be at least one instruction set");
+  }
+
+  return assertions;
+};
+
 const testFindCloseParagraph = () => {
   const assertions = [];
   const params = testTextInterpolator`</p>`;
@@ -64,10 +139,47 @@ const testFindCloseParagraphWithTrailingSpaces = () => {
   return assertions;
 };
 
+const testFindContent = () => {
+  const assertions = [];
+  const params = testTextInterpolator`hello world!`;
+  const results = buildIntegrals(params);
+
+  console.log(results);
+
+  assertions.push("fail immediately");
+  if (results.length !== 1) {
+    assertions.push("there should be at least one instruction set");
+  }
+
+  return assertions;
+};
+
+const testSimpleNodes = () => {
+  const assertions = [];
+  const params = testTextInterpolator`<p>hello world!</p>`;
+  const results = buildIntegrals(params);
+
+  console.log(results);
+
+  assertions.push("fail immediately");
+  if (results.length !== 1) {
+    assertions.push("there should be at least one instruction set");
+  }
+
+  return assertions;
+};
+
 const tests = [
+  testFindOpenParagraph,
+  testFindOpenParagraphWithAttributes,
+  testFindOpenParagraphWithTrailingImplicitAttribute,
+  testFindOpenParagraphWithInjectedAttribute,
+  testFindOpenParagraphWithInjectedAndTrailingImplicitAttributes,
   testFindCloseParagraph,
   testFindCloseH1,
   testFindCloseParagraphWithTrailingSpaces,
+  testFindContent,
+  testSimpleNodes,
 ];
 
 const unitTestBuildIntegrals = {

@@ -55,7 +55,7 @@ const routers: Routers = {
   },
   OPEN_NODE_VALID: {
     "<": "OPEN_NODE",
-    "/": "INDEPENDENT_NODE_VALID",
+    "/": "SELF_CLOSING_NODE_VALID",
     ">": "OPEN_NODE_CONFIRMED",
     DEFAULT: "OPEN_NODE_VALID",
   },
@@ -69,10 +69,10 @@ const routers: Routers = {
     ">": "CLOSE_NODE_CONFIRMED",
     DEFAULT: "CLOSE_NODE_VALID",
   },
-  INDEPENDENT_NODE_VALID: {
+  SELF_CLOSING_NODE_VALID: {
     "<": "OPEN_NODE",
-    ">": "INDEPENDENT_NODE_CONFIRMED",
-    DEFAULT: "INDEPENDENT_NODE_VALID",
+    ">": "SELF_CLOSING_NODE_CONFIRMED",
+    DEFAULT: "SELF_CLOSING_NODE_VALID",
   },
 };
 

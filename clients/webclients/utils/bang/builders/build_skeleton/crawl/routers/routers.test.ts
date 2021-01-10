@@ -42,8 +42,8 @@ const openNodeValidReducesCorrectState = () => {
   if (routers["OPEN_NODE_VALID"]?.["<"] !== "OPEN_NODE") {
     assertions.push("< should return OPEN_NODE");
   }
-  if (routers["OPEN_NODE_VALID"]?.["/"] !== "INDEPENDENT_NODE_VALID") {
-    assertions.push("/ should return INDEPENDENT_NODE_VALID");
+  if (routers["OPEN_NODE_VALID"]?.["/"] !== "SELF_CLOSING_NODE_VALID") {
+    assertions.push("/ should return SELF_CLOSING_NODE_VALID");
   }
   if (routers["OPEN_NODE_VALID"]?.[">"] !== "OPEN_NODE_CONFIRMED") {
     assertions.push("> should return OPEN_NODE_CONFIRMED");
@@ -57,13 +57,14 @@ const openNodeValidReducesCorrectState = () => {
 
 const independentNodeValidReducesCorrectState = () => {
   const assertions: string[] = [];
-  if (routers["INDEPENDENT_NODE_VALID"]?.["<"] !== "OPEN_NODE") {
+  if (routers["SELF_CLOSING_NODE_VALID"]?.["<"] !== "OPEN_NODE") {
     assertions.push("< should return OPEN_NODE");
   }
   if (
-    routers["INDEPENDENT_NODE_VALID"]?.["DEFAULT"] !== "INDEPENDENT_NODE_VALID"
+    routers["SELF_CLOSING_NODE_VALID"]?.["DEFAULT"] !==
+    "SELF_CLOSING_NODE_VALID"
   ) {
-    assertions.push("space should return INDEPENDENT_NODE_VALID");
+    assertions.push("space should return SELF_CLOSING_NODE_VALID");
   }
 
   return assertions;

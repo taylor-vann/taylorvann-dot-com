@@ -19,6 +19,7 @@ type ExplicitAttributeAction = {
 
 interface InjectedAttributeParams {
   attributeVector: Vector;
+  valueVector: Vector;
   injectionID: number;
 }
 type InjectedExplicitAttributeAction = {
