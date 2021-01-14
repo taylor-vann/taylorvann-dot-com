@@ -1,16 +1,16 @@
 // brian taylor vann
 // build integrals
 
-import { StructureRender } from "../../../type_flyweight/structure";
-import { Vector } from "../../../type_flyweight/text_vector";
-import { AttributeAction } from "../../../type_flyweight/attribute_crawl";
+import { StructureRender } from "../../type_flyweight/structure";
+import { Vector } from "../../type_flyweight/text_vector";
+import { AttributeAction } from "../../type_flyweight/attribute_crawl";
 import {
   copy,
   decrementTarget,
   hasOriginEclipsedTaraget,
   incrementOrigin,
-} from "../../../text_vector/text_vector";
-import { getCharAtPosition } from "../../../text_position/text_position";
+} from "../../text_vector/text_vector";
+import { getCharAtPosition } from "../../text_position/text_position";
 
 type AttributeCrawl = <A>(
   template: StructureRender<A>,

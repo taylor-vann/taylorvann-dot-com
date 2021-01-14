@@ -3,28 +3,20 @@
 
 import { StructureRender } from "../../type_flyweight/structure";
 import { SkeletonNodes, CrawlResults } from "../../type_flyweight/crawl";
-import { AttributeAction } from "../../type_flyweight/attribute_crawl";
 
-import {
-  IntegralAction,
-  Integrals,
-  CreateNode,
-  CreateSelfClosingNode,
-  CloseNode,
-} from "../../type_flyweight/integrals";
+import { Integrals, CloseNode } from "../../type_flyweight/integrals";
 import { Vector } from "../../type_flyweight/text_vector";
 
 import {
   copy,
   createFollowingVector,
   decrementTarget,
-  incrementTarget,
   hasOriginEclipsedTaraget,
   incrementOrigin,
 } from "../../text_vector/text_vector";
 import { getCharAtPosition } from "../../text_position/text_position";
-import { crawlForTagName } from "./tag_name_crawl/tag_name_crawl";
-import { crawlForAttribute } from "./attribute_crawl/attribute_crawl";
+import { crawlForTagName } from "../tag_name_crawl/tag_name_crawl";
+import { crawlForAttribute } from "../attribute_crawl/attribute_crawl";
 
 import { ContentCrawlAction } from "../../type_flyweight/content_crawl";
 

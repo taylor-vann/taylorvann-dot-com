@@ -1,6 +1,6 @@
 // brian taylor vann
 
-import { crawl } from "./crawl/crawl";
+import { crawl } from "../skeleton_crawl/skeleton_crawl";
 import { CrawlResults, SkeletonNodes } from "../../type_flyweight/crawl";
 import { StructureRender } from "../../type_flyweight/render";
 import { copy, decrement, increment } from "../../text_position/text_position";

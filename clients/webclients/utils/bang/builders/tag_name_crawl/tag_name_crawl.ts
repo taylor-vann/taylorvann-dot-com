@@ -1,18 +1,18 @@
 // brian taylor vann
 // tag name crawl
 
-import { samestuff } from "../../../../little_test_runner/samestuff/samestuff";
-import { StructureRender } from "../../../type_flyweight/structure";
-import { Vector } from "../../../type_flyweight/text_vector";
+import { samestuff } from "../../../little_test_runner/samestuff/samestuff";
+import { StructureRender } from "../../type_flyweight/structure";
+import { Vector } from "../../type_flyweight/text_vector";
 
 import {
   copy,
   decrementTarget,
   hasOriginEclipsedTaraget,
   incrementOrigin,
-} from "../../../text_vector/text_vector";
+} from "../../text_vector/text_vector";
 
-import { getCharAtPosition } from "../../../text_position/text_position";
+import { getCharAtPosition } from "../../text_position/text_position";
 
 const crawlForTagName = <A>(
   template: StructureRender<A>,

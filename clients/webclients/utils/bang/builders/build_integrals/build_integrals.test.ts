@@ -5,6 +5,7 @@ import { samestuff } from "../../../little_test_runner/samestuff/samestuff";
 import { BuildIntegralsParams } from "./build_integrals";
 import { buildSkeleton } from "../build_skeleton/build_skeleton";
 import { buildIntegrals } from "../build_integrals/build_integrals";
+import { Integrals } from "../../type_flyweight/integrals";
 
 type TextTextInterpolator = <A>(
   templateArray: TemplateStringsArray,
@@ -27,14 +28,30 @@ const runTestsAsynchronously = true;
 
 const testFindOpenParagraph = () => {
   const assertions = [];
+
+  const expectedResults: Integrals = [
+    {
+      action: "CREATE_NODE",
+      params: {
+        tagNameVector: {
+          origin: {
+            arrayIndex: 0,
+            stringIndex: 1,
+          },
+          target: {
+            arrayIndex: 0,
+            stringIndex: 1,
+          },
+        },
+      },
+    },
+  ];
+
   const params = testTextInterpolator`<p>`;
   const results = buildIntegrals(params);
 
-  console.log(results);
-
-  assertions.push("fail immediately");
-  if (results.length !== 1) {
-    assertions.push("there should be at least one instruction set");
+  if (!samestuff(expectedResults, results)) {
+    assertions.push("unexpected results found.");
   }
 
   return assertions;
@@ -42,14 +59,55 @@ const testFindOpenParagraph = () => {
 
 const testFindOpenParagraphWithAttributes = () => {
   const assertions = [];
+
+  const expectedResults: Integrals = [
+    {
+      action: "CREATE_NODE",
+      params: {
+        tagNameVector: {
+          origin: {
+            arrayIndex: 0,
+            stringIndex: 1,
+          },
+          target: {
+            arrayIndex: 0,
+            stringIndex: 1,
+          },
+        },
+      },
+    },
+    {
+      action: "APPEND_EXPLICIT_ATTRIBUTE",
+      params: {
+        attributeVector: {
+          origin: {
+            arrayIndex: 0,
+            stringIndex: 3,
+          },
+          target: {
+            arrayIndex: 0,
+            stringIndex: 9,
+          },
+        },
+        valueVector: {
+          origin: {
+            arrayIndex: 0,
+            stringIndex: 11,
+          },
+          target: {
+            arrayIndex: 0,
+            stringIndex: 25,
+          },
+        },
+      },
+    },
+  ];
+
   const params = testTextInterpolator`<p message="hello, world!">`;
   const results = buildIntegrals(params);
 
-  console.log(results);
-
-  assertions.push("fail immediately");
-  if (results.length !== 1) {
-    assertions.push("there should be at least one instruction set");
+  if (!samestuff(expectedResults, results)) {
+    assertions.push("unexpected results found.");
   }
 
   return assertions;
@@ -57,14 +115,70 @@ const testFindOpenParagraphWithAttributes = () => {
 
 const testFindOpenParagraphWithTrailingImplicitAttribute = () => {
   const assertions = [];
+
+  const expectedResults: Integrals = [
+    {
+      action: "CREATE_NODE",
+      params: {
+        tagNameVector: {
+          origin: {
+            arrayIndex: 0,
+            stringIndex: 1,
+          },
+          target: {
+            arrayIndex: 0,
+            stringIndex: 1,
+          },
+        },
+      },
+    },
+    {
+      action: "APPEND_EXPLICIT_ATTRIBUTE",
+      params: {
+        attributeVector: {
+          origin: {
+            arrayIndex: 0,
+            stringIndex: 3,
+          },
+          target: {
+            arrayIndex: 0,
+            stringIndex: 9,
+          },
+        },
+        valueVector: {
+          origin: {
+            arrayIndex: 0,
+            stringIndex: 11,
+          },
+          target: {
+            arrayIndex: 0,
+            stringIndex: 25,
+          },
+        },
+      },
+    },
+    {
+      action: "APPEND_IMPLICIT_ATTRIBUTE",
+      params: {
+        attributeVector: {
+          origin: {
+            arrayIndex: 0,
+            stringIndex: 27,
+          },
+          target: {
+            arrayIndex: 0,
+            stringIndex: 33,
+          },
+        },
+      },
+    },
+  ];
+
   const params = testTextInterpolator`<p message="hello, world!" checked>`;
   const results = buildIntegrals(params);
 
-  console.log(results);
-
-  assertions.push("fail immediately");
-  if (results.length !== 1) {
-    assertions.push("there should be at least one instruction set");
+  if (!samestuff(expectedResults, results)) {
+    assertions.push("unexpected results found.");
   }
 
   return assertions;
@@ -72,14 +186,56 @@ const testFindOpenParagraphWithTrailingImplicitAttribute = () => {
 
 const testFindOpenParagraphWithInjectedAttribute = () => {
   const assertions = [];
+
+  const expectedResults: Integrals = [
+    {
+      action: "CREATE_NODE",
+      params: {
+        tagNameVector: {
+          origin: {
+            arrayIndex: 0,
+            stringIndex: 1,
+          },
+          target: {
+            arrayIndex: 0,
+            stringIndex: 1,
+          },
+        },
+      },
+    },
+    {
+      action: "APPEND_INJECTED_ATTRIBUTE",
+      params: {
+        attributeVector: {
+          origin: {
+            arrayIndex: 0,
+            stringIndex: 3,
+          },
+          target: {
+            arrayIndex: 0,
+            stringIndex: 9,
+          },
+        },
+        valueVector: {
+          origin: {
+            arrayIndex: 0,
+            stringIndex: 11,
+          },
+          target: {
+            arrayIndex: 1,
+            stringIndex: 0,
+          },
+        },
+        injectionID: 0,
+      },
+    },
+  ];
+
   const params = testTextInterpolator`<p message="${"hello, world!"}">`;
   const results = buildIntegrals(params);
 
-  console.log(results);
-
-  assertions.push("fail immediately");
-  if (results.length !== 1) {
-    assertions.push("there should be at least one instruction set");
+  if (!samestuff(expectedResults, results)) {
+    assertions.push("unexpected results found.");
   }
 
   return assertions;
@@ -87,14 +243,71 @@ const testFindOpenParagraphWithInjectedAttribute = () => {
 
 const testFindOpenParagraphWithInjectedAndTrailingImplicitAttributes = () => {
   const assertions = [];
+
+  const expectedResults: Integrals = [
+    {
+      action: "CREATE_NODE",
+      params: {
+        tagNameVector: {
+          origin: {
+            arrayIndex: 0,
+            stringIndex: 1,
+          },
+          target: {
+            arrayIndex: 0,
+            stringIndex: 1,
+          },
+        },
+      },
+    },
+    {
+      action: "APPEND_INJECTED_ATTRIBUTE",
+      params: {
+        attributeVector: {
+          origin: {
+            arrayIndex: 0,
+            stringIndex: 3,
+          },
+          target: {
+            arrayIndex: 0,
+            stringIndex: 9,
+          },
+        },
+        valueVector: {
+          origin: {
+            arrayIndex: 0,
+            stringIndex: 11,
+          },
+          target: {
+            arrayIndex: 1,
+            stringIndex: 0,
+          },
+        },
+        injectionID: 0,
+      },
+    },
+    {
+      action: "APPEND_IMPLICIT_ATTRIBUTE",
+      params: {
+        attributeVector: {
+          origin: {
+            arrayIndex: 1,
+            stringIndex: 2,
+          },
+          target: {
+            arrayIndex: 1,
+            stringIndex: 8,
+          },
+        },
+      },
+    },
+  ];
+
   const params = testTextInterpolator`<p message="${"hello, world!"}" checked>`;
   const results = buildIntegrals(params);
 
-  console.log(results);
-
-  assertions.push("fail immediately");
-  if (results.length !== 1) {
-    assertions.push("there should be at least one instruction set");
+  if (!samestuff(expectedResults, results)) {
+    assertions.push("unexpected results found.");
   }
 
   return assertions;
@@ -102,12 +315,30 @@ const testFindOpenParagraphWithInjectedAndTrailingImplicitAttributes = () => {
 
 const testFindCloseParagraph = () => {
   const assertions = [];
+
+  const expectedResults: Integrals = [
+    {
+      action: "CLOSE_NODE",
+      params: {
+        tagNameVector: {
+          origin: {
+            arrayIndex: 0,
+            stringIndex: 2,
+          },
+          target: {
+            arrayIndex: 0,
+            stringIndex: 2,
+          },
+        },
+      },
+    },
+  ];
+
   const params = testTextInterpolator`</p>`;
   const results = buildIntegrals(params);
 
-  assertions.push("fail immediately");
-  if (results.length !== 1) {
-    assertions.push("there should be at least one instruction set");
+  if (!samestuff(expectedResults, results)) {
+    assertions.push("unexpected results found.");
   }
 
   return assertions;
@@ -115,13 +346,30 @@ const testFindCloseParagraph = () => {
 
 const testFindCloseH1 = () => {
   const assertions = [];
+
+  const expectedResults: Integrals = [
+    {
+      action: "CLOSE_NODE",
+      params: {
+        tagNameVector: {
+          origin: {
+            arrayIndex: 0,
+            stringIndex: 2,
+          },
+          target: {
+            arrayIndex: 0,
+            stringIndex: 3,
+          },
+        },
+      },
+    },
+  ];
+
   const params = testTextInterpolator`</h1>`;
   const results = buildIntegrals(params);
 
-  console.log(results);
-  assertions.push("fail immediately");
-  if (results.length !== 1) {
-    assertions.push("there should be at least one instruction set");
+  if (!samestuff(expectedResults, results)) {
+    assertions.push("unexpected results found.");
   }
 
   return assertions;
@@ -129,27 +377,60 @@ const testFindCloseH1 = () => {
 
 const testFindCloseParagraphWithTrailingSpaces = () => {
   const assertions = [];
+
+  const expectedResults: Integrals = [
+    {
+      action: "CLOSE_NODE",
+      params: {
+        tagNameVector: {
+          origin: {
+            arrayIndex: 0,
+            stringIndex: 2,
+          },
+          target: {
+            arrayIndex: 0,
+            stringIndex: 3,
+          },
+        },
+      },
+    },
+  ];
+
   const params = testTextInterpolator`</h1        >`;
   const results = buildIntegrals(params);
 
-  assertions.push("fail immediately");
-  if (results.length !== 1) {
-    assertions.push("there should be at least one instruction set");
+  if (!samestuff(expectedResults, results)) {
+    assertions.push("unexpected results found.");
   }
-
   return assertions;
 };
 
 const testFindContent = () => {
   const assertions = [];
+
+  const expectedResults: Integrals = [
+    {
+      action: "CREATE_CONTENT",
+      params: {
+        contentVector: {
+          origin: {
+            arrayIndex: 0,
+            stringIndex: 0,
+          },
+          target: {
+            arrayIndex: 0,
+            stringIndex: 11,
+          },
+        },
+      },
+    },
+  ];
+
   const params = testTextInterpolator`hello world!`;
   const results = buildIntegrals(params);
 
-  console.log(results);
-
-  assertions.push("fail immediately");
-  if (results.length !== 1) {
-    assertions.push("there should be at least one instruction set");
+  if (!samestuff(expectedResults, results)) {
+    assertions.push("unexpected results found.");
   }
 
   return assertions;
@@ -157,14 +438,60 @@ const testFindContent = () => {
 
 const testSimpleNodes = () => {
   const assertions = [];
+
+  const expectedResults: Integrals = [
+    {
+      action: "CREATE_NODE",
+      params: {
+        tagNameVector: {
+          origin: {
+            arrayIndex: 0,
+            stringIndex: 1,
+          },
+          target: {
+            arrayIndex: 0,
+            stringIndex: 1,
+          },
+        },
+      },
+    },
+    {
+      action: "CREATE_CONTENT",
+      params: {
+        contentVector: {
+          origin: {
+            arrayIndex: 0,
+            stringIndex: 3,
+          },
+          target: {
+            arrayIndex: 0,
+            stringIndex: 14,
+          },
+        },
+      },
+    },
+    {
+      action: "CLOSE_NODE",
+      params: {
+        tagNameVector: {
+          origin: {
+            arrayIndex: 0,
+            stringIndex: 17,
+          },
+          target: {
+            arrayIndex: 0,
+            stringIndex: 17,
+          },
+        },
+      },
+    },
+  ];
+
   const params = testTextInterpolator`<p>hello world!</p>`;
   const results = buildIntegrals(params);
 
-  console.log(results);
-
-  assertions.push("fail immediately");
-  if (results.length !== 1) {
-    assertions.push("there should be at least one instruction set");
+  if (!samestuff(expectedResults, results)) {
+    assertions.push("unexpected results found.");
   }
 
   return assertions;

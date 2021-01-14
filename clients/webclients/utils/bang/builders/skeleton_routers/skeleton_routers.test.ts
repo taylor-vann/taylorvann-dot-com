@@ -1,4 +1,4 @@
-import { routers } from "./routers";
+import { routers } from "./skeleton_routers";
 
 const title = "routers";
 const runTestsAsynchronously = true;

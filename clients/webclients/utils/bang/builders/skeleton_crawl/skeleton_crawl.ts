@@ -1,18 +1,18 @@
 // brian taylor vann
 
-import { routers } from "./routers/routers";
-import { StructureRender } from "../../../type_flyweight/structure";
-import { CrawlResults, CrawlStatus } from "../../../type_flyweight/crawl";
-import { Position, Vector } from "../../../type_flyweight/text_vector";
+import { routers } from "../skeleton_routers/skeleton_routers";
+import { StructureRender } from "../../type_flyweight/structure";
+import { CrawlResults, CrawlStatus } from "../../type_flyweight/crawl";
+import { Position, Vector } from "../../type_flyweight/text_vector";
 import {
   create,
   createFollowingVector,
   incrementTarget,
-} from "../../../text_vector/text_vector";
+} from "../../text_vector/text_vector";
 import {
   copy as copyPosition,
   getCharAtPosition,
-} from "../../../text_position/text_position";
+} from "../../text_position/text_position";
 
 type Sieve = Partial<Record<CrawlStatus, CrawlStatus>>;
 type SetNodeType = <A>(

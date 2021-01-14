@@ -9,12 +9,8 @@ type TextTextInterpolator = <A>(
   ...injections: A[]
 ) => StructureRender<A>;
 
-type CompareSkeletons = (
-  source: SkeletonNodes,
-  target: SkeletonNodes
-) => boolean;
-
 const title = "build_skeleton";
+
 const runTestsAsynchronously = true;
 
 const testTextInterpolator: TextTextInterpolator = (
@@ -24,33 +20,9 @@ const testTextInterpolator: TextTextInterpolator = (
   return { templateArray, injections };
 };
 
-const compareSkeletons: CompareSkeletons = (source, target) => {
-  for (const sourceKey in source) {
-    const node = source[sourceKey];
-    const targetNode = target[sourceKey];
-
-    if (targetNode === undefined) {
-      return false;
-    }
-
-    if (node.nodeType !== targetNode.nodeType) {
-      return false;
-    }
-    if (
-      node.vector.origin.arrayIndex !== targetNode.vector.origin.arrayIndex ||
-      node.vector.origin.stringIndex !== targetNode.vector.origin.stringIndex ||
-      node.vector.target.arrayIndex !== targetNode.vector.target.arrayIndex ||
-      node.vector.target.stringIndex !== targetNode.vector.target.stringIndex
-    ) {
-      return false;
-    }
-  }
-
-  return true;
-};
-
 const findNothingWhenThereIsPlainText = () => {
   const assertions: string[] = [];
+
   const sourceSkeleton: SkeletonNodes = [
     {
       nodeType: "CONTENT_NODE",
@@ -62,9 +34,10 @@ const findNothingWhenThereIsPlainText = () => {
   ];
 
   const testBlank = testTextInterpolator`no nodes to be found!`;
+
   const testSkeleton = buildSkeleton(testBlank);
 
-  if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
+  if (!samestuff(sourceSkeleton, testSkeleton)) {
     assertions.push("skeletons are not equal");
   }
 
@@ -73,6 +46,7 @@ const findNothingWhenThereIsPlainText = () => {
 
 const findParagraphInPlainText = () => {
   const assertions: string[] = [];
+
   const sourceSkeleton: SkeletonNodes = [
     {
       nodeType: "OPEN_NODE_CONFIRMED",
@@ -82,9 +56,12 @@ const findParagraphInPlainText = () => {
       },
     },
   ];
+
   const testOpenNode = testTextInterpolator`<p>`;
+
   const testSkeleton = buildSkeleton(testOpenNode);
-  if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
+
+  if (!samestuff(sourceSkeleton, testSkeleton)) {
     assertions.push("skeletons are not equal");
   }
 
@@ -123,10 +100,12 @@ const findComplexFromPlainText = () => {
       },
     },
   ];
+
   const testComplexNode = testTextInterpolator`hello<p>world</p>`;
+
   const testSkeleton = buildSkeleton(testComplexNode);
 
-  if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
+  if (!samestuff(sourceSkeleton, testSkeleton)) {
     assertions.push("skeletons are not equal");
   }
 
@@ -135,6 +114,7 @@ const findComplexFromPlainText = () => {
 
 const findCompoundFromPlainText = () => {
   const assertions: string[] = [];
+
   const sourceSkeleton: SkeletonNodes = [
     {
       nodeType: "OPEN_NODE_CONFIRMED",
@@ -158,10 +138,12 @@ const findCompoundFromPlainText = () => {
       },
     },
   ];
+
   const testComplexNode = testTextInterpolator`<h1>hello</h1>`;
+
   const testSkeleton = buildSkeleton(testComplexNode);
 
-  if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
+  if (!samestuff(sourceSkeleton, testSkeleton)) {
     assertions.push("skeletons are not equal");
   }
 
@@ -170,6 +152,7 @@ const findCompoundFromPlainText = () => {
 
 const findBrokenFromPlainText = () => {
   const assertions: string[] = [];
+
   const sourceSkeleton: SkeletonNodes = [
     {
       nodeType: "CONTENT_NODE",
@@ -207,9 +190,12 @@ const findBrokenFromPlainText = () => {
       },
     },
   ];
+
   const testComplexNode = testTextInterpolator`<${"hello"}h2>hey</h2><p>howdy</p>`;
+
   const testSkeleton = buildSkeleton(testComplexNode);
-  if (!compareSkeletons(sourceSkeleton, testSkeleton)) {
+
+  if (!samestuff(sourceSkeleton, testSkeleton)) {
     assertions.push("skeletons are not equal");
   }
 
