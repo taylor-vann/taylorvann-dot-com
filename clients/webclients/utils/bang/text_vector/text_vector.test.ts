@@ -27,15 +27,15 @@ const runTestsAsynchronously = true;
 const createTextVector = () => {
   const assertions = [];
 
-  const expectedResults = {};
+  const expectedResults = {
+    origin: { arrayIndex: 0, stringIndex: 0 },
+    target: { arrayIndex: 0, stringIndex: 0 },
+  };
 
   const vector = create();
 
-  if (vector.origin.stringIndex !== 0) {
-    assertions.push("text vector string index does not match");
-  }
-  if (vector.origin.arrayIndex !== 0) {
-    assertions.push("text vector array index does not match");
+  if (!samestuff(expectedResults, vector)) {
+    assertions.push("unexpected results found.");
   }
 
   return assertions;
@@ -43,17 +43,19 @@ const createTextVector = () => {
 
 const createTextVectorFromPosition = () => {
   const assertions = [];
-  const prevPosition = {
+
+  const expectedResults = {
+    origin: { arrayIndex: 4, stringIndex: 3 },
+    target: { arrayIndex: 4, stringIndex: 3 },
+  };
+
+  const vector = create({
     stringIndex: 3,
     arrayIndex: 4,
-  };
-  const vector = create(prevPosition);
+  });
 
-  if (vector.origin.stringIndex !== 3) {
-    assertions.push("text vector string index does not match");
-  }
-  if (vector.origin.arrayIndex !== 4) {
-    assertions.push("text vector array index does not match");
+  if (!samestuff(expectedResults, vector)) {
+    assertions.push("unexpected results found.");
   }
 
   return assertions;
@@ -61,34 +63,35 @@ const createTextVectorFromPosition = () => {
 
 const copyTextVector = () => {
   const assertions = [];
-  const vector: Vector = {
+
+  const expectedResults = {
     origin: { arrayIndex: 0, stringIndex: 1 },
     target: { arrayIndex: 2, stringIndex: 3 },
   };
 
-  const copiedVector = copy(vector);
+  const copiedVector = copy(expectedResults);
+  if (!samestuff(expectedResults, copiedVector)) {
+    assertions.push("unexpected results found.");
+  }
 
-  if (vector.origin.stringIndex !== copiedVector.origin.stringIndex) {
-    assertions.push("text vector string index does not match");
-  }
-  if (vector.origin.arrayIndex !== copiedVector.origin.arrayIndex) {
-    assertions.push("text vector array index does not match");
-  }
   return assertions;
 };
 
 const incrementTextVector = () => {
   const assertions = [];
+
+  const expectedResults = {
+    origin: { arrayIndex: 0, stringIndex: 0 },
+    target: { arrayIndex: 0, stringIndex: 1 },
+  };
+
   const structureRender = testTextInterpolator`hello`;
   const vector: Vector = create();
 
   incrementTarget(structureRender, vector);
 
-  if (vector.target.stringIndex !== 1) {
-    assertions.push("text vector string index does not match");
-  }
-  if (vector.target.arrayIndex !== 0) {
-    assertions.push("text vector array index does not match");
+  if (!samestuff(expectedResults, vector)) {
+    assertions.push("unexpected results found.");
   }
 
   return assertions;
@@ -96,6 +99,12 @@ const incrementTextVector = () => {
 
 const incrementMultiTextVector = () => {
   const assertions = [];
+
+  const expectedResults = {
+    origin: { arrayIndex: 0, stringIndex: 0 },
+    target: { arrayIndex: 1, stringIndex: 2 },
+  };
+
   const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
   const vector: Vector = create();
 
@@ -105,6 +114,9 @@ const incrementMultiTextVector = () => {
   incrementTarget(structureRender, vector);
   incrementTarget(structureRender, vector);
 
+  if (!samestuff(expectedResults, vector)) {
+    assertions.push("unexpected results found.");
+  }
   if (vector.target.stringIndex !== 2) {
     assertions.push("text vector string index does not match");
   }
@@ -117,6 +129,12 @@ const incrementMultiTextVector = () => {
 
 const incrementEmptyTextVector = () => {
   const assertions = [];
+
+  const expectedResults = {
+    origin: { arrayIndex: 0, stringIndex: 0 },
+    target: { arrayIndex: 3, stringIndex: 0 },
+  };
+
   const structureRender = testTextInterpolator`${"hey"}${"world"}${"!!"}`;
   const vector: Vector = create();
 
@@ -128,11 +146,8 @@ const incrementEmptyTextVector = () => {
     assertions.push("should not return after traversed");
   }
 
-  if (vector.target.stringIndex !== 0) {
-    assertions.push("text vector string index does not match");
-  }
-  if (vector.target.arrayIndex !== 3) {
-    assertions.push("text vector array index does not match");
+  if (!samestuff(expectedResults, vector)) {
+    assertions.push("unexpected results found.");
   }
 
   return assertions;
@@ -140,6 +155,12 @@ const incrementEmptyTextVector = () => {
 
 const createFollowingTextVector = () => {
   const assertions = [];
+
+  const expectedResults = {
+    origin: { arrayIndex: 0, stringIndex: 5 },
+    target: { arrayIndex: 0, stringIndex: 5 },
+  };
+
   const structureRender = testTextInterpolator`supercool`;
   const vector: Vector = create();
 
@@ -148,15 +169,10 @@ const createFollowingTextVector = () => {
   incrementTarget(structureRender, vector);
   incrementTarget(structureRender, vector);
 
-  const followingVector = createFollowingVector(structureRender, vector);
-  if (followingVector === undefined) {
-    assertions.push("next vector should not be undefined");
-  }
-  if (followingVector && followingVector.target.stringIndex !== 5) {
-    assertions.push("text vector string index does not match");
-  }
-  if (followingVector && followingVector.target.arrayIndex !== 0) {
-    assertions.push("text vector array index does not match");
+  const results = createFollowingVector(structureRender, vector);
+
+  if (!samestuff(expectedResults, results)) {
+    assertions.push("unexpected results found.");
   }
 
   return assertions;
@@ -164,21 +180,24 @@ const createFollowingTextVector = () => {
 
 const incrementTextVectorTooFar = () => {
   const assertions = [];
+
+  const expectedResults = {
+    origin: { arrayIndex: 0, stringIndex: 0 },
+    target: { arrayIndex: 1, stringIndex: 13 },
+  };
+
   const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
-  const vector: Vector = create();
+  const results: Vector = create();
 
   const MAX_DEPTH = 20;
   let safety = 0;
-  while (incrementTarget(structureRender, vector) && safety < MAX_DEPTH) {
+  while (incrementTarget(structureRender, results) && safety < MAX_DEPTH) {
     // iterate across structure
     safety += 1;
   }
 
-  if (vector.target.stringIndex !== 13) {
-    assertions.push("text vector string index does not match");
-  }
-  if (vector.target.arrayIndex !== 1) {
-    assertions.push("text vector array index does not match");
+  if (!samestuff(expectedResults, results)) {
+    assertions.push("unexpected results found.");
   }
 
   return assertions;
@@ -202,12 +221,14 @@ const testHasOriginNotEclipsedTaraget = () => {
 
   const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
   const vector: Vector = create();
+
   incrementTarget(structureRender, vector);
   incrementTarget(structureRender, vector);
   incrementTarget(structureRender, vector);
   incrementTarget(structureRender, vector);
 
   const results = hasOriginEclipsedTaraget(vector);
+
   if (results !== false) {
     assertions.push("orign has not eclipsed target");
   }

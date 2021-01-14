@@ -14,8 +14,8 @@ import { unitTestContentCrawl } from "./builders/build_integrals/content_crawl/c
 
 const tests = [
   unitTestTextPosition,
-  // unitTestTextVector,
-  // unitTestCrawlRouters,
+  unitTestTextVector,
+  unitTestCrawlRouters,
   // unitTestCrawl,
   // unitTestBuildSkeleton,
   // unitTestTagNameCrawl,
