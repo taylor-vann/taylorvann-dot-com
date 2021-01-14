@@ -1,3 +1,4 @@
+import { samestuff } from "../../little_test_runner/samestuff/samestuff";
 import {
   copy,
   create,
@@ -25,6 +26,8 @@ const runTestsAsynchronously = true;
 
 const createTextVector = () => {
   const assertions = [];
+
+  const expectedResults = {};
 
   const vector = create();
 

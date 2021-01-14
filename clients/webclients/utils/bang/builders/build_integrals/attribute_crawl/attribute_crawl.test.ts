@@ -1,9 +1,9 @@
 // brian taylor vann
 // build integrals
 
+import { samestuff } from "../../../../little_test_runner/samestuff/samestuff";
 import { StructureRender } from "../../../type_flyweight/structure";
 import { create, incrementTarget } from "../../../text_vector/text_vector";
-
 import { crawlForAttribute } from "./attribute_crawl";
 
 type TextTextInterpolator = <A>(

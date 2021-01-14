@@ -1,6 +1,7 @@
 // brian taylor vann
 // tag name crawl
 
+import { samestuff } from "../../../../little_test_runner/samestuff/samestuff";
 import { StructureRender } from "../../../type_flyweight/structure";
 import { create, incrementTarget } from "../../../text_vector/text_vector";
 
@@ -91,7 +92,7 @@ const testCharaceterString = () => {
 
   const results = crawlForTagName(template, vector);
 
-  if (results !== undefined) {
+  if (results === undefined) {
     assertions.push("this should have returned a vector");
   }
 
@@ -124,7 +125,7 @@ const testMultiCharaceterString = () => {
 
   const results = crawlForTagName(template, vector);
 
-  if (results !== undefined) {
+  if (results === undefined) {
     assertions.push("this should have returned a vector");
   }
 
@@ -157,7 +158,7 @@ const testMultiCharaceterStringWithTrailingSpaces = () => {
 
   const results = crawlForTagName(template, vector);
 
-  if (results !== undefined) {
+  if (results === undefined) {
     assertions.push("this should have returned a vector");
   }
 

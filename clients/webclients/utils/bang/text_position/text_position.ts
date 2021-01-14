@@ -1,3 +1,4 @@
+import { samestuff } from "../../little_test_runner/samestuff/samestuff";
 import { StructureRender } from "../type_flyweight/structure";
 import { Position } from "../type_flyweight/text_vector";
 
@@ -25,7 +26,6 @@ const copy: Copy = create;
 
 const increment: Increment = (template, position) => {
   // template boundaries
-
   const templateLength = template.templateArray.length - 1;
   const chunk = template.templateArray[position.arrayIndex];
   if (chunk === undefined) {

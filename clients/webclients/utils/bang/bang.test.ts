@@ -13,7 +13,7 @@ import { unitTestAttributeCrawl } from "./builders/build_integrals/attribute_cra
 import { unitTestContentCrawl } from "./builders/build_integrals/content_crawl/content_crawl.test";
 
 const tests = [
-  // unitTestTextPosition,
+  unitTestTextPosition,
   // unitTestTextVector,
   // unitTestCrawlRouters,
   // unitTestCrawl,
@@ -21,7 +21,7 @@ const tests = [
   // unitTestTagNameCrawl,
   // unitTestAttributeCrawl,
   // unitTestContentCrawl,
-  unitTestBuildIntegrals,
+  // unitTestBuildIntegrals,
 ];
 
 export { tests };

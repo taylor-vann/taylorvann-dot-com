@@ -1,3 +1,4 @@
+import { samestuff } from "../../little_test_runner/samestuff/samestuff";
 import {
   copy,
   create,
@@ -25,13 +26,16 @@ const runTestsAsynchronously = true;
 
 const createTextPosition = () => {
   const assertions = [];
-  const vector = create();
 
-  if (vector.stringIndex !== 0) {
-    assertions.push("text position string index does not match");
-  }
-  if (vector.arrayIndex !== 0) {
-    assertions.push("text position array index does not match");
+  const expectedResults = {
+    arrayIndex: 0,
+    stringIndex: 0,
+  };
+
+  const position = create();
+
+  if (!samestuff(expectedResults, position)) {
+    assertions.push("unexpected results found.");
   }
 
   return assertions;
@@ -39,17 +43,16 @@ const createTextPosition = () => {
 
 const createTextPositionFromPosition = () => {
   const assertions = [];
-  const prevPosition = {
-    stringIndex: 3,
-    arrayIndex: 4,
-  };
-  const vector = create(prevPosition);
 
-  if (vector.stringIndex !== 3) {
-    assertions.push("text position string index does not match");
-  }
-  if (vector.arrayIndex !== 4) {
-    assertions.push("text position array index does not match");
+  const expectedResults = {
+    arrayIndex: 3,
+    stringIndex: 4,
+  };
+
+  const position = create(expectedResults);
+
+  if (!samestuff(expectedResults, position)) {
+    assertions.push("unexpected results found.");
   }
 
   return assertions;
@@ -57,31 +60,36 @@ const createTextPositionFromPosition = () => {
 
 const copyTextPosition = () => {
   const assertions = [];
-  const position: Position = { arrayIndex: 2, stringIndex: 3 };
 
-  const copiedPosition = copy(position);
+  const expectedResults = {
+    arrayIndex: 2,
+    stringIndex: 3,
+  };
 
-  if (position.stringIndex !== copiedPosition.stringIndex) {
-    assertions.push("text position string index does not match");
+  const position = copy(expectedResults);
+
+  if (!samestuff(expectedResults, position)) {
+    assertions.push("unexpected results found.");
   }
-  if (position.arrayIndex !== copiedPosition.arrayIndex) {
-    assertions.push("text position array index does not match");
-  }
+
   return assertions;
 };
 
 const incrementTextPosition = () => {
   const assertions = [];
+
+  const expectedResults = {
+    arrayIndex: 0,
+    stringIndex: 1,
+  };
+
   const structureRender = testTextInterpolator`hello`;
   const position: Position = create();
 
   increment(structureRender, position);
 
-  if (position.stringIndex !== 1) {
-    assertions.push("text position string index does not match");
-  }
-  if (position.arrayIndex !== 0) {
-    assertions.push("text position array index does not match");
+  if (!samestuff(expectedResults, position)) {
+    assertions.push("unexpected results found.");
   }
 
   return assertions;
@@ -89,6 +97,12 @@ const incrementTextPosition = () => {
 
 const incrementMultiTextPosition = () => {
   const assertions = [];
+
+  const expectedResults = {
+    arrayIndex: 1,
+    stringIndex: 2,
+  };
+
   const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
   const position: Position = create();
 
@@ -98,11 +112,8 @@ const incrementMultiTextPosition = () => {
   increment(structureRender, position);
   increment(structureRender, position);
 
-  if (position.stringIndex !== 2) {
-    assertions.push("text position string index does not match");
-  }
-  if (position.arrayIndex !== 1) {
-    assertions.push("text position array index does not match");
+  if (!samestuff(expectedResults, position)) {
+    assertions.push("unexpected results found.");
   }
 
   return assertions;
@@ -110,6 +121,12 @@ const incrementMultiTextPosition = () => {
 
 const incrementEmptyTextPosition = () => {
   const assertions = [];
+
+  const expectedResults = {
+    arrayIndex: 3,
+    stringIndex: 0,
+  };
+
   const structureRender = testTextInterpolator`${"hey"}${"world"}${"!!"}`;
   const position: Position = create();
 
@@ -121,11 +138,8 @@ const incrementEmptyTextPosition = () => {
     assertions.push("should not return after traversed");
   }
 
-  if (position.stringIndex !== 0) {
-    assertions.push("text position string index does not match");
-  }
-  if (position.arrayIndex !== 3) {
-    assertions.push("text position array index does not match");
+  if (!samestuff(expectedResults, position)) {
+    assertions.push("unexpected results found.");
   }
 
   return assertions;
@@ -133,6 +147,12 @@ const incrementEmptyTextPosition = () => {
 
 const incrementTextPositionTooFar = () => {
   const assertions = [];
+
+  const expectedResults = {
+    arrayIndex: 1,
+    stringIndex: 13,
+  };
+
   const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
   const arrayLength = structureRender.templateArray.length - 1;
   const stringLength = structureRender.templateArray[arrayLength].length - 1;
@@ -148,11 +168,8 @@ const incrementTextPositionTooFar = () => {
     safety += 1;
   }
 
-  if (position.stringIndex !== 13) {
-    assertions.push("text position string index does not match");
-  }
-  if (position.arrayIndex !== 1) {
-    assertions.push("text position array index does not match");
+  if (!samestuff(expectedResults, position)) {
+    assertions.push("unexpected results found.");
   }
 
   return assertions;
@@ -160,6 +177,12 @@ const incrementTextPositionTooFar = () => {
 
 const decrementTextPosition = () => {
   const assertions = [];
+
+  const expectedResults = {
+    arrayIndex: 0,
+    stringIndex: 3,
+  };
+
   const structureRender = testTextInterpolator`hello`;
   const arrayLength = structureRender.templateArray.length - 1;
   const stringLength = structureRender.templateArray[arrayLength].length - 1;
@@ -169,11 +192,9 @@ const decrementTextPosition = () => {
   });
 
   decrement(structureRender, position);
-  if (position.stringIndex !== 3) {
-    assertions.push("text position string index does not match");
-  }
-  if (position.arrayIndex !== 0) {
-    assertions.push("text position array index does not match");
+
+  if (!samestuff(expectedResults, position)) {
+    assertions.push("unexpected results found.");
   }
 
   return assertions;
@@ -181,6 +202,12 @@ const decrementTextPosition = () => {
 
 const decrementMultiTextPosition = () => {
   const assertions = [];
+
+  const expectedResults = {
+    arrayIndex: 0,
+    stringIndex: 1,
+  };
+
   const structureRender = testTextInterpolator`hey${"hello"}bro!`;
   const arrayLength = structureRender.templateArray.length - 1;
   const stringLength = structureRender.templateArray[arrayLength].length - 1;
@@ -194,11 +221,8 @@ const decrementMultiTextPosition = () => {
   decrement(structureRender, position);
   decrement(structureRender, position);
 
-  if (position.stringIndex !== 1) {
-    assertions.push("text position string index does not match");
-  }
-  if (position.arrayIndex !== 0) {
-    assertions.push("text position array index does not match");
+  if (!samestuff(expectedResults, position)) {
+    assertions.push("unexpected results found.");
   }
 
   return assertions;
@@ -206,6 +230,12 @@ const decrementMultiTextPosition = () => {
 
 const decrementEmptyTextPosition = () => {
   const assertions = [];
+
+  const expectedResults = {
+    arrayIndex: 0,
+    stringIndex: 0,
+  };
+
   const structureRender = testTextInterpolator`${"hey"}${"world"}${"!!"}`;
   const arrayLength = structureRender.templateArray.length - 1;
   const stringLength = structureRender.templateArray[arrayLength].length - 1;
@@ -222,11 +252,8 @@ const decrementEmptyTextPosition = () => {
     assertions.push("should not return after traversed");
   }
 
-  if (position.stringIndex !== 0) {
-    assertions.push("text position string index does not match");
-  }
-  if (position.arrayIndex !== 0) {
-    assertions.push("text position array index does not match");
+  if (!samestuff(expectedResults, position)) {
+    assertions.push("unexpected results found.");
   }
 
   return assertions;
@@ -234,6 +261,12 @@ const decrementEmptyTextPosition = () => {
 
 const decrementTextPositionTooFar = () => {
   const assertions = [];
+
+  const expectedResults = {
+    arrayIndex: 0,
+    stringIndex: 0,
+  };
+
   const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
   const position: Position = create();
 
@@ -244,11 +277,8 @@ const decrementTextPositionTooFar = () => {
     safety += 1;
   }
 
-  if (position.stringIndex !== 0) {
-    assertions.push("text position string index does not match");
-  }
-  if (position.arrayIndex !== 0) {
-    assertions.push("text position array index does not match");
+  if (!samestuff(expectedResults, position)) {
+    assertions.push("unexpected results found.");
   }
 
   return assertions;

@@ -16,6 +16,18 @@ type BuildStructure = <N, A, P, R>(
   params: BuildStructureParams<N, A, P, R>
 ) => RenderResults<N, A>;
 
+// we need an injection map and a sibling map
+// interface SiblingMap {
+//   node: HTMLElement;
+//   children: SiblingMap[];
+// }
+
+// interface InjectionMap {
+//   kind: "ATTRIBUTE_INJECTION";
+//   params: { attribute: "checked"; value: true };
+// }
+
+//
 const buildStructure: BuildStructure = ({ hooks, structureRef, params }) => {
   // lets start building stuff
 

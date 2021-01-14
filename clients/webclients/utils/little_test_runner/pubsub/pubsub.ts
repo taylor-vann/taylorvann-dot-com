@@ -1,20 +1,20 @@
 // brian taylor vann
 
-// SubPub
+// PubSub
 // Dispatch a series of callbacks
 
 type RecycledStubs = Array<number>;
 type Subscription<T> = (params: T) => void;
 type SubsctiptionStore<T> = { [key: string]: Subscription<T> | undefined };
 
-class SubPub<T> {
+class PubSub<T> {
   private stub = 0;
   private recycledStubs: RecycledStubs = [];
   private subscriptions: SubsctiptionStore<T> = {};
 
   private getStub(): number {
     const stub = this.recycledStubs.pop();
-    if (stub) {
+    if (stub !== undefined) {
       return stub;
     }
 
@@ -30,8 +30,10 @@ class SubPub<T> {
   }
 
   unsubscribe(stub: number): void {
-    this.subscriptions[stub] = undefined;
-    this.recycledStubs.push(stub);
+    if (this.subscriptions[stub] != undefined) {
+      this.subscriptions[stub] = undefined;
+      this.recycledStubs.push(stub);
+    }
   }
 
   broadcast(params: T): void {
@@ -44,4 +46,4 @@ class SubPub<T> {
   }
 }
 
-export { Subscription, SubPub };
+export { Subscription, PubSub };
