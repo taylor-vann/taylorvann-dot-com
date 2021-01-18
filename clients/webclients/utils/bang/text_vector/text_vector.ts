@@ -1,4 +1,4 @@
-import { StructureRender } from "../type_flyweight/structure";
+import { Template } from "../type_flyweight/template";
 import { Position, Vector } from "../type_flyweight/text_vector";
 import {
   copy as copyPosition,
@@ -7,23 +7,30 @@ import {
 } from "../text_position/text_position";
 
 type Create = (position?: Position) => Vector;
+
 type CreateFollowingVector = <A>(
-  template: StructureRender<A>,
+  template: Template<A>,
   vector: Vector
 ) => Vector | undefined;
 
 type Copy = (vector: Vector) => Vector;
+
 type GetTagetChar = <A>(
-  template: StructureRender<A>,
+  template: Template<A>,
   vector: Vector
 ) => string | undefined;
 
 type Increment = <A>(
-  template: StructureRender<A>,
+  template: Template<A>,
   vector: Vector
 ) => Vector | undefined;
 
 type HasOriginEclipsedTaraget = (vector: Vector) => boolean;
+
+type GetTextFromVector = <A>(
+  template: Template<A>,
+  vector: Vector
+) => string | void;
 
 const DEFAULT_POSITION: Position = {
   arrayIndex: 0,
@@ -107,6 +114,52 @@ const hasOriginEclipsedTaraget: HasOriginEclipsedTaraget = (vector) => {
   return false;
 };
 
+const getText: GetTextFromVector = (template, vector) => {
+  if (hasOriginEclipsedTaraget(vector)) {
+    return;
+  }
+
+  // edge case, only one array length
+  if (vector.target.arrayIndex === vector.origin.arrayIndex) {
+    const distance = vector.target.stringIndex - vector.origin.stringIndex + 1;
+    const templateText = template.templateArray[vector.origin.arrayIndex];
+    const copiedText = templateText.substr(vector.origin.stringIndex, distance);
+
+    return copiedText;
+  }
+
+  // otherwise, stack and arrayy
+  let texts: string[] = [];
+
+  // get head text
+  let templateText = template.templateArray[vector.origin.arrayIndex];
+  if (templateText === undefined) {
+    return;
+  }
+  let templateTextIndex = vector.origin.stringIndex;
+  let distance = templateText.length - templateTextIndex;
+  let copiedText = templateText.substr(templateTextIndex, distance);
+  texts.push(copiedText);
+
+  // get in between
+  let tail = vector.origin.arrayIndex + 1;
+  while (tail < vector.target.arrayIndex) {
+    texts.push(template.templateArray[tail]);
+    tail += 1;
+  }
+
+  // get tail text
+  templateText = template.templateArray[vector.target.arrayIndex];
+  if (templateText === undefined) {
+    return;
+  }
+  distance = vector.target.stringIndex + 1;
+  copiedText = templateText.substr(0, distance);
+  texts.push(copiedText);
+
+  return texts.join("");
+};
+
 export {
   Vector,
   copy,
@@ -116,6 +169,7 @@ export {
   decrementTarget,
   incrementOrigin,
   incrementTarget,
+  getText,
   getTextFromTarget,
   hasOriginEclipsedTaraget,
 };

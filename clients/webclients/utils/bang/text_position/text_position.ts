@@ -1,17 +1,17 @@
 import { samestuff } from "../../little_test_runner/samestuff/samestuff";
-import { StructureRender } from "../type_flyweight/structure";
+import { Template } from "../type_flyweight/template";
 import { Position } from "../type_flyweight/text_vector";
 
 type Create = (position?: Position) => Position;
 type Copy = (position: Position) => Position;
 
 type Increment = <A>(
-  template: StructureRender<A>,
+  template: Template<A>,
   position: Position
 ) => Position | undefined;
 
 type GetCharAtPosition = <A>(
-  template: StructureRender<A>,
+  template: Template<A>,
   position: Position
 ) => string | undefined;
 

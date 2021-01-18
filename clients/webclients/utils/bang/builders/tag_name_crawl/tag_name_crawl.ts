@@ -1,8 +1,7 @@
 // brian taylor vann
 // tag name crawl
 
-import { samestuff } from "../../../little_test_runner/samestuff/samestuff";
-import { StructureRender } from "../../type_flyweight/structure";
+import { Template } from "../../type_flyweight/template";
 import { Vector } from "../../type_flyweight/text_vector";
 
 import {
@@ -14,10 +13,7 @@ import {
 
 import { getCharAtPosition } from "../../text_position/text_position";
 
-const crawlForTagName = <A>(
-  template: StructureRender<A>,
-  innerXmlBounds: Vector
-) => {
+const crawlForTagName = <A>(template: Template<A>, innerXmlBounds: Vector) => {
   const tagVector: Vector = copy(innerXmlBounds);
   let positionChar = getCharAtPosition(template, tagVector.origin);
   if (positionChar === undefined || positionChar === " ") {

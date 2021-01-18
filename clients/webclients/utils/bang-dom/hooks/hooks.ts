@@ -2,29 +2,66 @@
 
 import {
   CreateNode,
-  CreateContentNode,
-  SetDescendant,
+  CreateTextNode,
+  // SetDescendant,
   RemoveDescendant,
   SetAttribute,
-  SetSiblings,
-  RemoveSiblings,
-  InterfaceHooks,
-} from "../../bang/interface_hooks/interface_hooks";
+  SetAttributeParams,
+  // SetSiblings,
+  // RemoveSiblings,
+  Hooks,
+} from "../../bang/hooks/hooks";
 
-type DocumentNode = Text | Element | Node | HTMLElement;
-type AttributeKinds = boolean | string | undefined;
+type DocumentNode = Text | HTMLElement;
+type AttributeKinds =
+  | EventListenerOrEventListenerObject
+  | boolean
+  | string
+  | undefined;
 
-const createNode: CreateNode<DocumentNode> = (tag) => {
+const createNode = (tag: string) => {
   return document.createElement(tag);
 };
 
-const createContentNode: CreateContentNode<DocumentNode> = (content) => {
+const createTextNode = (content: string) => {
   return document.createTextNode(content);
 };
 
-const setDescendant: SetDescendant<DocumentNode> = (element, descendant) => {
-  return element.appendChild(descendant);
+const setAttribute: SetAttribute<DocumentNode, AttributeKinds> = ({
+  node,
+  attribute,
+  value,
+}: SetAttributeParams<DocumentNode, AttributeKinds>) => {
+  // undefined values
+  if (value === undefined) {
+    // ? should be removed
+    if (node instanceof HTMLElement) {
+      node.removeAttribute(attribute);
+    }
+
+    // @events should be removed
+    if (typeof value === "function") {
+      node.removeEventListener(attribute, value);
+    }
+    return node;
+  }
+
+  // @ add an event listener
+  if (value instanceof Function) {
+    node.addEventListener(attribute, value);
+  }
+
+  // ?
+  if (node instanceof HTMLElement) {
+    node.setAttribute(attribute, value.toString());
+  }
+
+  return node;
 };
+
+// const setDescendant: SetDescendant<DocumentNode> = (element, descendant) => {
+//   return element.appendChild(descendant);
+// };
 
 const removeDescendant: RemoveDescendant<DocumentNode> = (
   element,
@@ -33,48 +70,32 @@ const removeDescendant: RemoveDescendant<DocumentNode> = (
   return element.removeChild(descendant);
 };
 
-const setSiblings: SetSiblings<DocumentNode> = ({
-  siblings,
-  parent,
-  leftSibling,
-  rightSibling,
-}) => {
-  return [document.createTextNode("test")];
-};
+// const setSiblings: SetSiblings<DocumentNode> = ({
+//   siblings,
+//   parent,
+//   leftSibling,
+//   rightSibling,
+// }) => {
+//   return [document.createTextNode("test")];
+// };
 
-const removeSiblings: RemoveSiblings<DocumentNode> = ({
-  siblings,
-  parent,
-  leftSibling,
-  rightSibling,
-}) => {
-  return;
-};
+// const removeSiblings: RemoveSiblings<DocumentNode> = ({
+//   siblings,
+//   parent,
+//   leftSibling,
+//   rightSibling,
+// }) => {
+//   return;
+// };
 
-const setAttribute: SetAttribute<DocumentNode, AttributeKinds> = ({
-  node,
-  attribute,
-  value,
-}) => {
-  if (value === undefined) {
-    return node;
-  }
-
-  if (node instanceof Element) {
-    node.setAttribute(attribute, value.toString());
-  }
-
-  return node;
-};
-
-const hooks: InterfaceHooks<DocumentNode, AttributeKinds> = {
-  setAttribute,
+const hooks: Hooks<DocumentNode, AttributeKinds> = {
   createNode,
-  createContentNode,
-  setDescendant,
-  removeDescendant,
-  setSiblings,
-  removeSiblings,
+  createTextNode,
+  setAttribute,
+  // setDescendant,
+  // removeDescendant,
+  // setSiblings,
+  // removeSiblings,
 };
 
 export { DocumentNode, AttributeKinds, hooks };

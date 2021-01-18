@@ -6,7 +6,7 @@ import { unitTestBuildSkeleton } from "./builders/build_skeleton/build_skeleton.
 import { unitTestBuildIntegrals } from "./builders/build_integrals/build_integrals.test";
 import { unitTestTextPosition } from "./text_position/text_position.test";
 import { unitTestTextVector } from "./text_vector/text_vector.test";
-import { unitTestBuildStructure } from "./builders/build_structure/build_structure.test";
+import { unitTestBuildRender } from "./builders/build_render/build_render.test";
 import { unitTestTagNameCrawl } from "./builders/tag_name_crawl/tag_name_crawl.test";
 import { unitTestAttributeCrawl } from "./builders/attribute_crawl/attribute_crawl.test";
 

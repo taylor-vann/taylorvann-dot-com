@@ -5,14 +5,15 @@ import {
   createFollowingVector,
   incrementTarget,
   hasOriginEclipsedTaraget,
+  getText,
 } from "./text_vector";
 import { Vector } from "../type_flyweight/text_vector";
-import { StructureRender } from "../type_flyweight/structure";
+import { Template } from "../type_flyweight/template";
 
 type TextTextInterpolator = <A>(
   templateArray: TemplateStringsArray,
   ...injections: A[]
-) => StructureRender<A>;
+) => Template<A>;
 
 const testTextInterpolator: TextTextInterpolator = (
   templateArray,
@@ -236,6 +237,81 @@ const testHasOriginNotEclipsedTaraget = () => {
   return assertions;
 };
 
+const testGetTextReturnsActualText = () => {
+  const expectedResult = "world";
+  const assertions = [];
+
+  const structureRender = testTextInterpolator`hey world, how are you?`;
+  const vector: Vector = {
+    origin: {
+      arrayIndex: 0,
+      stringIndex: 4,
+    },
+    target: {
+      arrayIndex: 0,
+      stringIndex: 8,
+    },
+  };
+
+  const results = getText(structureRender, vector);
+
+  if (expectedResult !== results) {
+    assertions.push("text should say 'world'");
+  }
+
+  return assertions;
+};
+
+const testGetTextOverTemplate = () => {
+  const expectedResult = "how  you";
+  const assertions = [];
+
+  const structureRender = testTextInterpolator`hey ${"world"}, how ${"are"} you?`;
+  const vector: Vector = {
+    origin: {
+      arrayIndex: 1,
+      stringIndex: 2,
+    },
+    target: {
+      arrayIndex: 2,
+      stringIndex: 3,
+    },
+  };
+
+  const results = getText(structureRender, vector);
+
+  if (expectedResult !== results) {
+    assertions.push("text should say 'world'");
+  }
+
+  return assertions;
+};
+
+const testGetTextOverChonkyTemplate = () => {
+  const expectedResult = "how  you  buster";
+  const assertions = [];
+
+  const structureRender = testTextInterpolator`hey ${"world"}, how ${"are"} you ${"doing"} buster?`;
+  const vector: Vector = {
+    origin: {
+      arrayIndex: 1,
+      stringIndex: 2,
+    },
+    target: {
+      arrayIndex: 3,
+      stringIndex: 6,
+    },
+  };
+
+  const results = getText(structureRender, vector);
+
+  if (expectedResult !== results) {
+    assertions.push("text should say 'world'");
+  }
+
+  return assertions;
+};
+
 const tests = [
   createTextVector,
   createTextVectorFromPosition,
@@ -247,6 +323,9 @@ const tests = [
   incrementTextVectorTooFar,
   testHasOriginEclipsedTaraget,
   testHasOriginNotEclipsedTaraget,
+  testGetTextReturnsActualText,
+  testGetTextOverTemplate,
+  testGetTextOverChonkyTemplate,
 ];
 
 const unitTestTextVector = {

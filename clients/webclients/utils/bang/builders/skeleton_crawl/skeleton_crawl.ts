@@ -1,7 +1,7 @@
 // brian taylor vann
 
 import { routers } from "../skeleton_routers/skeleton_routers";
-import { StructureRender } from "../../type_flyweight/structure";
+import { Template } from "../../type_flyweight/template";
 import { CrawlResults, CrawlStatus } from "../../type_flyweight/crawl";
 import { Position, Vector } from "../../type_flyweight/text_vector";
 import {
@@ -15,16 +15,13 @@ import {
 } from "../../text_position/text_position";
 
 type Sieve = Partial<Record<CrawlStatus, CrawlStatus>>;
-type SetNodeType = <A>(
-  template: StructureRender<A>,
-  results: CrawlResults
-) => void;
+type SetNodeType = <A>(template: Template<A>, results: CrawlResults) => void;
 type SetStartStateProperties = <A>(
-  template: StructureRender<A>,
+  template: Template<A>,
   previousCrawl?: CrawlResults
 ) => CrawlResults | undefined;
 type Crawl = <A>(
-  template: StructureRender<A>,
+  template: Template<A>,
   previousCrawl?: CrawlResults
 ) => CrawlResults | undefined;
 

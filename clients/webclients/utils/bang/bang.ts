@@ -4,26 +4,13 @@
 // N Node
 // A Attributables
 
-import { Structure } from "./type_flyweight/structure";
-import { InterfaceHooks } from "./interface_hooks/interface_hooks";
-import { ContextFactory } from "./context_factory/context_factory";
+import { Hooks } from "./hooks/hooks";
 
-interface BangBase<N, A> {
-  createContextFactory<P, R>(
-    structure: Structure<N, A, P, R>
-  ): ContextFactory<N, A, P, R>;
-}
+class Bang<N, A> {
+  private hooks: Hooks<N, A>;
 
-class Bang<N, A> implements BangBase<N, A> {
-  private hooks: InterfaceHooks<N, A>;
-
-  constructor(interfaceHooks: InterfaceHooks<N, A>) {
+  constructor(interfaceHooks: Hooks<N, A>) {
     this.hooks = interfaceHooks;
-  }
-
-  createContextFactory<P, R>(structure: Structure<N, A, P, R>) {
-    const contextFactory = new ContextFactory({ hooks: this.hooks, structure });
-    return contextFactory;
   }
 }
 

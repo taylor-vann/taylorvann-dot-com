@@ -4,37 +4,38 @@
 // N Node
 // A Attributables
 
-interface StructureRender<A> {
-  templateArray: TemplateStringsArray;
-  injections: A[];
-}
+// attribute injection
 
-interface AttributeInjection<N, A> {
-  kind: "ATTRIBUTE";
-  node: N;
-  name: string;
-  value: A;
+// content injection
+interface ContentInjectionParams<N> {
+  content: N[];
+  leftSentinel?: N;
+  rightSentinel?: N;
+  parent?: N;
 }
-interface StructureInjection<N> {
-  kind: "STRUCTURE";
-  siblings: N[];
-  parent: N;
-  left?: N;
-  right?: N;
-}
-// maybe ?? // not needed?
 interface ContentInjection<N> {
   kind: "CONTENT";
-  siblings: N[];
-  parent: N;
-  left?: N;
-  right?: N; // possibly not needed
+  params: ContentInjectionParams<N>;
 }
-type Injection<N, A> = AttributeInjection<N, A> | StructureInjection<N>;
-type Injections<N, A> = Injection<N, A>[];
-interface RenderResults<N, A> {
-  injections: Injections<N, A>;
+
+interface AttributeInjectionParams<N, A> {
+  node: N;
+  attribute: string;
+  value: A;
+}
+interface AttributeInjection<N, A> {
+  kind: "ATTRIBUTE";
+  params: AttributeInjectionParams<N, A>;
+}
+
+type Injection<N, A> = ContentInjection<N> | AttributeInjection<N, A>;
+
+// move those into injection map
+type InjectionMap<N, A> = Record<number, Injection<N, A>>;
+
+interface Render<N, A> {
+  injections: InjectionMap<N, A>;
   siblings: N[];
 }
 
-export { Injection, RenderResults, StructureRender };
+export { Render };

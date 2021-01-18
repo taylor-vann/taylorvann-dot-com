@@ -1,7 +1,7 @@
 // brian taylor vann
 // build integrals
 
-import { StructureRender } from "../../type_flyweight/structure";
+import { Template } from "../../type_flyweight/template";
 import { Vector } from "../../type_flyweight/text_vector";
 import { AttributeAction } from "../../type_flyweight/attribute_crawl";
 import {
@@ -13,12 +13,12 @@ import {
 import { getCharAtPosition } from "../../text_position/text_position";
 
 type AttributeCrawl = <A>(
-  template: StructureRender<A>,
+  template: Template<A>,
   vectorBounds: Vector
 ) => AttributeAction | undefined;
 
 type AttributeValueCrawl = <A>(
-  template: StructureRender<A>,
+  template: Template<A>,
   vectorBounds: Vector,
   AttributeAction: AttributeAction
 ) => AttributeAction | undefined;

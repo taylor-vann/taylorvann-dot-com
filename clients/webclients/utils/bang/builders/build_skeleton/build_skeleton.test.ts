@@ -1,13 +1,13 @@
 // brian taylor vann
 
 import { samestuff } from "../../../little_test_runner/samestuff/samestuff";
-import { StructureRender } from "../../type_flyweight/render";
+import { Template } from "../../type_flyweight/template";
 import { SkeletonNodes, buildSkeleton } from "./build_skeleton";
 
 type TextTextInterpolator = <A>(
   templateArray: TemplateStringsArray,
   ...injections: A[]
-) => StructureRender<A>;
+) => Template<A>;
 
 const title = "build_skeleton";
 

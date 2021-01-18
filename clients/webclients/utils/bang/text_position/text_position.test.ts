@@ -7,12 +7,12 @@ import {
   getCharAtPosition,
 } from "./text_position";
 import { Position } from "../type_flyweight/text_vector";
-import { StructureRender } from "../type_flyweight/structure";
+import { Template } from "../type_flyweight/template";
 
 type TestTextInterpolator = <A>(
   templateArray: TemplateStringsArray,
   ...injections: A[]
-) => StructureRender<A>;
+) => Template<A>;
 
 const testTextInterpolator: TestTextInterpolator = (
   templateArray,

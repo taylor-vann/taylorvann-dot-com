@@ -1,7 +1,7 @@
 // brian taylor vann
 // build integrals
 
-import { StructureRender } from "../../type_flyweight/structure";
+import { Template } from "../../type_flyweight/template";
 import { SkeletonNodes, CrawlResults } from "../../type_flyweight/crawl";
 
 import { Integrals, CloseNode } from "../../type_flyweight/integrals";
@@ -21,19 +21,19 @@ import { crawlForAttribute } from "../attribute_crawl/attribute_crawl";
 import { ContentCrawlAction } from "../../type_flyweight/content_crawl";
 
 interface BuildIntegralsParams<A> {
-  template: StructureRender<A>;
+  template: Template<A>;
   skeleton: SkeletonNodes;
 }
 type BuildIntegrals = <A>(params: BuildIntegralsParams<A>) => Integrals;
 
 type VectorCrawl = <A>(
-  template: StructureRender<A>,
+  template: Template<A>,
   innerXmlBounds: Vector
 ) => Vector | undefined;
 
 interface AppendNodeParams<A> {
   integrals: Integrals;
-  template: StructureRender<A>;
+  template: Template<A>;
   chunk: CrawlResults;
 }
 type AppendNodeIntegrals = <A>(
@@ -42,7 +42,7 @@ type AppendNodeIntegrals = <A>(
 
 interface AppendNodeAttributeParams<A> {
   integrals: Integrals;
-  template: StructureRender<A>;
+  template: Template<A>;
   chunk: Vector;
 }
 type AppendNodeAttributeIntegrals = <A>(

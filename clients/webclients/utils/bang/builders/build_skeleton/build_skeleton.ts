@@ -2,12 +2,8 @@
 
 import { crawl } from "../skeleton_crawl/skeleton_crawl";
 import { CrawlResults, SkeletonNodes } from "../../type_flyweight/crawl";
-import { StructureRender } from "../../type_flyweight/render";
+import { Template } from "../../type_flyweight/template";
 import { copy, decrement, increment } from "../../text_position/text_position";
-import {
-  incrementOrigin,
-  incrementTarget,
-} from "../../text_vector/text_vector";
 
 type NodeType =
   | "OPEN_NODE"
@@ -17,7 +13,7 @@ type NodeType =
 
 type CreateDefaultVector = () => CrawlResults;
 interface BuildMissingStringNodeParams<A> {
-  template: StructureRender<A>;
+  template: Template<A>;
   currentCrawl: CrawlResults;
   previousCrawl?: CrawlResults;
 }
@@ -27,7 +23,7 @@ type BuildMissingStringNode = <A>(
 
 type BuildSkeletonSieve = Record<string, NodeType>;
 
-type BuildSkeleton = <A>(template: StructureRender<A>) => SkeletonNodes;
+type BuildSkeleton = <A>(template: Template<A>) => SkeletonNodes;
 
 const MAX_DEPTH = 128;
 
