@@ -4,7 +4,7 @@
 // N Node
 // A Attributables
 
-import { Hooks } from "./hooks/hooks";
+import { Hooks } from "./type_flyweight/hooks";
 
 class Bang<N, A> {
   private hooks: Hooks<N, A>;

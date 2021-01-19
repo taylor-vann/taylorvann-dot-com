@@ -6,6 +6,9 @@
 
 // attribute injection
 
+import { Template } from "./template";
+import { Hooks } from "./hooks";
+
 // content injection
 interface ContentInjectionParams<N> {
   content: N[];
@@ -31,11 +34,19 @@ interface AttributeInjection<N, A> {
 type Injection<N, A> = ContentInjection<N> | AttributeInjection<N, A>;
 
 // move those into injection map
-type InjectionMap<N, A> = Record<number, Injection<N, A>>;
+type InjectionMap<N, A> = Record<string, Injection<N, A>>;
 
 interface Render<N, A> {
   injections: InjectionMap<N, A>;
   siblings: N[];
 }
 
-export { Render };
+interface RenderStructure<N, A> {
+  hooks: Hooks<N, A>;
+  template: Template<A>;
+  render: Render<N, A>;
+  siblings: N[];
+  stack: N[];
+}
+
+export { Render, RenderStructure };

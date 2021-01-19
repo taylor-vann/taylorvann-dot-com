@@ -6,10 +6,8 @@
 import {
   ImplicitAttributeParams,
   ImplicitAttributeAction,
-  ExplicitAttributeParams,
   ExplicitAttributeAction,
-  InjectedAttributeParams,
-  InjectedExplicitAttributeAction,
+  InjectedAttributeAction,
   AttributeAction,
 } from "./attribute_crawl";
 
@@ -19,7 +17,7 @@ import { Vector } from "./text_vector";
 interface NodeParams {
   tagNameVector: Vector;
 }
-interface CreateNode {
+interface CreateNodeAction {
   action: "CREATE_NODE";
   params: NodeParams;
 }
@@ -27,30 +25,34 @@ interface CreateSelfClosingNode {
   action: "CREATE_SELF_CLOSING_NODE";
   params: NodeParams;
 }
-interface CloseNode {
+interface CloseNodeAction {
   action: "CLOSE_NODE";
   params: NodeParams;
 }
+type CreateContentAction = ContentCrawlAction;
 
 type IntegralAction =
-  | CreateNode
+  | CreateNodeAction
   | CreateSelfClosingNode
   | ExplicitAttributeAction
-  | ImplicitAttributeParams
-  | InjectedAttributeParams
-  | CloseNode
+  | CloseNodeAction
   | AttributeAction
-  | ContentCrawlAction;
+  | CreateContentAction
+  | ImplicitAttributeAction
+  | InjectedAttributeAction;
 
 type Integrals = IntegralAction[];
 
 export {
-  IntegralAction,
-  Integrals,
-  CreateNode,
+  AttributeAction,
+  CloseNodeAction,
+  CreateContentAction,
+  CreateNodeAction,
   CreateSelfClosingNode,
   ExplicitAttributeAction,
+  ImplicitAttributeAction,
   ImplicitAttributeParams,
-  InjectedAttributeParams,
-  CloseNode,
+  InjectedAttributeAction,
+  IntegralAction,
+  Integrals,
 };

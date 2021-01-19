@@ -22,7 +22,7 @@ interface InjectedAttributeParams {
   valueVector: Vector;
   injectionID: number;
 }
-type InjectedExplicitAttributeAction = {
+type InjectedAttributeAction = {
   action: "APPEND_INJECTED_ATTRIBUTE";
   params: InjectedAttributeParams;
 };
@@ -30,7 +30,7 @@ type InjectedExplicitAttributeAction = {
 type AttributeAction =
   | ImplicitAttributeAction
   | ExplicitAttributeAction
-  | InjectedExplicitAttributeAction;
+  | InjectedAttributeAction;
 
 export {
   ImplicitAttributeParams,
@@ -38,6 +38,6 @@ export {
   ExplicitAttributeParams,
   ExplicitAttributeAction,
   InjectedAttributeParams,
-  InjectedExplicitAttributeAction,
+  InjectedAttributeAction,
   AttributeAction,
 };

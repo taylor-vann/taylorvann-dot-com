@@ -1,7 +1,7 @@
 // brian taylor vann
 // build structure
 
-const title = "build_structure";
+const title = "build_render";
 const runTestsAsynchronously = true;
 
 const defaultFunc = () => {

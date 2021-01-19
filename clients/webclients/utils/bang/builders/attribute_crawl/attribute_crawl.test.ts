@@ -7,7 +7,7 @@ import { create, incrementTarget } from "../../text_vector/text_vector";
 import { crawlForAttribute } from "./attribute_crawl";
 import {
   ExplicitAttributeAction,
-  InjectedExplicitAttributeAction,
+  InjectedAttributeAction,
 } from "../../type_flyweight/attribute_crawl";
 
 type TextTextInterpolator = <A>(
@@ -334,7 +334,7 @@ const validExplicitStringWithTrailingSpaces = () => {
 const injectedString = () => {
   const assertions = [];
 
-  const expectedResults: InjectedExplicitAttributeAction = {
+  const expectedResults: InjectedAttributeAction = {
     action: "APPEND_INJECTED_ATTRIBUTE",
     params: {
       attributeVector: {

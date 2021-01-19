@@ -4,7 +4,7 @@
 import { Template } from "../../type_flyweight/template";
 import { SkeletonNodes, CrawlResults } from "../../type_flyweight/crawl";
 
-import { Integrals, CloseNode } from "../../type_flyweight/integrals";
+import { Integrals, CloseNodeAction } from "../../type_flyweight/integrals";
 import { Vector } from "../../type_flyweight/text_vector";
 
 import {
@@ -239,7 +239,7 @@ const appendCloseNodeIntegrals: AppendNodeIntegrals = ({
   // add tag name to
   tagNameVector.origin = { ...innerXmlBounds.origin };
 
-  const integralAction: CloseNode = {
+  const integralAction: CloseNodeAction = {
     action: "CLOSE_NODE",
     params: { tagNameVector },
   };

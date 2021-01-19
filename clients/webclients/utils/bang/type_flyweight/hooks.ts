@@ -1,8 +1,5 @@
 // brian taylor vann
-// interface hooks
-
-// N Node
-// A Attributables
+// hooks
 
 interface SetAttributeParams<N, A> {
   node: N;
@@ -13,29 +10,21 @@ type SetAttribute<N, A> = (params: SetAttributeParams<N, A>) => N;
 
 type CreateNode<N> = (tag: string) => N;
 type CreateTextNode<N> = (content: string) => N;
-type RemoveDescendant<N> = (element: N, descendant: N) => N;
 
-// we need
-type AppendDescendent<N> = (element: N, descendant: N) => N;
-// type RemoveDescendant
-
-// set attribute is a problem
-// Use this to create new Bang Interfaces
-
-//
-
-// we eneed a demo / test object for builds
-
-interface TestNode {
-  tagname: string;
-  attributes: Record<string, string>;
-  children: TestNode[];
+interface DescendantParams<N> {
+  descendant: N;
+  parentNode?: N;
+  leftNode?: N;
 }
+type AppendDescendant<N> = (params: DescendantParams<N>) => N;
+type RemoveDescendant<N> = (parent: N, descendant: N) => N;
 
 interface Hooks<N, A> {
   setAttribute: SetAttribute<N, A>;
   createNode: CreateNode<N>;
   createTextNode: CreateTextNode<N>;
+  appendDescendant: AppendDescendant<N>;
+  removeDescendant: RemoveDescendant<N>;
 }
 
 export {
@@ -43,6 +32,7 @@ export {
   SetAttribute,
   CreateNode,
   CreateTextNode,
+  AppendDescendant,
   RemoveDescendant,
   Hooks,
 };

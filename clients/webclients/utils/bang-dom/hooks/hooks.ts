@@ -4,13 +4,14 @@ import {
   CreateNode,
   CreateTextNode,
   // SetDescendant,
+  AppendDescendant,
   RemoveDescendant,
   SetAttribute,
   SetAttributeParams,
   // SetSiblings,
   // RemoveSiblings,
   Hooks,
-} from "../../bang/hooks/hooks";
+} from "../../bang/type_flyweight/hooks";
 
 type DocumentNode = Text | HTMLElement;
 type AttributeKinds =
@@ -63,11 +64,25 @@ const setAttribute: SetAttribute<DocumentNode, AttributeKinds> = ({
 //   return element.appendChild(descendant);
 // };
 
+const appendDescendant: AppendDescendant<DocumentNode> = ({
+  descendant,
+  parentNode,
+  leftNode,
+}) => {
+  if (parentNode !== undefined) {
+    parentNode.removeChild(descendant);
+  }
+
+  return descendant;
+};
+
 const removeDescendant: RemoveDescendant<DocumentNode> = (
   element,
   descendant
 ) => {
-  return element.removeChild(descendant);
+  element.removeChild(descendant);
+
+  return descendant;
 };
 
 // const setSiblings: SetSiblings<DocumentNode> = ({
@@ -92,8 +107,8 @@ const hooks: Hooks<DocumentNode, AttributeKinds> = {
   createNode,
   createTextNode,
   setAttribute,
-  // setDescendant,
-  // removeDescendant,
+  appendDescendant,
+  removeDescendant,
   // setSiblings,
   // removeSiblings,
 };
