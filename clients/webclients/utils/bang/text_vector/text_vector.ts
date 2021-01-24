@@ -30,7 +30,7 @@ type HasOriginEclipsedTaraget = (vector: Vector) => boolean;
 type GetTextFromVector = <A>(
   template: Template<A>,
   vector: Vector
-) => string | void;
+) => string | undefined;
 
 const DEFAULT_POSITION: Position = {
   arrayIndex: 0,

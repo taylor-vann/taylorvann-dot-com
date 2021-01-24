@@ -1,11 +1,13 @@
 // brian taylor vann
 // hooks
 
+type AttributeValue<A> = A | string | boolean | undefined;
 interface SetAttributeParams<N, A> {
   node: N;
   attribute: string;
-  value: A;
+  value: AttributeValue<A>;
 }
+
 type SetAttribute<N, A> = (params: SetAttributeParams<N, A>) => N;
 
 type CreateNode<N> = (tag: string) => N;
@@ -28,6 +30,7 @@ interface Hooks<N, A> {
 }
 
 export {
+  AttributeValue,
   SetAttributeParams,
   SetAttribute,
   CreateNode,

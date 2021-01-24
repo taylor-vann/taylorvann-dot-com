@@ -11,14 +11,23 @@ import { Hooks } from "./hooks";
 
 // content injection
 interface ContentInjectionParams<N> {
-  content: N[];
-  leftSentinel?: N;
-  rightSentinel?: N;
+  textNode: N;
+  left?: N;
   parent?: N;
 }
 interface ContentInjection<N> {
   kind: "CONTENT";
   params: ContentInjectionParams<N>;
+}
+
+interface ContextInjectionParams<N> {
+  siblings: N[];
+  left?: N;
+  parent?: N;
+}
+interface ContextInjection<N> {
+  kind: "CONTEXT";
+  params: ContextInjectionParams<N>;
 }
 
 interface AttributeInjectionParams<N, A> {
@@ -31,22 +40,34 @@ interface AttributeInjection<N, A> {
   params: AttributeInjectionParams<N, A>;
 }
 
-type Injection<N, A> = ContentInjection<N> | AttributeInjection<N, A>;
+type Injection<N, A> =
+  | ContentInjection<N>
+  | ContextInjection<N>
+  | AttributeInjection<N, A>;
+
+interface ElementNode<N> {
+  kind: "NODE";
+  tagName: string;
+  node: N;
+  selfClosing: boolean;
+}
+
+interface TextNode<N> {
+  kind: "TEXT";
+  node: N;
+}
+
+type NodeBit<N> = ElementNode<N> | TextNode<N>;
 
 // move those into injection map
-type InjectionMap<N, A> = Record<string, Injection<N, A>>;
-
-interface Render<N, A> {
-  injections: InjectionMap<N, A>;
-  siblings: N[];
-}
+type InjectionMap<N, A> = Record<number, Injection<N, A>>;
 
 interface RenderStructure<N, A> {
   hooks: Hooks<N, A>;
   template: Template<A>;
-  render: Render<N, A>;
+  injections: InjectionMap<N, A>;
   siblings: N[];
-  stack: N[];
+  stack: NodeBit<N>[];
 }
 
-export { Render, RenderStructure };
+export { RenderStructure, Injection, NodeBit, ElementNode, TextNode };

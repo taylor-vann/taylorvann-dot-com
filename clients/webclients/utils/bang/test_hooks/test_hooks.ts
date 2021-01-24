@@ -1,29 +1,11 @@
 import { Hooks } from "../type_flyweight/hooks";
+import { TestNode, TestAttributes } from "./test_element";
 
-type Attributes = string | Function;
+// these names need to change
 
-interface Element {
-  kind: "ELEMENT";
-  tagname: string;
-  attributes: Record<string, Attributes>;
-  children?: Node;
-  parent?: Element;
-  left?: Node;
-  right?: Node;
-}
-interface Text {
-  kind: "TEXT";
-  text: string;
-  parent?: Element;
-  left?: Node;
-  right?: Node;
-}
-
-type Node = Element | Text;
-
-const TestHooks: Hooks<Node, Attributes> = {
+const TestHooks: Hooks<TestNode, TestAttributes> = {
   createNode: (tagname) => {
-    return { kind: "ELEMENT", tagname, attributes: {} };
+    return { kind: "ELEMENT", attributes: {}, tagname };
   },
   createTextNode: (text) => {
     return { kind: "TEXT", text };
