@@ -86,17 +86,16 @@ const implicitString = () => {
   const assertions = [];
 
   const expectedResults = {
-    action: "APPEND_IMPLICIT_ATTRIBUTE",
-    params: {
-      attributeVector: {
-        origin: {
-          arrayIndex: 0,
-          stringIndex: 0,
-        },
-        target: {
-          arrayIndex: 0,
-          stringIndex: 6,
-        },
+    kind: "IMPLICIT_ATTRIBUTE",
+
+    attributeVector: {
+      origin: {
+        arrayIndex: 0,
+        stringIndex: 0,
+      },
+      target: {
+        arrayIndex: 0,
+        stringIndex: 6,
       },
     },
   };
@@ -122,17 +121,16 @@ const implicitStringWithTrailingSpaces = () => {
   const assertions = [];
 
   const expectedResults = {
-    action: "APPEND_IMPLICIT_ATTRIBUTE",
-    params: {
-      attributeVector: {
-        origin: {
-          arrayIndex: 0,
-          stringIndex: 0,
-        },
-        target: {
-          arrayIndex: 0,
-          stringIndex: 6,
-        },
+    kind: "IMPLICIT_ATTRIBUTE",
+
+    attributeVector: {
+      origin: {
+        arrayIndex: 0,
+        stringIndex: 0,
+      },
+      target: {
+        arrayIndex: 0,
+        stringIndex: 6,
       },
     },
   };
@@ -197,27 +195,25 @@ const emptyExplicitString = () => {
   const assertions = [];
 
   const expectedResults: ExplicitAttributeAction = {
-    action: "APPEND_EXPLICIT_ATTRIBUTE",
-    params: {
-      attributeVector: {
-        origin: {
-          arrayIndex: 0,
-          stringIndex: 0,
-        },
-        target: {
-          arrayIndex: 0,
-          stringIndex: 6,
-        },
+    kind: "EXPLICIT_ATTRIBUTE",
+    attributeVector: {
+      origin: {
+        arrayIndex: 0,
+        stringIndex: 0,
       },
-      valueVector: {
-        origin: {
-          arrayIndex: 0,
-          stringIndex: 8,
-        },
-        target: {
-          arrayIndex: 0,
-          stringIndex: 9,
-        },
+      target: {
+        arrayIndex: 0,
+        stringIndex: 6,
+      },
+    },
+    valueVector: {
+      origin: {
+        arrayIndex: 0,
+        stringIndex: 8,
+      },
+      target: {
+        arrayIndex: 0,
+        stringIndex: 9,
       },
     },
   };
@@ -243,27 +239,26 @@ const validExplicitString = () => {
   const assertions = [];
 
   const expectedResults: ExplicitAttributeAction = {
-    action: "APPEND_EXPLICIT_ATTRIBUTE",
-    params: {
-      attributeVector: {
-        origin: {
-          arrayIndex: 0,
-          stringIndex: 0,
-        },
-        target: {
-          arrayIndex: 0,
-          stringIndex: 6,
-        },
+    kind: "EXPLICIT_ATTRIBUTE",
+
+    attributeVector: {
+      origin: {
+        arrayIndex: 0,
+        stringIndex: 0,
       },
-      valueVector: {
-        origin: {
-          arrayIndex: 0,
-          stringIndex: 8,
-        },
-        target: {
-          arrayIndex: 0,
-          stringIndex: 16,
-        },
+      target: {
+        arrayIndex: 0,
+        stringIndex: 6,
+      },
+    },
+    valueVector: {
+      origin: {
+        arrayIndex: 0,
+        stringIndex: 8,
+      },
+      target: {
+        arrayIndex: 0,
+        stringIndex: 16,
       },
     },
   };
@@ -289,27 +284,26 @@ const validExplicitStringWithTrailingSpaces = () => {
   const assertions = [];
 
   const expectedResults: ExplicitAttributeAction = {
-    action: "APPEND_EXPLICIT_ATTRIBUTE",
-    params: {
-      attributeVector: {
-        origin: {
-          arrayIndex: 0,
-          stringIndex: 0,
-        },
-        target: {
-          arrayIndex: 0,
-          stringIndex: 6,
-        },
+    kind: "EXPLICIT_ATTRIBUTE",
+
+    attributeVector: {
+      origin: {
+        arrayIndex: 0,
+        stringIndex: 0,
       },
-      valueVector: {
-        origin: {
-          arrayIndex: 0,
-          stringIndex: 8,
-        },
-        target: {
-          arrayIndex: 0,
-          stringIndex: 19,
-        },
+      target: {
+        arrayIndex: 0,
+        stringIndex: 6,
+      },
+    },
+    valueVector: {
+      origin: {
+        arrayIndex: 0,
+        stringIndex: 8,
+      },
+      target: {
+        arrayIndex: 0,
+        stringIndex: 19,
       },
     },
   };
@@ -335,30 +329,29 @@ const injectedString = () => {
   const assertions = [];
 
   const expectedResults: InjectedAttributeAction = {
-    action: "APPEND_INJECTED_ATTRIBUTE",
-    params: {
-      attributeVector: {
-        origin: {
-          arrayIndex: 0,
-          stringIndex: 0,
-        },
-        target: {
-          arrayIndex: 0,
-          stringIndex: 6,
-        },
+    kind: "INJECTED_ATTRIBUTE",
+
+    attributeVector: {
+      origin: {
+        arrayIndex: 0,
+        stringIndex: 0,
       },
-      valueVector: {
-        origin: {
-          arrayIndex: 0,
-          stringIndex: 8,
-        },
-        target: {
-          arrayIndex: 1,
-          stringIndex: 0,
-        },
+      target: {
+        arrayIndex: 0,
+        stringIndex: 6,
       },
-      injectionID: 0,
     },
+    valueVector: {
+      origin: {
+        arrayIndex: 0,
+        stringIndex: 8,
+      },
+      target: {
+        arrayIndex: 1,
+        stringIndex: 0,
+      },
+    },
+    injectionID: 0,
   };
 
   const template = testTextInterpolator`checked="${"hello"}"`;

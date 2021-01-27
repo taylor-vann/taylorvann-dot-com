@@ -20,14 +20,14 @@ type AttributeCrawl = <A>(
 type AttributeValueCrawl = <A>(
   template: Template<A>,
   vectorBounds: Vector,
-  AttributeAction: AttributeAction
+  Attributekind: AttributeAction
 ) => AttributeAction | undefined;
 
 const ATTRIBUTE_FOUND = "ATTRIBUTE_FOUND";
 const ATTRIBUTE_ASSIGNMENT = "ATTRIBUTE_ASSIGNMENT";
-const APPEND_IMPLICIT_ATTRIBUTE = "APPEND_IMPLICIT_ATTRIBUTE";
-const APPEND_EXPLICIT_ATTRIBUTE = "APPEND_EXPLICIT_ATTRIBUTE";
-const APPEND_INJECTED_ATTRIBUTE = "APPEND_INJECTED_ATTRIBUTE";
+const IMPLICIT_ATTRIBUTE = "IMPLICIT_ATTRIBUTE";
+const EXPLICIT_ATTRIBUTE = "EXPLICIT_ATTRIBUTE";
+const INJECTED_ATTRIBUTE = "INJECTED_ATTRIBUTE";
 
 const getAttributeName: AttributeCrawl = (template, vectorBounds) => {
   const attributeVector: Vector = copy(vectorBounds);
@@ -39,7 +39,7 @@ const getAttributeName: AttributeCrawl = (template, vectorBounds) => {
 
   let tagNameCrawlState = ATTRIBUTE_FOUND;
   if (positionChar === " ") {
-    tagNameCrawlState = APPEND_IMPLICIT_ATTRIBUTE;
+    tagNameCrawlState = IMPLICIT_ATTRIBUTE;
   }
   if (positionChar === "=") {
     tagNameCrawlState = ATTRIBUTE_ASSIGNMENT;
@@ -59,7 +59,7 @@ const getAttributeName: AttributeCrawl = (template, vectorBounds) => {
     }
     tagNameCrawlState = ATTRIBUTE_FOUND;
     if (positionChar === " ") {
-      tagNameCrawlState = APPEND_IMPLICIT_ATTRIBUTE;
+      tagNameCrawlState = IMPLICIT_ATTRIBUTE;
     }
     if (positionChar === "=") {
       tagNameCrawlState = ATTRIBUTE_ASSIGNMENT;
@@ -74,26 +74,27 @@ const getAttributeName: AttributeCrawl = (template, vectorBounds) => {
 
   if (tagNameCrawlState === ATTRIBUTE_FOUND) {
     return {
-      action: APPEND_IMPLICIT_ATTRIBUTE,
-      params: { attributeVector: adjustedVector },
+      kind: IMPLICIT_ATTRIBUTE,
+      attributeVector: adjustedVector,
     };
   }
 
-  if (tagNameCrawlState === APPEND_IMPLICIT_ATTRIBUTE) {
+  if (tagNameCrawlState === IMPLICIT_ATTRIBUTE) {
     if (positionChar === " ") {
       decrementTarget(template, adjustedVector);
     }
     return {
-      action: APPEND_IMPLICIT_ATTRIBUTE,
-      params: { attributeVector: adjustedVector },
+      kind: IMPLICIT_ATTRIBUTE,
+      attributeVector: adjustedVector,
     };
   }
 
   if (tagNameCrawlState === ATTRIBUTE_ASSIGNMENT) {
     decrementTarget(template, adjustedVector);
     return {
-      action: APPEND_EXPLICIT_ATTRIBUTE,
-      params: { attributeVector: adjustedVector, valueVector: adjustedVector },
+      kind: EXPLICIT_ATTRIBUTE,
+      attributeVector: adjustedVector,
+      valueVector: adjustedVector,
     };
   }
 };
@@ -149,15 +150,13 @@ const getAttributeQuality: AttributeValueCrawl = (
       target: { ...attributeQualityVector.origin },
     };
 
-    const attributeVectorCopy = copy(attributeAction.params.attributeVector);
+    const attributeVectorCopy = copy(attributeAction.attributeVector);
 
     return {
-      action: APPEND_INJECTED_ATTRIBUTE,
-      params: {
-        attributeVector: attributeVectorCopy,
-        valueVector: injectionVector,
-        injectionID: arrayIndex,
-      },
+      kind: INJECTED_ATTRIBUTE,
+      attributeVector: attributeVectorCopy,
+      valueVector: injectionVector,
+      injectionID: arrayIndex,
     };
   }
 
@@ -186,14 +185,12 @@ const getAttributeQuality: AttributeValueCrawl = (
       origin: { ...attributeVector.origin },
       target: { ...attributeQualityVector.origin },
     };
-    const attributeVectorCopy = copy(attributeAction.params.attributeVector);
+    const attributeVectorCopy = copy(attributeAction.attributeVector);
 
     return {
-      action: "APPEND_EXPLICIT_ATTRIBUTE",
-      params: {
-        attributeVector: attributeVectorCopy,
-        valueVector: explicitVector,
-      },
+      kind: "EXPLICIT_ATTRIBUTE",
+      attributeVector: attributeVectorCopy,
+      valueVector: explicitVector,
     };
   }
 };
@@ -204,14 +201,14 @@ const crawlForAttribute: AttributeCrawl = (template, vectorBounds) => {
   if (attributeNameResults === undefined) {
     return;
   }
-  if (attributeNameResults.action === "APPEND_IMPLICIT_ATTRIBUTE") {
+  if (attributeNameResults.kind === "IMPLICIT_ATTRIBUTE") {
     return attributeNameResults;
   }
 
   // get bounding vector
   let qualityVector: Vector = copy(vectorBounds);
   qualityVector.origin = {
-    ...attributeNameResults.params.attributeVector.target,
+    ...attributeNameResults.attributeVector.target,
   };
   incrementOrigin(template, qualityVector);
 

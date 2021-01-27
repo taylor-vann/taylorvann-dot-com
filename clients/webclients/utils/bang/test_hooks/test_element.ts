@@ -8,8 +8,8 @@ interface Element {
   tagname: string;
   attributes: Record<string, AttributeValue<TestAttributes>>;
   parent?: Element;
-  left?: Node;
-  right?: Node;
+  left?: TestNode;
+  right?: TestNode;
   leftChild?: Element;
   rightChild?: Element;
 }
@@ -18,10 +18,8 @@ interface Text {
   kind: "TEXT";
   text: string;
   parent?: Element;
-  left?: Node;
-  right?: Node;
-  leftChild?: Node;
-  rightChild?: Node;
+  left?: TestNode;
+  right?: TestNode;
 }
 
 type TestNode = Element | Text;

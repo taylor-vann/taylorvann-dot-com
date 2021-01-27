@@ -3,8 +3,7 @@
 
 import { Template } from "../../type_flyweight/template";
 import { SkeletonNodes, CrawlResults } from "../../type_flyweight/crawl";
-
-import { Integrals, CloseNodeAction } from "../../type_flyweight/integrals";
+import { Integrals } from "../../type_flyweight/integrals";
 import { Vector } from "../../type_flyweight/text_vector";
 
 import {
@@ -17,14 +16,6 @@ import {
 import { getCharAtPosition } from "../../text_position/text_position";
 import { crawlForTagName } from "../tag_name_crawl/tag_name_crawl";
 import { crawlForAttribute } from "../attribute_crawl/attribute_crawl";
-
-import { ContentCrawlAction } from "../../type_flyweight/content_crawl";
-
-interface BuildIntegralsParams<A> {
-  template: Template<A>;
-  skeleton: SkeletonNodes;
-}
-type BuildIntegrals = <A>(params: BuildIntegralsParams<A>) => Integrals;
 
 type VectorCrawl = <A>(
   template: Template<A>,
@@ -48,6 +39,12 @@ interface AppendNodeAttributeParams<A> {
 type AppendNodeAttributeIntegrals = <A>(
   params: AppendNodeAttributeParams<A>
 ) => Integrals | undefined;
+
+interface BuildIntegralsParams<A> {
+  template: Template<A>;
+  skeleton: SkeletonNodes;
+}
+type BuildIntegrals = <A>(params: BuildIntegralsParams<A>) => Integrals;
 
 const RECURSION_SAFETY = 256;
 
@@ -125,19 +122,17 @@ const appendNodeAttributeIntegrals: AppendNodeAttributeIntegrals = ({
     }
 
     // set origin to following position
-    if (attributeCrawlResults.action === "APPEND_IMPLICIT_ATTRIBUTE") {
-      chunk.origin = { ...attributeCrawlResults.params.attributeVector.target };
+    if (attributeCrawlResults.kind === "IMPLICIT_ATTRIBUTE") {
+      chunk.origin = { ...attributeCrawlResults.attributeVector.target };
     }
-    if (attributeCrawlResults.action === "APPEND_EXPLICIT_ATTRIBUTE") {
-      chunk.origin = { ...attributeCrawlResults.params.valueVector.target };
+    if (attributeCrawlResults.kind === "EXPLICIT_ATTRIBUTE") {
+      chunk.origin = { ...attributeCrawlResults.valueVector.target };
     }
-    if (attributeCrawlResults.action === "APPEND_INJECTED_ATTRIBUTE") {
-      chunk.origin = { ...attributeCrawlResults.params.valueVector.target };
+    if (attributeCrawlResults.kind === "INJECTED_ATTRIBUTE") {
+      chunk.origin = { ...attributeCrawlResults.valueVector.target };
     }
 
     integrals.push(attributeCrawlResults);
-
-    // add attribute to integrals
   }
 
   return integrals;
@@ -160,10 +155,9 @@ const appendNodeIntegrals: AppendNodeIntegrals = ({
     return;
   }
 
-  // add create
   integrals.push({
-    action: "CREATE_NODE",
-    params: { tagNameVector },
+    kind: "NODE",
+    tagNameVector,
   });
 
   const followingVector = createFollowingVector(template, tagNameVector);
@@ -196,23 +190,10 @@ const appendSelfClosingNodeIntegrals: AppendNodeIntegrals = ({
     return;
   }
 
-  // add create
   integrals.push({
-    action: "CREATE_SELF_CLOSING_NODE",
-    params: { tagNameVector },
+    kind: "SELF_CLOSING_NODE",
+    tagNameVector,
   });
-
-  if (hasOriginEclipsedTaraget(tagNameVector)) {
-    return;
-  }
-
-  const followingChunk = createFollowingVector(template, tagNameVector);
-  if (followingChunk === undefined) {
-    return;
-  }
-  followingChunk.target = { ...innerXmlBounds.target };
-
-  // call attribute search
 
   return integrals;
 };
@@ -225,7 +206,6 @@ const appendCloseNodeIntegrals: AppendNodeIntegrals = ({
   const innerXmlBounds = copy(chunk.vector);
 
   // adjust vector
-
   incrementOrigin(template, innerXmlBounds);
   incrementOrigin(template, innerXmlBounds);
   decrementTarget(template, innerXmlBounds);
@@ -236,16 +216,15 @@ const appendCloseNodeIntegrals: AppendNodeIntegrals = ({
   if (tagNameVector === undefined) {
     return;
   }
+
   // add tag name to
   tagNameVector.origin = { ...innerXmlBounds.origin };
 
-  const integralAction: CloseNodeAction = {
-    action: "CLOSE_NODE",
-    params: { tagNameVector },
-  };
-
   // append integralAction to integrals
-  integrals.push(integralAction);
+  integrals.push({
+    kind: "CLOSE_NODE",
+    tagNameVector,
+  });
 
   return integrals;
 };
@@ -255,20 +234,88 @@ const appendContentIntegrals: AppendNodeIntegrals = ({
   template,
   chunk,
 }) => {
-  const contentVector = copy(chunk.vector);
-  const integralAction: ContentCrawlAction = {
-    action: "CREATE_CONTENT",
-    params: { contentVector },
+  const { origin, target } = chunk.vector;
+
+  // does injection come first?
+  if (origin.stringIndex === 0) {
+    integrals.push({
+      kind: "CONTEXT_INJECTION",
+      injectionID: origin.arrayIndex,
+    });
+  }
+
+  // what if content has no injections?
+  if (origin.arrayIndex === target.arrayIndex) {
+    integrals.push({ kind: "TEXT", textVector: chunk.vector });
+    return;
+  }
+
+  // get that beginning stuff
+  let stringIndex = template.templateArray[origin.arrayIndex].length - 1;
+  let textVector = {
+    origin,
+    target: {
+      arrayIndex: origin.arrayIndex,
+      stringIndex,
+    },
   };
 
-  // append integralAction to integrals
-  integrals.push(integralAction);
+  integrals.push({ kind: "TEXT", textVector });
+  integrals.push({
+    kind: "CONTEXT_INJECTION",
+    injectionID: origin.arrayIndex,
+  });
+
+  // get that middle stuff
+  let innerIndex = origin.arrayIndex + 1;
+  while (innerIndex < target.arrayIndex) {
+    stringIndex = template.templateArray[innerIndex].length - 1;
+    textVector = {
+      origin: {
+        arrayIndex: innerIndex,
+        stringIndex: 0,
+      },
+      target: {
+        arrayIndex: innerIndex,
+        stringIndex,
+      },
+    };
+
+    integrals.push({ kind: "TEXT", textVector });
+    integrals.push({
+      kind: "CONTEXT_INJECTION",
+      injectionID: innerIndex,
+    });
+
+    innerIndex += 1;
+  }
+
+  // get that end stuff
+  textVector = {
+    origin: {
+      arrayIndex: target.arrayIndex,
+      stringIndex: 0,
+    },
+    target,
+  };
+
+  integrals.push({ kind: "TEXT", textVector });
+
+  // if text node ends on an injection
+  const endStringIndex = template.templateArray[target.arrayIndex].length - 1;
+  if (endStringIndex === target.stringIndex) {
+    integrals.push({
+      kind: "CONTEXT_INJECTION",
+      injectionID: target.arrayIndex,
+    });
+  }
 
   return integrals;
 };
 
 const buildIntegrals: BuildIntegrals = ({ template, skeleton }) => {
   const integrals: Integrals = [];
+
   for (const chunk of skeleton) {
     const nodeType = chunk.nodeType;
     if (nodeType === "CLOSE_NODE_CONFIRMED") {

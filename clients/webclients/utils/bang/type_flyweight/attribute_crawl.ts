@@ -1,30 +1,21 @@
 import { Vector } from "./text_vector";
 
-interface ImplicitAttributeParams {
-  attributeVector: Vector;
-}
 type ImplicitAttributeAction = {
-  action: "APPEND_IMPLICIT_ATTRIBUTE";
-  params: ImplicitAttributeParams;
+  kind: "IMPLICIT_ATTRIBUTE";
+  attributeVector: Vector;
 };
 
-interface ExplicitAttributeParams {
+type ExplicitAttributeAction = {
+  kind: "EXPLICIT_ATTRIBUTE";
   attributeVector: Vector;
   valueVector: Vector;
-}
-type ExplicitAttributeAction = {
-  action: "APPEND_EXPLICIT_ATTRIBUTE";
-  params: ExplicitAttributeParams;
 };
 
-interface InjectedAttributeParams {
+type InjectedAttributeAction = {
+  kind: "INJECTED_ATTRIBUTE";
   attributeVector: Vector;
   valueVector: Vector;
   injectionID: number;
-}
-type InjectedAttributeAction = {
-  action: "APPEND_INJECTED_ATTRIBUTE";
-  params: InjectedAttributeParams;
 };
 
 type AttributeAction =
@@ -33,11 +24,8 @@ type AttributeAction =
   | InjectedAttributeAction;
 
 export {
-  ImplicitAttributeParams,
   ImplicitAttributeAction,
-  ExplicitAttributeParams,
   ExplicitAttributeAction,
-  InjectedAttributeParams,
   InjectedAttributeAction,
   AttributeAction,
 };

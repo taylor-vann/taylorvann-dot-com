@@ -1,7 +1,7 @@
 // brian taylor vann
 // crawl
 
-import { Position, Vector } from "./text_vector";
+import { Vector } from "./text_vector";
 
 type CrawlStatus =
   | "CONTENT_NODE"

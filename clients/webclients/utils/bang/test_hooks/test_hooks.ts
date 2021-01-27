@@ -15,15 +15,26 @@ const TestHooks: Hooks<TestNode, TestAttributes> = {
     if (node.kind === "ELEMENT") {
       node.attributes[attribute] = value;
     }
-    return node;
   },
   appendDescendant: (params) => {
-    const { descendant, parentNode, leftNode } = params;
-    // append descendent logic
-    return descendant;
+    const { descendant, leftNode } = params;
+
+    const rightNode = leftNode?.right;
+    if (leftNode !== undefined) {
+      leftNode.right = descendant;
+    }
+    descendant.right = rightNode;
   },
   removeDescendant: (descendant) => {
-    // remove descendent l
-    return descendant;
+    const leftNode = descendant.left;
+    const rightNode = descendant.right;
+
+    if (leftNode !== undefined) {
+      leftNode.right = rightNode;
+    }
+
+    if (rightNode !== undefined) {
+      rightNode.left = leftNode;
+    }
   },
 };

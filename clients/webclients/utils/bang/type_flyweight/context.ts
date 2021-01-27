@@ -1,4 +1,4 @@
-import { RenderStructure, TextNode, ElementNode } from "./render";
+import { RenderStructure } from "./render";
 
 interface ContextParams<N, A> {
   renderStructure: RenderStructure<N, A>;

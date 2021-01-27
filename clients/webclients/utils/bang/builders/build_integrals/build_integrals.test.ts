@@ -31,17 +31,15 @@ const testFindOpenParagraph = () => {
 
   const expectedResults: Integrals = [
     {
-      action: "CREATE_NODE",
-      params: {
-        tagNameVector: {
-          origin: {
-            arrayIndex: 0,
-            stringIndex: 1,
-          },
-          target: {
-            arrayIndex: 0,
-            stringIndex: 1,
-          },
+      kind: "NODE",
+      tagNameVector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 1,
+        },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 1,
         },
       },
     },
@@ -62,42 +60,38 @@ const testFindOpenParagraphWithAttributes = () => {
 
   const expectedResults: Integrals = [
     {
-      action: "CREATE_NODE",
-      params: {
-        tagNameVector: {
-          origin: {
-            arrayIndex: 0,
-            stringIndex: 1,
-          },
-          target: {
-            arrayIndex: 0,
-            stringIndex: 1,
-          },
+      kind: "NODE",
+      tagNameVector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 1,
+        },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 1,
         },
       },
     },
     {
-      action: "APPEND_EXPLICIT_ATTRIBUTE",
-      params: {
-        attributeVector: {
-          origin: {
-            arrayIndex: 0,
-            stringIndex: 3,
-          },
-          target: {
-            arrayIndex: 0,
-            stringIndex: 9,
-          },
+      kind: "EXPLICIT_ATTRIBUTE",
+      attributeVector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 3,
         },
-        valueVector: {
-          origin: {
-            arrayIndex: 0,
-            stringIndex: 11,
-          },
-          target: {
-            arrayIndex: 0,
-            stringIndex: 25,
-          },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 9,
+        },
+      },
+      valueVector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 11,
+        },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 25,
         },
       },
     },
@@ -118,57 +112,53 @@ const testFindOpenParagraphWithTrailingImplicitAttribute = () => {
 
   const expectedResults: Integrals = [
     {
-      action: "CREATE_NODE",
-      params: {
-        tagNameVector: {
-          origin: {
-            arrayIndex: 0,
-            stringIndex: 1,
-          },
-          target: {
-            arrayIndex: 0,
-            stringIndex: 1,
-          },
+      kind: "NODE",
+      tagNameVector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 1,
+        },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 1,
         },
       },
     },
+
     {
-      action: "APPEND_EXPLICIT_ATTRIBUTE",
-      params: {
-        attributeVector: {
-          origin: {
-            arrayIndex: 0,
-            stringIndex: 3,
-          },
-          target: {
-            arrayIndex: 0,
-            stringIndex: 9,
-          },
+      kind: "EXPLICIT_ATTRIBUTE",
+      attributeVector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 3,
         },
-        valueVector: {
-          origin: {
-            arrayIndex: 0,
-            stringIndex: 11,
-          },
-          target: {
-            arrayIndex: 0,
-            stringIndex: 25,
-          },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 9,
+        },
+      },
+      valueVector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 11,
+        },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 25,
         },
       },
     },
+
     {
-      action: "APPEND_IMPLICIT_ATTRIBUTE",
-      params: {
-        attributeVector: {
-          origin: {
-            arrayIndex: 0,
-            stringIndex: 27,
-          },
-          target: {
-            arrayIndex: 0,
-            stringIndex: 33,
-          },
+      kind: "IMPLICIT_ATTRIBUTE",
+      attributeVector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 27,
+        },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 33,
         },
       },
     },
@@ -189,45 +179,41 @@ const testFindOpenParagraphWithInjectedAttribute = () => {
 
   const expectedResults: Integrals = [
     {
-      action: "CREATE_NODE",
-      params: {
-        tagNameVector: {
-          origin: {
-            arrayIndex: 0,
-            stringIndex: 1,
-          },
-          target: {
-            arrayIndex: 0,
-            stringIndex: 1,
-          },
+      kind: "NODE",
+      tagNameVector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 1,
+        },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 1,
         },
       },
     },
     {
-      action: "APPEND_INJECTED_ATTRIBUTE",
-      params: {
-        attributeVector: {
-          origin: {
-            arrayIndex: 0,
-            stringIndex: 3,
-          },
-          target: {
-            arrayIndex: 0,
-            stringIndex: 9,
-          },
+      kind: "INJECTED_ATTRIBUTE",
+      attributeVector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 3,
         },
-        valueVector: {
-          origin: {
-            arrayIndex: 0,
-            stringIndex: 11,
-          },
-          target: {
-            arrayIndex: 1,
-            stringIndex: 0,
-          },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 9,
         },
-        injectionID: 0,
       },
+      valueVector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 11,
+        },
+        target: {
+          arrayIndex: 1,
+          stringIndex: 0,
+        },
+      },
+      injectionID: 0,
     },
   ];
 
@@ -246,58 +232,53 @@ const testFindOpenParagraphWithInjectedAndTrailingImplicitAttributes = () => {
 
   const expectedResults: Integrals = [
     {
-      action: "CREATE_NODE",
-      params: {
-        tagNameVector: {
-          origin: {
-            arrayIndex: 0,
-            stringIndex: 1,
-          },
-          target: {
-            arrayIndex: 0,
-            stringIndex: 1,
-          },
+      kind: "NODE",
+      tagNameVector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 1,
+        },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 1,
         },
       },
     },
     {
-      action: "APPEND_INJECTED_ATTRIBUTE",
-      params: {
-        attributeVector: {
-          origin: {
-            arrayIndex: 0,
-            stringIndex: 3,
-          },
-          target: {
-            arrayIndex: 0,
-            stringIndex: 9,
-          },
+      kind: "INJECTED_ATTRIBUTE",
+      attributeVector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 3,
         },
-        valueVector: {
-          origin: {
-            arrayIndex: 0,
-            stringIndex: 11,
-          },
-          target: {
-            arrayIndex: 1,
-            stringIndex: 0,
-          },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 9,
         },
-        injectionID: 0,
       },
+      valueVector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 11,
+        },
+        target: {
+          arrayIndex: 1,
+          stringIndex: 0,
+        },
+      },
+      injectionID: 0,
     },
+
     {
-      action: "APPEND_IMPLICIT_ATTRIBUTE",
-      params: {
-        attributeVector: {
-          origin: {
-            arrayIndex: 1,
-            stringIndex: 2,
-          },
-          target: {
-            arrayIndex: 1,
-            stringIndex: 8,
-          },
+      kind: "IMPLICIT_ATTRIBUTE",
+      attributeVector: {
+        origin: {
+          arrayIndex: 1,
+          stringIndex: 2,
+        },
+        target: {
+          arrayIndex: 1,
+          stringIndex: 8,
         },
       },
     },
@@ -318,17 +299,15 @@ const testFindCloseParagraph = () => {
 
   const expectedResults: Integrals = [
     {
-      action: "CLOSE_NODE",
-      params: {
-        tagNameVector: {
-          origin: {
-            arrayIndex: 0,
-            stringIndex: 2,
-          },
-          target: {
-            arrayIndex: 0,
-            stringIndex: 2,
-          },
+      kind: "CLOSE_NODE",
+      tagNameVector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 2,
+        },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 2,
         },
       },
     },
@@ -349,17 +328,15 @@ const testFindCloseH1 = () => {
 
   const expectedResults: Integrals = [
     {
-      action: "CLOSE_NODE",
-      params: {
-        tagNameVector: {
-          origin: {
-            arrayIndex: 0,
-            stringIndex: 2,
-          },
-          target: {
-            arrayIndex: 0,
-            stringIndex: 3,
-          },
+      kind: "CLOSE_NODE",
+      tagNameVector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 2,
+        },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 3,
         },
       },
     },
@@ -380,17 +357,15 @@ const testFindCloseParagraphWithTrailingSpaces = () => {
 
   const expectedResults: Integrals = [
     {
-      action: "CLOSE_NODE",
-      params: {
-        tagNameVector: {
-          origin: {
-            arrayIndex: 0,
-            stringIndex: 2,
-          },
-          target: {
-            arrayIndex: 0,
-            stringIndex: 3,
-          },
+      kind: "CLOSE_NODE",
+      tagNameVector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 2,
+        },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 3,
         },
       },
     },
@@ -410,17 +385,15 @@ const testFindContent = () => {
 
   const expectedResults: Integrals = [
     {
-      action: "CREATE_CONTENT",
-      params: {
-        contentVector: {
-          origin: {
-            arrayIndex: 0,
-            stringIndex: 0,
-          },
-          target: {
-            arrayIndex: 0,
-            stringIndex: 11,
-          },
+      kind: "TEXT",
+      textVector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 0,
+        },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 11,
         },
       },
     },
@@ -441,47 +414,42 @@ const testSimpleNodes = () => {
 
   const expectedResults: Integrals = [
     {
-      action: "CREATE_NODE",
-      params: {
-        tagNameVector: {
-          origin: {
-            arrayIndex: 0,
-            stringIndex: 1,
-          },
-          target: {
-            arrayIndex: 0,
-            stringIndex: 1,
-          },
+      kind: "NODE",
+
+      tagNameVector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 1,
+        },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 1,
         },
       },
     },
     {
-      action: "CREATE_CONTENT",
-      params: {
-        contentVector: {
-          origin: {
-            arrayIndex: 0,
-            stringIndex: 3,
-          },
-          target: {
-            arrayIndex: 0,
-            stringIndex: 14,
-          },
+      kind: "TEXT",
+      textVector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 3,
+        },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 14,
         },
       },
     },
     {
-      action: "CLOSE_NODE",
-      params: {
-        tagNameVector: {
-          origin: {
-            arrayIndex: 0,
-            stringIndex: 17,
-          },
-          target: {
-            arrayIndex: 0,
-            stringIndex: 17,
-          },
+      kind: "CLOSE_NODE",
+      tagNameVector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 17,
+        },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 17,
         },
       },
     },

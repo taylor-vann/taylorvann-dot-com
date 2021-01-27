@@ -4,55 +4,60 @@
 // this is definietly gonna change
 
 import {
-  ImplicitAttributeParams,
   ImplicitAttributeAction,
   ExplicitAttributeAction,
   InjectedAttributeAction,
   AttributeAction,
 } from "./attribute_crawl";
 
-import { ContentCrawlAction } from "./content_crawl";
 import { Vector } from "./text_vector";
 
-interface NodeParams {
+interface NodeAction {
+  kind: "NODE";
   tagNameVector: Vector;
 }
-interface CreateNodeAction {
-  action: "CREATE_NODE";
-  params: NodeParams;
-}
-interface CreateSelfClosingNode {
-  action: "CREATE_SELF_CLOSING_NODE";
-  params: NodeParams;
+interface SelfClosingNodeAction {
+  kind: "SELF_CLOSING_NODE";
+  tagNameVector: Vector;
 }
 interface CloseNodeAction {
-  action: "CLOSE_NODE";
-  params: NodeParams;
+  kind: "CLOSE_NODE";
+  tagNameVector: Vector;
 }
-type CreateContentAction = ContentCrawlAction;
+
+interface TextAction {
+  kind: "TEXT";
+  textVector: Vector;
+}
+
+interface ContextInjectionAction {
+  kind: "CONTEXT_INJECTION";
+  injectionID: number;
+}
 
 type IntegralAction =
-  | CreateNodeAction
-  | CreateSelfClosingNode
-  | ExplicitAttributeAction
-  | CloseNodeAction
   | AttributeAction
-  | CreateContentAction
+  | CloseNodeAction
+  | ContextInjectionAction
+  | ExplicitAttributeAction
   | ImplicitAttributeAction
-  | InjectedAttributeAction;
+  | InjectedAttributeAction
+  | NodeAction
+  | SelfClosingNodeAction
+  | TextAction;
 
 type Integrals = IntegralAction[];
 
 export {
   AttributeAction,
   CloseNodeAction,
-  CreateContentAction,
-  CreateNodeAction,
-  CreateSelfClosingNode,
+  ContextInjectionAction,
   ExplicitAttributeAction,
   ImplicitAttributeAction,
-  ImplicitAttributeParams,
   InjectedAttributeAction,
   IntegralAction,
   Integrals,
+  NodeAction,
+  SelfClosingNodeAction,
+  TextAction,
 };

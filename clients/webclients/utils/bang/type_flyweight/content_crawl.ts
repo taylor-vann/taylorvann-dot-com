@@ -1,11 +1,8 @@
 import { Vector } from "./text_vector";
 
-interface ContentCrawlParams {
-  contentVector: Vector;
-}
 type ContentCrawlAction = {
-  action: "CREATE_CONTENT";
-  params: ContentCrawlParams;
+  kind: "CREATE_CONTENT";
+  contentVector: Vector;
 };
 
-export { ContentCrawlParams, ContentCrawlAction };
+export { ContentCrawlAction };
