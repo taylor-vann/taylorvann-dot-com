@@ -3,15 +3,12 @@
 import {
   CreateNode,
   CreateTextNode,
-  // SetDescendant,
   AppendDescendant,
   RemoveDescendant,
   SetAttribute,
   SetAttributeParams,
-  // SetSiblings,
-  // RemoveSiblings,
   Hooks,
-} from "../../bang/type_flyweight/hooks";
+} from "../../crunch/type_flyweight/hooks";
 
 type DocumentNode = Text | HTMLElement;
 type AttributeKinds =
@@ -20,11 +17,11 @@ type AttributeKinds =
   | string
   | undefined;
 
-const createNode = (tag: string) => {
+const createNode: CreateNode<HTMLElement> = (tag: string) => {
   return document.createElement(tag);
 };
 
-const createTextNode = (content: string) => {
+const createTextNode: CreateTextNode<Text> = (content: string) => {
   return document.createTextNode(content);
 };
 

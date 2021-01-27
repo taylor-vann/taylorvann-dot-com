@@ -4,7 +4,7 @@
 import { samestuff } from "../../../little_test_runner/samestuff/samestuff";
 import { BuildIntegralsParams } from "./build_integrals";
 import { buildSkeleton } from "../build_skeleton/build_skeleton";
-import { buildIntegrals } from "../build_integrals/build_integrals";
+import { buildIntegrals } from "./build_integrals";
 import { Integrals } from "../../type_flyweight/integrals";
 
 type TextTextInterpolator = <A>(

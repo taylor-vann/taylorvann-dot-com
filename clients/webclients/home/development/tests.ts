@@ -3,7 +3,7 @@
 
 import { runTests } from "../../utils/little_test_runner/little_test_runner";
 
-import { tests } from "../../utils/bang/bang.test";
+import { tests } from "../../utils/crunch/crunch.test";
 
 const testCollection = [...tests];
 

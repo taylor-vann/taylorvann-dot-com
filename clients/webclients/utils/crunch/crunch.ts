@@ -1,12 +1,12 @@
 // brian taylor vann
-// bang - document builder (build a node graph)
+// crunch - document builder (create unidirectional chunks)
 
 // N Node
 // A Attributables
 
 import { Hooks } from "./type_flyweight/hooks";
 
-class Bang<N, A> {
+class Crunch<N, A> {
   private hooks: Hooks<N, A>;
 
   constructor(interfaceHooks: Hooks<N, A>) {
@@ -14,4 +14,4 @@ class Bang<N, A> {
   }
 }
 
-export { Bang };
+export { Crunch };

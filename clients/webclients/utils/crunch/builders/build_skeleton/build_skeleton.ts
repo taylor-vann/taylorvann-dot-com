@@ -12,18 +12,17 @@ type NodeType =
   | "CLOSE_NODE"
   | "CONTENT_NODE";
 
-type CreateDefaultVector = () => CrawlResults;
 interface BuildMissingStringNodeParams<A> {
   template: Template<A>;
   currentCrawl: CrawlResults;
   previousCrawl?: CrawlResults;
 }
+
 type BuildMissingStringNode = <A>(
   params: BuildMissingStringNodeParams<A>
 ) => CrawlResults | void;
 
 type BuildSkeletonSieve = Record<string, NodeType>;
-
 type BuildSkeleton = <A>(template: Template<A>) => SkeletonNodes;
 
 const MAX_DEPTH = 128;

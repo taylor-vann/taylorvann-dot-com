@@ -1,5 +1,5 @@
 // brian taylor vann
-//bang
+// bang
 
 import { unitTestAttributeCrawl } from "./builders/attribute_crawl/attribute_crawl.test";
 import { unitTestBuildIntegrals } from "./builders/build_integrals/build_integrals.test";
