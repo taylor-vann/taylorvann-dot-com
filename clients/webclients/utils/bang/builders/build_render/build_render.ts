@@ -1,5 +1,5 @@
 // brian taylor vann
-// build structure
+// build render
 
 import { Hooks } from "../../type_flyweight/hooks";
 import { Template } from "../../type_flyweight/template";

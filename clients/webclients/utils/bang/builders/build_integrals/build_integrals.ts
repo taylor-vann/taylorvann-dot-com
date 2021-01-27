@@ -5,7 +5,6 @@ import { Template } from "../../type_flyweight/template";
 import { SkeletonNodes, CrawlResults } from "../../type_flyweight/crawl";
 import { Integrals } from "../../type_flyweight/integrals";
 import { Vector } from "../../type_flyweight/text_vector";
-
 import {
   copy,
   createFollowingVector,
@@ -237,7 +236,7 @@ const appendContentIntegrals: AppendNodeIntegrals = ({
   const { origin, target } = chunk.vector;
 
   // does injection come first?
-  if (origin.stringIndex === 0) {
+  if (origin.stringIndex === 0 && origin.arrayIndex !== 0) {
     integrals.push({
       kind: "CONTEXT_INJECTION",
       injectionID: origin.arrayIndex,

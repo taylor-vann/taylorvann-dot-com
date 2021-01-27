@@ -1,3 +1,6 @@
+// brian taylor vann
+// text vector
+
 import { samestuff } from "../../little_test_runner/samestuff/samestuff";
 import {
   copy,

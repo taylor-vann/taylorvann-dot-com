@@ -1,3 +1,6 @@
+// brian taylor vann
+// text vector
+
 import { Template } from "../type_flyweight/template";
 import { Position, Vector } from "../type_flyweight/text_vector";
 import {

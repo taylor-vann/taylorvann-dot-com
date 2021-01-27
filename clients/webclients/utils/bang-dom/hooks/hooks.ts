@@ -60,10 +60,6 @@ const setAttribute: SetAttribute<DocumentNode, AttributeKinds> = ({
   return node;
 };
 
-// const setDescendant: SetDescendant<DocumentNode> = (element, descendant) => {
-//   return element.appendChild(descendant);
-// };
-
 const appendDescendant: AppendDescendant<DocumentNode> = ({
   descendant,
   parentNode,
@@ -85,32 +81,12 @@ const removeDescendant: RemoveDescendant<DocumentNode> = (
   return descendant;
 };
 
-// const setSiblings: SetSiblings<DocumentNode> = ({
-//   siblings,
-//   parent,
-//   leftSibling,
-//   rightSibling,
-// }) => {
-//   return [document.createTextNode("test")];
-// };
-
-// const removeSiblings: RemoveSiblings<DocumentNode> = ({
-//   siblings,
-//   parent,
-//   leftSibling,
-//   rightSibling,
-// }) => {
-//   return;
-// };
-
 const hooks: Hooks<DocumentNode, AttributeKinds> = {
   createNode,
   createTextNode,
   setAttribute,
   appendDescendant,
   removeDescendant,
-  // setSiblings,
-  // removeSiblings,
 };
 
 export { DocumentNode, AttributeKinds, hooks };

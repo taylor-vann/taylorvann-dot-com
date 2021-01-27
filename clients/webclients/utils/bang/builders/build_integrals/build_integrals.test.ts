@@ -401,7 +401,7 @@ const testFindContent = () => {
 
   const params = testTextInterpolator`hello world!`;
   const results = buildIntegrals(params);
-
+  console.log(results);
   if (!samestuff(expectedResults, results)) {
     assertions.push("unexpected results found.");
   }

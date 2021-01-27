@@ -1,3 +1,6 @@
+// brian taylor vann
+// text position
+
 import { samestuff } from "../../little_test_runner/samestuff/samestuff";
 import { Template } from "../type_flyweight/template";
 import { Position } from "../type_flyweight/text_vector";

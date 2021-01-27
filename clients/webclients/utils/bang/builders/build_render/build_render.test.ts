@@ -1,5 +1,5 @@
 // brian taylor vann
-// build structure
+// build render
 
 const title = "build_render";
 const runTestsAsynchronously = true;

@@ -1,3 +1,6 @@
+// brian taylor vann
+// attribute crawl
+
 import { Vector } from "./text_vector";
 
 type ImplicitAttributeAction = {
