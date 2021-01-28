@@ -235,14 +235,6 @@ const appendContentIntegrals: AppendNodeIntegrals = ({
 }) => {
   const { origin, target } = chunk.vector;
 
-  // does injection come first?
-  if (origin.stringIndex === 0 && origin.arrayIndex !== 0) {
-    integrals.push({
-      kind: "CONTEXT_INJECTION",
-      injectionID: origin.arrayIndex,
-    });
-  }
-
   // what if content has no injections?
   if (origin.arrayIndex === target.arrayIndex) {
     integrals.push({ kind: "TEXT", textVector: chunk.vector });
@@ -300,15 +292,6 @@ const appendContentIntegrals: AppendNodeIntegrals = ({
 
   integrals.push({ kind: "TEXT", textVector });
 
-  // if text node ends on an injection
-  const endStringIndex = template.templateArray[target.arrayIndex].length - 1;
-  if (endStringIndex === target.stringIndex) {
-    integrals.push({
-      kind: "CONTEXT_INJECTION",
-      injectionID: target.arrayIndex,
-    });
-  }
-
   return integrals;
 };
 
@@ -317,6 +300,19 @@ const buildIntegrals: BuildIntegrals = ({ template, skeleton }) => {
 
   for (const chunk of skeleton) {
     const nodeType = chunk.nodeType;
+    const { origin, target } = chunk.vector;
+
+    // does injection come before?
+    if (origin.stringIndex === 0 && origin.arrayIndex !== 0) {
+      integrals.push({
+        kind: "CONTEXT_INJECTION",
+        injectionID: origin.arrayIndex - 1,
+      });
+    }
+
+    if (nodeType === "OPEN_NODE_CONFIRMED") {
+      appendNodeIntegrals({ integrals, template, chunk });
+    }
     if (nodeType === "CLOSE_NODE_CONFIRMED") {
       appendCloseNodeIntegrals({ integrals, template, chunk });
     }
@@ -325,9 +321,6 @@ const buildIntegrals: BuildIntegrals = ({ template, skeleton }) => {
     }
     if (nodeType === "SELF_CLOSING_NODE_CONFIRMED") {
       appendSelfClosingNodeIntegrals({ integrals, template, chunk });
-    }
-    if (nodeType === "OPEN_NODE_CONFIRMED") {
-      appendNodeIntegrals({ integrals, template, chunk });
     }
   }
 

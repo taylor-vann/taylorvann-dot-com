@@ -68,14 +68,13 @@ type AppendDescendant = <N, A>(
   descendant: N
 ) => void;
 
-interface CreateContextInjectionParam<N, A> {
-  rs: RenderStructure<N, A>;
-  injection: A;
-  injectionID: number;
-}
-type CreateContextInjection = <N, A>(
-  params: CreateContextInjectionParam<N, A>
-) => void;
+// interface CreateContextInjectionParam<N, A> {
+//   rs: RenderStructure<N, A>;
+//   integral: A;
+// }
+// type CreateContextInjection = <N, A>(
+//   params: CreateContextInjectionParam<N, A>
+// ) => void;
 
 const appendDescendant: AppendDescendant = (rs, descendant) => {
   // clean up self closing nodes
@@ -140,14 +139,14 @@ const closeNode: RenderCloseNode = (rs, integral) => {
   }
 };
 
-const createContentInjection: CreateContextInjection = ({
-  rs,
-  injection,
-  injectionID,
-}) => {
+const createContentInjection: RenderContentInjection = (rs, integral) => {
   // attach injection as Context
   const parent = rs.stack[rs.stack.length - 1]?.node;
   const left = rs.siblings[rs.stack.length - 1];
+  const injection = rs.template.injections[integral.injectionID];
+  if (injection === undefined) {
+    return;
+  }
 
   if (injection instanceof Context) {
     const siblings = injection.getSiblings();
@@ -155,7 +154,7 @@ const createContentInjection: CreateContextInjection = ({
       appendDescendant(rs, sibling);
     }
 
-    rs.injections[injectionID] = {
+    rs.injections[integral.injectionID] = {
       kind: "CONTEXT",
       params: { siblings, left, parent },
     };
@@ -168,13 +167,11 @@ const createContentInjection: CreateContextInjection = ({
 
   appendDescendant(rs, textNode);
 
-  rs.injections[injectionID] = {
+  rs.injections[integral.injectionID] = {
     kind: "CONTENT",
     params: { textNode, left, parent },
   };
 };
-
-const createContent: RenderContentInjection = (rs, integral) => {};
 
 const appendExplicitAttribute: RenderAppendExplicitAttribute = (
   rs,
@@ -257,7 +254,7 @@ const buildRender: BuildRender = ({ hooks, template, integrals }) => {
       createTextNode(rs, integral);
     }
     if (integral.kind === "CONTEXT_INJECTION") {
-      createContent(rs, integral);
+      createContentInjection(rs, integral);
     }
     if (integral.kind === "EXPLICIT_ATTRIBUTE") {
       appendExplicitAttribute(rs, integral);
