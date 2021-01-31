@@ -25,16 +25,18 @@ const DEFAULT_POSITION: Position = {
 
 const create: Create = (position = DEFAULT_POSITION) => ({ ...position });
 
-const copy: Copy = create;
+const copy: Copy = (position) => {
+  return { ...position };
+};
 
 const increment: Increment = (template, position) => {
-  // template boundaries
-  const templateLength = template.templateArray.length - 1;
   const chunk = template.templateArray[position.arrayIndex];
   if (chunk === undefined) {
     return;
   }
 
+  // template boundaries
+  const templateLength = template.templateArray.length - 1;
   if (
     position.arrayIndex >= templateLength &&
     position.stringIndex >= chunk.length - 1
@@ -56,17 +58,18 @@ const increment: Increment = (template, position) => {
 };
 
 const decrement: Increment = (template, position) => {
-  const templateLength = template.templateArray.length - 1;
-  if (position.arrayIndex > templateLength) {
+  const chunk = template.templateArray[position.arrayIndex];
+  if (chunk === undefined) {
     return;
   }
 
+  // template boundaries
   if (position.arrayIndex <= 0 && position.stringIndex <= 0) {
     return;
   }
 
   position.stringIndex -= 1;
-  if (position.arrayIndex >= 0 && position.stringIndex < 0) {
+  if (position.arrayIndex > 0 && position.stringIndex < 0) {
     position.arrayIndex -= 1;
 
     const chunk = template.templateArray[position.arrayIndex];

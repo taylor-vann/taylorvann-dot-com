@@ -1,7 +1,7 @@
 // brian taylor vann
 // skeleton routers
 
-import { CrawlStatus } from "../../type_flyweight/crawl";
+import { CrawlStatus } from "../../type_flyweight/skeleton_crawl";
 
 type Routes = Record<string, CrawlStatus>;
 type Routers = Partial<Record<CrawlStatus, Routes>>;

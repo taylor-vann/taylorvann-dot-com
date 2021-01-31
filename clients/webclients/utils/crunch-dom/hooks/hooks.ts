@@ -57,11 +57,10 @@ const setAttribute: SetAttribute<DocumentNode, AttributeKinds> = ({
   return node;
 };
 
-const appendDescendant: AppendDescendant<DocumentNode> = ({
-  descendant,
+const appendDescendant: AppendDescendant<DocumentNode> = (
   parentNode,
-  leftNode,
-}) => {
+  descendant
+) => {
   if (parentNode !== undefined) {
     parentNode.removeChild(descendant);
   }

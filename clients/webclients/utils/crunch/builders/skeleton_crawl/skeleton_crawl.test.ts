@@ -429,10 +429,10 @@ const tests = [
   findNextCrawlWithPreviousCrawl,
 ];
 
-const unitTestCrawl = {
+const unitTestSkeletonCrawl = {
   title,
   tests,
   runTestsAsynchronously,
 };
 
-export { unitTestCrawl };
+export { unitTestSkeletonCrawl };

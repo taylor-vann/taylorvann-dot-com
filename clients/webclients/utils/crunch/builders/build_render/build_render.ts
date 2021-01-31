@@ -87,7 +87,7 @@ const appendDescendant: AppendDescendant = (rs, descendant) => {
   const parentNode = parent?.node;
   const leftNode = rs.siblings[rs.siblings.length - 1];
 
-  rs.hooks.appendDescendant({ descendant, parentNode, leftNode });
+  rs.hooks.appendDescendant(parentNode, descendant);
   if (rs.stack.length === 0) {
     rs.siblings.push(descendant);
   }

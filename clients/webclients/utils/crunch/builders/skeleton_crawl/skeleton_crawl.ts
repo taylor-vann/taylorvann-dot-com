@@ -3,7 +3,7 @@
 
 import { routers } from "../skeleton_routers/skeleton_routers";
 import { Template } from "../../type_flyweight/template";
-import { CrawlResults, CrawlStatus } from "../../type_flyweight/crawl";
+import { CrawlResults, CrawlStatus } from "../../type_flyweight/skeleton_crawl";
 import { Position, Vector } from "../../type_flyweight/text_vector";
 import {
   create,

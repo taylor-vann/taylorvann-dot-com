@@ -2,7 +2,10 @@
 // build integrals
 
 import { Template } from "../../type_flyweight/template";
-import { SkeletonNodes, CrawlResults } from "../../type_flyweight/crawl";
+import {
+  SkeletonNodes,
+  CrawlResults,
+} from "../../type_flyweight/skeleton_crawl";
 import { Integrals } from "../../type_flyweight/integrals";
 import { Vector } from "../../type_flyweight/text_vector";
 import {
@@ -116,6 +119,7 @@ const appendNodeAttributeIntegrals: AppendNodeAttributeIntegrals = ({
     }
 
     const attributeCrawlResults = crawlForAttribute(template, chunk);
+    // something has gone wrong and we should stop
     if (attributeCrawlResults === undefined) {
       return;
     }
@@ -241,7 +245,7 @@ const appendContentIntegrals: AppendNodeIntegrals = ({
     return;
   }
 
-  // get that beginning stuff
+  // get that beginning text stuff
   let stringIndex = template.templateArray[origin.arrayIndex].length - 1;
   let textVector = {
     origin,
@@ -257,17 +261,17 @@ const appendContentIntegrals: AppendNodeIntegrals = ({
     injectionID: origin.arrayIndex,
   });
 
-  // get that middle stuff
-  let innerIndex = origin.arrayIndex + 1;
-  while (innerIndex < target.arrayIndex) {
-    stringIndex = template.templateArray[innerIndex].length - 1;
+  // get that middle text stuff
+  let arrayIndex = origin.arrayIndex + 1;
+  while (arrayIndex < target.arrayIndex) {
+    stringIndex = template.templateArray[arrayIndex].length - 1;
     textVector = {
       origin: {
-        arrayIndex: innerIndex,
+        arrayIndex,
         stringIndex: 0,
       },
       target: {
-        arrayIndex: innerIndex,
+        arrayIndex,
         stringIndex,
       },
     };
@@ -275,13 +279,13 @@ const appendContentIntegrals: AppendNodeIntegrals = ({
     integrals.push({ kind: "TEXT", textVector });
     integrals.push({
       kind: "CONTEXT_INJECTION",
-      injectionID: innerIndex,
+      injectionID: arrayIndex,
     });
 
-    innerIndex += 1;
+    arrayIndex += 1;
   }
 
-  // get that end stuff
+  // get that end text stuff
   textVector = {
     origin: {
       arrayIndex: target.arrayIndex,
@@ -300,7 +304,7 @@ const buildIntegrals: BuildIntegrals = ({ template, skeleton }) => {
 
   for (const chunk of skeleton) {
     const nodeType = chunk.nodeType;
-    const { origin, target } = chunk.vector;
+    const origin = chunk.vector.origin;
 
     // does injection come before?
     if (origin.stringIndex === 0 && origin.arrayIndex !== 0) {

@@ -3,8 +3,8 @@
 
 type AttributeValue<A> = A | string | boolean | undefined;
 interface SetAttributeParams<N, A> {
-  node: N;
   attribute: string;
+  node: N;
   value: AttributeValue<A>;
 }
 
@@ -13,29 +13,24 @@ type SetAttribute<N, A> = (params: SetAttributeParams<N, A>) => void;
 type CreateNode<N> = (tag: string) => N;
 type CreateTextNode<N> = (content: string) => N;
 
-interface DescendantParams<N> {
-  descendant: N;
-  parentNode?: N;
-  leftNode?: N;
-}
-type AppendDescendant<N> = (params: DescendantParams<N>) => void;
+type AppendDescendant<N> = (parent: N, descendant: N) => void;
 type RemoveDescendant<N> = (parent: N, descendant: N) => void;
 
 interface Hooks<N, A> {
-  setAttribute: SetAttribute<N, A>;
+  appendDescendant: AppendDescendant<N>;
   createNode: CreateNode<N>;
   createTextNode: CreateTextNode<N>;
-  appendDescendant: AppendDescendant<N>;
   removeDescendant: RemoveDescendant<N>;
+  setAttribute: SetAttribute<N, A>;
 }
 
 export {
+  AppendDescendant,
   AttributeValue,
-  SetAttributeParams,
-  SetAttribute,
   CreateNode,
   CreateTextNode,
-  AppendDescendant,
-  RemoveDescendant,
   Hooks,
+  RemoveDescendant,
+  SetAttribute,
+  SetAttributeParams,
 };

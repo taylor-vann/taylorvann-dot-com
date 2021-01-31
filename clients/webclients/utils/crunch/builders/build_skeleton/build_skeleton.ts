@@ -2,7 +2,10 @@
 // build skeleton
 
 import { crawl } from "../skeleton_crawl/skeleton_crawl";
-import { CrawlResults, SkeletonNodes } from "../../type_flyweight/crawl";
+import {
+  CrawlResults,
+  SkeletonNodes,
+} from "../../type_flyweight/skeleton_crawl";
 import { Template } from "../../type_flyweight/template";
 import { copy, decrement, increment } from "../../text_position/text_position";
 
@@ -44,10 +47,10 @@ const SKELETON_SIEVE: BuildSkeletonSieve = {
 
 const buildMissingStringNode: BuildMissingStringNode = ({
   template,
-  currentCrawl,
   previousCrawl,
+  currentCrawl,
 }) => {
-  // get position values
+  // get text vector
   const originPos =
     previousCrawl !== undefined
       ? previousCrawl.vector.target
@@ -55,13 +58,14 @@ const buildMissingStringNode: BuildMissingStringNode = ({
 
   const targetPos = currentCrawl.vector.origin;
 
-  // justify text vector distance
+  // calculate text vector distance
   const stringDistance = Math.abs(
     targetPos.stringIndex - originPos.stringIndex
   );
   const stringArrayDistance = Math.abs(
     targetPos.arrayIndex - originPos.arrayIndex
   );
+  // if there's at least one space between the previous two crawls
   if (stringDistance + stringArrayDistance < 2) {
     return;
   }
@@ -90,11 +94,11 @@ const buildMissingStringNode: BuildMissingStringNode = ({
 
 const buildSkeleton: BuildSkeleton = (template) => {
   const skeleton: SkeletonNodes = [];
-  let depth = 0;
 
   let previousCrawl: CrawlResults | undefined;
   let currentCrawl = crawl(template, previousCrawl);
 
+  let depth = 0;
   while (currentCrawl && depth < MAX_DEPTH) {
     // get string in between crawls
     const stringBone = buildMissingStringNode({

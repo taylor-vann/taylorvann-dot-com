@@ -16,6 +16,10 @@ const samestuff: SameStuff = (source, comparator) => {
   }
 
   for (const sourceKey in source) {
+    // update to iterate over intreis
+    if (!Object.hasOwnProperty(sourceKey)) {
+      continue;
+    }
     const nextSource = source[sourceKey];
     const nextComparator = comparator[sourceKey];
 

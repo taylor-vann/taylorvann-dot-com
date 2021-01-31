@@ -4,9 +4,9 @@
 import { Hooks } from "../type_flyweight/hooks";
 import { TestNode, TestAttributes } from "./test_element";
 
-// these names need to change
+type SimilarNodeTrees = <N>(expectedSiblings: N[], siblings: N[]) => boolean;
 
-const TestHooks: Hooks<TestNode, TestAttributes> = {
+const hooks: Hooks<TestNode, TestAttributes> = {
   createNode: (tagname) => {
     return { kind: "ELEMENT", attributes: {}, tagname };
   },
@@ -19,25 +19,63 @@ const TestHooks: Hooks<TestNode, TestAttributes> = {
       node.attributes[attribute] = value;
     }
   },
-  appendDescendant: (params) => {
-    const { descendant, leftNode } = params;
-
-    const rightNode = leftNode?.right;
-    if (leftNode !== undefined) {
-      leftNode.right = descendant;
+  appendDescendant: (parent, descendant) => {
+    if (parent === undefined || parent.kind !== "ELEMENT") {
+      return;
     }
-    descendant.right = rightNode;
+
+    // Add parent to descendant
+    descendant.parent = parent;
+
+    // if children exist, add descendant
+    if (parent !== undefined && parent.rightChild !== undefined) {
+      descendant.left = parent.rightChild;
+      parent.rightChild.right = descendant;
+      parent.rightChild = descendant;
+    }
+    // if no children, add initial child
+    if (parent !== undefined && parent.leftChild === undefined) {
+      parent.leftChild = descendant;
+      parent.rightChild = descendant;
+    }
   },
-  removeDescendant: (descendant) => {
+  removeDescendant: (parent, descendant) => {
     const leftNode = descendant.left;
     const rightNode = descendant.right;
 
+    // remove descendant references
+    descendant.parent = undefined;
+    descendant.right = undefined;
+    descendant.left = undefined;
+
+    // if descendant is leftChild
     if (leftNode !== undefined) {
       leftNode.right = rightNode;
     }
 
+    // if descendant is rightChild
     if (rightNode !== undefined) {
       rightNode.left = leftNode;
     }
+
+    // if descendant is rightChild
+    if (parent.kind === "ELEMENT") {
+      if (descendant === parent.leftChild) {
+        parent.leftChild = rightNode;
+      }
+      if (descendant === parent.rightChild) {
+        parent.rightChild = leftNode;
+      }
+    }
   },
 };
+
+const similarNodeTrees: SimilarNodeTrees = (expectedSiblings, siblings) => {
+  // avoid recursive relationships
+  // travers children but do not traverse parent attribute
+  // compare properties and attributes
+
+  return false;
+};
+
+export { similarNodeTrees, hooks };
