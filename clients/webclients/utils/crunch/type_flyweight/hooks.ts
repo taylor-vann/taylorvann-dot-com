@@ -1,11 +1,13 @@
 // brian taylor vann
 // hooks
 
-type AttributeValue<A> = A | string | boolean | undefined;
+import { Context } from "./context";
+
+type AttributeValue<N, A> = Context<N, A> | A | string | boolean | undefined;
 interface SetAttributeParams<N, A> {
   attribute: string;
   node: N;
-  value: AttributeValue<A>;
+  value: AttributeValue<N, A>;
 }
 
 type SetAttribute<N, A> = (params: SetAttributeParams<N, A>) => void;

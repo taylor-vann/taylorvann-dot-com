@@ -5,10 +5,10 @@ import { samestuff } from "../../../little_test_runner/samestuff/samestuff";
 import { Template } from "../../type_flyweight/template";
 import { crawl } from "./skeleton_crawl";
 
-type TextTextInterpolator = <A>(
+type TextTextInterpolator = <N, A>(
   templateArray: TemplateStringsArray,
   ...injections: A[]
-) => Template<A>;
+) => Template<N, A>;
 
 const testTextInterpolator: TextTextInterpolator = (
   templateArray,

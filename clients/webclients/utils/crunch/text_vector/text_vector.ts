@@ -11,27 +11,27 @@ import {
 
 type Create = (position?: Position) => Vector;
 
-type CreateFollowingVector = <A>(
-  template: Template<A>,
+type CreateFollowingVector = <N, A>(
+  template: Template<N, A>,
   vector: Vector
 ) => Vector | undefined;
 
 type Copy = (vector: Vector) => Vector;
 
-type GetTagetChar = <A>(
-  template: Template<A>,
+type GetTagetChar = <N, A>(
+  template: Template<N, A>,
   vector: Vector
 ) => string | undefined;
 
-type Increment = <A>(
-  template: Template<A>,
+type Increment = <N, A>(
+  template: Template<N, A>,
   vector: Vector
 ) => Vector | undefined;
 
 type HasOriginEclipsedTaraget = (vector: Vector) => boolean;
 
-type GetTextFromVector = <A>(
-  template: Template<A>,
+type GetTextFromVector = <N, A>(
+  template: Template<N, A>,
   vector: Vector
 ) => string | undefined;
 
@@ -118,16 +118,11 @@ const hasOriginEclipsedTaraget: HasOriginEclipsedTaraget = (vector) => {
 };
 
 const getText: GetTextFromVector = (template, vector) => {
-  if (hasOriginEclipsedTaraget(vector)) {
-    return;
-  }
-
   // edge case, only one array length
   if (vector.target.arrayIndex === vector.origin.arrayIndex) {
     const distance = vector.target.stringIndex - vector.origin.stringIndex + 1;
     const templateText = template.templateArray[vector.origin.arrayIndex];
     const copiedText = templateText.substr(vector.origin.stringIndex, distance);
-
     return copiedText;
   }
 

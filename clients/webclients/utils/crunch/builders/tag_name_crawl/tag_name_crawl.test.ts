@@ -7,10 +7,10 @@ import { create, incrementTarget } from "../../text_vector/text_vector";
 
 import { crawlForTagName } from "./tag_name_crawl";
 
-type TextTextInterpolator = <A>(
+type TextTextInterpolator = <N, A>(
   templateArray: TemplateStringsArray,
   ...injections: A[]
-) => Template<A>;
+) => Template<N, A>;
 
 const RECURSION_SAFETY = 256;
 

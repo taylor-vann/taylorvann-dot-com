@@ -3,10 +3,11 @@
 
 import { Hooks } from "../type_flyweight/hooks";
 import { TestNode, TestAttributes } from "./test_element";
+import { Context } from "../type_flyweight/context";
 
 type SimilarNodeTrees = <N>(expectedSiblings: N[], siblings: N[]) => boolean;
 
-const hooks: Hooks<TestNode, TestAttributes> = {
+const hooks: Hooks<TestNode, string> = {
   createNode: (tagname) => {
     return { kind: "ELEMENT", attributes: {}, tagname };
   },
@@ -15,7 +16,7 @@ const hooks: Hooks<TestNode, TestAttributes> = {
   },
   setAttribute: (params) => {
     const { node, attribute, value } = params;
-    if (node.kind === "ELEMENT") {
+    if (node.kind === "ELEMENT" && value instanceof Context) {
       node.attributes[attribute] = value;
     }
   },

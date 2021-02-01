@@ -16,13 +16,16 @@ import {
 } from "../../text_position/text_position";
 
 type Sieve = Partial<Record<CrawlStatus, CrawlStatus>>;
-type SetNodeType = <A>(template: Template<A>, results: CrawlResults) => void;
-type SetStartStateProperties = <A>(
-  template: Template<A>,
+type SetNodeType = <N, A>(
+  template: Template<N, A>,
+  results: CrawlResults
+) => void;
+type SetStartStateProperties = <N, A>(
+  template: Template<N, A>,
   previousCrawl?: CrawlResults
 ) => CrawlResults | undefined;
-type Crawl = <A>(
-  template: Template<A>,
+type Crawl = <N, A>(
+  template: Template<N, A>,
   previousCrawl?: CrawlResults
 ) => CrawlResults | undefined;
 

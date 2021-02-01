@@ -4,12 +4,12 @@
 import { AttributeValue } from "../type_flyweight/hooks";
 
 // boolean, string, and undefined are included in Attributes by default
-type TestAttributes = string;
+type TestAttributes = AttributeValue<TestNode, string>;
 
 interface TestElement {
   kind: "ELEMENT";
   tagname: string;
-  attributes: Record<string, AttributeValue<TestAttributes>>;
+  attributes: Record<string, TestAttributes>;
   parent?: TestElement;
   left?: TestNode;
   right?: TestNode;

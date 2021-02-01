@@ -5,10 +5,10 @@ import { samestuff } from "../../../little_test_runner/samestuff/samestuff";
 import { Template } from "../../type_flyweight/template";
 import { SkeletonNodes, buildSkeleton } from "./build_skeleton";
 
-type TextTextInterpolator = <A>(
+type TextTextInterpolator = <N, A>(
   templateArray: TemplateStringsArray,
   ...injections: A[]
-) => Template<A>;
+) => Template<N, A>;
 
 const title = "build_skeleton";
 

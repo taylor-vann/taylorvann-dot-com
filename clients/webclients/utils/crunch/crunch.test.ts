@@ -15,14 +15,14 @@ import { unitTestTextVector } from "./text_vector/text_vector.test";
 const tests = [
   // unitTestAttributeCrawl,
   // unitTestBuildIntegrals,
-  // unitTestBuildRender,
+  unitTestBuildRender,
   // unitTestBuildSkeleton,
-  // unitTestSkeletonCrawl,
   // unitTestCrawlRouters,
+  // unitTestSkeletonCrawl,
   // unitTestTagNameCrawl,
+  // unitTestTestHooks,
   // unitTestTextPosition,
   // unitTestTextVector,
-  unitTestTestHooks,
 ];
 
 export { tests };

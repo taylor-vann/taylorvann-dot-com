@@ -12,10 +12,10 @@ import {
 import { Position } from "../type_flyweight/text_vector";
 import { Template } from "../type_flyweight/template";
 
-type TestTextInterpolator = <A>(
+type TestTextInterpolator = <N, A>(
   templateArray: TemplateStringsArray,
   ...injections: A[]
-) => Template<A>;
+) => Template<N, A>;
 
 const testTextInterpolator: TestTextInterpolator = (
   templateArray,

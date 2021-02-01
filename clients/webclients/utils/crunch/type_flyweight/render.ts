@@ -7,7 +7,7 @@
 // attribute injection
 
 import { Template } from "./template";
-import { Hooks } from "./hooks";
+import { AttributeValue, Hooks } from "./hooks";
 
 // content injection
 interface ContentInjectionParams<N> {
@@ -33,7 +33,7 @@ interface ContextInjection<N> {
 interface AttributeInjectionParams<N, A> {
   node: N;
   attribute: string;
-  value: A;
+  value: AttributeValue<N, A>;
 }
 interface AttributeInjection<N, A> {
   kind: "ATTRIBUTE";
@@ -64,7 +64,7 @@ type InjectionMap<N, A> = Record<number, Injection<N, A>>;
 
 interface RenderStructure<N, A> {
   hooks: Hooks<N, A>;
-  template: Template<A>;
+  template: Template<N, A>;
   injections: InjectionMap<N, A>;
   siblings: N[];
   stack: NodeBit<N>[];

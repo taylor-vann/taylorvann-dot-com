@@ -3,18 +3,20 @@
 
 // we need an injection test or two
 
+import { AttributeValue } from "../../type_flyweight/hooks";
 import { samestuff } from "../../../little_test_runner/samestuff/samestuff";
 import { BuildIntegralsParams } from "./build_integrals";
 import { buildSkeleton } from "../build_skeleton/build_skeleton";
 import { buildIntegrals } from "./build_integrals";
 import { Integrals } from "../../type_flyweight/integrals";
+import { TestAttributes, TestNode } from "../../test_hooks/test_element";
 
-type TextTextInterpolator = <A>(
+type TextTextInterpolator<N, A> = (
   templateArray: TemplateStringsArray,
-  ...injections: A[]
-) => BuildIntegralsParams<A>;
+  ...injections: AttributeValue<N, A>[]
+) => BuildIntegralsParams<N, A>;
 
-const testTextInterpolator: TextTextInterpolator = (
+const testTextInterpolator: TextTextInterpolator<TestNode, TestAttributes> = (
   templateArray,
   ...injections
 ) => {

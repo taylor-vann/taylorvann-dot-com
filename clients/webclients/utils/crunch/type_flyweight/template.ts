@@ -4,9 +4,11 @@
 // N Node
 // A Attributables
 
-interface Template<A> {
+import { AttributeValue } from "./hooks";
+
+interface Template<N, A> {
   templateArray: TemplateStringsArray;
-  injections: A[];
+  injections: AttributeValue<N, A>[];
 }
 
 export { Template };

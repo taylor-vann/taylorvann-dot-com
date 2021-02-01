@@ -10,10 +10,10 @@ import {
   InjectedAttributeAction,
 } from "../../type_flyweight/attribute_crawl";
 
-type TextTextInterpolator = <A>(
+type TextTextInterpolator = <N, A>(
   templateArray: TemplateStringsArray,
   ...injections: A[]
-) => Template<A>;
+) => Template<N, A>;
 
 const RECURSION_SAFETY = 256;
 

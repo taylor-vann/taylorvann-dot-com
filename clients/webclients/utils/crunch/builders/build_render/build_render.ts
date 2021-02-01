@@ -20,7 +20,7 @@ import { getText, Vector } from "../../text_vector/text_vector";
 
 interface BuildRenderParams<N, A> {
   hooks: Hooks<N, A>;
-  template: Template<A>;
+  template: Template<N, A>;
   integrals: Integrals;
 }
 
@@ -63,70 +63,74 @@ type RenderImplicitAttribute = <N, A>(
   integral: ImplicitAttributeAction
 ) => void;
 
-type AppendDescendant = <N, A>(
-  rs: RenderStructure<N, A>,
-  descendant: N
-) => void;
+type popSelfClosingNodes = <N, A>(rs: RenderStructure<N, A>) => void;
 
-// interface CreateContextInjectionParam<N, A> {
-//   rs: RenderStructure<N, A>;
-//   integral: A;
-// }
-// type CreateContextInjection = <N, A>(
-//   params: CreateContextInjectionParam<N, A>
-// ) => void;
-
-const appendDescendant: AppendDescendant = (rs, descendant) => {
-  // clean up self closing nodes
+// add integral on to stack
+const popSelfClosingNodes: popSelfClosingNodes = (rs) => {
   let parent = rs.stack[rs.stack.length - 1];
-  while (parent.kind === "NODE" && parent.selfClosing === true) {
+  while (
+    parent !== undefined &&
+    parent.kind === "NODE" &&
+    parent.selfClosing === true
+  ) {
     rs.stack.pop();
     parent = rs.stack[rs.stack.length - 1];
-  }
-
-  const parentNode = parent?.node;
-  const leftNode = rs.siblings[rs.siblings.length - 1];
-
-  rs.hooks.appendDescendant(parentNode, descendant);
-  if (rs.stack.length === 0) {
-    rs.siblings.push(descendant);
   }
 };
 
 const createTextNode: RenderTextNode = (rs, integral) => {
+  // bounce through stack for self closing nodes
+  popSelfClosingNodes(rs);
+
   const text = getText(rs.template, integral.textVector);
   if (text === undefined) {
     return;
   }
 
-  const textNode = rs.hooks.createTextNode(text);
+  const node = rs.hooks.createTextNode(text);
+  const parentNode = rs.stack[rs.stack.length - 1]?.node;
+  rs.hooks.appendDescendant(parentNode, node);
 
-  appendDescendant(rs, textNode);
+  if (rs.stack.length === 0) {
+    rs.siblings.push(node);
+  }
 };
 
 const createNode: RenderNode = (rs, integral) => {
+  popSelfClosingNodes(rs);
+
   const tagName = getText(rs.template, integral.tagNameVector);
   if (tagName === undefined) {
     return;
   }
 
+  const parent = rs.stack[rs.stack.length - 1];
   const node = rs.hooks.createNode(tagName);
-  const selfClosing = integral.kind === "SELF_CLOSING_NODE";
 
+  // get parent node
+  const parentNode = parent?.node;
+  rs.hooks.appendDescendant(parentNode, node);
+
+  // add to silblings when stack is flat
+  if (rs.stack.length === 0) {
+    rs.siblings.push(node);
+  }
+
+  const selfClosing = integral.kind === "SELF_CLOSING_NODE";
   rs.stack.push({
     kind: "NODE",
     selfClosing,
     tagName,
     node,
   });
-
-  appendDescendant(rs, node);
 };
 
 const closeNode: RenderCloseNode = (rs, integral) => {
   if (rs.stack.length === 0) {
     return;
   }
+
+  popSelfClosingNodes(rs);
 
   const tagName = getText(rs.template, integral.tagNameVector);
   const nodeBit = rs.stack[rs.stack.length - 1];
@@ -140,6 +144,8 @@ const closeNode: RenderCloseNode = (rs, integral) => {
 };
 
 const createContentInjection: RenderContentInjection = (rs, integral) => {
+  popSelfClosingNodes(rs);
+
   // attach injection as Context
   const parent = rs.stack[rs.stack.length - 1]?.node;
   const left = rs.siblings[rs.stack.length - 1];
@@ -151,7 +157,10 @@ const createContentInjection: RenderContentInjection = (rs, integral) => {
   if (injection instanceof Context) {
     const siblings = injection.getSiblings();
     for (const sibling of siblings) {
-      appendDescendant(rs, sibling);
+      rs.hooks.appendDescendant(parent, sibling);
+      if (rs.stack.length === 0) {
+        rs.siblings.push(sibling);
+      }
     }
 
     rs.injections[integral.injectionID] = {
@@ -165,7 +174,10 @@ const createContentInjection: RenderContentInjection = (rs, integral) => {
   const text = String(injection);
   const textNode = rs.hooks.createTextNode(text);
 
-  appendDescendant(rs, textNode);
+  rs.hooks.appendDescendant(parent, textNode);
+  if (rs.stack.length === 0) {
+    rs.siblings.push(textNode);
+  }
 
   rs.injections[integral.injectionID] = {
     kind: "CONTENT",
@@ -222,6 +234,9 @@ const appendInjectedAttribute: RenderInjectedAttribute = (rs, integral) => {
   const { injectionID } = integral;
   const value = rs.template.injections[injectionID];
 
+  if (value instanceof Context) {
+    return;
+  }
   // add to injection map
   rs.injections[injectionID] = {
     kind: "ATTRIBUTE",
@@ -270,4 +285,13 @@ const buildRender: BuildRender = ({ hooks, template, integrals }) => {
   return rs;
 };
 
-export { buildRender };
+export {
+  appendExplicitAttribute,
+  appendImplicitAttribute,
+  appendInjectedAttribute,
+  buildRender,
+  closeNode,
+  createContentInjection,
+  createNode,
+  createTextNode,
+};

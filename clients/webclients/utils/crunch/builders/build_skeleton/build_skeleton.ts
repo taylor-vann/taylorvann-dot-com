@@ -15,18 +15,18 @@ type NodeType =
   | "CLOSE_NODE"
   | "CONTENT_NODE";
 
-interface BuildMissingStringNodeParams<A> {
-  template: Template<A>;
+interface BuildMissingStringNodeParams<N, A> {
+  template: Template<N, A>;
   currentCrawl: CrawlResults;
   previousCrawl?: CrawlResults;
 }
 
-type BuildMissingStringNode = <A>(
-  params: BuildMissingStringNodeParams<A>
+type BuildMissingStringNode = <N, A>(
+  params: BuildMissingStringNodeParams<N, A>
 ) => CrawlResults | void;
 
 type BuildSkeletonSieve = Record<string, NodeType>;
-type BuildSkeleton = <A>(template: Template<A>) => SkeletonNodes;
+type BuildSkeleton = <N, A>(template: Template<N, A>) => SkeletonNodes;
 
 const MAX_DEPTH = 128;
 

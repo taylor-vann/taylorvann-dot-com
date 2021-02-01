@@ -19,34 +19,34 @@ import { getCharAtPosition } from "../../text_position/text_position";
 import { crawlForTagName } from "../tag_name_crawl/tag_name_crawl";
 import { crawlForAttribute } from "../attribute_crawl/attribute_crawl";
 
-type VectorCrawl = <A>(
-  template: Template<A>,
+type VectorCrawl = <N, A>(
+  template: Template<N, A>,
   innerXmlBounds: Vector
 ) => Vector | undefined;
 
-interface AppendNodeParams<A> {
+interface AppendNodeParams<N, A> {
   integrals: Integrals;
-  template: Template<A>;
+  template: Template<N, A>;
   chunk: CrawlResults;
 }
-type AppendNodeIntegrals = <A>(
-  params: AppendNodeParams<A>
+type AppendNodeIntegrals = <N, A>(
+  params: AppendNodeParams<N, A>
 ) => Integrals | undefined;
 
-interface AppendNodeAttributeParams<A> {
+interface AppendNodeAttributeParams<N, A> {
   integrals: Integrals;
-  template: Template<A>;
+  template: Template<N, A>;
   chunk: Vector;
 }
-type AppendNodeAttributeIntegrals = <A>(
-  params: AppendNodeAttributeParams<A>
+type AppendNodeAttributeIntegrals = <N, A>(
+  params: AppendNodeAttributeParams<N, A>
 ) => Integrals | undefined;
 
-interface BuildIntegralsParams<A> {
-  template: Template<A>;
+interface BuildIntegralsParams<N, A> {
+  template: Template<N, A>;
   skeleton: SkeletonNodes;
 }
-type BuildIntegrals = <A>(params: BuildIntegralsParams<A>) => Integrals;
+type BuildIntegrals = <N, A>(params: BuildIntegralsParams<N, A>) => Integrals;
 
 const RECURSION_SAFETY = 256;
 

@@ -8,13 +8,13 @@ import { Position } from "../type_flyweight/text_vector";
 type Create = (position?: Position) => Position;
 type Copy = (position: Position) => Position;
 
-type Increment = <A>(
-  template: Template<A>,
+type Increment = <N, A>(
+  template: Template<N, A>,
   position: Position
 ) => Position | undefined;
 
-type GetCharAtPosition = <A>(
-  template: Template<A>,
+type GetCharAtPosition = <N, A>(
+  template: Template<N, A>,
   position: Position
 ) => string | undefined;
 

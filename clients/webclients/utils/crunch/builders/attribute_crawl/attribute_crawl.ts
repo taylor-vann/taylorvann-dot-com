@@ -12,13 +12,13 @@ import {
 } from "../../text_vector/text_vector";
 import { getCharAtPosition } from "../../text_position/text_position";
 
-type AttributeCrawl = <A>(
-  template: Template<A>,
+type AttributeCrawl = <N, A>(
+  template: Template<N, A>,
   vectorBounds: Vector
 ) => AttributeAction | undefined;
 
-type AttributeValueCrawl = <A>(
-  template: Template<A>,
+type AttributeValueCrawl = <N, A>(
+  template: Template<N, A>,
   vectorBounds: Vector,
   Attributekind: AttributeAction
 ) => AttributeAction | undefined;
