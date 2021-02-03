@@ -1,4 +1,4 @@
-import { Subscription, SubPub } from "../../subpub/subpub";
+import { Subscription, PubSub } from "../../pubsub/pubsub";
 import { TestRunResults } from "../state_store/state_types/state_types";
 
 type UnsubscribeToResults = () => void;
@@ -7,18 +7,18 @@ type SubscribeToResults = (
 ) => UnsubscribeToResults;
 type BroadcastResults = (testRunState: TestRunResults) => void;
 
-const subpub = new SubPub<TestRunResults>();
+const pubSub = new PubSub<TestRunResults>();
 
 const subscribe: SubscribeToResults = (resultsCallback) => {
-  const stub = subpub.subscribe(resultsCallback);
+  const stub = pubSub.subscribe(resultsCallback);
   return () => {
-    subpub.unsubscribe(stub);
+    pubSub.unsubscribe(stub);
   };
 };
 
 // send current state to subscribers
 const broadcast: BroadcastResults = (testRunState: TestRunResults) => {
-  subpub.broadcast(testRunState);
+  pubSub.broadcast(testRunState);
 };
 
 export { broadcast, subscribe };
