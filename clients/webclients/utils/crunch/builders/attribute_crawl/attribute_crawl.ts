@@ -178,6 +178,11 @@ const getAttributeQuality: AttributeValueCrawl = (
       origin: { ...bound.origin },
       target: { ...valVector.origin },
     };
+
+    // get text vettor between (")<quotes>(")
+    incrementOrigin(template, attributeAction.valueVector);
+    decrementTarget(template, attributeAction.valueVector);
+
     return attributeAction;
   }
 };

@@ -30,7 +30,10 @@ const crawlForTagName = <N, A>(
     return;
   }
 
-  while (positionChar !== " " && !hasOriginEclipsedTaraget(tagVector)) {
+  while (
+    BREAK_RUNES[positionChar] !== undefined &&
+    !hasOriginEclipsedTaraget(tagVector)
+  ) {
     if (incrementOrigin(template, tagVector) === undefined) {
       return;
     }

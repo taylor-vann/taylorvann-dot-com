@@ -17,15 +17,15 @@ type TextTextInterpolator = <N, A>(
 
 const RECURSION_SAFETY = 256;
 
+const title = "attribute_crawl";
+const runTestsAsynchronously = true;
+
 const testTextInterpolator: TextTextInterpolator = (
   templateArray,
   ...injections
 ) => {
   return { templateArray, injections };
 };
-
-const title = "attribute_crawl";
-const runTestsAsynchronously = true;
 
 const emptyString = () => {
   const assertions = [];

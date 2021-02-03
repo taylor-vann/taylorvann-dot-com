@@ -16,6 +16,9 @@ type TextTextInterpolator<N, A> = (
   ...injections: AttributeValue<N, A>[]
 ) => BuildIntegralsParams<N, A>;
 
+const title = "build_integrals";
+const runTestsAsynchronously = true;
+
 const testTextInterpolator: TextTextInterpolator<TestNode, TestAttributes> = (
   templateArray,
   ...injections
@@ -26,9 +29,6 @@ const testTextInterpolator: TextTextInterpolator<TestNode, TestAttributes> = (
     skeleton: buildSkeleton(template),
   };
 };
-
-const title = "build_integrals";
-const runTestsAsynchronously = true;
 
 const findParagraph = () => {
   const assertions = [];
@@ -381,6 +381,7 @@ const testFindCloseParagraphWithTrailingSpaces = () => {
   if (!samestuff(expectedResults, results)) {
     assertions.push("unexpected results found.");
   }
+
   return assertions;
 };
 
