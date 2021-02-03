@@ -49,7 +49,7 @@ const testSetAttribute = () => {
     assertions.push("node should be an ELEMENT");
   }
   if (node.kind === "ELEMENT" && node.attributes["checked"] !== true) {
-    assertions.push("text node should not be undefined.");
+    assertions.push("checked should be true.");
   }
   return assertions;
 };

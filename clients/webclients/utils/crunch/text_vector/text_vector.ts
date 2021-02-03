@@ -47,12 +47,11 @@ const create: Create = (position = DEFAULT_POSITION) => ({
 
 const createFollowingVector: CreateFollowingVector = (template, vector) => {
   const followingVector = copy(vector);
+
   if (increment(template, followingVector.target)) {
     followingVector.origin = copyPosition(followingVector.target);
     return followingVector;
   }
-
-  return;
 };
 
 const copy: Copy = (vector) => {
@@ -92,13 +91,11 @@ const decrementTarget: Increment = (template, vector) => {
 
 const getTextFromTarget: GetTagetChar = (template, vector) => {
   const templateArray = template.templateArray;
-  const arrayIndex = vector.target.arrayIndex;
-  const stringIndex = vector.target.stringIndex;
+  const { arrayIndex, stringIndex } = vector.target;
 
   if (arrayIndex > templateArray.length - 1) {
     return;
   }
-
   if (stringIndex > templateArray[arrayIndex].length - 1) {
     return;
   }
@@ -159,15 +156,15 @@ const getText: GetTextFromVector = (template, vector) => {
 };
 
 export {
-  Vector,
   copy,
   create,
   createFollowingVector,
   decrementOrigin,
   decrementTarget,
-  incrementOrigin,
-  incrementTarget,
   getText,
   getTextFromTarget,
   hasOriginEclipsedTaraget,
+  incrementOrigin,
+  incrementTarget,
+  Vector,
 };

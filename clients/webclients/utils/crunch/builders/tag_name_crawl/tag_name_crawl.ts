@@ -13,13 +13,20 @@ import {
 
 import { getCharAtPosition } from "../../text_position/text_position";
 
+type BreakRunes = Record<string, boolean>;
+
+const BREAK_RUNES: BreakRunes = {
+  " ": true,
+  "\n": true,
+};
+
 const crawlForTagName = <N, A>(
   template: Template<N, A>,
   innerXmlBounds: Vector
 ) => {
   const tagVector: Vector = copy(innerXmlBounds);
   let positionChar = getCharAtPosition(template, tagVector.origin);
-  if (positionChar === undefined || positionChar === " ") {
+  if (positionChar === undefined || BREAK_RUNES[positionChar]) {
     return;
   }
 
@@ -40,7 +47,7 @@ const crawlForTagName = <N, A>(
   };
 
   // walk back a step if successive space found
-  if (positionChar === " ") {
+  if (BREAK_RUNES[positionChar]) {
     decrementTarget(template, adjustedVector);
   }
 

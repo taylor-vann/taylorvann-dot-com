@@ -4,7 +4,7 @@
 import { routers } from "../skeleton_routers/skeleton_routers";
 import { Template } from "../../type_flyweight/template";
 import { CrawlResults, CrawlStatus } from "../../type_flyweight/skeleton_crawl";
-import { Position, Vector } from "../../type_flyweight/text_vector";
+import { Position } from "../../type_flyweight/text_vector";
 import {
   create,
   createFollowingVector,
@@ -49,10 +49,14 @@ const setStartStateProperties: SetStartStateProperties = (
   template,
   previousCrawl
 ) => {
-  let followingVector: Vector | undefined = create();
-  if (previousCrawl !== undefined) {
-    followingVector = createFollowingVector(template, previousCrawl.vector);
+  if (previousCrawl === undefined) {
+    return {
+      nodeType: CONTENT_NODE,
+      vector: create(),
+    };
   }
+
+  const followingVector = createFollowingVector(template, previousCrawl.vector);
   if (followingVector === undefined) {
     return;
   }
@@ -61,8 +65,6 @@ const setStartStateProperties: SetStartStateProperties = (
     nodeType: CONTENT_NODE,
     vector: followingVector,
   };
-
-  setNodeType(template, crawlState);
 
   return crawlState;
 };
@@ -86,6 +88,8 @@ const crawl: Crawl = (template, previousCrawl) => {
   }
 
   let openPosition: Position | undefined;
+  setNodeType(template, crawlState);
+
   while (incrementTarget(template, crawlState.vector)) {
     // default to content_node on each cycle
     if (

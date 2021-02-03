@@ -3,11 +3,12 @@
 
 import { routers } from "./skeleton_routers";
 
-const title = "routers";
+const title = "skeleton routers";
 const runTestsAsynchronously = true;
 
 const notFoundReducesCorrectState = () => {
   const assertions: string[] = [];
+
   if (routers["CONTENT_NODE"]?.["<"] !== "OPEN_NODE") {
     assertions.push("< should return OPEN_NODE");
   }
@@ -21,6 +22,7 @@ const notFoundReducesCorrectState = () => {
 
 const openNodeReducesCorrectState = () => {
   const assertions: string[] = [];
+
   if (routers["OPEN_NODE"]?.["<"] !== "OPEN_NODE") {
     assertions.push("< should return OPEN_NODE");
   }
@@ -29,12 +31,12 @@ const openNodeReducesCorrectState = () => {
     assertions.push("/ should return CLOSE_NODE");
   }
 
-  if (routers["OPEN_NODE"]?.["b"] !== "OPEN_NODE_VALID") {
-    assertions.push("b should return OPEN_NODE_VALID");
+  if (routers["OPEN_NODE"]?.[" "] !== "CONTENT_NODE") {
+    assertions.push("space should return CONTENT_NODE");
   }
 
-  if (routers["OPEN_NODE"]?.["DEFAULT"] !== "CONTENT_NODE") {
-    assertions.push("space should return CONTENT_NODE");
+  if (routers["OPEN_NODE"]?.["DEFAULT"] !== "OPEN_NODE_VALID") {
+    assertions.push("space should return OPEN_NODE_VALID");
   }
 
   return assertions;
@@ -42,6 +44,7 @@ const openNodeReducesCorrectState = () => {
 
 const openNodeValidReducesCorrectState = () => {
   const assertions: string[] = [];
+
   if (routers["OPEN_NODE_VALID"]?.["<"] !== "OPEN_NODE") {
     assertions.push("< should return OPEN_NODE");
   }
@@ -60,6 +63,7 @@ const openNodeValidReducesCorrectState = () => {
 
 const independentNodeValidReducesCorrectState = () => {
   const assertions: string[] = [];
+
   if (routers["SELF_CLOSING_NODE_VALID"]?.["<"] !== "OPEN_NODE") {
     assertions.push("< should return OPEN_NODE");
   }
@@ -75,14 +79,15 @@ const independentNodeValidReducesCorrectState = () => {
 
 const closeNodeReducesCorrectState = () => {
   const assertions: string[] = [];
+
   if (routers["CLOSE_NODE"]?.["<"] !== "OPEN_NODE") {
     assertions.push("< should return OPEN_NODE");
   }
-  if (routers["CLOSE_NODE"]?.["a"] !== "CLOSE_NODE_VALID") {
-    assertions.push("'a' should return CLOSE_NODE_VALID");
-  }
-  if (routers["CLOSE_NODE"]?.["DEFAULT"] !== "CONTENT_NODE") {
+  if (routers["CLOSE_NODE"]?.["DEFAULT"] !== "CLOSE_NODE_VALID") {
     assertions.push("space should return CLOSE_NODE_VALID");
+  }
+  if (routers["CLOSE_NODE"]?.[" "] !== "CONTENT_NODE") {
+    assertions.push("space should return CONTENT_NODE");
   }
 
   return assertions;
@@ -90,6 +95,7 @@ const closeNodeReducesCorrectState = () => {
 
 const closeNodeValidReducesCorrectState = () => {
   const assertions: string[] = [];
+
   if (routers["CLOSE_NODE_VALID"]?.["<"] !== "OPEN_NODE") {
     assertions.push("< should return OPEN_NODE");
   }
@@ -112,10 +118,10 @@ const tests = [
   closeNodeValidReducesCorrectState,
 ];
 
-const unitTestCrawlRouters = {
+const unitTestSkeletonRouters = {
   title,
   tests,
   runTestsAsynchronously,
 };
 
-export { unitTestCrawlRouters };
+export { unitTestSkeletonRouters };

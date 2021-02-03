@@ -23,78 +23,82 @@ type AttributeValueCrawl = <N, A>(
   Attributekind: AttributeAction
 ) => AttributeAction | undefined;
 
+type BreakRunes = Record<string, boolean>;
+
+const QUOTE_RUNE = '"';
+const ASSIGN_RUNE = "=";
 const ATTRIBUTE_FOUND = "ATTRIBUTE_FOUND";
 const ATTRIBUTE_ASSIGNMENT = "ATTRIBUTE_ASSIGNMENT";
 const IMPLICIT_ATTRIBUTE = "IMPLICIT_ATTRIBUTE";
 const EXPLICIT_ATTRIBUTE = "EXPLICIT_ATTRIBUTE";
 const INJECTED_ATTRIBUTE = "INJECTED_ATTRIBUTE";
 
-const getAttributeName: AttributeCrawl = (template, vectorBounds) => {
-  const attributeVector: Vector = copy(vectorBounds);
+const BREAK_RUNES: BreakRunes = {
+  " ": true,
+  "\n": true,
+};
 
-  let positionChar = getCharAtPosition(template, attributeVector.origin);
-  if (positionChar === undefined || positionChar === " ") {
+const getAttributeName: AttributeCrawl = (template, vectorBounds) => {
+  let positionChar = getCharAtPosition(template, vectorBounds.origin);
+  if (positionChar === undefined || BREAK_RUNES[positionChar]) {
     return;
   }
 
   let tagNameCrawlState = ATTRIBUTE_FOUND;
-  if (positionChar === " ") {
-    tagNameCrawlState = IMPLICIT_ATTRIBUTE;
-  }
-  if (positionChar === "=") {
-    tagNameCrawlState = ATTRIBUTE_ASSIGNMENT;
-  }
+  const bounds: Vector = copy(vectorBounds);
 
   while (
     tagNameCrawlState === ATTRIBUTE_FOUND &&
-    !hasOriginEclipsedTaraget(attributeVector)
+    !hasOriginEclipsedTaraget(bounds)
   ) {
-    if (incrementOrigin(template, attributeVector) === undefined) {
+    if (incrementOrigin(template, bounds) === undefined) {
       return;
     }
 
-    positionChar = getCharAtPosition(template, attributeVector.origin);
+    positionChar = getCharAtPosition(template, bounds.origin);
     if (positionChar === undefined) {
       return;
     }
     tagNameCrawlState = ATTRIBUTE_FOUND;
-    if (positionChar === " ") {
+    if (BREAK_RUNES[positionChar]) {
       tagNameCrawlState = IMPLICIT_ATTRIBUTE;
     }
-    if (positionChar === "=") {
+    if (positionChar === ASSIGN_RUNE) {
       tagNameCrawlState = ATTRIBUTE_ASSIGNMENT;
     }
   }
 
   // we have found a tag, copy vector
-  const adjustedVector: Vector = {
+  const attributeVector: Vector = {
     origin: { ...vectorBounds.origin },
-    target: { ...attributeVector.origin },
+    target: { ...bounds.origin },
   };
 
+  // edge case, we've found text but no break runes
   if (tagNameCrawlState === ATTRIBUTE_FOUND) {
     return {
       kind: IMPLICIT_ATTRIBUTE,
-      attributeVector: adjustedVector,
+      attributeVector,
     };
   }
 
+  // if implict attribute
   if (tagNameCrawlState === IMPLICIT_ATTRIBUTE) {
-    if (positionChar === " ") {
-      decrementTarget(template, adjustedVector);
+    if (BREAK_RUNES[positionChar]) {
+      decrementTarget(template, attributeVector);
     }
     return {
       kind: IMPLICIT_ATTRIBUTE,
-      attributeVector: adjustedVector,
+      attributeVector,
     };
   }
 
   if (tagNameCrawlState === ATTRIBUTE_ASSIGNMENT) {
-    decrementTarget(template, adjustedVector);
+    decrementTarget(template, attributeVector);
     return {
       kind: EXPLICIT_ATTRIBUTE,
-      attributeVector: adjustedVector,
-      valueVector: adjustedVector,
+      valueVector: attributeVector,
+      attributeVector,
     };
   }
 };
@@ -104,115 +108,98 @@ const getAttributeQuality: AttributeValueCrawl = (
   vectorBounds,
   attributeAction
 ) => {
-  // make sure explicity attribute follows (=")
-  const attributeVector = copy(vectorBounds);
-
-  let positionChar = getCharAtPosition(template, attributeVector.origin);
-  if (positionChar !== "=") {
+  let positionChar = getCharAtPosition(template, vectorBounds.origin);
+  if (positionChar !== ASSIGN_RUNE) {
     return;
   }
 
-  incrementOrigin(template, attributeVector);
-  if (hasOriginEclipsedTaraget(attributeVector)) {
+  const bound = copy(vectorBounds);
+
+  incrementOrigin(template, bound);
+  if (hasOriginEclipsedTaraget(bound)) {
     return;
   }
 
-  positionChar = getCharAtPosition(template, attributeVector.origin);
-  if (positionChar !== '"') {
+  positionChar = getCharAtPosition(template, bound.origin);
+  if (positionChar !== QUOTE_RUNE) {
     return;
   }
 
   // we have an attribute!
-  const attributeQualityVector = copy(attributeVector);
+  const { arrayIndex } = bound.origin;
+  const valVector = copy(bound);
 
   // check for injected attribute
-  const arrayIndex = attributeVector.origin.arrayIndex;
-  if (incrementOrigin(template, attributeQualityVector) === undefined) {
+  if (incrementOrigin(template, valVector) === undefined) {
     return;
   }
-  positionChar = getCharAtPosition(template, attributeQualityVector.origin);
+  positionChar = getCharAtPosition(template, valVector.origin);
   if (positionChar === undefined) {
     return;
   }
 
   // check if there is a valid injection
-  const arrayIndexDistance = Math.abs(
-    arrayIndex - attributeQualityVector.origin.arrayIndex
-  );
-  if (arrayIndexDistance > 0 && positionChar !== '"') {
-    return;
-  }
-
-  if (arrayIndexDistance === 1 && positionChar === '"') {
-    // we have an injected attribute
-    const injectionVector: Vector = {
-      origin: { ...attributeVector.origin },
-      target: { ...attributeQualityVector.origin },
-    };
-
-    const attributeVectorCopy = copy(attributeAction.attributeVector);
-
+  const arrayIndexDistance = Math.abs(arrayIndex - valVector.origin.arrayIndex);
+  if (arrayIndexDistance === 1 && positionChar === QUOTE_RUNE) {
     return {
       kind: INJECTED_ATTRIBUTE,
-      attributeVector: attributeVectorCopy,
-      valueVector: injectionVector,
       injectionID: arrayIndex,
+      attributeVector: attributeAction.attributeVector,
+      valueVector: {
+        origin: { ...bound.origin },
+        target: { ...valVector.origin },
+      },
     };
   }
 
-  // explore potential explicit attribute
-  while (
-    positionChar !== '"' &&
-    !hasOriginEclipsedTaraget(attributeQualityVector)
-  ) {
-    if (incrementOrigin(template, attributeQualityVector) === undefined) {
-      return;
-    }
-    // check if valid injection
-    if (arrayIndex < attributeQualityVector.origin.arrayIndex) {
+  // explore potential for explicit attribute
+  while (positionChar !== QUOTE_RUNE && !hasOriginEclipsedTaraget(valVector)) {
+    if (incrementOrigin(template, valVector) === undefined) {
       return;
     }
 
-    positionChar = getCharAtPosition(template, attributeQualityVector.origin);
+    // return if unexpected injection found
+    if (arrayIndex < valVector.origin.arrayIndex) {
+      return;
+    }
+
+    positionChar = getCharAtPosition(template, valVector.origin);
     if (positionChar === undefined) {
       return;
     }
   }
 
-  // check if bounds are valid
-  if (positionChar === '"') {
-    const explicitVector: Vector = {
-      origin: { ...attributeVector.origin },
-      target: { ...attributeQualityVector.origin },
+  // exlpicit attribute found
+  if (
+    attributeAction.kind === "EXPLICIT_ATTRIBUTE" &&
+    positionChar === QUOTE_RUNE
+  ) {
+    attributeAction.valueVector = {
+      origin: { ...bound.origin },
+      target: { ...valVector.origin },
     };
-    const attributeVectorCopy = copy(attributeAction.attributeVector);
-
-    return {
-      kind: "EXPLICIT_ATTRIBUTE",
-      attributeVector: attributeVectorCopy,
-      valueVector: explicitVector,
-    };
+    return attributeAction;
   }
 };
 
 const crawlForAttribute: AttributeCrawl = (template, vectorBounds) => {
   // get first character of attribute or return
-  const attributeNameResults = getAttributeName(template, vectorBounds);
-  if (attributeNameResults === undefined) {
+  const attrResults = getAttributeName(template, vectorBounds);
+  if (attrResults === undefined) {
     return;
   }
-  if (attributeNameResults.kind === "IMPLICIT_ATTRIBUTE") {
-    return attributeNameResults;
+  if (attrResults.kind === "IMPLICIT_ATTRIBUTE") {
+    return attrResults;
   }
 
-  // get bounding vector
-  let qualityVector: Vector = copy(vectorBounds);
-  qualityVector.origin = {
-    ...attributeNameResults.attributeVector.target,
+  // get bounds for attribute value
+  let valBounds: Vector = copy(vectorBounds);
+  valBounds.origin = {
+    ...attrResults.attributeVector.target,
   };
-  incrementOrigin(template, qualityVector);
+  incrementOrigin(template, valBounds);
 
-  return getAttributeQuality(template, qualityVector, attributeNameResults);
+  return getAttributeQuality(template, valBounds, attrResults);
 };
 
 export { crawlForAttribute };

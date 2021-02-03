@@ -16,7 +16,11 @@ const hooks: Hooks<TestNode, string> = {
   },
   setAttribute: (params) => {
     const { node, attribute, value } = params;
-    if (node.kind === "ELEMENT" && value instanceof Context) {
+    if (value instanceof Context) {
+      return;
+    }
+
+    if (node.kind === "ELEMENT") {
       node.attributes[attribute] = value;
     }
   },
