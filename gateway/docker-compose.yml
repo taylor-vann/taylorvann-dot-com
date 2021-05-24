@@ -7,17 +7,15 @@ version: "3"
 services:
   webapi:
     container_name: gateway_webapi
-    hostname: briantaylorvann.com
     build:
       context: ./
       dockerfile: dockerfile
     restart: always
-    env_file:
-      - ./environment_variables.env
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./certs/:/usr/local/certs/live/
+      - ./certs/:/usr/local/certs/
+      - ./config/:/usr/local/config/
       - ./webapi/:/root/go/src/webapi/
     command: "go run /root/go/src/webapi/main.go"

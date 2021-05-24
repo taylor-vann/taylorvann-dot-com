@@ -1,9 +1,12 @@
 FROM alpine:latest
 
-VOLUME [ "/root/go/src/webapi/", "/usr/local/certs/live/" ]
+VOLUME [ \
+  "/root/go/src/webapi/", \
+  "/usr/local/certs/", \
+  "/usr/local/config/" ]
 
-RUN apk --update add --no-cache build-base openssl git go
+RUN apk --update add --no-cache build-base git go
 
 WORKDIR /root/go/src/webapi/
 
-EXPOSE [80, 443]
+EXPOSE 80 443

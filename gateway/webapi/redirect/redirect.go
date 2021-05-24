@@ -12,12 +12,12 @@ const (
 )
 
 func getRedirectURL(r *http.Request) string {
-	hostname := r.Host
-	redirectUrl := httpsDelimiter + hostname + r.RequestURI
+	host := r.Host
+	redirectUrl := httpsDelimiter + host + r.RequestURI
 	return redirectUrl
 }
 
-func PassToHttps(w http.ResponseWriter, r *http.Request) {
+func RedirectToHTTPS(w http.ResponseWriter, r *http.Request) {
 	redirectURL := getRedirectURL(r)
 	http.Redirect(
 		w,

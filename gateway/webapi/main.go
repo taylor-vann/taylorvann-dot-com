@@ -1,12 +1,38 @@
 //	brian taylor vann
-//	briantaylorvann dot com
+//	gateway
 
 package main
 
 import (
-	"webapi/server"
+	"net/http"
+	
+	"webapi/details"
+	"webapi/muxrouter"
+)
+
+const (
+	httpPort  = ":80"
+	httpsPort = ":443"
+)
+
+var (
+	certFilepath = details.Details.CertPaths.Cert
+	keyFilepath  = details.Details.CertPaths.PrivateKey
 )
 
 func main() {
-	server.CreateServer()
+	proxyMux := muxrouter.CreateProxyMux()
+	mux := muxrouter.CreateRedirectToHttpsMux()
+
+	go http.ListenAndServeTLS(
+		httpsPort,
+		certFilepath,
+		keyFilepath,
+		proxyMux,
+	)
+
+	http.ListenAndServe(
+		httpPort,
+		mux,
+	)
 }
