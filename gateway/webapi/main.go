@@ -21,8 +21,10 @@ var (
 )
 
 func main() {
-	proxyMux := muxrouter.CreateProxyMux()
-	mux := muxrouter.CreateRedirectToHttpsMux()
+	proxyMux, errProxyMux := muxrouter.CreateProxyMux(&details.Details.Routes)
+	if (errProxyMux != nil) {
+		return
+	}
 
 	go http.ListenAndServeTLS(
 		httpsPort,
@@ -31,6 +33,7 @@ func main() {
 		proxyMux,
 	)
 
+	mux := muxrouter.CreateRedirectToHttpsMux()
 	http.ListenAndServe(
 		httpPort,
 		mux,

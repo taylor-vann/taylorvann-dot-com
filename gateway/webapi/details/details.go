@@ -9,13 +9,13 @@ import (
 )
 
 type CertPaths struct {
-	Cert				string	`json:"cert"`
-	PrivateKey	string	`json:"private_key"`
+	Cert       string `json:"cert"`
+	PrivateKey string `json:"private_key"`
 }
 
 type GatewayDetails struct {
-	CertPaths	*CertPaths				`json:"cert_paths,omitempty"`
-	Routes		map[string]string	`json:"routes"`
+	CertPaths CertPaths         `json:"cert_paths"`
+	Routes    map[string]string `json:"routes"`
 }
 
 const (
@@ -23,26 +23,26 @@ const (
 )
 
 var (
-	Details, DetailsErr = readDetailsFromFile()
+	Details, DetailsErr = ReadDetailsFromFile(detailsPath)
 )
 
-func readFile(path string) (*[]byte, *error) {
-	detailsJSON, errDetiailsJSON := ioutil.ReadFile(detailsPath)
-	return &detailsJSON, &errDetiailsJSON
+func readFile(path string) (*[]byte, error) {
+	detailsJSON, errDetiailsJSON := ioutil.ReadFile(path)
+	return &detailsJSON, errDetiailsJSON
 }
 
-func rarseDetails(detailsJSON *[]byte, err *error) (*GatewayDetails, *error) {
-	if (*err != nil) {
-		return nil, err;
+func parseDetails(detailsJSON *[]byte, err error) (*GatewayDetails, error) {
+	if err != nil {
+		return nil, err
 	}
 
 	var details GatewayDetails
 	errDetails := json.Unmarshal(*detailsJSON, &details)
 
-	return &details, &errDetails
+	return &details, errDetails
 }
 
-func readDetailsFromFile() (*GatewayDetails, *error) {
-	detailsJSON, errDetailsJSON := readFile(detailsPath)
+func ReadDetailsFromFile(path string) (*GatewayDetails, error) {
+	detailsJSON, errDetailsJSON := readFile(path)
 	return parseDetails(detailsJSON, errDetailsJSON)
 }

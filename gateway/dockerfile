@@ -1,7 +1,6 @@
 FROM alpine:latest
 
-VOLUME [ \
-  "/root/go/src/webapi/", \
+VOLUME [ "/root/go/src/webapi/", \
   "/usr/local/certs/", \
   "/usr/local/config/" ]
 
