@@ -6,6 +6,8 @@ VOLUME [ "/root/go/src/webapi/", \
 
 RUN apk --update add --no-cache build-base git go
 
+RUN go get github.com/gomodule/redigo/redis/
+
 WORKDIR /root/go/src/webapi/
 
 EXPOSE 80 443

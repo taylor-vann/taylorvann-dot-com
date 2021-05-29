@@ -17,3 +17,11 @@ services:
       - ./config/:/usr/local/config/
       - ./webapi/:/root/go/src/webapi/
     command: "go run /root/go/src/webapi/main.go"
+  cache:
+    container_name: gateway_cache
+    build:
+      context: ./cache/
+      dockerfile: dockerfile
+    restart: always
+    volumes:
+      - ./cache_store/redis_data/:/data
