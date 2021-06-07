@@ -12,8 +12,8 @@ import (
 )
 
 var (
-	httpPort  = fmt.Sprint(":", details.Details.Server.HTTPPort)
-	httpsPort = fmt.Sprint(":", details.Details.Server.HTTPSPort)
+	httpPort     = fmt.Sprint(":", details.Details.Server.HTTPPort)
+	httpsPort    = fmt.Sprint(":", details.Details.Server.HTTPSPort)
 	certFilepath = details.Details.CertPaths.Cert
 	keyFilepath  = details.Details.CertPaths.PrivateKey
 )

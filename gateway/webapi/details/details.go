@@ -9,8 +9,8 @@ import (
 )
 
 type ServerDetails struct {
-	HTTPPort		 int `json:"http_port"`
-	HTTPSPort		 int `json:"https_port"`
+	HTTPPort     int `json:"http_port"`
+	HTTPSPort    int `json:"https_port"`
 	IdleTimeout  int `json:"idle_timeout"`
 	ReadTimeout  int `json:"read_timeout"`
 	WriteTimeout int `json:"write_timeout"`

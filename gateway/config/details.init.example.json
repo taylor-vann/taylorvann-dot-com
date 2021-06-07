@@ -1,7 +1,7 @@
 {
   "server": {
-    "http_port": "80",
-    "https_port": "443",
+    "http_port": 80,
+    "https_port": 443,
     "idle_timeout": 5,
     "read_timeout": 5,
     "write_timeout": 10
