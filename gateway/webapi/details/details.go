@@ -1,5 +1,5 @@
 // brian taylor vann
-// briantaylorvann dot com
+// details
 
 package details
 
@@ -7,6 +7,14 @@ import (
 	"encoding/json"
 	"io/ioutil"
 )
+
+type ServerDetails struct {
+	HTTPPort		 int `json:"http_port"`
+	HTTPSPort		 int `json:"https_port"`
+	IdleTimeout  int `json:"idle_timeout"`
+	ReadTimeout  int `json:"read_timeout"`
+	WriteTimeout int `json:"write_timeout"`
+}
 
 type CertPaths struct {
 	Cert       string `json:"cert"`
@@ -16,6 +24,7 @@ type CertPaths struct {
 type GatewayDetails struct {
 	CertPaths CertPaths         `json:"cert_paths"`
 	Routes    map[string]string `json:"routes"`
+	Server    ServerDetails     `json:"server"`
 }
 
 const (

@@ -43,7 +43,7 @@ func TestReadDetailsFromFile(t *testing.T) {
 		t.Fail()
 		t.Logf(errExampleDetails.Error())
 	}
-	
+
 	if exampleDetails == nil {
 		t.Fail()
 		t.Logf("Application details should be created")

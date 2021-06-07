@@ -74,7 +74,7 @@ func TestRedirectToHTTPS(t *testing.T) {
 	}
 }
 
-func TestCreateRedirectToHttpsMux(t *testing.T) {
+func TestCreateRedirectMux(t *testing.T) {
 	request, errRequest := http.NewRequest("GET", testHTTPStr, nil)
 	if errRequest != nil {
 		t.Fail()
@@ -83,7 +83,7 @@ func TestCreateRedirectToHttpsMux(t *testing.T) {
 
 	testRecorder := httptest.NewRecorder()
 
-	mux := CreateRedirectToHttpsMux()
+	mux := CreateRedirectMux()
 	mux.ServeHTTP(testRecorder, request)
 
 	locations := testRecorder.HeaderMap["Location"]
@@ -93,14 +93,14 @@ func TestCreateRedirectToHttpsMux(t *testing.T) {
 	}
 }
 
-func TestCreateProxyMux(t *testing.T) {
+func TestCreateHTTPSMux(t *testing.T) {
 	exampleDetails, errExampleDetails := details.ReadDetailsFromFile(exampleDetailsPath)
 	if errExampleDetails != nil {
 		t.Fail()
 		t.Logf(errExampleDetails.Error())
 	}
 
-	proxyMux, errProxyMux := CreateProxyMux(&exampleDetails.Routes)
+	proxyMux, errProxyMux := CreateHTTPSMux(&exampleDetails.Routes)
 	if errProxyMux != nil {
 		t.Fail()
 		t.Logf(errProxyMux.Error())

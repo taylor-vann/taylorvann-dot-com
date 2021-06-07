@@ -4,25 +4,23 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
-	
+
 	"webapi/details"
 	"webapi/muxrouter"
 )
 
-const (
-	httpPort  = ":80"
-	httpsPort = ":443"
-)
-
 var (
+	httpPort  = fmt.Sprint(":", details.Details.Server.HTTPPort)
+	httpsPort = fmt.Sprint(":", details.Details.Server.HTTPSPort)
 	certFilepath = details.Details.CertPaths.Cert
 	keyFilepath  = details.Details.CertPaths.PrivateKey
 )
 
 func main() {
-	proxyMux, errProxyMux := muxrouter.CreateProxyMux(&details.Details.Routes)
-	if (errProxyMux != nil) {
+	proxyMux, errProxyMux := muxrouter.CreateHTTPSMux(&details.Details.Routes)
+	if errProxyMux != nil {
 		return
 	}
 
@@ -33,7 +31,7 @@ func main() {
 		proxyMux,
 	)
 
-	mux := muxrouter.CreateRedirectToHttpsMux()
+	mux := muxrouter.CreateRedirectMux()
 	http.ListenAndServe(
 		httpPort,
 		mux,

@@ -1,15 +1,18 @@
 {
+  "server": {
+    "http_port": "80",
+    "https_port": "443",
+    "idle_timeout": 5,
+    "read_timeout": 5,
+    "write_timeout": 10
+  },
   "cert_paths": {
-    "cert": "/usr/local/certs/fullchain.pem",
-    "private_key": "/usr/local/certs/privkey.pem"
+    "cert": "/usr/local/config/fullchain.pem",
+    "private_key": "/usr/local/config/privkey.pem"
   },
   "routes": {
     "https://superawesome.com": "https://127.0.0.1:5000",
     "https://www.superawesome.com": "https://127.0.0.1:5001",
     "https://really.superawesome.com": "https://127.0.0.1:5002"
-  },
-  "limit_requests_per_minute": {
-    "maximum": 256000,
-    "per_ip": 256
   }
 }

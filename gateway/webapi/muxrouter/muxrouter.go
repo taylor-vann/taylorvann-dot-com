@@ -14,7 +14,7 @@ const (
 	httpsScheme    = "https"
 	XForwardedFor  = "X-Forwarded-For"
 	XForwardedHost = "X-Forwarded-Host"
-	emptyString		 = ""
+	emptyString    = ""
 )
 
 type ProxyMux map[string]http.Handler
@@ -39,12 +39,13 @@ func RedactURLFromString(fullURL string, err error) (*url.URL, error) {
 func (proxyMux ProxyMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	redactedURL, errRedactedURL := RedactURL(r.URL, nil)
 	if errRedactedURL != nil {
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	}
 
 	proxyKey := redactedURL.String()
-	mux := proxyMux[proxyKey]
-	if mux == nil {
+	mux, muxFound := proxyMux[proxyKey]
+	if muxFound == false {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	}
@@ -53,27 +54,6 @@ func (proxyMux ProxyMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	r.Header.Set(XForwardedHost, r.Host)
 
 	mux.ServeHTTP(w, r)
-}
-
-func CreateProxyMux(routes *map[string]string) (*ProxyMux, error) {
-	proxyMux := make(ProxyMux)
-
-	for dest, target := range *routes {
-		destURL, errDestURL := RedactURLFromString(dest, nil)
-		if errDestURL != nil {
-			return nil, errDestURL
-		}
-
-		targetURL, errTargetURL := RedactURLFromString(target, nil)
-		if errTargetURL != nil {
-			return nil, errTargetURL
-		}
-
-		destRedacted := destURL.String()
-		proxyMux[destRedacted] = httputil.NewSingleHostReverseProxy(targetURL)
-	}
-
-	return &proxyMux, nil
 }
 
 func redirectToHTTPS(w http.ResponseWriter, r *http.Request) {
@@ -94,7 +74,28 @@ func redirectToHTTPS(w http.ResponseWriter, r *http.Request) {
 	)
 }
 
-func CreateRedirectToHttpsMux() *http.ServeMux {
+func CreateHTTPSMux(routes *map[string]string) (*ProxyMux, error) {
+	proxyMux := make(ProxyMux)
+
+	for dest, target := range *routes {
+		destURL, errDestURL := RedactURLFromString(dest, nil)
+		if errDestURL != nil {
+			return nil, errDestURL
+		}
+
+		targetURL, errTargetURL := RedactURLFromString(target, nil)
+		if errTargetURL != nil {
+			return nil, errTargetURL
+		}
+
+		destRedacted := destURL.String()
+		proxyMux[destRedacted] = httputil.NewSingleHostReverseProxy(targetURL)
+	}
+
+	return &proxyMux, nil
+}
+
+func CreateRedirectMux() *http.ServeMux {
 	mux := http.NewServeMux()
 	mux.HandleFunc(homeRoute, redirectToHTTPS)
 
