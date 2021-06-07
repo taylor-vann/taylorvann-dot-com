@@ -27,6 +27,7 @@ bundled.tests.js
 ## Redis
 #    ignore all redis data
 **/redis_data/
+*.rdb
 
 ## Postgres
 #     ignore all databases.
