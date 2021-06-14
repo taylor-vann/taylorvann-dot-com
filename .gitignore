@@ -9,6 +9,8 @@
 !*.example.env
 *.init.json
 !*.example.init.json
+*.json
+!*.example.json
 
 ## Certs and Keys
 #   Do not save keys, ever

@@ -9,7 +9,6 @@ import (
 	"fmt"
 
 	_ "github.com/lib/pq"
-	"github.com/taylor-vann/weblog/toolbox/golang/pgsqlx/constants"
 )
 
 type PGConfig struct {
@@ -24,6 +23,8 @@ type PGConnection struct {
 	DB     *sql.DB
 	Config *PGConfig
 }
+
+const ConnectionString = "postgresql://%s:%s@%s:%d/%s?sslmode=disable"
 
 func (pgconn *PGConnection) Close() (*PGConnection, error) {
 	if pgconn.DB == nil {

@@ -11,32 +11,19 @@ import (
 )
 
 type ServerDetails struct {
-	HTTPSPort		 int `json:"https_port"`
+	HTTPPort		 int `json:"http_port"`
 	IdleTimeout  int `json:"idle_timeout"`
 	ReadTimeout  int `json:"read_timeout"`
 	WriteTimeout int `json:"write_timeout"`
 }
 
-type LimiterDetails struct {
-	Interval          int `json:"interval"`
-	MaxServerRequests int `json:"write_timeout"`
-	MaxClientRequests int `json:"max_client_requests"`
-}
-
-type CertPaths struct {
-	Cert       string `json:"cert"`
-	PrivateKey string `json:"private_key"`
-}
-
-type DeltaCounterDetails struct {
+type SuperCacheDetails struct {
 	Server    ServerDetails     `json:"server"`
-	CertPaths CertPaths         `json:"cert_paths"`
 	Cache     redisx.Config     `json:"cache"`
-	Limiter   LimiterDetails    `json:"limiter"`
 }
 
 const (
-	detailsPath = "/usr/local/config/details.init.json"
+	detailsPath = "/usr/local/config/config.json"
 )
 
 var (
@@ -48,18 +35,18 @@ func readFile(path string) (*[]byte, error) {
 	return &detailsJSON, errDetiailsJSON
 }
 
-func parseDetails(detailsJSON *[]byte, err error) (*DeltaCounterDetails, error) {
+func parseDetails(detailsJSON *[]byte, err error) (*SuperCacheDetails, error) {
 	if err != nil {
 		return nil, err
 	}
 
-	var details DeltaCounterDetails
+	var details SuperCacheDetails
 	errDetails := json.Unmarshal(*detailsJSON, &details)
 
 	return &details, errDetails
 }
 
-func ReadDetailsFromFile(path string) (*DeltaCounterDetails, error) {
+func ReadDetailsFromFile(path string) (*SuperCacheDetails, error) {
 	detailsJSON, errDetailsJSON := readFile(path)
 	return parseDetails(detailsJSON, errDetailsJSON)
 }
