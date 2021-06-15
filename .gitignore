@@ -39,6 +39,5 @@ bundled.tests.js
 **/package-lock.json
 
 # super chunks
-super_chunks/supercache/cache/conf/redis.conf
-super_chunks/supercache/cache/dockerfile
+super_chunks/supercache/cache
 super_chunks/supercache/docker-compose.yml

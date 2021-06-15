@@ -1,6 +1,14 @@
+import os
 import json
 import subprocess
 from string import Template
+
+
+def create_required_directories():
+    if not os.path.exists("cache/conf"):
+        os.makedirs("cache/conf")
+    if not os.path.exists("cache/data"):
+        os.makedirs("cache/data")
 
 
 def get_config(source):
@@ -12,14 +20,14 @@ def get_config(source):
 
 
 def create_template(source, target, keywords):
-    dockerfile = open(source, 'r')
-    dockerfile_template = Template(dockerfile.read())
-    dockerfile.close()
-    updated_dockerfile_template = dockerfile_template.substitute(**keywords)
+    source_file = open(source, 'r')
+    source_file_template = Template(source_file.read())
+    source_file.close()
+    updated_source_file_template = source_file_template.substitute(**keywords)
 
-    dest_dockerfile = open(target, "w")
-    dest_dockerfile.write(updated_dockerfile_template)
-    dest_dockerfile.close()
+    target_file = open(target, "w+")
+    target_file.write(updated_source_file_template)
+    target_file.close()
 
 
 def create_required_templates(config):
@@ -49,6 +57,8 @@ def build_podman_files():
 
 
 if __name__ == "__main__":
+    create_required_directories()
     config = get_config("config/config.json")
+    print(config)
     create_required_templates(config)
-    build_podman_files()
+    # build_podman_files()

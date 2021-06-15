@@ -4,8 +4,8 @@ Deployable cache as webservice.
 
 ## Setup
 
-Use `config/config.example.json` as an example to create `config/config.json` as a configuration file.
+Create `config/config.json` as a configuration file. Use `config/config.example.json` as an example config.
 
-Run the following command:
+Then run the following command:
 
 `python3 build_and_run_supercache.py`

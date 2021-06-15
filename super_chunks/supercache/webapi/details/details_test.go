@@ -7,10 +7,10 @@ import (
 
 const (
 	exampleDetailsPath = "/usr/local/config/details.init.example.json"
-	expectedCerts := "/usr/local/config/fullchain.pem"
-	expectedPrivKey := "/usr/local/config/privkey.pem"
-	superawesome := "https://superawesome.com"
-	expectedAddress := "https://127.0.0.1:5000"
+	expectedCerts = "/usr/local/config/fullchain.pem"
+	expectedPrivKey = "/usr/local/config/privkey.pem"
+	superawesome = "https://superawesome.com"
+	expectedAddress = "https://127.0.0.1:5000"
 )
 
 func TestReadFile(t *testing.T) {

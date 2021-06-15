@@ -18,8 +18,9 @@ type ServerDetails struct {
 }
 
 type SuperCacheDetails struct {
-	Server    ServerDetails     `json:"server"`
-	Cache     redisx.Config     `json:"cache"`
+	ServiceName string				`json:"service_name"`	
+	Server    	ServerDetails	`json:"server"`
+	Cache     	redisx.Config	`json:"cache"`
 }
 
 const (
