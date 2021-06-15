@@ -5,18 +5,17 @@
 
 ## Environment Variables
 #    never upload, but keep examples
-*.env
+**.env
 !*.example.env
-*.init.json
-!*.example.init.json
-*.json
-!*.example.json
+**.json
+!**.example.json
+!**.init.json
 
 ## Certs and Keys
 #   Do not save keys, ever
-*.crt
-*.key
-*.pem
+**.crt
+**.key
+**.pem
 
 ## Clients
 #    ignore all node modules
@@ -28,8 +27,7 @@ bundled.tests.js
 
 ## Redis
 #    ignore all redis data
-**/redis_data/
-*.rdb
+**dump.rdb
 
 ## Postgres
 #     ignore all databases.
