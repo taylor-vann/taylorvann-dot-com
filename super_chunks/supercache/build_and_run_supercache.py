@@ -1,3 +1,6 @@
+# build_and_run_supercache
+# brian taylor vann
+
 import os
 import json
 import subprocess
@@ -59,6 +62,5 @@ def build_podman_files():
 if __name__ == "__main__":
     create_required_directories()
     config = get_config("config/config.json")
-    print(config)
     create_required_templates(config)
-    # build_podman_files()
+    build_podman_files()
