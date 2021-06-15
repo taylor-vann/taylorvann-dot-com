@@ -9,7 +9,8 @@ config.close()
 dockerfile = open('templates/template.dockerfile', 'r')
 dockerfile_template = Template(dockerfile.read())
 dockerfile.close()
-updated_dockerfile_template = dockerfile_template.substitute(config_data["cache"])
+updated_dockerfile_template = dockerfile_template.substitute(
+    config_data["cache"])
 
 dest_dockerfile = open("cache/dockerfile", "w")
 dest_dockerfile.write(updated_dockerfile_template)
@@ -32,7 +33,8 @@ dockercompose.close()
 
 http_port = config_data["server"]["http_port"]
 redis_port = config_data["cache"]["redis_port"]
-updated_dockercompose_template = dockercompose_template.substitute(http_port=http_port, redis_port=redis_port)
+updated_dockercompose_template = dockercompose_template.substitute(
+    http_port=http_port, redis_port=redis_port)
 
 dest_dockercompose = open("docker-compose.yml", "w")
 dest_dockercompose.write(updated_dockercompose_template)

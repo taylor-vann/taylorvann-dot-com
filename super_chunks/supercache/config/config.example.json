@@ -1,4 +1,5 @@
 {
+  "service_name": "supercache",
   "server": {
     "http_port": 3000,
     "idle_timeout": 5,

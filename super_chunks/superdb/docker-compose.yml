@@ -4,21 +4,21 @@
 version: "3"
 services:
   webapi:
-    container_name: supercache_webapi_${http_port}
+    container_name: superdb_webapi_3000
     build:
       context: ./webapi/
       dockerfile: dockerfile
     restart: always
     ports:
-      - "${http_port}:80"
+      - "3000:80"
     volumes:
       - ./config/:/usr/local/config/
       - ./webapi/:/root/go/src/webapi/
     command: "go run /root/go/src/webapi/main.go"
   cache:
     depends_on:
-      - supercache_webapi_${http_port}
-    container_name: supercache_cache_${redis_port}
+      - superdb_webapi_3000
+    container_name: superdb_cache_6379
     build:
       context: ./cache/
       dockerfile: dockerfile

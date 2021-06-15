@@ -39,3 +39,8 @@ bundled.tests.js
 **/yarn-error.log
 **/yarn.lock
 **/package-lock.json
+
+# super chunks
+super_chunks/supercache/cache/conf/redis.conf
+super_chunks/supercache/cache/dockerfile
+super_chunks/supercache/docker-compose.yml
