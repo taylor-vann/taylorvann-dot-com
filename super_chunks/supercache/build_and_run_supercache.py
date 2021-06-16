@@ -48,7 +48,7 @@ def create_required_templates(config):
                                            "redis_port": cache_config["redis_port"]})
 
 
-def build_podman_files():
+def build_and_run_podman():
     subprocess.run(["podman-compose", "--file",
                    "./docker-compose.yml", "down"])
 
@@ -63,4 +63,4 @@ if __name__ == "__main__":
     create_required_directories()
     config = get_config("config/config.json")
     create_required_templates(config)
-    build_podman_files()
+    build_and_run_podman()

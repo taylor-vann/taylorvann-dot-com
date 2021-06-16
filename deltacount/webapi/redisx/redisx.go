@@ -31,7 +31,7 @@ func Create(config *Config) (*redis.Pool, error) {
 		)
 	}
 
-	redisAddress := fmt.Sprint(config.Host, DELIMITER, config.Port)
+	redisAddress := fmt.Sprint(config.Host, DELIMITER, config.RedisPort)
 
 	pool := redis.Pool{
 		MaxIdle:     config.MaxIdle,

@@ -1,16 +1,11 @@
 package details
 
 import (
-	"fmt"
 	"testing"
 )
 
 const (
-	exampleDetailsPath = "/usr/local/config/details.init.example.json"
-	expectedCerts = "/usr/local/config/fullchain.pem"
-	expectedPrivKey = "/usr/local/config/privkey.pem"
-	superawesome = "https://superawesome.com"
-	expectedAddress = "https://127.0.0.1:5000"
+	exampleDetailsPath = "/usr/local/config/config.example.json"
 )
 
 func TestReadFile(t *testing.T) {
@@ -51,31 +46,5 @@ func TestReadDetailsFromFile(t *testing.T) {
 	if exampleDetails == nil {
 		t.Fail()
 		t.Logf("Application details should be created")
-	}
-}
-
-func TestReadCorrectDetailsFromFile(t *testing.T) {
-	exampleFile, errExampleFile := readFile(exampleDetailsPath)
-	exampleDetails, _ := parseDetails(exampleFile, errExampleFile)
-	superawesomeAddress, keyFound := exampleDetails.Routes[superawesome]
-
-	if exampleDetails.CertPaths.Cert != expectedCerts {
-		t.Fail()
-		t.Logf(fmt.Sprint("Example detail cert path should be:", expectedCerts))
-	}
-
-	if exampleDetails.CertPaths.PrivateKey != expectedPrivKey {
-		t.Fail()
-		t.Logf(fmt.Sprint("Example detail cert path should be:", expectedPrivKey))
-	}
-
-	if keyFound != true {
-		t.Fail()
-		t.Logf(fmt.Sprint("Key should exist:", superawesome))
-	}
-
-	if superawesomeAddress != expectedAddress {
-		t.Fail()
-		t.Logf(fmt.Sprint("Expected address:", superawesomeAddress))
 	}
 }

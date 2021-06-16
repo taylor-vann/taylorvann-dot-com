@@ -12,12 +12,13 @@ import (
 )
 
 type Config struct {
-	Host        string
-	Port        int
-	Protocol    string
-	MaxIdle     int
-	IdleTimeout time.Duration
-	MaxActive   int
+	Host        string				`json:"redis_host"`
+	IdleTimeout time.Duration	`json:"idle_timeout"`
+	MaxActive   int						`json:"max_active"`
+	MaxIdle     int						`json:"max_idle"`
+	MaxSizeInMB	string				`json:"max_size_in_mb"`
+	Port        int						`json:"redis_port"`
+	Protocol    string				`json:"protocol"`
 }
 
 const (
