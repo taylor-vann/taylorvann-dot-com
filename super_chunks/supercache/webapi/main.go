@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"webapi/details"
-	"webapi/muxrouter"
+	"webapi/mux"
 )
 
 var (
@@ -13,7 +13,7 @@ var (
 )
 
 func main() {
-	httpMux := muxrouter.CreateMux()
+	httpMux := mux.CreateMux()
 
 	http.ListenAndServe(
 		httpPort,

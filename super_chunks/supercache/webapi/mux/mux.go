@@ -1,72 +1,83 @@
 //	brian taylor vann
 
-package muxrouter
+package mux
 
 import (
 	"encoding/json"
 	"net/http"
 
+	"webapi/details"
 	"webapi/setterx"
 )
 
 const (
-	getDetails = "/details"
+	contentType = "Content-Type"
+	applicationJson = "application/json"
+	detailsRoute = "/details"
+	detailsRouteWithSlash = "/details"
 	getRoute   = "/get"
 	getRouteWithSlash   = "/get/"
 	setRoute   = "/set"
 	setRouteWithSlash   = "/set/"
 )
 
-type SetRequestBody struct {
-	Address string      `json:"address"`
-	Entry   interface{} `json:"entry"`
-}
-
 type GetEntryRequestBody = string
 
 type ErrorEntity struct {
-	kind    string `json:"kind"`
-	message string `json:"message"`
+	Kind    string `json:"kind"`
+	Message string `json:"message"`
 }
 
-type ErrorResponse = []ErrorEntity
+type ErrorDeclarations = []ErrorEntity
 
 const (
 	incorrectRequest = "request body structure is incorrect"
 	failedToGet = "failed to return entry"
 	failedToSet = "failed to set address and entry"
+)
 
+var (
+	setter, errSetter = setterx.Create(&details.Details.Cache)
 )
 
 func writeError(w http.ResponseWriter, kind string, message string) {
-	setErrors := ErrorResponse{
+	setErrors := ErrorDeclarations{
 		ErrorEntity{
-			kind,
-			message,
+			Kind: kind,
+			Message: message,
 		},
 	}
-	json.NewEncoder(w).Encode(setErrors)
 	w.WriteHeader(http.StatusBadRequest)
+	w.Header().Set(contentType, applicationJson)
+	json.NewEncoder(w).Encode(setErrors)
+	
 }
 
 func writeGetEntry(w http.ResponseWriter, entry interface{}) {
-	json.NewEncoder(w).Encode(entry)
 	w.WriteHeader(http.StatusOK)
+	w.Header().Set(contentType, applicationJson)
+	json.NewEncoder(w).Encode(entry)
 }
 
-func writeSetEntry(w http.ResponseWriter, entry interface{}) {
+func writeSetEntry(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusOK)
+	w.Header().Set(contentType, applicationJson)
 }
 
 func setEntry(w http.ResponseWriter, r *http.Request) {
-	var rBody SetRequestBody
+	if r.Body == nil {
+		writeError(w, incorrectRequest, "nil request body found")
+		return
+	}
+
+	var rBody setterx.SetBody
 	errRBody := json.NewDecoder(r.Body).Decode(&rBody)
 	if errRBody != nil {
 		writeError(w, incorrectRequest, errRBody.Error())
 		return
 	}
 
-	entry, errEntry := setterx.Set(address)
+	_, errEntry := setter.Set(&rBody)
 	if errRBody != nil {
 		writeError(w, failedToSet, errEntry.Error())
 		return
@@ -83,7 +94,12 @@ func getEntry(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	entry, errEntry := setterx.Get(address)
+	if r.Body == nil {
+		writeError(w, incorrectRequest, errRBody.Error())
+		return
+	}
+
+	entry, errEntry := setter.Get(address)
 	if errRBody != nil {
 		writeError(w, failedToGet, errEntry.Error())
 		return
@@ -96,10 +112,10 @@ func CreateMux() *http.ServeMux {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc(setRoute, getEntry)
-	mux.HandleFunc(setRoute, getEntryWithSlash)
+	mux.HandleFunc(setRouteWithSlash, getEntry)
 
 	mux.HandleFunc(getRoute, setEntry)
-	mux.HandleFunc(getRoute, setEntryWithSlash)
+	mux.HandleFunc(getRouteWithSlash, setEntry)
 
 	return mux
 }

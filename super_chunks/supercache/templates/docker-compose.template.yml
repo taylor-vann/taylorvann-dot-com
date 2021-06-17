@@ -4,7 +4,7 @@
 version: "3"
 services:
   webapi:
-    container_name: ${service_name}_webapi_${http_port}
+    container_name: ${service_name}_${http_port}
     build:
       context: ./webapi/
       dockerfile: dockerfile
@@ -17,7 +17,7 @@ services:
     command: "go run /root/go/src/webapi/main.go"
   cache:
     depends_on:
-      - ${service_name}_webapi_${http_port}
+      - ${service_name}_${http_port}
     container_name: supercache_cache_${redis_port}
     build:
       context: ./cache/
