@@ -1,5 +1,5 @@
 {
-  "service_name": "gateway",
+  "service_name": "supergateway",
   "server": {
     "http_port": 80,
     "https_port": 443,
