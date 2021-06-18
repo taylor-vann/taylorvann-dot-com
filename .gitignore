@@ -41,3 +41,5 @@ bundled.tests.js
 # super chunks
 super_chunks/supercache/cache
 super_chunks/supercache/docker-compose.yml
+super_chunks/supergateway/webapi/dockerfile
+super_chunks/supergateway/docker-compose.yml

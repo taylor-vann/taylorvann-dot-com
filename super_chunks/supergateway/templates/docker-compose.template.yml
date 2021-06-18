@@ -1,0 +1,18 @@
+# brian taylor vann
+# taylorvann dot com
+
+version: "3"
+services:
+  webapi:
+    container_name: ${service_name}_${https_port}
+    build:
+      context: ./webapi/
+      dockerfile: dockerfile
+    restart: always
+    ports:
+      - "${http_port}:80"
+      - "${https_port}:443"
+    volumes:
+      - ./config/:/usr/local/config/
+      - ./webapi/:/root/go/src/webapi/
+    command: "go run /root/go/src/webapi/main.go"
