@@ -1,0 +1,17 @@
+{
+  "server": {
+    "http_port": 3000,
+    "idle_timeout": 5,
+    "read_timeout": 5,
+    "write_timeout": 10
+  },
+  "db": {
+    "host": "127.0.0.1",
+    "idle_timeout": 1,
+    "max_active": 1024,
+    "max_idle": 128,
+    "max_size_in_mb": "64mb",
+    "pgsql_port": 6379,
+    "protocol": "tcp"
+  }
+}

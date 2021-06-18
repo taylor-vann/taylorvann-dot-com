@@ -37,7 +37,7 @@ type TokenDetails struct {
 }
 
 type Token struct {
-	Header    string `json:"header"`
+	Header    string `json:"header"`œ
 	Payload   string `json:"payload"`
 	Signature string `json:"signature"`
 }

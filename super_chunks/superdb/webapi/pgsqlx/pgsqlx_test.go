@@ -1,4 +1,7 @@
-package redisx
+// brian taylor vann
+// toolbox-go
+
+package pgsqlx
 
 import (
 	"testing"

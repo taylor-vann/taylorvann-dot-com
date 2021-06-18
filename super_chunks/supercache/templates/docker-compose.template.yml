@@ -1,0 +1,27 @@
+# brian taylor vann
+#
+
+version: "3"
+services:
+  webapi:
+    container_name: ${service_name}_${http_port}
+    build:
+      context: ./webapi/
+      dockerfile: dockerfile
+    restart: always
+    ports:
+      - "${http_port}:80"
+    volumes:
+      - ./config/:/usr/local/config/
+      - ./webapi/:/root/go/src/webapi/
+    command: "go run /root/go/src/webapi/main.go"
+  cache:
+    depends_on:
+      - ${service_name}_${http_port}
+    container_name: supercache_cache_${redis_port}
+    build:
+      context: ./cache/
+      dockerfile: dockerfile
+    restart: always
+    volumes:
+      - ./cache/data/:/data

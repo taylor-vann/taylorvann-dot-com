@@ -1,0 +1,11 @@
+FROM alpine:latest
+
+VOLUME [ "/root/go/src/webapi/", "/usr/local/config/" ]
+
+RUN apk --update add --no-cache git go
+
+RUN go get github.com/gomodule/redigo/redis/
+
+WORKDIR /root/go/src/webapi/
+
+EXPOSE 80
