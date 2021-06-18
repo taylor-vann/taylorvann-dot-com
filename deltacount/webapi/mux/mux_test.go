@@ -93,14 +93,14 @@ func TestCreateRedirectToHttpsMux(t *testing.T) {
 	}
 }
 
-func TestCreateProxyMux(t *testing.T) {
+func TestCreateMux(t *testing.T) {
 	exampleDetails, errExampleDetails := details.ReadDetailsFromFile(exampleDetailsPath)
 	if errExampleDetails != nil {
 		t.Fail()
 		t.Logf(errExampleDetails.Error())
 	}
 
-	proxyMux, errProxyMux := CreateProxyMux(&exampleDetails.Routes)
+	proxyMux, errProxyMux := CreateMux(&exampleDetails.Routes)
 	if errProxyMux != nil {
 		t.Fail()
 		t.Logf(errProxyMux.Error())
