@@ -1,9 +1,0 @@
-{
-  "service": "authentication",
-  "build": "multi_purpose_single_server",
-  "version": {
-    "major": 0,
-    "minor": 3,
-    "build": 1
-  }
-}

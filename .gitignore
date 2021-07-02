@@ -1,45 +1,11 @@
-## General gitignores
-*DS_STORE
-.DS_Store
-._.DS_Store
+*.pem
+*.json
+*.conf
+*.rdb
 
-## Environment Variables
-#    never upload, but keep examples
-**.env
-!*.example.env
-**.json
-!**.example.json
-!**.init.json
+dockerfile
+docker-compose.yml
 
-## Certs and Keys
-#   Do not save keys, ever
-**.crt
-**.key
-**.pem
-
-## Clients
-#    ignore all node modules
-**/node_modules/
-**/build/
-
-bundled.js
-bundled.tests.js
-
-## Redis
-#    ignore all redis data
-**dump.rdb
-
-## Postgres
-#     ignore all databases.
-**/postgres_data/
-
-# ignore node
-**/yarn-error.log
-**/yarn.lock
-**/package-lock.json
-
-# super chunks
-super_chunks/supercache/cache
-super_chunks/supercache/docker-compose.yml
-super_chunks/supergateway/webapi/dockerfile
-super_chunks/supergateway/docker-compose.yml
+**/cache
+**/conf
+**/data

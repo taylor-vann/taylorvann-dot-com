@@ -1,5 +1,0 @@
-### InfraClientX
-
-A collection of modules to fetch and verify sessions for microservices.
-
-This moves downstream to the Weblog toolbox as [InfraClientX](https://webapi/utils/infraclientx).
